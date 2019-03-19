@@ -1,0 +1,52 @@
+<idea-plugin>
+    <id>leetcode-plugin</id>
+    <name>leetcode pulgin</name>
+    <version>1.0</version>
+    <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
+
+    <description><![CDATA[
+        <ul>
+            <li>支持leetcode.com和leetcode-cn.com,可测试与提交问题</li>
+            <li>更多的插件使用截图： <a href="https://github.com/shuzijun/idea-leetcode-plugin">插件使用介绍</a></li>
+       </ul>
+    ]]></description>
+
+    <change-notes><![CDATA[
+         <ul>
+            <li>v1.0<br>
+                1.支持leetcode.com和leetcode-cn.com<br>
+                2.支持获取题目与编辑<br>
+                3.支持测试<br>
+                4.支持提交<br>
+            </li>
+
+        </ul>
+    ]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="143.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products -->
+    <depends>com.intellij.modules.lang</depends>
+      
+    <application-components>
+            <!-- Add your application components here -->
+          
+    </application-components>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="leetcode" secondary="true" icon="/image/LeetCodeIcon.png" anchor="right"
+                    factoryClass="com.shuzijun.leetcode.plugin.window.WindowFactory"/>
+        <applicationService serviceInterface="com.shuzijun.leetcode.plugin.setting.PersistentConfig"
+                            serviceImplementation="com.shuzijun.leetcode.plugin.setting.PersistentConfig"/>
+        <applicationConfigurable groupId="tools" displayName="leetcode plugin" id="leetcode.id"
+                                 instance="com.shuzijun.leetcode.plugin.setting.SettingConfigurable"/>
+    </extensions>
+
+    <actions>
+    </actions>
+
+</idea-plugin>
