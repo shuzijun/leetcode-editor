@@ -9,6 +9,11 @@
             <li>支持leetcode.com和leetcode-cn.com,可测试与提交问题</li>
             <li>更多的插件使用截图： <a href="https://github.com/shuzijun/idea-leetcode-plugin">插件使用介绍</a></li>
        </ul>
+
+          <ul>
+            <li>Support for leetcode.com and leetcode-cn.com, can test and submit questions</li>
+            <li>More tutorial please visit： <a href="https://github.com/shuzijun/idea-leetcode-plugin">here</a></li>
+       </ul>
     ]]></description>
 
     <change-notes><![CDATA[
@@ -18,6 +23,13 @@
                 2.支持获取题目与编辑<br>
                 3.支持测试<br>
                 4.支持提交<br>
+            </li>
+
+            <li>v1.0<br>
+                1.Support leetcode.com and leetcode-cn.com<br>
+                2.pull and edit <br>
+                3.test<br>
+                4.submit<br>
             </li>
 
         </ul>

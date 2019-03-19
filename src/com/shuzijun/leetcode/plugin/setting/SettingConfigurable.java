@@ -35,6 +35,12 @@ public class SettingConfigurable implements SearchableConfigurable {
 
     @Nullable
     @Override
+    public Runnable enableSearch(String option) {
+        return null;
+    }
+
+    @Nullable
+    @Override
     public JComponent createComponent() {
         mainPanel = new SettingUI();
         mainPanel.createUI();
