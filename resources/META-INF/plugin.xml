@@ -1,6 +1,6 @@
 <idea-plugin>
-    <id>leetcode-plugin</id>
-    <name>leetcode pulgin</name>
+    <id>leetcode-editor</id>
+    <name>leetcode editor</name>
     <version>1.0</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
