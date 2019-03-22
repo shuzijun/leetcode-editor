@@ -7,9 +7,11 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
+import com.shuzijun.leetcode.plugin.utils.FileUtils;
 import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -59,14 +61,14 @@ public class TestMenuRunnable implements Runnable {
             MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "提交测试的代码不存在");
             return;
         } else {
-            String code = "";
-            Long filelength = file.length();
-            byte[] filecontent = new byte[filelength.intValue()];
+
+
             try {
-                FileInputStream in = new FileInputStream(file);
-                in.read(filecontent);
-                in.close();
-                code = new String(filecontent, "UTF-8");
+                String code = FileUtils.getClearCommentFileBody(file, codeTypeEnum);
+                if (StringUtils.isBlank(code)) {
+                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "提交测试的代码为空(不包含注释)");
+                    return;
+                }
 
                 HttpPost questionCodePost = new HttpPost(URLUtils.getLeetcodeGraphql());
                 StringEntity entityCode = new StringEntity("{\"operationName\":\"questionData\",\"variables\":{\"titleSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query questionData($titleSlug: String!) {\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    questionFrontendId\\n    boundTopicId\\n    title\\n    titleSlug\\n    content\\n    translatedTitle\\n    translatedContent\\n    isPaidOnly\\n    difficulty\\n    likes\\n    dislikes\\n    isLiked\\n    similarQuestions\\n    contributors {\\n      username\\n      profileUrl\\n      avatarUrl\\n      __typename\\n    }\\n    langToValidPlayground\\n    topicTags {\\n      name\\n      slug\\n      translatedName\\n      __typename\\n    }\\n    companyTagStats\\n    codeSnippets {\\n      lang\\n      langSlug\\n      code\\n      __typename\\n    }\\n    stats\\n    hints\\n    solution {\\n      id\\n      canSeeDetail\\n      __typename\\n    }\\n    status\\n    sampleTestCase\\n    metaData\\n    judgerAvailable\\n    judgeType\\n    mysqlSchemas\\n    enableRunCode\\n    enableTestMode\\n    envInfo\\n    __typename\\n  }\\n}\\n\"}");

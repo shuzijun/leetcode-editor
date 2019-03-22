@@ -17,6 +17,7 @@ public class URLUtils {
     private static String leetcodePoints = "/points/api/";
     private static String leetcodeProblems = "/problems/";
     private static String leetcodeSubmissions = "/submissions/detail/";
+    private static String leetcodeTags = "/problems/api/tags/";
 
     public static String getLeetcodeHost() {
         String host = PersistentConfig.getInstance().getInitConfig().getUrl();
@@ -58,19 +59,31 @@ public class URLUtils {
         return getLeetcodeUrl() + leetcodeSubmissions;
     }
 
-    public static String getDescContent(){
+    public static String getLeetcodeTags() {
+        return getLeetcodeUrl() + leetcodeTags;
+    }
+
+    public static String getDescContent() {
         if ("leetcode.com".equals(getLeetcodeHost())) {
             return "content";
-        }else{
+        } else {
             return "translatedContent";
         }
     }
 
-    public static boolean getQuestionTranslation(){
+    public static boolean getQuestionTranslation() {
         if ("leetcode.com".equals(getLeetcodeHost())) {
             return Boolean.FALSE;
-        }else{
+        } else {
             return Boolean.TRUE;
+        }
+    }
+
+    public static String getTagName() {
+        if ("leetcode.com".equals(getLeetcodeHost())) {
+            return "name";
+        } else {
+            return "translatedName";
         }
     }
 

@@ -12,10 +12,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import com.shuzijun.leetcode.plugin.utils.CommentUtils;
-import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
-import com.shuzijun.leetcode.plugin.utils.MessageUtils;
-import com.shuzijun.leetcode.plugin.utils.URLUtils;
+import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -78,7 +75,7 @@ public class OpenMenuRunnable implements Runnable {
                     StringBuffer sb = new StringBuffer();
                     JSONObject jsonObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("question");
 
-                    sb.append(CommentUtils.createComment(jsonObject.getString(URLUtils.getDescContent()),codeTypeEnum));
+                    sb.append(CommentUtils.createComment(jsonObject.getString(URLUtils.getDescContent()), codeTypeEnum));
 
                     question.setTestCase(jsonObject.getString("sampleTestCase"));
 
@@ -92,10 +89,7 @@ public class OpenMenuRunnable implements Runnable {
                         }
                     }
 
-                    file.createNewFile();
-                    FileOutputStream fileOutputStream = new FileOutputStream(file, Boolean.FALSE);
-                    fileOutputStream.write(sb.toString().getBytes("UTF-8"));
-                    fileOutputStream.close();
+                    FileUtils.saveFile(file, sb.toString());
 
                     VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
                     OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);

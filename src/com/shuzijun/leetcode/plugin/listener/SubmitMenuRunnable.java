@@ -7,6 +7,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
+import com.shuzijun.leetcode.plugin.utils.FileUtils;
 import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -58,29 +59,16 @@ public class SubmitMenuRunnable implements Runnable {
         String filePath = PersistentConfig.getInstance().getTempFilePath() + question.getTitle() + codeTypeEnum.getSuffix();
         File file = new File(filePath);
         if (!file.exists()) {
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "提交测试的代码不存在");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "提交的代码不存在");
             return;
         } else {
-            StringBuffer code = new StringBuffer();
+
             try {
-                InputStreamReader inputReader = new InputStreamReader(new FileInputStream(file));
-                BufferedReader bf = new BufferedReader(inputReader);
-                Boolean isCode = Boolean.FALSE;
-                String str;
-                while ((str = bf.readLine()) != null) {
-                    if (!isCode) {
-                        if (StringUtils.isNotBlank(str) && !str.startsWith(codeTypeEnum.getComment())) {
-                            isCode = Boolean.TRUE;
-                            code.append(str).append("\n");
-                        } else {
-                            continue;
-                        }
-                    } else {
-                        code.append(str).append("\n");
-                    }
+                String code = FileUtils.getClearCommentFileBody(file, codeTypeEnum);
+                if(StringUtils.isBlank(code)){
+                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "提交的代码为空(不包含注释)");
+                    return;
                 }
-                bf.close();
-                inputReader.close();
 
                 HttpPost questionCodePost = new HttpPost(URLUtils.getLeetcodeGraphql());
                 StringEntity entityCode = new StringEntity("{\"operationName\":\"questionData\",\"variables\":{\"titleSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query questionData($titleSlug: String!) {\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    questionFrontendId\\n    boundTopicId\\n    title\\n    titleSlug\\n    content\\n    translatedTitle\\n    translatedContent\\n    isPaidOnly\\n    difficulty\\n    likes\\n    dislikes\\n    isLiked\\n    similarQuestions\\n    contributors {\\n      username\\n      profileUrl\\n      avatarUrl\\n      __typename\\n    }\\n    langToValidPlayground\\n    topicTags {\\n      name\\n      slug\\n      translatedName\\n      __typename\\n    }\\n    companyTagStats\\n    codeSnippets {\\n      lang\\n      langSlug\\n      code\\n      __typename\\n    }\\n    stats\\n    hints\\n    solution {\\n      id\\n      canSeeDetail\\n      __typename\\n    }\\n    status\\n    sampleTestCase\\n    metaData\\n    judgerAvailable\\n    judgeType\\n    mysqlSchemas\\n    enableRunCode\\n    enableTestMode\\n    envInfo\\n    __typename\\n  }\\n}\\n\"}");
@@ -106,7 +94,7 @@ public class SubmitMenuRunnable implements Runnable {
                 JSONObject arg = new JSONObject();
                 arg.put("question_id", question.getQuestionId());
                 arg.put("lang", question.getLangSlug());
-                arg.put("typed_code", code.toString());
+                arg.put("typed_code", code);
                 StringEntity entity = new StringEntity(arg.toJSONString());
                 post.setEntity(entity);
                 post.setHeader("Accept", "application/json");

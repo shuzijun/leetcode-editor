@@ -82,4 +82,12 @@ public class Config {
     public void setUrl(String url) {
         this.url = url;
     }
+
+    public String getAlias() {
+        if ("leetcode.com".equals(getUrl())) {
+            return "en-";
+        }else {
+            return "cn-";
+        }
+    }
 }
