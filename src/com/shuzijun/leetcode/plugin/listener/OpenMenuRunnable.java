@@ -12,6 +12,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
+import com.shuzijun.leetcode.plugin.utils.CommentUtils;
 import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -77,7 +78,8 @@ public class OpenMenuRunnable implements Runnable {
                     StringBuffer sb = new StringBuffer();
                     JSONObject jsonObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("question");
 
-                    sb.append(codeTypeEnum.getAnnotation()).append(jsonObject.getString(URLUtils.getDescContent()).replaceAll("\\n", "\n" + codeTypeEnum.getAnnotation()));
+                    sb.append(CommentUtils.createComment(jsonObject.getString(URLUtils.getDescContent()),codeTypeEnum));
+
                     question.setTestCase(jsonObject.getString("sampleTestCase"));
 
                     JSONArray jsonArray = jsonObject.getJSONArray("codeSnippets");

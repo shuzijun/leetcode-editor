@@ -10,6 +10,7 @@ import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -18,9 +19,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -62,14 +61,26 @@ public class SubmitMenuRunnable implements Runnable {
             MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "提交测试的代码不存在");
             return;
         } else {
-            String code = "";
-            Long filelength = file.length();
-            byte[] filecontent = new byte[filelength.intValue()];
+            StringBuffer code = new StringBuffer();
             try {
-                FileInputStream in = new FileInputStream(file);
-                in.read(filecontent);
-                in.close();
-                code = new String(filecontent, "UTF-8");
+                InputStreamReader inputReader = new InputStreamReader(new FileInputStream(file));
+                BufferedReader bf = new BufferedReader(inputReader);
+                Boolean isCode = Boolean.FALSE;
+                String str;
+                while ((str = bf.readLine()) != null) {
+                    if (!isCode) {
+                        if (StringUtils.isNotBlank(str) && !str.startsWith(codeTypeEnum.getComment())) {
+                            isCode = Boolean.TRUE;
+                            code.append(str).append("\n");
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        code.append(str).append("\n");
+                    }
+                }
+                bf.close();
+                inputReader.close();
 
                 HttpPost questionCodePost = new HttpPost(URLUtils.getLeetcodeGraphql());
                 StringEntity entityCode = new StringEntity("{\"operationName\":\"questionData\",\"variables\":{\"titleSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query questionData($titleSlug: String!) {\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    questionFrontendId\\n    boundTopicId\\n    title\\n    titleSlug\\n    content\\n    translatedTitle\\n    translatedContent\\n    isPaidOnly\\n    difficulty\\n    likes\\n    dislikes\\n    isLiked\\n    similarQuestions\\n    contributors {\\n      username\\n      profileUrl\\n      avatarUrl\\n      __typename\\n    }\\n    langToValidPlayground\\n    topicTags {\\n      name\\n      slug\\n      translatedName\\n      __typename\\n    }\\n    companyTagStats\\n    codeSnippets {\\n      lang\\n      langSlug\\n      code\\n      __typename\\n    }\\n    stats\\n    hints\\n    solution {\\n      id\\n      canSeeDetail\\n      __typename\\n    }\\n    status\\n    sampleTestCase\\n    metaData\\n    judgerAvailable\\n    judgeType\\n    mysqlSchemas\\n    enableRunCode\\n    enableTestMode\\n    envInfo\\n    __typename\\n  }\\n}\\n\"}");
@@ -95,7 +106,7 @@ public class SubmitMenuRunnable implements Runnable {
                 JSONObject arg = new JSONObject();
                 arg.put("question_id", question.getQuestionId());
                 arg.put("lang", question.getLangSlug());
-                arg.put("typed_code", code);
+                arg.put("typed_code", code.toString());
                 StringEntity entity = new StringEntity(arg.toJSONString());
                 post.setEntity(entity);
                 post.setHeader("Accept", "application/json");

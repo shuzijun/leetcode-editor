@@ -22,7 +22,7 @@ public class MessageUtils {
         builder.setFillColor(JBColor.background());
         Balloon b = builder.createBalloon();
         Rectangle r = component.getBounds();
-        RelativePoint p = new RelativePoint(component, new Point(r.x + r.width, r.y + r.height-30));
+        RelativePoint p = new RelativePoint(component, new Point(r.x + r.width, r.y + 30));
         b.show(p, Balloon.Position.atRight);
     }
 }

@@ -8,17 +8,30 @@ import java.util.Map;
  */
 public enum CodeTypeEnum {
     JAVA("Java", ".java", "//"),
-    PYTHON("Python", ".py", "#"),;
+    PYTHON("Python", ".py", "#"),
+    CPP("C++", ".cpp", "//"),
+    PYTHON3("Python3", ".py", "#"),
+    C("C", ".c", "//"),
+    CSHARP("C#", ".cs", "//"),
+    JAVASCRIPT("JavaScript", ".js", "//"),
+    RUBY("Ruby", ".rb", "#"),
+    SWIFT("Swift", ".swift", "///"),
+    GO("Go", ".go", "//"),
+    SCALA("Scala", ".scala", "//"),
+    KOTLIN("Kotlin", ".kt", "//"),
+    RUST("Rust", ".rs", "//"),
+    PHP("PHP", ".php", "//"),
+    ;
 
 
     private String type;
     private String suffix;
-    private String annotation;
+    private String comment;
 
-    CodeTypeEnum(String type, String suffix, String annotation) {
+    CodeTypeEnum(String type, String suffix, String comment) {
         this.type = type;
         this.suffix = suffix;
-        this.annotation = annotation;
+        this.comment = comment;
     }
 
     private static Map<String, CodeTypeEnum> MAP = new HashMap<String, CodeTypeEnum>();
@@ -41,7 +54,7 @@ public enum CodeTypeEnum {
         return MAP.get(type);
     }
 
-    public String getAnnotation() {
-        return annotation;
+    public String getComment() {
+        return comment;
     }
 }
