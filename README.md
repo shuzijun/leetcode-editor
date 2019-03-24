@@ -14,7 +14,7 @@
 ### 窗口
 <p align="center">
   <img src="https://github.com/shuzijun/idea-leetcode-plugin/blob/master/doc/window1.png" alt="window"/>
-  <img src="https://github.com/shuzijun/idea-leetcode-plugin/blob/master/doc/window.png" alt="window"/>
+  <img src="https://github.com/shuzijun/idea-leetcode-plugin/blob/master/doc/window2.png" alt="window"/>
 </p>
  - 上方四个按钮为：登陆 退出 刷新 清理 <br>
     - - 登录:两个网站的登录帐号不互通，切换网站需配置对应的用户<br>
