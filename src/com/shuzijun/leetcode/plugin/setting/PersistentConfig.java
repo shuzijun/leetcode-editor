@@ -50,7 +50,7 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
     }
 
     public String getTempFilePath() {
-        return initConfig.get(INITNAME).getFilePath() + File.separator + PATH + File.separator + initConfig.get(INITNAME).getAlias();
+        return initConfig.get(INITNAME).getFilePath() + File.separator + PATH + File.separator + initConfig.get(INITNAME).getAlias()+ File.separator;
     }
 
 }

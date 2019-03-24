@@ -44,7 +44,7 @@ public class TreeMouse extends MouseAdapter {
                 if (question.isLeaf()) {
 
                     JBList<MenuItem> list = new JBList<>();
-                    MenuItem open = new MenuItem("open", new OpenMenuRunnable(question, toolWindow, project));
+                    MenuItem open = new MenuItem("open", new OpenMenuRunnable(node, toolWindow, project));
                     MenuItem submit = new MenuItem("submit", new SubmitMenuRunnable(question, toolWindow));
                     MenuItem test = new MenuItem("test", new TestMenuRunnable(question, toolWindow));
                     MenuItem clear = new MenuItem("clear", new ClearMenuRunnable(question, toolWindow));

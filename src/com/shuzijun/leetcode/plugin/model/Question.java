@@ -17,9 +17,15 @@ public class Question {
     private boolean leaf = Boolean.FALSE;
     private String testCase;
     private String langSlug;
+    private String nodeType = Constant.NODETYPE_DEF;
 
     public Question(String title) {
         this.title = title;
+    }
+
+    public Question(String title, String nodeType) {
+        this.title = title;
+        this.nodeType = nodeType;
     }
 
     public String getTitle() {
@@ -106,6 +112,14 @@ public class Question {
         this.langSlug = langSlug;
     }
 
+    public String getNodeType() {
+        return nodeType;
+    }
+
+    public void setNodeType(String nodeType) {
+        this.nodeType = nodeType;
+    }
+
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
@@ -115,11 +129,13 @@ public class Question {
             sb.append("❓");
         } else if ("ac".equals(status)) {
             sb.append("✔");
-        } else if(leaf){
+        } else if ("lock".equals(status)) {
+            sb.append(" $ ");
+        } else if (leaf && level != null) {
             sb.append("   ");
         }
 
-        if (StringUtils.isNotBlank(questionId)) {
+        if (StringUtils.isNotBlank(questionId) && leaf) {
             sb.append("[").append(questionId).append("]");
         }
         return sb.append(title).toString();

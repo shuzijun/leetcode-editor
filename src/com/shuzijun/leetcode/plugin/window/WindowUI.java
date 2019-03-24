@@ -2,6 +2,7 @@ package com.shuzijun.leetcode.plugin.window;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import com.shuzijun.leetcode.plugin.listener.*;
@@ -12,6 +13,8 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
+import java.awt.*;
+
 
 /**
  * @author shuzijun
@@ -36,17 +39,20 @@ public class WindowUI {
         rootJPanel.setLayout(new BoxLayout(rootJPanel, BoxLayout.Y_AXIS));
 
 
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode(new Question("根节点"));
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode(new Question("root"));
         JTree tree = new Tree(new DefaultTreeModel(root));
         tree.setOpaque(false);
         tree.setCellRenderer(new CustomTreeCellRenderer());
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setRootVisible(false);
         tree.addMouseListener(new TreeMouse(tree, toolWindow, project));
+        tree.addTreeWillExpandListener(new TreeeWillListener(tree,toolWindow));
         contentScrollPanel = new JBScrollPane(tree, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         contentScrollPanel.setName("contentScrollPanel");
 
         rootJPanel.add(createHeaderPanel(toolWindow)); // Header
+        rootJPanel.add(createQueryPanel(toolWindow)); // query
+        rootJPanel.add(Box.createVerticalStrut(5));
         rootJPanel.add(contentScrollPanel); // Content scroll
 
 
@@ -93,6 +99,22 @@ public class WindowUI {
         return headerPanel;
     }
 
+    private JPanel createQueryPanel(ToolWindow toolWindow) {
+        final JPanel queryPanel = new JPanel();
+        queryPanel.setLayout(new BoxLayout(queryPanel, BoxLayout.X_AXIS));
+        queryPanel.setMinimumSize(new Dimension(160, 35));
+
+        JTextField queryField = new JTextField(8);
+        queryField.setMaximumSize(new Dimension(180, 30));
+        queryField.setToolTipText("Enter Query");
+        queryField.addKeyListener(new QueryKeyListener(queryField, contentScrollPanel, toolWindow));
+        queryPanel.add(queryField);
+
+/*        JLabel jLabel = new JBLabel(new ImageIcon(getClass().getResource("/image/search16.png")));
+        jLabel.setToolTipText("Enter Query");
+        queryPanel.add(jLabel);*/
+        return queryPanel;
+    }
 
     public JPanel getContent() {
         return rootJPanel;

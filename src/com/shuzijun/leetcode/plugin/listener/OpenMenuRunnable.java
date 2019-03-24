@@ -9,10 +9,13 @@ import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
+import com.shuzijun.leetcode.plugin.manager.ExploreManager;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
+import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -20,6 +23,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.io.File;
 import java.io.FileOutputStream;
 
@@ -30,14 +34,14 @@ public class OpenMenuRunnable implements Runnable {
 
     private final static Logger logger = LoggerFactory.getLogger(OpenMenuRunnable.class);
 
-    private Question question;
+    private DefaultMutableTreeNode node;
 
     private ToolWindow toolWindow;
 
     private Project project;
 
-    public OpenMenuRunnable(Question question, ToolWindow toolWindow, Project project) {
-        this.question = question;
+    public OpenMenuRunnable(DefaultMutableTreeNode node, ToolWindow toolWindow, Project project) {
+        this.node = node;
         this.toolWindow = toolWindow;
         this.project = project;
     }
@@ -45,11 +49,23 @@ public class OpenMenuRunnable implements Runnable {
     @Override
     public void run() {
 
+        Question question = (Question)node.getUserObject();
+
         String codeType = PersistentConfig.getInstance().getInitConfig().getCodeType();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
         if (codeTypeEnum == null) {
             MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "请先配置代码类型");
             return;
+        }
+        if (Constant.NODETYPE_ITEM.equals(question.getNodeType())) {
+            ExploreManager.getItem(question);
+            if(StringUtils.isBlank(question.getTitleSlug())){
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "无法加载题目,探索题目部分有顺序限制");
+                return;
+            }else{
+                question.setNodeType(Constant.NODETYPE_DEF);
+                node.setUserObject(question);
+            }
         }
 
         String filePath = PersistentConfig.getInstance().getTempFilePath() + question.getTitle() + codeTypeEnum.getSuffix();

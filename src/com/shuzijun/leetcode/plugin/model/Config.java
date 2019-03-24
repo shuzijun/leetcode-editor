@@ -85,9 +85,9 @@ public class Config {
 
     public String getAlias() {
         if ("leetcode.com".equals(getUrl())) {
-            return "en-";
+            return "en";
         }else {
-            return "cn-";
+            return "cn";
         }
     }
 }
