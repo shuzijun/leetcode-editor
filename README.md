@@ -3,7 +3,7 @@
 
 ### 配置
 <p align="center">
-  <img src="https://github.com/shuzijun/idea-leetcode-plugin/blob/master/doc/setting.png" alt="settings"/>
+  <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/setting.png" alt="settings"/>
 </p>
  - 配置路径: settings->tools->leetcode plugin <br>
   - URL可选项： leetcode.com与leetcode-cn.com <br>
@@ -13,8 +13,8 @@
 
 ### 窗口
 <p align="center">
-  <img src="https://github.com/shuzijun/idea-leetcode-plugin/blob/master/doc/window1.png" alt="window"/>
-  <img src="https://github.com/shuzijun/idea-leetcode-plugin/blob/master/doc/window2.png" alt="window"/>
+  <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/window1.png" alt="window"/>
+  <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/window2.png" alt="window"/>
 </p>
  - 上方四个按钮为：登陆 退出 刷新 清理 <br>
     - - 登录:两个网站的登录帐号不互通，切换网站需配置对应的用户<br>
@@ -28,6 +28,6 @@
  
 ### 菜单
 <p align="center">
-  <img src="https://github.com/shuzijun/idea-leetcode-plugin/blob/master/doc/menu.png" alt="menu"/>
+  <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/menu.png" alt="menu"/>
 </p>
  - 在对应的题目上右键,可打开文件，提交答案与测试，默认答案存放在本地缓存下，如需重新获取，可clear后重新打开 <br>
