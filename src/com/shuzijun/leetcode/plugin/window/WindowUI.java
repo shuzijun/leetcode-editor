@@ -2,7 +2,6 @@ package com.shuzijun.leetcode.plugin.window;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import com.shuzijun.leetcode.plugin.listener.*;
@@ -65,11 +64,15 @@ public class WindowUI {
 
         JButton loginButton = new JButton();
         loginButton.setIcon(new ImageIcon(getClass().getResource("/image/login16.png")));
+        loginButton.setPreferredSize(new Dimension(40,30) );
+        loginButton.setMaximumSize(new Dimension(40,30) );
         loginButton.setToolTipText("login");
         loginButton.addActionListener(new LoginListener(toolWindow, contentScrollPanel));
 
         JButton outButton = new JButton();
         outButton.setIcon(new ImageIcon(getClass().getResource("/image/out16.png")));
+        outButton.setPreferredSize(new Dimension(40,30) );
+        outButton.setMaximumSize(new Dimension(40,30) );
         outButton.setToolTipText("loginOut");
         outButton.addActionListener(new LoginOutListener(toolWindow));
 
@@ -81,12 +84,16 @@ public class WindowUI {
 
         JButton loadButton = new JButton();
         loadButton.setIcon(new ImageIcon(getClass().getResource("/image/load16.png")));
+        loadButton.setPreferredSize(new Dimension(40,30) );
+        loadButton.setMaximumSize(new Dimension(40,30) );
         loadButton.setToolTipText("load question");
         loadButton.addActionListener(new LoadListener(toolWindow, contentScrollPanel));
 
 
         JButton clearButton = new JButton();
         clearButton.setIcon(new ImageIcon(getClass().getResource("/image/delete16.png")));
+        clearButton.setPreferredSize(new Dimension(40,30) );
+        clearButton.setMaximumSize(new Dimension(40,30) );
         clearButton.setToolTipText("缓存");
         clearButton.addActionListener(new ClearListener(toolWindow));
 
@@ -105,7 +112,7 @@ public class WindowUI {
         queryPanel.setMinimumSize(new Dimension(160, 35));
 
         JTextField queryField = new JTextField(8);
-        queryField.setMaximumSize(new Dimension(180, 30));
+        queryField.setMaximumSize(new Dimension(170, 30));
         queryField.setToolTipText("Enter Query");
         queryField.addKeyListener(new QueryKeyListener(queryField, contentScrollPanel, toolWindow));
         queryPanel.add(queryField);

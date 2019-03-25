@@ -36,13 +36,12 @@ public class TreeMouse extends MouseAdapter {
     @Override
     public void mouseClicked(MouseEvent e) {
 
-        if (e.getButton() == 3) { //鼠标右键
-            TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
-            if (selPath != null) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath.getLastPathComponent();
-                Question question = (Question) node.getUserObject();
-                if (question.isLeaf()) {
-
+        TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
+        if (selPath != null) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath.getLastPathComponent();
+            Question question = (Question) node.getUserObject();
+            if (question.isLeaf()) {
+                if (e.getButton() == 3) { //鼠标右键
                     JBList<MenuItem> list = new JBList<>();
                     MenuItem open = new MenuItem("open", new OpenMenuRunnable(node, toolWindow, project));
                     MenuItem submit = new MenuItem("submit", new SubmitMenuRunnable(question, toolWindow));
@@ -62,10 +61,13 @@ public class TreeMouse extends MouseAdapter {
                     popup.setSize(new Dimension(150, dimension.height));
                     // 显示
                     popup.show(new RelativePoint(e));
-
+                } else if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+                    new OpenMenuRunnable(node, toolWindow, project).run();
                 }
+
             }
         }
+
 
     }
 
