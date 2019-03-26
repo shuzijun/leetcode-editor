@@ -2,6 +2,10 @@
 
 ## 使用方式  
 
+<p align="center">
+  <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/leetcode-editor.gif" alt="demo"/>
+</p>  
+
 ### 安装  
 - 通过插件库安装 https://plugins.jetbrains.com/plugin/12132-leetcode-editor  
 - 下载文件安装 https://github.com/shuzijun/leetcode-editor/blob/master/doc/leetcode-editor.zip  
