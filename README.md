@@ -8,7 +8,7 @@
 
 ### 配置  
 
-   ![settings](https://github.com/shuzijun/leetcode-editor/blob/master/doc/setting.png "settings")  
+>>>>![settings](https://github.com/shuzijun/leetcode-editor/blob/master/doc/setting.png "settings")  
  
 - 配置路径: `File` -> `settings`->`tools`->`leetcode plugin`  
   - URL可选项： leetcode.com与leetcode-cn.com  
@@ -18,7 +18,7 @@
   
 ### 窗口(主窗口右下角![icon](https://github.com/shuzijun/leetcode-editor/blob/master/resources/image/LeetCodeIcon.png))  
   
-   ![settings](https://github.com/shuzijun/leetcode-editor/blob/master/doc/window1.png)![settings](https://github.com/shuzijun/leetcode-editor/blob/master/doc/window2.png)  
+>>>>![settings](https://github.com/shuzijun/leetcode-editor/blob/master/doc/window1.png)![settings](https://github.com/shuzijun/leetcode-editor/blob/master/doc/window2.png)  
   
 - 上方四个按钮为：登陆 退出 刷新 清理  
   - 登录:两个网站的登录帐号不互通，切换网站需配置对应的用户  
@@ -31,6 +31,6 @@
   - 题目前√与？代表当前题目解答状态,探索下有 $ 开头的为付费或者其他情况下无法查看的  
  
 ### 菜单  
-  ![menu](https://github.com/shuzijun/leetcode-editor/blob/master/doc/menu.png "menu")  
+>>>>![menu](https://github.com/shuzijun/leetcode-editor/blob/master/doc/menu.png "menu")  
   
   - 在对应的题目上右键,可打开文件，提交答案与测试，默认答案存放在本地缓存下，如需重新获取，可clear后重新打开  
