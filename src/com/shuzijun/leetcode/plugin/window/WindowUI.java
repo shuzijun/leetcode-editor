@@ -66,14 +66,14 @@ public class WindowUI {
         loginButton.setIcon(new ImageIcon(getClass().getResource("/image/login16.png")));
         loginButton.setPreferredSize(new Dimension(40,30) );
         loginButton.setMaximumSize(new Dimension(40,30) );
-        loginButton.setToolTipText("login");
+        loginButton.setToolTipText("Sign in");
         loginButton.addActionListener(new LoginListener(toolWindow, contentScrollPanel));
 
         JButton outButton = new JButton();
         outButton.setIcon(new ImageIcon(getClass().getResource("/image/out16.png")));
         outButton.setPreferredSize(new Dimension(40,30) );
         outButton.setMaximumSize(new Dimension(40,30) );
-        outButton.setToolTipText("loginOut");
+        outButton.setToolTipText("Sign out");
         outButton.addActionListener(new LoginOutListener(toolWindow));
 
 
@@ -86,7 +86,7 @@ public class WindowUI {
         loadButton.setIcon(new ImageIcon(getClass().getResource("/image/load16.png")));
         loadButton.setPreferredSize(new Dimension(40,30) );
         loadButton.setMaximumSize(new Dimension(40,30) );
-        loadButton.setToolTipText("load question");
+        loadButton.setToolTipText("Load question");
         loadButton.addActionListener(new LoadListener(toolWindow, contentScrollPanel));
 
 
@@ -94,7 +94,7 @@ public class WindowUI {
         clearButton.setIcon(new ImageIcon(getClass().getResource("/image/delete16.png")));
         clearButton.setPreferredSize(new Dimension(40,30) );
         clearButton.setMaximumSize(new Dimension(40,30) );
-        clearButton.setToolTipText("clear cache");
+        clearButton.setToolTipText("Clear Cache");
         clearButton.addActionListener(new ClearListener(toolWindow));
 
         headerPanel.add(loginButton);
@@ -113,7 +113,7 @@ public class WindowUI {
 
         JTextField queryField = new JTextField(8);
         queryField.setMaximumSize(new Dimension(170, 30));
-        queryField.setToolTipText("Enter Query");
+        queryField.setToolTipText("Enter Search");
         queryField.addKeyListener(new QueryKeyListener(queryField, contentScrollPanel, toolWindow));
         queryPanel.add(queryField);
 
