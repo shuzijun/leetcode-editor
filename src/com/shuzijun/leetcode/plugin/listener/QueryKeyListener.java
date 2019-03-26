@@ -53,7 +53,7 @@ public class QueryKeyListener implements KeyListener {
             DefaultTreeModel treeMode = (DefaultTreeModel) tree.getModel();
             DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeMode.getRoot();
             if (root.isLeaf() || root.getChildAt(0).isLeaf()) {
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "提示", "not question");
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", "not question");
                 return;
             }
 
@@ -86,7 +86,7 @@ public class QueryKeyListener implements KeyListener {
                     return;
                 }
             }
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "提示", "not find next");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", "not find next");
             return;
         }
     }

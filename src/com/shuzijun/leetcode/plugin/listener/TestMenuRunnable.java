@@ -7,10 +7,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import com.shuzijun.leetcode.plugin.utils.FileUtils;
-import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
-import com.shuzijun.leetcode.plugin.utils.MessageUtils;
-import com.shuzijun.leetcode.plugin.utils.URLUtils;
+import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -21,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,17 +44,17 @@ public class TestMenuRunnable implements Runnable {
         String codeType = PersistentConfig.getInstance().getInitConfig().getCodeType();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
         if (codeTypeEnum == null) {
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "请先配置代码类型");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("config.code"));
             return;
         }
         if (!HttpClientUtils.isLogin()) {
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "请先登陆");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("login.not"));
             return;
         }
         String filePath = PersistentConfig.getInstance().getTempFilePath() + question.getTitle() + codeTypeEnum.getSuffix();
         File file = new File(filePath);
         if (!file.exists()) {
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "提交测试的代码不存在");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("request.code"));
             return;
         } else {
 
@@ -66,7 +62,7 @@ public class TestMenuRunnable implements Runnable {
             try {
                 String code = FileUtils.getClearCommentFileBody(file, codeTypeEnum);
                 if (StringUtils.isBlank(code)) {
-                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "提交测试的代码为空(不包含注释)");
+                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("request.empty"));
                     return;
                 }
 
@@ -108,16 +104,16 @@ public class TestMenuRunnable implements Runnable {
                     String body = EntityUtils.toString(response.getEntity(), "UTF-8");
                     JSONObject returnObj = JSONObject.parseObject(body);
                     cachedThreadPool.execute(new CheckTask(returnObj));
-                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "提示", "已提交,请稍等");
+                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("request.pending"));
                 } else {
                     logger.error("提交测试失败" + EntityUtils.toString(response.getEntity(), "UTF-8"));
-                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "提交测试失败");
+                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "error", PropertiesUtils.getInfo("request.failed"));
                 }
                 post.abort();
                 return;
             } catch (IOException i) {
-                logger.error("读取代码错误");
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "读取代码错误");
+                logger.error("读取代码错误", i);
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "error", PropertiesUtils.getInfo("response.code"));
                 return;
             }
         }
@@ -147,15 +143,12 @@ public class TestMenuRunnable implements Runnable {
                                 returnObj.put("expected_code_answer", jsonObject.getJSONArray("code_answer"));
                             } else {
                                 if (jsonObject.getBoolean("run_success")) {
-                                    StringBuffer sb = new StringBuffer("运行成功:\n");
-                                    sb.append("测试用例:").append(returnObj.getString("test_case")).append("\n");
-                                    sb.append("测试结果:").append(jsonObject.getJSONArray("code_answer").getString(0)).append("\n");
-                                    sb.append("期望结果:").append(returnObj.getJSONArray("expected_code_answer").getString(0)).append("\n");
-
-                                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "提示", sb.toString());
-
+                                    String input = returnObj.getString("test_case");
+                                    String output = jsonObject.getJSONArray("code_answer").getString(0);
+                                    String expected = returnObj.getJSONArray("expected_code_answer").getString(0);
+                                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("test.success", input, output, expected));
                                 } else {
-                                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "运行失败:" + jsonObject.getString("compile_error"));
+                                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("submit.run.failed", jsonObject.getString("compile_error")));
                                 }
                                 return;
                             }
@@ -166,13 +159,13 @@ public class TestMenuRunnable implements Runnable {
                     Thread.sleep(300L);
                 } catch (Exception e) {
                     logger.error("提交出错", e);
-                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "获取测试结果错误");
+                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "error", PropertiesUtils.getInfo("request.failed"));
                     return;
                 }
 
             }
             logger.error("等待结果超时");
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "等待结果超时");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("response.timeout"));
         }
     }
 }

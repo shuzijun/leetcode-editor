@@ -4,6 +4,7 @@ import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.wm.ToolWindow;
 import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -27,6 +28,6 @@ public class LoginOutListener implements ActionListener {
         HttpGet httpget = new HttpGet(URLUtils.getLeetcodeLogout());
         CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
         httpget.abort();
-        MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "提示", "退出成功");
+        MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("login.out"));
     }
 }

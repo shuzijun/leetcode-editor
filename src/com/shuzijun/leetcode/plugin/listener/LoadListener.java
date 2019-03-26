@@ -13,9 +13,8 @@ import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Tag;
-
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
-
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +23,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import java.util.*;
+import java.util.List;
 
 /**
  * @author shuzijun
@@ -48,10 +46,10 @@ public class LoadListener implements ActionListener {
 
         List<Question> questionList = QuestionManager.getQuestionService();
         if (questionList == null || questionList.isEmpty()) {
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "请求题目出错,将加载本地缓存");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("response.cache"));
             questionList = QuestionManager.getQuestionCache();
             if (questionList == null || questionList.isEmpty()) {
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "加载题目失败");
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "error", PropertiesUtils.getInfo("response.question"));
                 return;
             }
         }
@@ -65,7 +63,7 @@ public class LoadListener implements ActionListener {
         DefaultMutableTreeNode difficulty = new DefaultMutableTreeNode(new Question("Difficulty"));
         DefaultMutableTreeNode tags = new DefaultMutableTreeNode(new Question("Tags"));
         DefaultMutableTreeNode explore = new DefaultMutableTreeNode(new Question("Explore", Constant.NODETYPE_EXPLORE));
-        explore.add(new DefaultMutableTreeNode(new Question(Constant.NODETYPE_LOAD,Constant.NODETYPE_LOAD)));
+        explore.add(new DefaultMutableTreeNode(new Question(Constant.NODETYPE_LOAD, Constant.NODETYPE_LOAD)));
         root.add(node);
         root.add(difficulty);
         root.add(tags);

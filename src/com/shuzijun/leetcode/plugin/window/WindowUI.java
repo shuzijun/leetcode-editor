@@ -94,7 +94,7 @@ public class WindowUI {
         clearButton.setIcon(new ImageIcon(getClass().getResource("/image/delete16.png")));
         clearButton.setPreferredSize(new Dimension(40,30) );
         clearButton.setMaximumSize(new Dimension(40,30) );
-        clearButton.setToolTipText("缓存");
+        clearButton.setToolTipText("clear cache");
         clearButton.addActionListener(new ClearListener(toolWindow));
 
         headerPanel.add(loginButton);

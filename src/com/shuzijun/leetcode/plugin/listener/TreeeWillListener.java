@@ -6,8 +6,8 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.shuzijun.leetcode.plugin.manager.ExploreManager;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.utils.*;
-
+import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -16,7 +16,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author shuzijun
@@ -42,13 +41,13 @@ public class TreeeWillListener implements TreeWillExpandListener {
         if (!isOneOpen(node)) {
             return;
         } else if ("lock".equals(question.getStatus())) {
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "no permissions");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "提示", "no permissions");
             throw new ExpandVetoException(event);
         }
         if (Constant.NODETYPE_EXPLORE.equals(question.getNodeType())) {
             List<Question> category = ExploreManager.getCategory();
             if (category.isEmpty()) {
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "加载category失败");
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", PropertiesUtils.getInfo("response.type.failed", "category"));
                 throw new ExpandVetoException(event);
             }
             node.removeAllChildren();
@@ -61,7 +60,7 @@ public class TreeeWillListener implements TreeWillExpandListener {
         if (Constant.NODETYPE_CATEGORY.equals(question.getNodeType())) {
             List<Question> cartList = ExploreManager.getCards(question);
             if (cartList.isEmpty()) {
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "加载cards失败");
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", PropertiesUtils.getInfo("response.type.failed", "cards"));
                 throw new ExpandVetoException(event);
             }
             node.removeAllChildren();
@@ -71,7 +70,7 @@ public class TreeeWillListener implements TreeWillExpandListener {
         } else if (Constant.NODETYPE_CARD.equals(question.getNodeType())) {
             List<Question> chapters = ExploreManager.getChapters(question);
             if (chapters.isEmpty()) {
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "加载chapter失败");
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", PropertiesUtils.getInfo("response.type.failed", "chapter"));
                 throw new ExpandVetoException(event);
             }
             node.removeAllChildren();
@@ -83,7 +82,7 @@ public class TreeeWillListener implements TreeWillExpandListener {
         } else if (Constant.NODETYPE_CHAPTER.equals(question.getNodeType())) {
             List<Question> chapters = ExploreManager.getChapterItem(question);
             if (chapters.isEmpty()) {
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "加载Question失败");
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", PropertiesUtils.getInfo("response.type.failed", "Question"));
                 throw new ExpandVetoException(event);
             }
             node.removeAllChildren();

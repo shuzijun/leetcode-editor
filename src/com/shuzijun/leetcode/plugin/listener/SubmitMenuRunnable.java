@@ -7,10 +7,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import com.shuzijun.leetcode.plugin.utils.FileUtils;
-import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
-import com.shuzijun.leetcode.plugin.utils.MessageUtils;
-import com.shuzijun.leetcode.plugin.utils.URLUtils;
+import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -20,7 +17,8 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,24 +47,24 @@ public class SubmitMenuRunnable implements Runnable {
         String codeType = PersistentConfig.getInstance().getInitConfig().getCodeType();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
         if (codeTypeEnum == null) {
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "请先配置代码类型");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("config.code"));
             return;
         }
         if (!HttpClientUtils.isLogin()) {
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "请先登陆");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("login.not"));
             return;
         }
         String filePath = PersistentConfig.getInstance().getTempFilePath() + question.getTitle() + codeTypeEnum.getSuffix();
         File file = new File(filePath);
         if (!file.exists()) {
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "提交的代码不存在");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("request.code"));
             return;
         } else {
 
             try {
                 String code = FileUtils.getClearCommentFileBody(file, codeTypeEnum);
-                if(StringUtils.isBlank(code)){
-                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "提交的代码为空(不包含注释)");
+                if (StringUtils.isBlank(code)) {
+                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("request.empty"));
                     return;
                 }
 
@@ -103,17 +101,17 @@ public class SubmitMenuRunnable implements Runnable {
                 if (response != null && response.getStatusLine().getStatusCode() == 200) {
                     String body = EntityUtils.toString(response.getEntity(), "UTF-8");
                     JSONObject returnObj = JSONObject.parseObject(body);
-                    cachedThreadPool.execute(new CheckTask(returnObj));
-                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "提示", "已提交,请稍等");
+                    cachedThreadPool.execute(new CheckTask(returnObj, codeTypeEnum));
+                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("request.pending"));
                 } else {
                     logger.error("提交失败" + EntityUtils.toString(response.getEntity(), "UTF-8"));
-                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "提交失败");
+                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "error", PropertiesUtils.getInfo("request.failed"));
                 }
                 post.abort();
                 return;
             } catch (IOException i) {
-                logger.error("读取代码错误");
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "读取代码错误");
+                logger.error("读取代码错误", i);
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "error", PropertiesUtils.getInfo("response.code"));
                 return;
             }
         }
@@ -122,9 +120,11 @@ public class SubmitMenuRunnable implements Runnable {
 
     private class CheckTask implements Runnable {
         private JSONObject returnObj;
+        private CodeTypeEnum codeTypeEnum;
 
-        public CheckTask(JSONObject returnObj) {
+        public CheckTask(JSONObject returnObj, CodeTypeEnum codeTypeEnum) {
             this.returnObj = returnObj;
+            this.codeTypeEnum = codeTypeEnum;
         }
 
         @Override
@@ -140,19 +140,22 @@ public class SubmitMenuRunnable implements Runnable {
                         if ("SUCCESS".equals(jsonObject.getString("state"))) {
                             if (jsonObject.getBoolean("run_success")) {
                                 if (Integer.valueOf(10).equals(jsonObject.getInteger("status_code"))) {
-                                    StringBuffer sb = new StringBuffer("解答成功:\n");
-                                    sb.append("执行耗时:").append(jsonObject.getString("status_runtime")).append(",击败了").append(jsonObject.getBigDecimal("runtime_percentile").setScale(2, BigDecimal.ROUND_HALF_UP)).append("% 的用户").append("\n");
-                                    sb.append("内存消耗:").append(jsonObject.getString("status_memory")).append(",击败了").append(jsonObject.getBigDecimal("memory_percentile").setScale(2, BigDecimal.ROUND_HALF_UP)).append("% 的用户").append("\n");
-                                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "提示", sb.toString());
+                                    String runtime = jsonObject.getString("status_runtime");
+                                    String runtimePercentile = jsonObject.getBigDecimal("runtime_percentile").setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+                                    String memory = jsonObject.getString("status_memory");
+                                    String memoryPercentile = jsonObject.getBigDecimal("memory_percentile").setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+
+                                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("submit.success", runtime, runtimePercentile, codeTypeEnum.getType(), memory, memoryPercentile, codeTypeEnum.getType()));
                                 } else {
-                                    StringBuffer sb = new StringBuffer("解答失败:\n");
-                                    sb.append("测试用例:").append(jsonObject.getString("input")).append("\n");
-                                    sb.append("测试结果:").append(jsonObject.getString("code_output")).append("\n");
-                                    sb.append("期望结果:").append(jsonObject.getString("expected_output")).append("\n");
-                                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", sb.toString());
+
+                                    String input = jsonObject.getString("input");
+                                    String output = jsonObject.getString("code_output");
+                                    String expected = jsonObject.getString("expected_output");
+
+                                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("submit.failed", input, output, expected));
                                 }
                             } else {
-                                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "运行失败:" + jsonObject.getString("compile_error"));
+                                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("submit.run.failed", jsonObject.getString("compile_error")));
                             }
                             return;
                         }
@@ -162,13 +165,13 @@ public class SubmitMenuRunnable implements Runnable {
                     Thread.sleep(300L);
                 } catch (Exception e) {
                     logger.error("提交出错", e);
-                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "获取测试结果错误");
+                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "error", PropertiesUtils.getInfo("request.failed"));
                     return;
                 }
 
             }
             logger.error("等待结果超时");
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "等待结果超时");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("response.timeout"));
         }
     }
 }

@@ -6,6 +6,7 @@ import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 
 import java.io.File;
 
@@ -28,7 +29,7 @@ public class ClearMenuRunnable implements Runnable {
         String codeType = PersistentConfig.getInstance().getInitConfig().getCodeType();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
         if (codeTypeEnum == null) {
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "请先配置代码类型");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("config.code"));
             return;
         }
 
@@ -38,6 +39,6 @@ public class ClearMenuRunnable implements Runnable {
         if (file.exists()) {
             file.delete();
         }
-        MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "提示", "清理成功");
+        MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("clear.success"));
     }
 }

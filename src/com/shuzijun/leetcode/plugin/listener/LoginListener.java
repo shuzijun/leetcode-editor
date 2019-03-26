@@ -7,6 +7,7 @@ import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
@@ -45,21 +46,21 @@ public class LoginListener implements ActionListener {
             CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
             httpget.abort();
             if (response == null) {
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "请求错误");
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "error", PropertiesUtils.getInfo("request.failed"));
                 return;
             }
             if (response.getStatusLine().getStatusCode() != 200) {
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "请求错误");
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "error", PropertiesUtils.getInfo("request.failed"));
                 return;
             }
-            logger.error("主页请求成功");
+            logger.info("主页请求成功");
         } else {
             if (HttpClientUtils.isLogin()) {
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "已经登陆");
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("login.exist"));
                 return;
             }
         }
-        logger.error("进行登陆");
+        logger.info("进行登陆");
         Config config = PersistentConfig.getInstance().getInitConfig();
         HttpPost post = new HttpPost(URLUtils.getLeetcodeLogin());
         HttpEntity ent = MultipartEntityBuilder.create()
@@ -72,18 +73,18 @@ public class LoginListener implements ActionListener {
         CloseableHttpResponse loginResponse = HttpClientUtils.executePost(post);
         post.abort();
         if (loginResponse == null) {
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "请求错误");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "error", PropertiesUtils.getInfo("request.failed"));
             return;
         }
         if (loginResponse.getStatusLine().getStatusCode() == 302 || loginResponse.getStatusLine().getStatusCode() == 200) {
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "提示", "登陆成功");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("login.success"));
         } else {
             try {
-                System.out.println( EntityUtils.toString(loginResponse.getEntity(), "UTF-8"));
+                System.out.println(EntityUtils.toString(loginResponse.getEntity(), "UTF-8"));
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "提示", "登陆失败，请检查用户名密码");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("login.failed"));
             logger.error("请求登陆失败");
             return;
         }

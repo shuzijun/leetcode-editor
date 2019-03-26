@@ -4,6 +4,7 @@ import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.wm.ToolWindow;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,7 @@ public class ClearListener implements ActionListener {
 
         File file = new File(filePath);
         if (!file.exists() || !file.isDirectory()) {
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "提示", "清理成功");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("clear.success"));
             return;
         }
 
@@ -49,10 +50,10 @@ public class ClearListener implements ActionListener {
                 }
             }
 
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "提示", "清理成功");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("clear.success"));
         } catch (Exception ee) {
             logger.error("清理文件错误", ee);
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "清理失败");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "error", PropertiesUtils.getInfo("clear.failed"));
         }
 
     }

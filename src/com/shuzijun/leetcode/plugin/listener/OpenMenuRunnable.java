@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.io.File;
-import java.io.FileOutputStream;
 
 /**
  * @author shuzijun
@@ -49,20 +48,20 @@ public class OpenMenuRunnable implements Runnable {
     @Override
     public void run() {
 
-        Question question = (Question)node.getUserObject();
+        Question question = (Question) node.getUserObject();
 
         String codeType = PersistentConfig.getInstance().getInitConfig().getCodeType();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
         if (codeTypeEnum == null) {
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "请先配置代码类型");
+            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("config.code"));
             return;
         }
         if (Constant.NODETYPE_ITEM.equals(question.getNodeType())) {
             ExploreManager.getItem(question);
-            if(StringUtils.isBlank(question.getTitleSlug())){
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "无法加载题目,探索题目部分有顺序限制");
+            if (StringUtils.isBlank(question.getTitleSlug())) {
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("response.restrict"));
                 return;
-            }else{
+            } else {
                 question.setNodeType(Constant.NODETYPE_DEF);
                 node.setUserObject(question);
             }
@@ -112,12 +111,12 @@ public class OpenMenuRunnable implements Runnable {
                     FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
 
                 } else {
-                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "获取代码失败");
+                    MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "error", PropertiesUtils.getInfo("response.code"));
                 }
                 post.abort();
             } catch (Exception e) {
                 logger.error("获取代码失败", e);
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "提示", "获取代码错误");
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.ERROR, "error", PropertiesUtils.getInfo("response.code"));
                 return;
             }
 
