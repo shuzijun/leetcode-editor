@@ -1,17 +1,22 @@
-# idea-leetcode-plugin
+# leetcode-editor
 
+## 使用方式
+
+### 安装
+- 通过插件库安装 https://plugins.jetbrains.com/plugin/12132-leetcode-editor
+- 下载文件安装 https://github.com/shuzijun/leetcode-editor/blob/master/doc/leetcode-editor.zip
 
 ### 配置
 <p align="center">
   <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/setting.png" alt="settings"/>
 </p>
- - 配置路径: settings->tools->leetcode plugin <br>
+ - 配置路径: File -> settings->tools->leetcode plugin <br>
   - URL可选项： leetcode.com与leetcode-cn.com <br>
   - code type: 除部分数据库题目与shell题目外,其他类型已支持 <br>
   - longinName与password 对应URL的登陆账户 <br>
   - file path: 临时文件存放目录 <br>
 
-### 窗口
+### 窗口(右下角)
 <p align="center">
   <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/window1.png" alt="window"/>
   <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/window2.png" alt="window"/>
