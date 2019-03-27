@@ -4,10 +4,10 @@ package com.shuzijun.leetcode.plugin.manager;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.utils.*;
+import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author shuzijun
@@ -144,11 +143,18 @@ public class ExploreManager {
                 JSONArray jsonArray = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("chapter").getJSONArray("items");
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject object = jsonArray.getJSONObject(i);
+                    Question question = new Question(object.getString("title"), Constant.NODETYPE_ITEM);
+                    question.setQuestionId(object.getString("id"));
+                    question.setStatus(object.getBoolean("paidOnly") ? "lock" : null);
                     if ("1".equals(object.getString("type"))) {
-                        Question question = new Question(object.getString("title"), Constant.NODETYPE_ITEM);
-                        question.setQuestionId(object.getString("id"));
-                        question.setStatus(object.getBoolean("paidOnly") ? "lock" : null);
                         question.setLeaf(!object.getBoolean("paidOnly"));
+                        question.setLangSlug(Constant.ITEM_TYPE_QUESTION);
+                        chapterItem.add(question);
+                    }else if("3".equals(object.getString("type"))){
+                        question.setLangSlug(Constant.ITEM_TYPE_HTML);
+                        chapterItem.add(question);
+                    }else if("0".equals(object.getString("type"))){
+                        question.setLangSlug(Constant.ITEM_TYPE_ARTICLE);
                         chapterItem.add(question);
                     }
                 }
@@ -181,9 +187,14 @@ public class ExploreManager {
                 JSONObject object = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("item");
                 if (object!=null){
                     q.setStatus(object.getBoolean("paidOnly") ? "lock" : null);
-                    JSONObject question = object.getJSONObject("question");
-                    q.setQuestionId(question.getString("questionId"));
-                    q.setTitleSlug(question.getString("titleSlug"));
+                    JSONObject question = object.getJSONObject(q.getLangSlug());
+                    if(Constant.ITEM_TYPE_QUESTION.equals(q.getLangSlug())){
+                        q.setQuestionId(question.getString("questionId"));
+                        q.setTitleSlug(question.getString("titleSlug"));
+                    }else {
+                        q.setQuestionId(question.getString("id"));
+                    }
+
                 }
             }
         } catch (IOException i) {
@@ -193,4 +204,59 @@ public class ExploreManager {
         }
         return q;
     }
+
+    public static String GetHtmlArticle(Question q) {
+
+        HttpPost post = new HttpPost(URLUtils.getLeetcodeGraphql());
+        try {
+            StringEntity entity = new StringEntity("{\"operationName\":\"GetHtmlArticle\",\"variables\":{\"htmlArticleId\":\""+q.getQuestionId()+"\"},\"query\":\"query GetHtmlArticle($htmlArticleId: String!) {\\n  htmlArticle(id: $htmlArticleId) {\\n    id\\n    html\\n    originalLink\\n    __typename\\n  }\\n}\\n\"}");
+            post.setEntity(entity);
+            post.setHeader("Accept", "application/json");
+            post.setHeader("Content-type", "application/json");
+            CloseableHttpResponse response = HttpClientUtils.executePost(post);
+            if (response != null && response.getStatusLine().getStatusCode() == 200) {
+
+                String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+
+                JSONObject object = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("htmlArticle");
+                if (object!=null){
+                    return object.getString("html");
+                }
+            }
+        } catch (IOException i) {
+            logger.error("获取GetChapters错误", i);
+        } finally {
+            post.abort();
+        }
+        return null;
+    }
+
+
+    public static String GetArticle(Question q) {
+
+        HttpPost post = new HttpPost(URLUtils.getLeetcodeGraphql());
+        try {
+            StringEntity entity = new StringEntity("{\"operationName\":\"GetArticle\",\"variables\":{\"articleId\":\""+q.getQuestionId()+"\"},\"query\":\"query GetArticle($articleId: String!) {\\n  article(id: $articleId) {\\n    id\\n    title\\n    body\\n    __typename\\n  }\\n}\\n\"}");
+            post.setEntity(entity);
+            post.setHeader("Accept", "application/json");
+            post.setHeader("Content-type", "application/json");
+            CloseableHttpResponse response = HttpClientUtils.executePost(post);
+            if (response != null && response.getStatusLine().getStatusCode() == 200) {
+
+                String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+
+                JSONObject object = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("article");
+                if (object!=null){
+                    return object.getString("body");
+                }
+            }
+        } catch (IOException i) {
+            logger.error("获取GetChapters错误", i);
+        } finally {
+            post.abort();
+        }
+        return null;
+    }
+
+
 }

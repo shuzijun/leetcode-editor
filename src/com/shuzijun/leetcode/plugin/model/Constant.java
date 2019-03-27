@@ -14,4 +14,8 @@ public class Constant {
     public static String NODETYPE_CHAPTER="chapter";
     public static String NODETYPE_ITEM="item";
 
+    public static String ITEM_TYPE_QUESTION="question";
+    public static String ITEM_TYPE_HTML="htmlArticle";
+    public static String ITEM_TYPE_ARTICLE="article";
+
 }

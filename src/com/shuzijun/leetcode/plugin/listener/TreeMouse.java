@@ -8,6 +8,7 @@ import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBList;
 import com.shuzijun.leetcode.plugin.model.MenuItem;
 import com.shuzijun.leetcode.plugin.model.Question;
+import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -40,6 +41,9 @@ public class TreeMouse extends MouseAdapter {
         if (selPath != null) {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath.getLastPathComponent();
             Question question = (Question) node.getUserObject();
+            if ("lock".equals(question.getStatus())) {
+                return;
+            }
             if (question.isLeaf()) {
                 if (e.getButton() == 3) { //鼠标右键
                     JBList<MenuItem> list = new JBList<>();
@@ -65,6 +69,10 @@ public class TreeMouse extends MouseAdapter {
                     new OpenMenuRunnable(node, toolWindow, project).run();
                 }
 
+            } else if (StringUtils.isNotBlank(question.getLangSlug())) {
+                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+                    new HtmlListener(node, toolWindow, project).run();
+                }
             }
         }
 
