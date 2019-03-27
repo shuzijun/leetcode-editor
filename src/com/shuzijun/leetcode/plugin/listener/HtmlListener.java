@@ -11,6 +11,7 @@ import com.shuzijun.leetcode.plugin.manager.ExploreManager;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
+import com.shuzijun.leetcode.plugin.utils.FileUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import org.apache.commons.lang.StringUtils;
@@ -46,8 +47,8 @@ public class HtmlListener  implements Runnable {
 
         if (Constant.NODETYPE_ITEM.equals(question.getNodeType())) {
             ExploreManager.getItem(question);
-            if (StringUtils.isBlank(question.getTitleSlug())) {
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("response.restrict"));
+            if (Constant.NODETYPE_ITEM.equals(question.getNodeType())) {
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("request.failed"));
                 return;
             } else {
                 question.setNodeType(Constant.NODETYPE_DEF);
@@ -63,7 +64,21 @@ public class HtmlListener  implements Runnable {
             OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
             FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
         } else {
+            String body = null;
+            if(Constant.ITEM_TYPE_HTML.equals(question.getLangSlug())){
+                body = ExploreManager.GetHtmlArticle(question);
+            }else if(Constant.ITEM_TYPE_ARTICLE.equals(question.getLangSlug())){
+                body = ExploreManager.GetArticle(question);
+            }
+            if(StringUtils.isBlank(body)){
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", PropertiesUtils.getInfo("request.failed"));
+                return;
+            }
 
+            FileUtils.saveFile(file, body);
+            VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+            OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
+            FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
         }
     }
 }

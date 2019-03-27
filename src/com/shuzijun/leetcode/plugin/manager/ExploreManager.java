@@ -192,6 +192,7 @@ public class ExploreManager {
                         q.setQuestionId(question.getString("questionId"));
                         q.setTitleSlug(question.getString("titleSlug"));
                     }else {
+                        q.setNodeType(Constant.NODETYPE_DEF);
                         q.setQuestionId(question.getString("id"));
                     }
 
