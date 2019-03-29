@@ -1,9 +1,13 @@
 package com.shuzijun.leetcode.plugin.window;
 
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.treeStructure.Tree;
+import com.intellij.ui.treeStructure.SimpleTree;
 import com.shuzijun.leetcode.plugin.listener.*;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.renderer.CustomTreeCellRenderer;
@@ -23,7 +27,7 @@ public class WindowUI {
     private Project project;
     private ToolWindow toolWindow;
 
-    private JPanel rootJPanel;
+    private SimpleToolWindowPanel rootJPanel;
     private JBScrollPane contentScrollPanel;
 
     public WindowUI(ToolWindow toolWindow, Project project) {
@@ -34,25 +38,35 @@ public class WindowUI {
 
     public void initUI(ToolWindow toolWindow) {
         // create UI
-        rootJPanel = new JPanel();
-        rootJPanel.setLayout(new BoxLayout(rootJPanel, BoxLayout.Y_AXIS));
+        rootJPanel = new SimpleToolWindowPanel(Boolean.TRUE, Boolean.TRUE);
+        //rootJPanel.setLayout(new BoxLayout(rootJPanel, BoxLayout.Y_AXIS));
 
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(new Question("root"));
-        JTree tree = new Tree(new DefaultTreeModel(root));
+        JTree tree = new SimpleTree(new DefaultTreeModel(root));
         tree.setOpaque(false);
         tree.setCellRenderer(new CustomTreeCellRenderer());
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        tree.setRootVisible(false);
+        tree.setRootVisible(true);
         tree.addMouseListener(new TreeMouse(tree, toolWindow, project));
-        tree.addTreeWillExpandListener(new TreeeWillListener(tree,toolWindow));
+        tree.addTreeWillExpandListener(new TreeeWillListener(tree, toolWindow));
+
+        final ActionManager actionManager = ActionManager.getInstance();
+        ActionToolbar actionToolbar = actionManager.createActionToolbar("leetcode Toolbar",
+                (DefaultActionGroup)actionManager
+                        .getAction("leetcode.NavigatorActionsToolbar"),
+                true);
+
+        actionToolbar.setTargetComponent(tree);
+
         contentScrollPanel = new JBScrollPane(tree, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         contentScrollPanel.setName("contentScrollPanel");
 
-        rootJPanel.add(createHeaderPanel(toolWindow)); // Header
-        rootJPanel.add(createQueryPanel(toolWindow)); // query
-        rootJPanel.add(Box.createVerticalStrut(5));
-        rootJPanel.add(contentScrollPanel); // Content scroll
+        //rootJPanel.add(createHeaderPanel(toolWindow)); // Header
+        //rootJPanel.add(createQueryPanel(toolWindow)); // query
+        rootJPanel.setToolbar(actionToolbar.getComponent());
+        //rootJPanel.add(Box.createVerticalStrut(5));
+        rootJPanel.setContent(contentScrollPanel); // Content scroll
 
 
     }
@@ -64,15 +78,15 @@ public class WindowUI {
 
         JButton loginButton = new JButton();
         loginButton.setIcon(new ImageIcon(getClass().getResource("/image/login16.png")));
-        loginButton.setPreferredSize(new Dimension(40,30) );
-        loginButton.setMaximumSize(new Dimension(40,30) );
+        loginButton.setPreferredSize(new Dimension(40, 30));
+        loginButton.setMaximumSize(new Dimension(40, 30));
         loginButton.setToolTipText("Sign in");
         loginButton.addActionListener(new LoginListener(toolWindow, contentScrollPanel));
 
         JButton outButton = new JButton();
         outButton.setIcon(new ImageIcon(getClass().getResource("/image/out16.png")));
-        outButton.setPreferredSize(new Dimension(40,30) );
-        outButton.setMaximumSize(new Dimension(40,30) );
+        outButton.setPreferredSize(new Dimension(40, 30));
+        outButton.setMaximumSize(new Dimension(40, 30));
         outButton.setToolTipText("Sign out");
         outButton.addActionListener(new LoginOutListener(toolWindow));
 
@@ -84,16 +98,16 @@ public class WindowUI {
 
         JButton loadButton = new JButton();
         loadButton.setIcon(new ImageIcon(getClass().getResource("/image/load16.png")));
-        loadButton.setPreferredSize(new Dimension(40,30) );
-        loadButton.setMaximumSize(new Dimension(40,30) );
+        loadButton.setPreferredSize(new Dimension(40, 30));
+        loadButton.setMaximumSize(new Dimension(40, 30));
         loadButton.setToolTipText("Load question");
         loadButton.addActionListener(new LoadListener(toolWindow, contentScrollPanel));
 
 
         JButton clearButton = new JButton();
         clearButton.setIcon(new ImageIcon(getClass().getResource("/image/delete16.png")));
-        clearButton.setPreferredSize(new Dimension(40,30) );
-        clearButton.setMaximumSize(new Dimension(40,30) );
+        clearButton.setPreferredSize(new Dimension(40, 30));
+        clearButton.setMaximumSize(new Dimension(40, 30));
         clearButton.setToolTipText("Clear Cache");
         clearButton.addActionListener(new ClearListener(toolWindow));
 
@@ -130,4 +144,5 @@ public class WindowUI {
     public JBScrollPane getContentScrollPanel() {
         return contentScrollPanel;
     }
+
 }

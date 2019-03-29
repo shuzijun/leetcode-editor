@@ -6,6 +6,8 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,12 +47,23 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
         return initConfig.get(INITNAME);
     }
 
+    public Config getConfig() {
+        Config config = initConfig.get(INITNAME);
+        if (config == null) {
+            MessageUtils.showWarnMsg("warning", PropertiesUtils.getInfo("config.first"));
+            throw new RuntimeException("not configured");
+        }else {
+            return config;
+        }
+
+    }
+
     public void setInitConfig(Config config) {
         initConfig.put(INITNAME, config);
     }
 
     public String getTempFilePath() {
-        return initConfig.get(INITNAME).getFilePath() + File.separator + PATH + File.separator + initConfig.get(INITNAME).getAlias()+ File.separator;
+        return getConfig().getFilePath() + File.separator + PATH + File.separator + initConfig.get(INITNAME).getAlias() + File.separator;
     }
 
 }

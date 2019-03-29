@@ -43,7 +43,6 @@ public class HttpClientUtils {
     private final static Logger logger = LoggerFactory.getLogger(HttpClientUtils.class);
 
 
-
     private static CloseableHttpClient httpclient = null;
     private static HttpClientContext context = null;
     private static RequestConfig requestConfig = null;
@@ -148,6 +147,18 @@ public class HttpClientUtils {
 
         }
         return null;
+    }
+
+    public static void resetHttpclient() {
+        if (httpclient != null) {
+            try {
+                httpclient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                httpclient = null;
+            }
+        }
     }
 
     private static PoolingHttpClientConnectionManager getconnectionManager() {

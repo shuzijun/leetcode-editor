@@ -8,6 +8,7 @@ import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
@@ -41,8 +42,8 @@ public class SettingUI extends JDialog {
 
         JPanel webPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         webPanel.add(new JLabel("URL:"));
-        webComboBox.addItem("leetcode-cn.com");
-        webComboBox.addItem("leetcode.com");
+        webComboBox.addItem(URLUtils.leetcodecn);
+        webComboBox.addItem(URLUtils.leetcode);
         webComboBox.setSelectedIndex(0);
         webPanel.add(webComboBox);
 

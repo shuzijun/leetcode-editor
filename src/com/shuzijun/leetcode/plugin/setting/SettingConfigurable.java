@@ -13,6 +13,8 @@ import javax.swing.*;
  */
 public class SettingConfigurable implements SearchableConfigurable {
 
+    public static final String DISPLAY_NAME = "leetcode plugin";
+
     private SettingUI mainPanel;
 
     @NotNull
@@ -24,7 +26,7 @@ public class SettingConfigurable implements SearchableConfigurable {
     @Nls
     @Override
     public String getDisplayName() {
-        return "leetcode plugin";
+        return DISPLAY_NAME;
     }
 
     @Nullable

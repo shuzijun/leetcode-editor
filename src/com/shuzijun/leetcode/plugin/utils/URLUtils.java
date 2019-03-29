@@ -8,6 +8,8 @@ import org.apache.commons.lang.StringUtils;
  */
 public class URLUtils {
 
+    public static final String leetcode="leetcode.com";
+    public static final String leetcodecn="leetcode-cn.com";
 
     private static String leetcodeUrl = "https://";
     private static String leetcodeLogin = "/accounts/login/";
@@ -20,7 +22,7 @@ public class URLUtils {
     private static String leetcodeTags = "/problems/api/tags/";
 
     public static String getLeetcodeHost() {
-        String host = PersistentConfig.getInstance().getInitConfig().getUrl();
+        String host = PersistentConfig.getInstance().getConfig().getUrl();
         if (StringUtils.isBlank(host)) {
             return "leetcode.com";
         }
