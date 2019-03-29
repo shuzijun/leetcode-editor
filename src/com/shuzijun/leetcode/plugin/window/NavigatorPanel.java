@@ -1,13 +1,12 @@
 package com.shuzijun.leetcode.plugin.window;
 
 
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.DataProvider;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.ui.PopupHandler;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.shuzijun.leetcode.plugin.listener.QueryKeyListener;
@@ -16,11 +15,13 @@ import com.shuzijun.leetcode.plugin.listener.TreeeWillListener;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.renderer.CustomTreeCellRenderer;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
+import java.awt.*;
 
 /**
  * @author shuzijun
@@ -29,21 +30,73 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
 
 
     private JPanel queryPanel;
-    private JTree tree;
+    private SimpleTree tree;
 
     public NavigatorPanel(ToolWindow toolWindow, Project project) {
         super(Boolean.TRUE, Boolean.TRUE);
-
+        final ActionManager actionManager = ActionManager.getInstance();
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(new Question("root"));
-        tree = new SimpleTree(new DefaultTreeModel(root));
+        tree = new SimpleTree(new DefaultTreeModel(root)) {
+
+            private final JTextPane myPane = new JTextPane();
+
+            {
+                myPane.setOpaque(false);
+                String addIconText = "'login'";
+                String refreshIconText = "'Reimport'";
+                String message = PropertiesUtils.getInfo("config.load", addIconText, refreshIconText);
+                int addIconMarkerIndex = message.indexOf(addIconText);
+                myPane.replaceSelection(message.substring(0, addIconMarkerIndex));
+                myPane.insertIcon(AllIcons.General.Web);
+                int refreshIconMarkerIndex = message.indexOf(refreshIconText);
+                myPane.replaceSelection(message.substring(addIconMarkerIndex + addIconText.length(), refreshIconMarkerIndex));
+                myPane.insertIcon(AllIcons.Actions.Refresh);
+                myPane.replaceSelection(message.substring(refreshIconMarkerIndex + refreshIconText.length()));
+
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
+                if (!root.isLeaf()) {
+                    return;
+                }
+
+                myPane.setFont(getFont());
+                myPane.setBackground(getBackground());
+                myPane.setForeground(getForeground());
+                Rectangle bounds = getBounds();
+                myPane.setBounds(0, 0, bounds.width - 10, bounds.height);
+
+                Graphics g2 = g.create(bounds.x + 10, bounds.y + 20, bounds.width, bounds.height);
+                try {
+                    myPane.paint(g2);
+                } finally {
+                    g2.dispose();
+                }
+            }
+        };
+        tree.getEmptyText().clear();
         tree.setOpaque(false);
         tree.setCellRenderer(new CustomTreeCellRenderer());
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setRootVisible(false);
         tree.addMouseListener(new TreeMouse(tree, toolWindow, project));
+        tree.addMouseListener(new PopupHandler() {
+                                  @Override
+                                  public void invokePopup(final Component comp, final int x, final int y) {
+
+                                      final ActionGroup actionGroup = (ActionGroup)actionManager.getAction("leetcode.NavigatorActionsToolbar");
+                                      if (actionGroup != null) {
+                                          actionManager.createActionPopupMenu("11111", actionGroup).getComponent().show(comp, x, y);
+                                      }
+                                  }
+                              });
         tree.addTreeWillExpandListener(new TreeeWillListener(tree, toolWindow));
 
-        final ActionManager actionManager = ActionManager.getInstance();
+
         ActionToolbar actionToolbar = actionManager.createActionToolbar("leetcode Toolbar",
                 (DefaultActionGroup) actionManager.getAction("leetcode.NavigatorActionsToolbar"),
                 true);
