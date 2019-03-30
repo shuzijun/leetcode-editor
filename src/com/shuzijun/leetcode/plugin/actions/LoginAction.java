@@ -63,10 +63,7 @@ public class LoginAction extends AnAction {
 
             String body = EntityUtils.toString(loginResponse.getEntity(), "UTF-8");
 
-            if (URLUtils.leetcodecn.equals(config.getUrl()) && loginResponse.getStatusLine().getStatusCode() == 302) {
-                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-            } else if (URLUtils.leetcode.equals(config.getUrl())
-                    && (loginResponse.getStatusLine().getStatusCode() == 200 || loginResponse.getStatusLine().getStatusCode() == 302)
+            if ((loginResponse.getStatusLine().getStatusCode() == 200 || loginResponse.getStatusLine().getStatusCode() == 302)
                     && StringUtils.isBlank(body)) {
                 MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
             } else {

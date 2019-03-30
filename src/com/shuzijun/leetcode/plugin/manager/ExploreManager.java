@@ -150,13 +150,13 @@ public class ExploreManager {
                         question.setLeaf(!object.getBoolean("paidOnly"));
                         question.setLangSlug(Constant.ITEM_TYPE_QUESTION);
                         chapterItem.add(question);
-                    }else if("3".equals(object.getString("type"))){
+                    }/*else if("3".equals(object.getString("type"))){
                         question.setLangSlug(Constant.ITEM_TYPE_HTML);
                         chapterItem.add(question);
                     }else if("0".equals(object.getString("type"))){
                         question.setLangSlug(Constant.ITEM_TYPE_ARTICLE);
                         chapterItem.add(question);
-                    }
+                    }*/
                 }
                 if (chapterItem.isEmpty()) {
                     chapterItem.add(new Question("no question"));

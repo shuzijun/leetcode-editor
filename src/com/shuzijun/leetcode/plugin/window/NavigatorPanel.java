@@ -6,11 +6,10 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.ui.PopupHandler;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.shuzijun.leetcode.plugin.listener.QueryKeyListener;
-import com.shuzijun.leetcode.plugin.listener.TreeMouse;
+import com.shuzijun.leetcode.plugin.listener.TreeMouseListener;
 import com.shuzijun.leetcode.plugin.listener.TreeeWillListener;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.renderer.CustomTreeCellRenderer;
@@ -43,7 +42,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
             {
                 myPane.setOpaque(false);
                 String addIconText = "'login'";
-                String refreshIconText = "'Reimport'";
+                String refreshIconText = "'refresh'";
                 String message = PropertiesUtils.getInfo("config.load", addIconText, refreshIconText);
                 int addIconMarkerIndex = message.indexOf(addIconText);
                 myPane.replaceSelection(message.substring(0, addIconMarkerIndex));
@@ -83,17 +82,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
         tree.setCellRenderer(new CustomTreeCellRenderer());
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setRootVisible(false);
-        tree.addMouseListener(new TreeMouse(tree, toolWindow, project));
-        tree.addMouseListener(new PopupHandler() {
-                                  @Override
-                                  public void invokePopup(final Component comp, final int x, final int y) {
-
-                                      final ActionGroup actionGroup = (ActionGroup)actionManager.getAction("leetcode.NavigatorActionsToolbar");
-                                      if (actionGroup != null) {
-                                          actionManager.createActionPopupMenu("11111", actionGroup).getComponent().show(comp, x, y);
-                                      }
-                                  }
-                              });
+        tree.addMouseListener(new TreeMouseListener(tree,project));
         tree.addTreeWillExpandListener(new TreeeWillListener(tree, toolWindow));
 
 
@@ -105,11 +94,32 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
         setToolbar(actionToolbar.getComponent());
 
         SimpleToolWindowPanel treePanel = new SimpleToolWindowPanel(Boolean.TRUE, Boolean.TRUE);
+
+        JPanel groupPanel = new JPanel();
+        groupPanel.setLayout(new BoxLayout(groupPanel, BoxLayout.Y_AXIS));
         JBScrollPane contentScrollPanel = new JBScrollPane(tree, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        treePanel.setContent(contentScrollPanel);
+        groupPanel.add(contentScrollPanel);
+
+       /* JTextArea Submissions=new JTextArea();
+        JBScrollPane logTextScrollPanelScrollPanel = new JBScrollPane(Submissions, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        groupPanel.add(logTextScrollPanelScrollPanel);*/
+
+      /*  JTextArea logText =new JTextArea();
+        logText.setEditable(false);
+        logTextScrollPanel = new JBScrollPane(logText, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER){
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(treePanel.HEIGHT, 50);//括号内参数，可以根据需要更改
+            }
+        };
+        logTextScrollPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        logTextScrollPanel.setVisible(false);
+        groupPanel.add(logTextScrollPanel);
+*/
+        treePanel.setContent(groupPanel);
+
         queryPanel = new JPanel();
         queryPanel.setLayout(new BoxLayout(queryPanel, BoxLayout.X_AXIS));
-
         JTextField queryField = new JTextField();
         queryField.setToolTipText("Enter Search");
         queryField.addKeyListener(new QueryKeyListener(queryField, contentScrollPanel, toolWindow));

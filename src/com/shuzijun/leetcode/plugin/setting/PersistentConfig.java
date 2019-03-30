@@ -51,7 +51,7 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
         Config config = initConfig.get(INITNAME);
         if (config == null) {
             MessageUtils.showWarnMsg("warning", PropertiesUtils.getInfo("config.first"));
-            throw new RuntimeException("not configured");
+            throw new UnsupportedOperationException("not configured:File -> settings->tools->leetcode plugin");
         }else {
             return config;
         }

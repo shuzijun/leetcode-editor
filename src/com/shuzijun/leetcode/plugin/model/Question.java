@@ -135,7 +135,7 @@ public class Question {
             sb.append("   ");
         }
 
-        if (StringUtils.isNotBlank(questionId) && leaf && StringUtils.isBlank(langSlug)) {
+        if (StringUtils.isNotBlank(questionId) && leaf) {
             sb.append("[").append(questionId).append("]");
         }
         return sb.append(title).toString();

@@ -100,6 +100,26 @@
                 text="Clear cache" description="Clear cache" icon="AllIcons.Process.StopHovered">
         </action>
 
+        <action id="leetcode.OpenAction" class="com.shuzijun.leetcode.plugin.actions.OpenAction"
+                text="open question" description="open question" icon="AllIcons.Actions.Annotate">
+        </action>
+        <action id="leetcode.SubmitAction" class="com.shuzijun.leetcode.plugin.actions.SubmitAction"
+                text="Submit" description="Submit" icon="AllIcons.Actions.StepOut">
+        </action>
+        <action id="leetcode.SubmissionsAction" class="com.shuzijun.leetcode.plugin.actions.SubmissionsAction"
+                text="Submissions" description="Submissions" icon="AllIcons.Actions.ShowHiddens">
+        </action>
+        <action id="leetcode.RunCodeAction" class="com.shuzijun.leetcode.plugin.actions.RunCodeAction"
+                text="Run Code" description="Run Code" icon="AllIcons.Actions.Execute">
+        </action>
+        <action id="leetcode.TestcaseAction" class="com.shuzijun.leetcode.plugin.actions.TestcaseAction"
+                text="Testcase" description="Test case" icon="AllIcons.Actions.Edit">
+        </action>
+        <action id="leetcode.ClearOneAction" class="com.shuzijun.leetcode.plugin.actions.ClearOneAction"
+                text="Clear cache" description="Clear cache" icon="AllIcons.Process.StopHovered">
+        </action>
+
+
         <group id="leetcode.NavigatorActionsToolbar">
             <reference id="leetcode.LoginAction"/>
             <reference id="leetcode.LogoutAction"/>
@@ -109,6 +129,19 @@
             <separator/>
             <reference id="leetcode.ConfigAction"/>
             <reference id="leetcode.ClearAllAction"/>
+
+        </group>
+
+        <group id="leetcode.NavigatorActionsMenu">
+            <reference id="leetcode.OpenAction"/>
+            <separator/>
+            <reference id="leetcode.SubmitAction"/>
+            <reference id="leetcode.SubmissionsAction"/>
+            <separator/>
+            <reference id="leetcode.RunCodeAction"/>
+            <reference id="leetcode.TestcaseAction"/>
+            <separator/>
+            <reference id="leetcode.ClearOneAction"/>
 
         </group>
     </actions>
