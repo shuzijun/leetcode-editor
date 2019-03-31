@@ -13,7 +13,9 @@ public class CollapseAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
         JTree tree = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TREE);
-        if (tree == null) return;
+        if (tree == null) {
+            return;
+        }
 
         int row = tree.getRowCount() - 1;
         while (row >= 0) {

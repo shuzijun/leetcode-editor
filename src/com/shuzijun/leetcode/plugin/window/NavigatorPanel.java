@@ -44,14 +44,18 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
                 myPane.setOpaque(false);
                 String addIconText = "'login'";
                 String refreshIconText = "'refresh'";
-                String message = PropertiesUtils.getInfo("config.load", addIconText, refreshIconText);
+                String configIconText = "'config'";
+                String message = PropertiesUtils.getInfo("config.load", addIconText, refreshIconText,configIconText);
                 int addIconMarkerIndex = message.indexOf(addIconText);
                 myPane.replaceSelection(message.substring(0, addIconMarkerIndex));
                 myPane.insertIcon(AllIcons.General.Web);
                 int refreshIconMarkerIndex = message.indexOf(refreshIconText);
                 myPane.replaceSelection(message.substring(addIconMarkerIndex + addIconText.length(), refreshIconMarkerIndex));
                 myPane.insertIcon(AllIcons.Actions.Refresh);
-                myPane.replaceSelection(message.substring(refreshIconMarkerIndex + refreshIconText.length()));
+                int configIconMarkerIndex = message.indexOf(configIconText);
+                myPane.replaceSelection(message.substring(refreshIconMarkerIndex + refreshIconText.length(), configIconMarkerIndex));
+                myPane.insertIcon(AllIcons.General.GearPlain);
+                myPane.replaceSelection(message.substring(configIconMarkerIndex + configIconText.length()));
 
             }
 
@@ -83,7 +87,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
         tree.setCellRenderer(new CustomTreeCellRenderer());
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setRootVisible(false);
-        tree.addMouseListener(new TreeMouseListener(tree,project));
+        tree.addMouseListener(new TreeMouseListener(tree, project));
         tree.addTreeWillExpandListener(new TreeeWillListener(tree, toolWindow));
 
 
@@ -101,22 +105,6 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
         JBScrollPane contentScrollPanel = new JBScrollPane(tree, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         groupPanel.add(contentScrollPanel);
 
-       /* JTextArea Submissions=new JTextArea();
-        JBScrollPane logTextScrollPanelScrollPanel = new JBScrollPane(Submissions, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        groupPanel.add(logTextScrollPanelScrollPanel);*/
-
-      /*  JTextArea logText =new JTextArea();
-        logText.setEditable(false);
-        logTextScrollPanel = new JBScrollPane(logText, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER){
-            @Override
-            public Dimension getPreferredSize() {
-                return new Dimension(treePanel.HEIGHT, 50);//括号内参数，可以根据需要更改
-            }
-        };
-        logTextScrollPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-        logTextScrollPanel.setVisible(false);
-        groupPanel.add(logTextScrollPanel);
-*/
         treePanel.setContent(groupPanel);
 
         queryPanel = new JPanel();

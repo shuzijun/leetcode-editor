@@ -19,6 +19,11 @@ import org.apache.http.util.EntityUtils;
 public class LoginAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
+
+        if (!PersistentConfig.getInstance().isConfig(anActionEvent.getProject())) {
+            return;
+        }
+
         if (StringUtils.isBlank(HttpClientUtils.getToken())) {
             HttpGet httpget = new HttpGet(URLUtils.getLeetcodeUrl());
             CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
@@ -37,7 +42,6 @@ public class LoginAction extends AnAction {
                 return;
             }
         }
-
         Config config = PersistentConfig.getInstance().getConfig();
         if (StringUtils.isBlank(config.getLoginName()) || StringUtils.isBlank(config.getLoginName())) {
             MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("config.user"));

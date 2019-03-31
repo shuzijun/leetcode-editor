@@ -16,6 +16,10 @@ public class ClearAllAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
 
+        if (!PersistentConfig.getInstance().isConfig(anActionEvent.getProject())) {
+            return;
+        }
+
         String filePath = PersistentConfig.getInstance().getTempFilePath();
 
         File file = new File(filePath);
