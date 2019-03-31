@@ -38,7 +38,7 @@ public enum CodeTypeEnum {
 
     static {
         for (CodeTypeEnum c : CodeTypeEnum.values()) {
-            MAP.put(c.getType(), c);
+            MAP.put(c.getType().toUpperCase(), c);
         }
     }
 
@@ -51,7 +51,7 @@ public enum CodeTypeEnum {
     }
 
     public static CodeTypeEnum getCodeTypeEnum(String type) {
-        return MAP.get(type);
+        return MAP.get(type.toUpperCase());
     }
 
     public String getComment() {

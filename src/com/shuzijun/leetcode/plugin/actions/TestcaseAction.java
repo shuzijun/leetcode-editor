@@ -40,6 +40,7 @@ public class TestcaseAction extends AnAction {
             CodeManager.setTestCaeAndLang(question, codeTypeEnum);
         }
         TestcasePanel dialog = new TestcasePanel(anActionEvent.getProject());
+        dialog.setTitle(question.getTitle()+" Testcase");
         dialog.setText(question.getTestCase());
         if (dialog.showAndGet()) {
             String text = dialog.testcaeText();
@@ -70,7 +71,6 @@ public class TestcaseAction extends AnAction {
             caseText.setPreferredSize(new Dimension(400, 200));
             jpanel.add(new JBScrollPane(caseText, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 
-            setTitle("Testcase");
             setModal(true);
             init();
         }

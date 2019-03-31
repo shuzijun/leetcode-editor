@@ -99,6 +99,9 @@
         <action id="leetcode.ClearAllAction" class="com.shuzijun.leetcode.plugin.actions.ClearAllAction"
                 text="Clear cache" description="Clear cache" icon="AllIcons.Process.StopHovered">
         </action>
+        <action id="leetcode.CollapseAction" class="com.shuzijun.leetcode.plugin.actions.CollapseAction"
+                text="Collapse All"  description="Collapse All" icon="AllIcons.Actions.Collapseall">
+        </action>
 
         <action id="leetcode.OpenAction" class="com.shuzijun.leetcode.plugin.actions.OpenAction"
                 text="open question" description="open question" icon="AllIcons.Actions.Annotate">
@@ -126,6 +129,7 @@
             <separator/>
             <reference id="leetcode.RefreshAction"/>
             <reference id="leetcode.FindAction"/>
+            <reference id="leetcode.CollapseAction"/>
             <separator/>
             <reference id="leetcode.ConfigAction"/>
             <reference id="leetcode.ClearAllAction"/>

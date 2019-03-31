@@ -21,6 +21,7 @@ public class URLUtils {
     private static String leetcodeSubmissions = "/submissions/detail/";
     private static String leetcodeTags = "/problems/api/tags/";
 
+
     public static String getLeetcodeHost() {
         String host = PersistentConfig.getInstance().getConfig().getUrl();
         if (StringUtils.isBlank(host)) {
