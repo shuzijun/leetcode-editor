@@ -13,7 +13,7 @@
 - **通过插件库安装** https://plugins.jetbrains.com/plugin/12132-leetcode-editor  
 - **下载文件安装** https://github.com/shuzijun/leetcode-editor/blob/master/doc/leetcode-editor.zip  
 
-### 配置  
+### 配置(第一次安装需要先配置)  
 
 <p align="center">
   <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/config-3.0.png" alt="settings"/>
