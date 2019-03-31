@@ -1,9 +1,9 @@
-# leetcode-editor  
-
+# leetcode-editor   
+  
 ##简介  
   在IDE中解决LeetCode问题,支持`leetcode.com`与`leetcode-cn.com`,满足基本的做题需求。  
   理论上支持: IntelliJ IDEA  PhpStorm  WebStorm  PyCharm  RubyMine  AppCode  CLion  GoLand  DataGrip  Rider MPS  Android Studio  
-
+  
 ## 使用方式  
 <p align="center">
   <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/leetcode-editor-3.0.gif" alt="demo"/>
@@ -34,7 +34,7 @@
   
 - **工具栏**:  
   - ![login](https://github.com/shuzijun/leetcode-editor/blob/master/doc/login.png)**`登录`**:两个网站的登录帐号不互通，切换网站需配置对应的用户  
-  - ![Logout](https://github.com/shuzijun/leetcode-editor/blob/master/doc/Logout.png)**`退出`**:退出当前账户,如遇到登录错误,尝试先进行退出  
+  - ![logout](https://github.com/shuzijun/leetcode-editor/blob/master/doc/logout.png)**`退出`**:退出当前账户,如遇到登录错误,尝试先进行退出  
   - ![refresh](https://github.com/shuzijun/leetcode-editor/blob/master/doc/refresh.png)**`刷新`**:在未登录的情况下也可查看刷新加载题目，但是无法提交  
   - ![find](https://github.com/shuzijun/leetcode-editor/blob/master/doc/find.png)**`查找`**:输入内容后回车搜索，再次回车搜索下一个，只会搜索题库节点下  
   - ![collapse](https://github.com/shuzijun/leetcode-editor/blob/master/doc/collapseAll.png)**`折叠`**:折叠全部节点.  
@@ -54,10 +54,10 @@
   <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/menu-3.0.png" alt="menu"/>  
 </p>   
 
-- **菜单(在题目上右击出现)**:   
- - **`open question`**:打开题目,在题目上双击也可以打开  
- - **`Submit`**:提交题目  
- - **`Submissions`**:查看提交记录,在弹出的窗口上选择记录查看详情(`Show detail`)  
- - **`Run Code`**:运行代码,默认使用题目的测试用例  
- - **`Testcase`**:自定义测试用例  
- - **`Clear cache`**:清理当前题目  
+- **菜单(在题目上右击出现)**:  
+  - **`open question`**:打开题目,在题目上双击也可以打开  
+  - **`Submit`**:提交题目  
+  - **`Submissions`**:查看提交记录,在弹出的窗口上选择记录查看详情(`Show detail`)  
+  - **`Run Code`**:运行代码,默认使用题目的测试用例  
+  - **`Testcase`**:自定义测试用例  
+  - **`Clear cache`**:清理当前题目  
