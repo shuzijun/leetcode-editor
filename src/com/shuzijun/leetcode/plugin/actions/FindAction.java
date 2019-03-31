@@ -15,12 +15,18 @@ public class FindAction extends ToggleAction {
     @Override
     public boolean isSelected(AnActionEvent anActionEvent) {
         JPanel panel = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TERRFIND);
+        if (panel == null) {
+            return false;
+        }
         return panel.isVisible();
     }
 
     @Override
     public void setSelected(AnActionEvent anActionEvent, boolean b) {
         JPanel panel = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TERRFIND);
+        if (panel == null) {
+            return;
+        }
         panel.setVisible(b);
     }
 

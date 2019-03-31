@@ -48,7 +48,7 @@ public class SettingUI extends JDialog {
         webPanel.add(webComboBox);
 
         JPanel codePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        codePanel.add(new JLabel("code type:"));
+        codePanel.add(new JLabel("Code Type:"));
         for (CodeTypeEnum c : CodeTypeEnum.values()) {
             codeComboBox.addItem(c.getType());
         }
@@ -61,12 +61,12 @@ public class SettingUI extends JDialog {
         JPanel loginMainPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel userNamePanel = new JPanel();
         userNamePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        userNamePanel.add(new JLabel("loginName:"));
+        userNamePanel.add(new JLabel("LoginName:"));
         userNamePanel.add(userNameField);
 
         JPanel passwordPanel = new JPanel();
         passwordPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        passwordPanel.add(new JLabel("password:"));
+        passwordPanel.add(new JLabel("Password:"));
         passwordField.setColumns(10);
         passwordPanel.add(passwordField);
 
@@ -74,7 +74,7 @@ public class SettingUI extends JDialog {
         loginMainPane.add(passwordPanel);
 
         JPanel filePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        filePanel.add(new JLabel("temp file path:"));
+        filePanel.add(new JLabel("Temp File Path:"));
         fileFolderBtn.setTextFieldPreferredWidth(45);
         fileFolderBtn.setText(System.getProperty("java.io.tmpdir"));
         fileFolderBtn.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrFolderDescriptor()) {

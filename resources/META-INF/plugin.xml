@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>2.1</version>
+    <version>3.0</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -14,10 +14,34 @@
             <li>Support for leetcode.com and leetcode-cn.com, can test and submit questions</li>
             <li>More tutorial please visit： <a href="https://github.com/shuzijun/idea-leetcode-plugin">here</a></li>
        </ul>
+
+       <p align="center">
+            <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/leetcode-editor-3.0.gif" alt="demo"/>
+       </p>
+       <p align="center">
+          <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/config-3.0.png" alt="settings"/>
+        </p>
+        <p align="center">
+          <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/window-3.0.png" alt="window"/>
+        </p>
+        <p align="center">
+          <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/menu-3.0.png" alt="menu"/>
+        </p>
     ]]></description>
 
     <change-notes><![CDATA[
          <ul>
+            <li>v3.0<br>
+                1.增加查看提交记录<br>
+                2.增加自定义测试用例<br>
+                3.更换UI<br>
+            </li>
+            <li>v3.0<br>
+                1.add show Submissions<br>
+                2.add custom test case <br>
+                3.update UI<br>
+            </li>
+
             <li>v2.1<br>
                 1.增加英语提示<br>
             </li>
