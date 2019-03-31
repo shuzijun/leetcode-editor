@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.shuzijun.leetcode.plugin.listener.QueryKeyListener;
 import com.shuzijun.leetcode.plugin.listener.TreeMouseListener;
@@ -120,7 +121,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
 
         queryPanel = new JPanel();
         queryPanel.setLayout(new BoxLayout(queryPanel, BoxLayout.X_AXIS));
-        JTextField queryField = new JTextField();
+        JTextField queryField = new JBTextField();
         queryField.setToolTipText("Enter Search");
         queryField.addKeyListener(new QueryKeyListener(queryField, contentScrollPanel, toolWindow));
         queryPanel.add(queryField);
