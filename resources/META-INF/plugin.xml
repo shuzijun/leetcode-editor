@@ -7,6 +7,7 @@
     <description><![CDATA[
         <div>
 			<h2>Introduction</h2>
+			<br>
 			<ul>
 				<li>Support for leetcode.com and leetcode-cn.com, can test and submit questions</li>
 				<li>More tutorial please visit： <a href="https://github.com/shuzijun/leetcode-editor">here</a></li>
@@ -16,18 +17,26 @@
 				<li>更多的插件使用截图： <a href="https://github.com/shuzijun/leetcode-editor">插件使用介绍</a></li>
 			</ul>
 		</div>
+		<br>
+		<br>
 		<div>
 			<h2>How to use</h2>
+			<br>
 			<p >
 				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/leetcode-editor-3.0.gif" alt="demo" />
 			</p>
 		</div>
+		<br>
+		<br>
 		<div>
 			<h2>Configuration (configuration for first installation)</h2>
-			<p >
+			<br>
+			<p>
 				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/config-3.0.png" alt="settings" />
 			</p>
+			<br>
 			<h3>Configuration path: File -> settings->tools->leetcode plugin</h3>
+			<br>
 			<ul>
 				<li>URL options: leetcode.com and leetcode-cn.com</li>
 				<li>Code Type: Java, Python, C++, Python3, C, C#, JavaScript, Ruby, Swift, Go, Scala, Kotlin, Rust, PHP</li>
@@ -36,11 +45,15 @@
 				<li>Temp File Path: Temporary file storage catalogue</li>
 			</ul>
 		</div>
+		<br>
+		<br>
 		<div>
 			<h2>Window (Icon in the lower right corner of the main window)</h2>
+			<br>
 			<p >
 				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/window-3.0.png" alt="window" />
 			</p>
+			<br>
 			<h3>Toolbar:</h3>
 			<ul>
 				<li>Login: The login accounts of the two websites are not interoperable and the corresponding users need to be
@@ -55,6 +68,7 @@
 					are different and only the current configured websites are cleaned up. Carefully clean up cases without
 					submitting.</li>
 			</ul>
+			<br>
 			<h3>Tree:</h3>
 			<ul>
 				<li>Questions: All questions</li>
@@ -67,11 +81,15 @@
 					beginning of “$” needs to pay or that cannot be viewed due to other causes.</li>
 			</ul>
 		</div>
+		<br>
+		<br>
 		<div>
 			<h2> Menu:</h2>
+			<br>
 			<p >
 				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/menu-3.0.png" alt="menu" />
 			</p>
+			<br>
 			<h3>Menu (right-click on the questions)</h3>
 			<ul>
 				<li>Open question: Open the question or double click on the question</li>
