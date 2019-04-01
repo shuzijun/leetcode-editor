@@ -1,6 +1,5 @@
 package com.shuzijun.leetcode.plugin.actions;
 
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -8,6 +7,7 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.shuzijun.leetcode.plugin.manager.CodeManager;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
+import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
@@ -18,16 +18,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 
 /**
  * @author shuzijun
  */
-public class TestcaseAction extends AnAction {
+public class TestcaseAction extends AbstractAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config) {
 
         JTree tree = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TREE);
         DefaultMutableTreeNode note = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
@@ -40,7 +39,7 @@ public class TestcaseAction extends AnAction {
             CodeManager.setTestCaeAndLang(question, codeTypeEnum);
         }
         TestcasePanel dialog = new TestcasePanel(anActionEvent.getProject());
-        dialog.setTitle(question.getTitle()+" Testcase");
+        dialog.setTitle(question.getTitle() + " Testcase");
         dialog.setText(question.getTestCase());
         if (dialog.showAndGet()) {
             String text = dialog.testcaeText();

@@ -5,6 +5,9 @@ package com.shuzijun.leetcode.plugin.model;
  */
 public class Config {
 
+
+    private String id;
+
     /**
      * 配置名称
      */
@@ -34,6 +37,14 @@ public class Config {
      * url
      */
     private String url;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -86,7 +97,7 @@ public class Config {
     public String getAlias() {
         if ("leetcode.com".equals(getUrl())) {
             return "en";
-        }else {
+        } else {
             return "cn";
         }
     }

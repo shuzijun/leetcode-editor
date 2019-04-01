@@ -4,8 +4,6 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.options.ShowSettingsUtil;
-import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
@@ -66,15 +64,5 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
 
     public String getTempFilePath() {
         return getConfig().getFilePath() + File.separator + PATH + File.separator + initConfig.get(INITNAME).getAlias() + File.separator;
-    }
-
-    public boolean isConfig(Project project) {
-        if (getInitConfig() == null) {
-            MessageUtils.showWarnMsg("warning", PropertiesUtils.getInfo("config.first"));
-            ShowSettingsUtil.getInstance().showSettingsDialog(project, SettingConfigurable.DISPLAY_NAME);
-            return false;
-        } else {
-            return true;
-        }
     }
 }

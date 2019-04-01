@@ -5,14 +5,12 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Tag;
-import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
@@ -25,13 +23,9 @@ import java.util.List;
 /**
  * @author shuzijun
  */
-public class RefreshAction extends AnAction {
+public class RefreshAction extends AbstractAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent) {
-
-        if (!PersistentConfig.getInstance().isConfig(anActionEvent.getProject())) {
-            return;
-        }
+    public void actionPerformed(AnActionEvent anActionEvent, Config config) {
 
         List<Question> questionList = QuestionManager.getQuestionService();
         if (questionList == null || questionList.isEmpty()) {

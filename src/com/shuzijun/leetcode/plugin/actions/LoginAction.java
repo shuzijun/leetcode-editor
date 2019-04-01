@@ -1,9 +1,7 @@
 package com.shuzijun.leetcode.plugin.actions;
 
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
@@ -16,13 +14,9 @@ import org.apache.http.util.EntityUtils;
 /**
  * @author shuzijun
  */
-public class LoginAction extends AnAction {
+public class LoginAction extends AbstractAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent) {
-
-        if (!PersistentConfig.getInstance().isConfig(anActionEvent.getProject())) {
-            return;
-        }
+    public void actionPerformed(AnActionEvent anActionEvent,Config config) {
 
         if (StringUtils.isBlank(HttpClientUtils.getToken())) {
             HttpGet httpget = new HttpGet(URLUtils.getLeetcodeUrl());
@@ -42,7 +36,7 @@ public class LoginAction extends AnAction {
                 return;
             }
         }
-        Config config = PersistentConfig.getInstance().getConfig();
+
         if (StringUtils.isBlank(config.getLoginName()) || StringUtils.isBlank(config.getLoginName())) {
             MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("config.user"));
             return;
@@ -83,7 +77,7 @@ public class LoginAction extends AnAction {
         }
 
 
-        new RefreshAction().actionPerformed(anActionEvent);
+        new RefreshAction().actionPerformed(anActionEvent,config);
 
     }
 }

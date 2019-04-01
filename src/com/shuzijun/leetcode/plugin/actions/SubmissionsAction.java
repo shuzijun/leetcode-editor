@@ -1,6 +1,5 @@
 package com.shuzijun.leetcode.plugin.actions;
 
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -8,6 +7,7 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.shuzijun.leetcode.plugin.manager.SubmissionManager;
+import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Submission;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
@@ -18,15 +18,16 @@ import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.text.DateFormat;
-import java.util.*;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author shuzijun
  */
-public class SubmissionsAction extends AnAction {
+public class SubmissionsAction extends AbstractAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config) {
         JTree tree = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TREE);
         DefaultMutableTreeNode note = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
         Question question = (Question) note.getUserObject();
@@ -40,7 +41,7 @@ public class SubmissionsAction extends AnAction {
         dialog.setTitle(question.getTitle() + " Submissions");
 
         if (dialog.showAndGet()) {
-            SubmissionManager.openSubmission(submissionList.get(dialog.getSelectedRow()),question,anActionEvent.getProject());
+            SubmissionManager.openSubmission(submissionList.get(dialog.getSelectedRow()), question, anActionEvent.getProject());
         }
     }
 
@@ -56,9 +57,9 @@ public class SubmissionsAction extends AnAction {
             jpanel = new JBPanel();
             table = new JBTable(tableModel);
             table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            table .getTableHeader().setReorderingAllowed(false);
+            table.getTableHeader().setReorderingAllowed(false);
             table.setRowSelectionAllowed(true);
-            table.setRowSelectionInterval(0,0);
+            table.setRowSelectionInterval(0, 0);
             table.getColumnModel().getColumn(0).setPreferredWidth(350);
             table.getColumnModel().getColumn(1).setPreferredWidth(200);
             table.getColumnModel().getColumn(2).setPreferredWidth(100);
@@ -98,7 +99,7 @@ public class SubmissionsAction extends AnAction {
 
         public TableModel(List<Submission> submissionList) {
             data = new String[submissionList.size()][columnNames.length];
-            DateFormat sdf = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,DateFormat.MEDIUM, Locale.getDefault());
+            DateFormat sdf = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault());
             for (int i = 0, j = submissionList.size(); i < j; i++) {
                 Submission s = submissionList.get(i);
                 data[i][0] = sdf.format(new Date(Long.valueOf(s.getTime() + "000")));

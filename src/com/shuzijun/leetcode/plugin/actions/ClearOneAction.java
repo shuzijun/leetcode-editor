@@ -1,8 +1,8 @@
 package com.shuzijun.leetcode.plugin.actions;
 
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
+import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
@@ -16,15 +16,15 @@ import java.io.File;
 /**
  * @author shuzijun
  */
-public class ClearOneAction extends AnAction {
+public class ClearOneAction extends AbstractAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config) {
 
         JTree tree = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TREE);
         DefaultMutableTreeNode note = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-        Question question = (Question)note.getUserObject();
+        Question question = (Question) note.getUserObject();
 
-        String codeType = PersistentConfig.getInstance().getInitConfig().getCodeType();
+        String codeType = config.getCodeType();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
         if (codeTypeEnum == null) {
             MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("config.code"));

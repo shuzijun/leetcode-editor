@@ -8,6 +8,7 @@ import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -110,7 +111,11 @@ public class SettingUI extends JDialog {
     }
 
     public void apply() {
-        Config config = new Config();
+        Config config = PersistentConfig.getInstance().getInitConfig();
+        if (config == null) {
+            config = new Config();
+            config.setId(MTAUtils.getI(""));
+        }
         config.setLoginName(userNameField.getText());
         config.setPassword(passwordField.getText());
         config.setFilePath(fileFolderBtn.getText());
