@@ -3,7 +3,6 @@ package com.shuzijun.leetcode.plugin.manager;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.JsonArray;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
@@ -82,6 +81,26 @@ public class QuestionManager {
             }
         } else {
             logger.error("获取题目分类网络错误");
+        }
+        httpget.abort();
+
+        return tags;
+    }
+
+    public static List<Tag> getLists() {
+        List<Tag> tags = new ArrayList<>();
+
+        HttpGet httpget = new HttpGet(URLUtils.getLeetcodeFavorites());
+        CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
+        if (response != null && response.getStatusLine().getStatusCode() == 200) {
+            try {
+                String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+                tags = parseList(body);
+            } catch (IOException e1) {
+                logger.error("获取列表分类错误", e1);
+            }
+        } else {
+            logger.error("获取列表分类网络错误");
         }
         httpget.abort();
 
@@ -179,6 +198,32 @@ public class QuestionManager {
                 Tag tag = new Tag();
                 tag.setSlug(object.getString("slug"));
                 String name = object.getString(URLUtils.getTagName());
+                if (StringUtils.isBlank(name)) {
+                    name = object.getString("name");
+                }
+                tag.setName(name);
+                JSONArray questionArray = object.getJSONArray("questions");
+                for (int j = 0; j < questionArray.size(); j++) {
+                    tag.addQuestion(questionArray.getInteger(j));
+                }
+                Collections.sort(tag.getQuestions());
+                tags.add(tag);
+            }
+        }
+        return tags;
+    }
+
+    private static List<Tag> parseList(String str) {
+        List<Tag> tags = new ArrayList<Tag>();
+
+        if (StringUtils.isNotBlank(str)) {
+
+            JSONArray jsonArray = JSONArray.parseArray(str);
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject object = jsonArray.getJSONObject(i);
+                Tag tag = new Tag();
+                tag.setSlug(object.getString("id"));
+                String name = object.getString("name");
                 if (StringUtils.isBlank(name)) {
                     name = object.getString("name");
                 }

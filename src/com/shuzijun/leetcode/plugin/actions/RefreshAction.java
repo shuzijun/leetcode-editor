@@ -44,11 +44,13 @@ public class RefreshAction extends AbstractAction {
         root.removeAllChildren();
         DefaultMutableTreeNode node = new DefaultMutableTreeNode(new Question("Problems"));
         DefaultMutableTreeNode difficulty = new DefaultMutableTreeNode(new Question("Difficulty"));
+        DefaultMutableTreeNode Lists = new DefaultMutableTreeNode(new Question("Lists"));
         DefaultMutableTreeNode tags = new DefaultMutableTreeNode(new Question("Tags"));
         DefaultMutableTreeNode explore = new DefaultMutableTreeNode(new Question("Explore", Constant.NODETYPE_EXPLORE));
         explore.add(new DefaultMutableTreeNode(new Question(Constant.NODETYPE_LOAD, Constant.NODETYPE_LOAD)));
         root.add(node);
         root.add(difficulty);
+        root.add(Lists);
         root.add(tags);
         root.add(explore);
 
@@ -78,16 +80,25 @@ public class RefreshAction extends AbstractAction {
             }
         }
 
-        List<Tag> tagList = QuestionManager.getTags();
-        if (!tagList.isEmpty()) {
-            ImmutableMap<Integer, Question> questionImmutableMap = Maps.uniqueIndex(questionList.iterator(), new Function<Question, Integer>() {
-                public Integer apply(Question question) {
-                    return Integer.valueOf(question.getQuestionId());
-                }
-            });
-            for (Tag tag : tagList) {
+        ImmutableMap<Integer, Question> questionImmutableMap = Maps.uniqueIndex(questionList.iterator(), new Function<Question, Integer>() {
+            public Integer apply(Question question) {
+                return Integer.valueOf(question.getQuestionId());
+            }
+        });
+
+        addChild(tags,QuestionManager.getTags(),questionImmutableMap);
+        addChild(Lists,QuestionManager.getLists(),questionImmutableMap);
+
+        tree.updateUI();
+        treeMode.reload();
+    }
+
+
+    private void addChild(DefaultMutableTreeNode rootNode,List<Tag> Lists, ImmutableMap<Integer, Question> questionImmutableMap){
+        if (!Lists.isEmpty()) {
+            for (Tag tag : Lists) {
                 DefaultMutableTreeNode tagNode = new DefaultMutableTreeNode(new Question(tag.getName()));
-                tags.add(tagNode);
+                rootNode.add(tagNode);
                 for (Integer key : tag.getQuestions()) {
                     if (questionImmutableMap.get(key) != null) {
                         tagNode.add(new DefaultMutableTreeNode(questionImmutableMap.get(key)));
@@ -97,8 +108,5 @@ public class RefreshAction extends AbstractAction {
             }
 
         }
-
-        tree.updateUI();
-        treeMode.reload();
     }
 }

@@ -20,6 +20,7 @@ public class URLUtils {
     private static String leetcodeProblems = "/problems/";
     private static String leetcodeSubmissions = "/submissions/detail/";
     private static String leetcodeTags = "/problems/api/tags/";
+    private static String leetcodeFavorites = "/problems/api/favorites/";
 
 
     public static String getLeetcodeHost() {
@@ -64,6 +65,10 @@ public class URLUtils {
 
     public static String getLeetcodeTags() {
         return getLeetcodeUrl() + leetcodeTags;
+    }
+
+    public static String getLeetcodeFavorites() {
+        return getLeetcodeUrl() + leetcodeFavorites;
     }
 
     public static String getDescContent() {
