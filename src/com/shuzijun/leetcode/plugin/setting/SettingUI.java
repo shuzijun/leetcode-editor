@@ -30,6 +30,7 @@ public class SettingUI extends JDialog {
 
     private JComboBox webComboBox = new JComboBox();
     private JComboBox codeComboBox = new JComboBox();
+    private JComboBox favoriteComboBox = new JComboBox();
 
     public SettingUI() {
         setContentPane(mainPanel);
@@ -56,8 +57,13 @@ public class SettingUI extends JDialog {
         codeComboBox.setSelectedIndex(0);
         codePanel.add(codeComboBox);
 
+        JPanel favoritePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        favoritePanel.add(new JLabel("favorite:"));
+        favoritePanel.add(favoriteComboBox);
+
         webMainPane.add(webPanel);
         webMainPane.add(codePanel);
+        webMainPane.add(favoritePanel);
 
         JPanel loginMainPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel userNamePanel = new JPanel();
@@ -101,6 +107,18 @@ public class SettingUI extends JDialog {
             if (StringUtils.isNotBlank(config.getUrl())) {
                 webComboBox.setSelectedItem(config.getUrl());
             }
+            for(String favorite:config.getFavoriteList()){
+                favoriteComboBox.addItem(favorite);
+            }
+            String favorite =config.getFavorite();
+            if(StringUtils.isNotBlank(favorite) && config.getFavoriteList().contains(favorite)){
+                favoriteComboBox.setSelectedItem(favorite);
+            }else {
+                favoriteComboBox.setSelectedIndex(0);
+            }
+        }else {
+            favoriteComboBox.addItem("Favorite");
+            favoriteComboBox.setSelectedIndex(0);
         }
 
     }

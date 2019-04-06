@@ -1,5 +1,8 @@
 package com.shuzijun.leetcode.plugin.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author shuzijun
  */
@@ -37,6 +40,10 @@ public class Config {
      * url
      */
     private String url;
+
+    private String favorite;
+
+    private List<String> favoriteList;
 
     public String getId() {
         return id;
@@ -92,6 +99,26 @@ public class Config {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(String favorite) {
+        this.favorite = favorite;
+    }
+
+    public List<String> getFavoriteList() {
+        if(favoriteList == null || favoriteList.isEmpty()){
+            favoriteList = new ArrayList<>();
+            favoriteList.add("Favorite");
+        }
+        return favoriteList;
+    }
+
+    public void setFavoriteList(List<String> favoriteList) {
+        this.favoriteList = favoriteList;
     }
 
     public String getAlias() {

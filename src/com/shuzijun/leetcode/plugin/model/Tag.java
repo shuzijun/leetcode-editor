@@ -1,7 +1,6 @@
 package com.shuzijun.leetcode.plugin.model;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -11,6 +10,7 @@ public class Tag {
 
     private String slug;
     private String name;
+    private String type;
     private List<Integer> questions = new ArrayList<Integer>();
 
     public String getSlug() {
@@ -39,5 +39,13 @@ public class Tag {
 
     public void addQuestion(Integer questionId) {
         questions.add(questionId);
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

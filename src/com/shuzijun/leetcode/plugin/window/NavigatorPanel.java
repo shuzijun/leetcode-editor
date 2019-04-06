@@ -83,6 +83,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
             }
         };
         tree.getEmptyText().clear();
+        tree.setRowHeight(21);
         tree.setOpaque(false);
         tree.setCellRenderer(new CustomTreeCellRenderer());
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);

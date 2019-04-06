@@ -223,6 +223,7 @@ public class QuestionManager {
                 JSONObject object = jsonArray.getJSONObject(i);
                 Tag tag = new Tag();
                 tag.setSlug(object.getString("id"));
+                tag.setType(object.getString("type"));
                 String name = object.getString("name");
                 if (StringUtils.isBlank(name)) {
                     name = object.getString("name");

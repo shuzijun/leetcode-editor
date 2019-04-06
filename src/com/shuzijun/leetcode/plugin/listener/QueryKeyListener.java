@@ -81,7 +81,7 @@ public class QueryKeyListener implements KeyListener {
                 DefaultMutableTreeNode temp = (DefaultMutableTreeNode) all.getChildAt(i);
                 if (temp.getUserObject().toString().contains(selectText)) {
                     tree.setSelectionPath(new TreePath(temp.getPath()));
-                    Point point = new Point(0, i < 3 ? 0 : (i - 3) * 21);
+                    Point point = new Point(0, i < 3 ? 0 : (i - 3) * tree.getRowHeight());
                     viewport.setViewPosition(point);
                     return;
                 }

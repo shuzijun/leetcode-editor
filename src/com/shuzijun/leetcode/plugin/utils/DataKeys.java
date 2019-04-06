@@ -1,17 +1,11 @@
 package com.shuzijun.leetcode.plugin.utils;
 
-import com.alibaba.fastjson.JSONObject;
 import com.intellij.openapi.actionSystem.DataKey;
-import com.intellij.ui.components.JBScrollPane;
 
 import javax.swing.*;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mafayun
- * Date: 2019-03-29
- * Time: 16:16
- * To change this template use File | Settings | File Templates.
+ * @author shuzijun
  */
 public class DataKeys {
 

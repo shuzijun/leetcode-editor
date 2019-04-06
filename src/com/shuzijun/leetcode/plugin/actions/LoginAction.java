@@ -1,7 +1,9 @@
 package com.shuzijun.leetcode.plugin.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
@@ -10,6 +12,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.util.EntityUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author shuzijun
@@ -76,6 +81,14 @@ public class LoginAction extends AbstractAction {
             post.abort();
         }
 
+        List<Tag> tags = QuestionManager.getLists();
+        List<String> favoriteList = new ArrayList<String>();
+        for(Tag tag:tags){
+            if(!"leetcode_favorites".equals(tag.getType())){
+                favoriteList.add(tag.getName());
+            }
+        }
+        config.setFavoriteList(favoriteList);
 
         new RefreshAction().actionPerformed(anActionEvent,config);
 
