@@ -204,13 +204,17 @@
                 text="Find question" description="Refreshquestion" icon="AllIcons.Actions.Find">
         </action>
         <action id="leetcode.ConfigAction" class="com.shuzijun.leetcode.plugin.actions.ConfigAction"
-                text="settings" description="settings" icon="AllIcons.General.GearPlain">
+                text="Settings" description="Settings" icon="AllIcons.General.GearPlain">
         </action>
         <action id="leetcode.ClearAllAction" class="com.shuzijun.leetcode.plugin.actions.ClearAllAction"
                 text="Clear cache" description="Clear cache" icon="AllIcons.Process.StopHovered">
         </action>
         <action id="leetcode.CollapseAction" class="com.shuzijun.leetcode.plugin.actions.CollapseAction"
                 text="Collapse All"  description="Collapse All" icon="AllIcons.Actions.Collapseall">
+        </action>
+
+        <action id="leetcode.HelpAction" class="com.shuzijun.leetcode.plugin.actions.HelpAction"
+                text="Help"  description="Help" icon="AllIcons.Actions.Help">
         </action>
 
         <action id="leetcode.OpenAction" class="com.shuzijun.leetcode.plugin.actions.OpenAction"
@@ -243,7 +247,7 @@
             <separator/>
             <reference id="leetcode.ConfigAction"/>
             <reference id="leetcode.ClearAllAction"/>
-
+            <reference id="leetcode.HelpAction"/>
         </group>
 
         <group id="leetcode.NavigatorActionsMenu">

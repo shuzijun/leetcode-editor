@@ -63,7 +63,7 @@ public class SettingUI extends JDialog {
 
         webMainPane.add(webPanel);
         webMainPane.add(codePanel);
-        webMainPane.add(favoritePanel);
+        //webMainPane.add(favoritePanel);
 
         JPanel loginMainPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel userNamePanel = new JPanel();

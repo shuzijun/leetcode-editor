@@ -1,6 +1,7 @@
 package com.shuzijun.leetcode.plugin.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.plugin.manager.CodeManager;
 import com.shuzijun.leetcode.plugin.model.Config;
@@ -22,6 +23,11 @@ public class OpenAction extends AbstractAction {
 
         Project project = anActionEvent.getProject();
 
-        CodeManager.openCode(question, project);
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                CodeManager.openCode(question, project);
+            }
+        });
     }
 }

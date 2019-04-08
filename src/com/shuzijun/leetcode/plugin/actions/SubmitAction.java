@@ -12,9 +12,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 /**
  * @author shuzijun
  */
-public class SubmitAction extends AbstractAction {
+public class SubmitAction extends AbstractAsynAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config) {
+    public void perform(AnActionEvent anActionEvent, Config config) {
         JTree tree = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TREE);
         DefaultMutableTreeNode note = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
         Question question = (Question) note.getUserObject();

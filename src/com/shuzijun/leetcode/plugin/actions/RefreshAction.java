@@ -23,9 +23,9 @@ import java.util.List;
 /**
  * @author shuzijun
  */
-public class RefreshAction extends AbstractAction {
+public class RefreshAction extends AbstractAsynAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config) {
+    public void perform(AnActionEvent anActionEvent, Config config) {
 
         List<Question> questionList = QuestionManager.getQuestionService();
         if (questionList == null || questionList.isEmpty()) {

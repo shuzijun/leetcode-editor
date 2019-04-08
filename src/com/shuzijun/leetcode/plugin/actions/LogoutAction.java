@@ -12,9 +12,9 @@ import org.apache.http.client.methods.HttpGet;
 /**
  * @author shuzijun
  */
-public class LogoutAction extends AbstractAction {
+public class LogoutAction extends AbstractAsynAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config) {
+    public void perform(AnActionEvent anActionEvent, Config config) {
 
         HttpGet httpget = new HttpGet(URLUtils.getLeetcodeLogout());
         CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
