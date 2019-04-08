@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>3.1</version>
+    <version>3.3</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -104,6 +104,13 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v3.3<br>
+                1.解决UI阻塞问题<br>
+            </li>
+            <li>v3.3<br>
+                1.Fix UI blocking<br>
+            </li>
+
             <li>v3.2<br>
                 1.修复搜索定位问题<br>
             </li>
