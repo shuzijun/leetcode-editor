@@ -1,15 +1,16 @@
 package com.shuzijun.leetcode.plugin.actions;
 
 import com.intellij.ide.BrowserUtil;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.shuzijun.leetcode.plugin.model.Config;
+
 
 /**
  * @author shuzijun
  */
-public class HelpAction extends AbstractAction {
+public class HelpAction extends AnAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config) {
+    public void actionPerformed(AnActionEvent anActionEvent) {
         BrowserUtil.browse("https://github.com/shuzijun/leetcode-editor");
     }
 

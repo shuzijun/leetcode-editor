@@ -18,6 +18,7 @@ public class Question {
     private String testCase;
     private String langSlug;
     private String nodeType = Constant.NODETYPE_DEF;
+    private String frontendQuestionId;
 
     public Question(String title) {
         this.title = title;
@@ -30,8 +31,8 @@ public class Question {
 
     public String getTitle() {
         StringBuffer sb = new StringBuffer();
-        if (StringUtils.isNotBlank(questionId)) {
-            sb.append("[").append(questionId).append("]");
+        if (StringUtils.isNotBlank(frontendQuestionId)) {
+            sb.append("[").append(frontendQuestionId).append("]");
         }
         return sb.append(title).toString();
     }
@@ -120,6 +121,14 @@ public class Question {
         this.nodeType = nodeType;
     }
 
+    public String getFrontendQuestionId() {
+        return frontendQuestionId;
+    }
+
+    public void setFrontendQuestionId(String frontendQuestionId) {
+        this.frontendQuestionId = frontendQuestionId;
+    }
+
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
@@ -135,8 +144,8 @@ public class Question {
             sb.append("   ");
         }
 
-        if (StringUtils.isNotBlank(questionId) && leaf) {
-            sb.append("[").append(questionId).append("]");
+        if (StringUtils.isNotBlank(frontendQuestionId) && leaf) {
+            sb.append("[").append(frontendQuestionId).append("]");
         }
         return sb.append(title).toString();
 

@@ -120,6 +120,7 @@ public class QuestionManager {
                 Question question = new Question(object.getJSONObject("stat").getString("question__title"));
                 question.setLeaf(Boolean.TRUE);
                 question.setQuestionId(object.getJSONObject("stat").getString("question_id"));
+                question.setFrontendQuestionId(object.getJSONObject("stat").getString("frontend_question_id"));
                 try {
                     question.setStatus(object.get("status") == null ? "" : object.getString("status"));
                 } catch (Exception ee) {
@@ -134,7 +135,7 @@ public class QuestionManager {
 
             Collections.sort(questionList, new Comparator<Question>() {
                 public int compare(Question arg0, Question arg1) {
-                    return Integer.valueOf(arg0.getQuestionId()).compareTo(Integer.valueOf(arg1.getQuestionId()));
+                    return Integer.valueOf(arg0.getFrontendQuestionId()).compareTo(Integer.valueOf(arg1.getFrontendQuestionId()));
                 }
             });
         }

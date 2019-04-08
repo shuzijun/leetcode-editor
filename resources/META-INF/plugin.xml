@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>3.3</version>
+    <version>3.4</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -104,6 +104,13 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v3.4<br>
+                1.修复题目编号与网页显示不一致<br>
+            </li>
+            <li>v3.4<br>
+                1.Fix  question number is inconsistent with web page display<br>
+            </li>
+
             <li>v3.3<br>
                 1.解决UI阻塞问题<br>
             </li>
