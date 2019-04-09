@@ -298,7 +298,7 @@ public class CodeManager {
                                     }
                                 }
                             } else {
-                                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", jsonObject.getString("compile_error")));
+                                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", jsonObject.getString("full_compile_error")));
                                 if (!"ac".equals(question.getStatus())) {
                                     question.setStatus("notac");
                                 }
@@ -349,7 +349,7 @@ public class CodeManager {
                                     String expected = returnObj.getJSONArray("expected_code_answer").getString(0);
                                     MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("test.success", input, output, expected));
                                 } else {
-                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", jsonObject.getString("compile_error")));
+                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", jsonObject.getString("full_compile_error")));
                                 }
                                 return;
                             }
