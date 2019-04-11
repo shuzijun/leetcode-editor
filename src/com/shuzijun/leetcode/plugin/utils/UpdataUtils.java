@@ -25,6 +25,7 @@ public class UpdataUtils {
                 HttpGet httpget = null;
                 try {
                     if (config != null && config.isUpdata() && isCheck) {
+                        UpdataUtils.isCheck = false;
                         String[] version = PluginManager.getPlugin(PluginId.getId("leetcode-editor")).getVersion().split("\\.");
                         httpget = new HttpGet("https://plugins.jetbrains.com/api/plugins/12132/updates");
                         CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
@@ -35,15 +36,16 @@ public class UpdataUtils {
                             if (jsonObject.getBoolean("approve")) {
                                 String[] nweVersion = jsonObject.getString("version").split("\\.");
                                 if (Integer.valueOf(version[0]) < Integer.valueOf(nweVersion[0])) {
-                                    MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("updata", jsonObject.getString("version")));
+                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("updata", jsonObject.getString("version")));
+                                    break;
                                 } else if (Integer.valueOf(version[0]).equals(Integer.valueOf(nweVersion[0]))) {
                                     if (Integer.valueOf(version[1]) < Integer.valueOf(nweVersion[1])) {
-                                        MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("updata", jsonObject.getString("version")));
+                                        MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("updata", jsonObject.getString("version")));
+                                        break;
                                     }
                                 }
                             }
                         }
-                        UpdataUtils.isCheck = false;
                     }
                 } catch (Exception e) {
 

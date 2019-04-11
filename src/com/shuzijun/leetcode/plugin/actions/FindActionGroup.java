@@ -1,5 +1,6 @@
 package com.shuzijun.leetcode.plugin.actions;
 
+import com.google.common.collect.Lists;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -7,7 +8,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Tag;
-import org.fest.util.Lists;
 
 import java.util.List;
 

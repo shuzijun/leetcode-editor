@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimaps;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
@@ -19,7 +20,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
-import org.fest.util.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

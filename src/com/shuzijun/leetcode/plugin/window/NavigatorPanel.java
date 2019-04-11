@@ -62,6 +62,9 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
 
             @Override
             protected void paintComponent(Graphics g) {
+                if(g == null){
+                    return;
+                }
                 super.paintComponent(g);
 
                 DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
