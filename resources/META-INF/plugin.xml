@@ -17,8 +17,6 @@
 				<li>更多的插件使用截图： <a href="https://github.com/shuzijun/leetcode-editor">插件使用介绍</a></li>
 			</ul>
 		</div>
-		<br>
-		<br>
 		<div>
 			<h2>How to use</h2>
 			<br>
@@ -257,12 +255,17 @@
                 text="Clear cache" description="Clear cache" icon="AllIcons.Process.StopHovered">
         </action>
 
+        <action id="leetcode.PickAction" class="com.shuzijun.leetcode.plugin.actions.PickAction"
+                text="Pick one" description="Pick one" icon="AllIcons.Diff.MagicResolve">
+        </action>
+
 
         <group id="leetcode.NavigatorActionsToolbar">
             <reference id="leetcode.LoginAction"/>
             <reference id="leetcode.LogoutAction"/>
             <separator/>
             <reference id="leetcode.RefreshAction"/>
+            <reference id="leetcode.PickAction"/>
             <reference id="leetcode.FindAction"/>
             <reference id="leetcode.CollapseAction"/>
             <separator/>
@@ -280,9 +283,30 @@
             <reference id="leetcode.RunCodeAction"/>
             <reference id="leetcode.TestcaseAction"/>
             <separator/>
+            <group id="leetcode.FavoriteGroup" class="com.shuzijun.leetcode.plugin.actions.FavoriteActionGroup"
+                   popup="true"  text="Favorite" description="Favorite" icon="AllIcons.General.OpenDiskHover">
+            </group>
             <reference id="leetcode.ClearOneAction"/>
-
         </group>
+
+        <group id="leetcode.find.Toolbar" popup="true" text="Status" description="Status">
+            <group id="leetcode.find.Difficulty" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Difficulty" description="Difficulty">
+            </group>
+            <group id="leetcode.find.Status"  class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Status" description="Status">
+            </group>
+            <group id="leetcode.find.Lists"  class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Lists" description="Lists">
+            </group>
+            <group id="leetcode.find.Tags"  class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Tags" description="Tags">
+            </group>
+            <separator/>
+            <action id="leetcode.find.Clear" class="com.shuzijun.leetcode.plugin.actions.FindClearAction"
+                    text="Clear find" description="Clear find " icon="AllIcons.Process.StopHovered">
+            </action>
+            <action id="leetcode.find.Config" class="com.shuzijun.leetcode.plugin.actions.FindConfigAction"
+                    text="∩" description="find intersection" >
+            </action>
+        </group>
+
     </actions>
 
 

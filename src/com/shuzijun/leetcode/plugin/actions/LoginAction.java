@@ -1,6 +1,7 @@
 package com.shuzijun.leetcode.plugin.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
@@ -10,6 +11,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.util.EntityUtils;
+
+import javax.swing.*;
 
 /**
  * @author shuzijun
@@ -27,6 +30,8 @@ public class LoginAction extends AbstractAsynAction {
                 return;
             }
             if (response.getStatusLine().getStatusCode() != 200) {
+                JTree tree = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TREE);
+                ViewManager.loadServiceData(tree);
                 MessageUtils.showWarnMsg("warning", PropertiesUtils.getInfo("request.failed"));
                 return;
             }
@@ -76,7 +81,8 @@ public class LoginAction extends AbstractAsynAction {
             post.abort();
         }
 
-        new RefreshAction().actionPerformed(anActionEvent,config);
+        JTree tree = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TREE);
+        ViewManager.loadServiceData(tree);
 
     }
 }

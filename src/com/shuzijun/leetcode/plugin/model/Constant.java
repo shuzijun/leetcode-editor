@@ -36,5 +36,19 @@ public class Constant {
     public static final String ITEM_TYPE_HTML = "htmlArticle";
     public static final String ITEM_TYPE_ARTICLE = "article";
 
+    /**
+     * 类别类型
+     */
+    public static final String FIND_TYPE_DIFFICULTY = "Difficulty";
+    public static final String FIND_TYPE_STATUS = "Status";
+    public static final String FIND_TYPE_LISTS = "Lists";
+    public static final String FIND_TYPE_TAGS = "Tags";
+
+    /**
+     * 状态类型
+     */
+    public static final String STATUS_TODO = "Todo";
+    public static final String STATUS_SOLVED = "Solved";
+    public static final String STATUS_ATTEMPTED = "Attempted";
 
 }

@@ -41,7 +41,10 @@ public class Config {
      */
     private String url;
 
-    private String favorite;
+    /**
+     * 检查更新
+     */
+    private boolean updata = true;
 
     private List<String> favoriteList;
 
@@ -101,12 +104,12 @@ public class Config {
         this.url = url;
     }
 
-    public String getFavorite() {
-        return favorite;
+    public boolean isUpdata() {
+        return updata;
     }
 
-    public void setFavorite(String favorite) {
-        this.favorite = favorite;
+    public void setUpdata(boolean updata) {
+        this.updata = updata;
     }
 
     public List<String> getFavoriteList() {

@@ -1,5 +1,6 @@
 package com.shuzijun.leetcode.plugin.actions;
 
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Config;
@@ -10,15 +11,16 @@ import javax.swing.*;
 /**
  * @author shuzijun
  */
-public class RefreshAction extends AbstractAsynAction {
+public class FindClearAction extends AbstractAction {
+
     @Override
-    public void perform(AnActionEvent anActionEvent, Config config) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config) {
 
         JTree tree = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TREE);
-        ViewManager.loadServiceData(tree);
-
+        if (tree == null) {
+            return;
+        }
+        ViewManager.clearFilter();
+        ViewManager.updata(tree);
     }
-
-
-
 }

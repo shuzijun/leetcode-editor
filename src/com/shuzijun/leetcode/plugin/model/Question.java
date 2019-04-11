@@ -20,6 +20,10 @@ public class Question {
     private String nodeType = Constant.NODETYPE_DEF;
     private String frontendQuestionId;
 
+    public Question(){
+
+    }
+
     public Question(String title) {
         this.title = title;
     }

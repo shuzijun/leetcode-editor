@@ -30,6 +30,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
 
 
     private JPanel queryPanel;
+    private JBScrollPane contentScrollPanel;
     private SimpleTree tree;
 
     public NavigatorPanel(ToolWindow toolWindow, Project project) {
@@ -103,17 +104,23 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
 
         JPanel groupPanel = new JPanel();
         groupPanel.setLayout(new BoxLayout(groupPanel, BoxLayout.Y_AXIS));
-        JBScrollPane contentScrollPanel = new JBScrollPane(tree, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        contentScrollPanel = new JBScrollPane(tree, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         groupPanel.add(contentScrollPanel);
 
         treePanel.setContent(groupPanel);
 
         queryPanel = new JPanel();
-        queryPanel.setLayout(new BoxLayout(queryPanel, BoxLayout.X_AXIS));
+        queryPanel.setLayout(new BoxLayout(queryPanel, BoxLayout.Y_AXIS));
         JTextField queryField = new JBTextField();
         queryField.setToolTipText("Enter Search");
         queryField.addKeyListener(new QueryKeyListener(queryField, contentScrollPanel, toolWindow));
         queryPanel.add(queryField);
+
+        ActionToolbar findToolbar = actionManager.createActionToolbar("",
+                (DefaultActionGroup) actionManager.getAction("leetcode.find.Toolbar"),
+                true);
+        queryPanel.add(findToolbar.getComponent());
+
         queryPanel.setVisible(false);
         treePanel.setToolbar(queryPanel);
         setContent(treePanel);
@@ -129,6 +136,10 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
 
         if (DataKeys.LEETCODE_PROJECTS_TERRFIND.is(dataId)) {
             return queryPanel;
+        }
+
+        if (DataKeys.LEETCODE_PROJECTS_SCROLL.is(dataId)) {
+            return contentScrollPanel;
         }
         return super.getData(dataId);
     }

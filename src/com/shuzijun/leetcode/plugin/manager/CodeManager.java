@@ -39,14 +39,9 @@ public class CodeManager {
             MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("config.code"));
             return;
         }
-        if (Constant.NODETYPE_ITEM.equals(question.getNodeType())) {
-            ExploreManager.getItem(question);
-            if (StringUtils.isBlank(question.getTitleSlug())) {
-                MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("response.restrict"));
-                return;
-            } else {
-                question.setNodeType(Constant.NODETYPE_DEF);
-            }
+
+        if (!fillQuestion(question)) {
+            return;
         }
 
         String filePath = PersistentConfig.getInstance().getTempFilePath() + question.getTitle() + codeTypeEnum.getSuffix();
@@ -114,6 +109,10 @@ public class CodeManager {
             return;
         }
 
+        if (!fillQuestion(question)) {
+            return;
+        }
+
         HttpPost post = new HttpPost(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/submit/");
         try {
             JSONObject arg = new JSONObject();
@@ -150,6 +149,10 @@ public class CodeManager {
 
         String code = getCodeText(question, codeTypeEnum);
         if (StringUtils.isBlank(code)) {
+            return;
+        }
+
+        if (!fillQuestion(question)) {
             return;
         }
 
@@ -219,6 +222,9 @@ public class CodeManager {
             MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("config.code"));
             return;
         }
+        if (!fillQuestion(question)) {
+            return;
+        }
         HttpPost questionCodePost = new HttpPost(URLUtils.getLeetcodeGraphql());
         try {
             StringEntity entityCode = new StringEntity("{\"operationName\":\"questionData\",\"variables\":{\"titleSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query questionData($titleSlug: String!) {\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    questionFrontendId\\n    boundTopicId\\n    title\\n    titleSlug\\n    content\\n    translatedTitle\\n    translatedContent\\n    isPaidOnly\\n    difficulty\\n    likes\\n    dislikes\\n    isLiked\\n    similarQuestions\\n    contributors {\\n      username\\n      profileUrl\\n      avatarUrl\\n      __typename\\n    }\\n    langToValidPlayground\\n    topicTags {\\n      name\\n      slug\\n      translatedName\\n      __typename\\n    }\\n    companyTagStats\\n    codeSnippets {\\n      lang\\n      langSlug\\n      code\\n      __typename\\n    }\\n    stats\\n    hints\\n    solution {\\n      id\\n      canSeeDetail\\n      __typename\\n    }\\n    status\\n    sampleTestCase\\n    metaData\\n    judgerAvailable\\n    judgeType\\n    mysqlSchemas\\n    enableRunCode\\n    enableTestMode\\n    envInfo\\n    __typename\\n  }\\n}\\n\"}");
@@ -252,6 +258,21 @@ public class CodeManager {
             questionCodePost.abort();
         }
 
+    }
+
+    private static boolean fillQuestion(Question question) {
+
+        if (Constant.NODETYPE_ITEM.equals(question.getNodeType())) {
+            ExploreManager.getItem(question);
+            if (StringUtils.isBlank(question.getTitleSlug())) {
+                MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("response.restrict"));
+                return false;
+            } else {
+                question.setNodeType(Constant.NODETYPE_DEF);
+                return true;
+            }
+        }
+        return true;
     }
 
     private static class SubmitCheckTask implements Runnable {

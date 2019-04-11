@@ -3,6 +3,10 @@ package com.shuzijun.leetcode.plugin.manager;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.Multimaps;
+import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
@@ -15,6 +19,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
+import org.fest.util.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,10 +66,75 @@ public class QuestionManager {
         String body = FileUtils.getFileBody(filePath);
 
         if (StringUtils.isBlank(body)) {
-            return null;
+            return Lists.newArrayList();
         } else {
             return JSON.parseArray(body, Question.class);
         }
+    }
+
+    public static List<Tag> getDifficulty() {
+
+        List<String> keyList = Lists.newArrayList(Constant.DIFFICULTY_EASY, Constant.DIFFICULTY_MEDIUM, Constant.DIFFICULTY_HARD);
+
+        List<Question> questionList = getQuestionCache();
+        ImmutableListMultimap<String, Question> questionImmutableMap = Multimaps.index(questionList.iterator(), new Function<Question, String>() {
+            @Override
+            public String apply(Question question) {
+                String difficulty;
+                if (question.getLevel() == 1) {
+                    difficulty = Constant.DIFFICULTY_EASY;
+                } else if (question.getLevel() == 2) {
+                    difficulty = Constant.DIFFICULTY_MEDIUM;
+                } else if (question.getLevel() == 3) {
+                    difficulty = Constant.DIFFICULTY_HARD;
+                } else {
+                    difficulty = Constant.DIFFICULTY_UNKNOWN;
+                }
+                return difficulty;
+            }
+        });
+
+        List<Tag> difficultyList = Lists.newArrayList();
+        for (String key : keyList) {
+            Tag tag = new Tag();
+            tag.setName(key);
+            for (Question question : questionImmutableMap.get(key)) {
+                tag.addQuestion(question.getQuestionId());
+            }
+            difficultyList.add(tag);
+        }
+        return difficultyList;
+    }
+
+    public static List<Tag> getStatus() {
+        List<String> keyList = Lists.newArrayList(Constant.STATUS_TODO, Constant.STATUS_SOLVED, Constant.STATUS_ATTEMPTED);
+
+        List<Question> questionList = getQuestionCache();
+        ImmutableListMultimap<String, Question> questionImmutableMap = Multimaps.index(questionList.iterator(), new Function<Question, String>() {
+            @Override
+            public String apply(Question question) {
+                String status;
+                if ("ac".equals(question.getStatus())) {
+                    status = Constant.STATUS_SOLVED;
+                } else if ("notac".equals(question.getStatus())) {
+                    status = Constant.STATUS_ATTEMPTED;
+                } else {
+                    status = Constant.STATUS_TODO;
+                }
+                return status;
+            }
+        });
+
+        List<Tag> statusList = Lists.newArrayList();
+        for (String key : keyList) {
+            Tag tag = new Tag();
+            tag.setName(key);
+            for (Question question : questionImmutableMap.get(key)) {
+                tag.addQuestion(question.getQuestionId());
+            }
+            statusList.add(tag);
+        }
+        return statusList;
     }
 
     public static List<Tag> getTags() {
@@ -205,9 +275,8 @@ public class QuestionManager {
                 tag.setName(name);
                 JSONArray questionArray = object.getJSONArray("questions");
                 for (int j = 0; j < questionArray.size(); j++) {
-                    tag.addQuestion(questionArray.getInteger(j));
+                    tag.addQuestion(questionArray.getInteger(j).toString());
                 }
-                Collections.sort(tag.getQuestions());
                 tags.add(tag);
             }
         }
@@ -232,9 +301,8 @@ public class QuestionManager {
                 tag.setName(name);
                 JSONArray questionArray = object.getJSONArray("questions");
                 for (int j = 0; j < questionArray.size(); j++) {
-                    tag.addQuestion(questionArray.getInteger(j));
+                    tag.addQuestion(questionArray.getInteger(j).toString());
                 }
-                Collections.sort(tag.getQuestions());
                 tags.add(tag);
             }
         }

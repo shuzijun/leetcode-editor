@@ -1,7 +1,7 @@
 package com.shuzijun.leetcode.plugin.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Comparator;
+import java.util.TreeSet;
 
 /**
  * @author shuzijun
@@ -11,7 +11,13 @@ public class Tag {
     private String slug;
     private String name;
     private String type;
-    private List<Integer> questions = new ArrayList<Integer>();
+    private boolean isSelect = false;
+    private TreeSet<String> questions = new TreeSet<String>(new Comparator<String>() {
+        @Override
+        public int compare(String arg0, String arg1) {
+            return Integer.valueOf(arg0).compareTo(Integer.valueOf(arg1));
+        }
+    });
 
     public String getSlug() {
         return slug;
@@ -29,15 +35,10 @@ public class Tag {
         this.name = name;
     }
 
-    public List<Integer> getQuestions() {
+    public TreeSet<String> getQuestions() {
         return questions;
     }
-
-    public void setQuestions(List<Integer> questions) {
-        this.questions = questions;
-    }
-
-    public void addQuestion(Integer questionId) {
+    public void addQuestion(String questionId) {
         questions.add(questionId);
     }
 
@@ -47,5 +48,13 @@ public class Tag {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public boolean isSelect() {
+        return isSelect;
+    }
+
+    public void setSelect(boolean select) {
+        isSelect = select;
     }
 }
