@@ -8,7 +8,11 @@ import com.intellij.openapi.extensions.PluginId;
 import com.shuzijun.leetcode.plugin.model.Config;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+
+import java.io.IOException;
 
 
 /**
@@ -22,13 +26,14 @@ public class UpdataUtils {
         ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
             @Override
             public void run() {
-                HttpGet httpget = null;
-                try {
-                    if (config != null && config.isUpdata() && isCheck) {
-                        UpdataUtils.isCheck = false;
+                if (config != null && config.getUpdata() && isCheck) {
+                    UpdataUtils.isCheck = false;
+                    CloseableHttpClient httpClient = HttpClients.custom().build();
+                    HttpGet httpget = null;
+                    try {
                         String[] version = PluginManager.getPlugin(PluginId.getId("leetcode-editor")).getVersion().split("\\.");
                         httpget = new HttpGet("https://plugins.jetbrains.com/api/plugins/12132/updates");
-                        CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
+                        CloseableHttpResponse response = httpClient.execute(httpget);
                         String body = EntityUtils.toString(response.getEntity(), "UTF-8");
                         JSONArray jsonArray = JSONObject.parseArray(body);
                         for (int i = 0; i < jsonArray.size(); i++) {
@@ -46,16 +51,20 @@ public class UpdataUtils {
                                 }
                             }
                         }
-                    }
-                } catch (Exception e) {
 
-                } finally {
-                    if (httpget != null) {
-                        httpget.abort();
+                    } catch (Exception e) {
+
+                    } finally {
+                        if (httpget != null) {
+                            httpget.abort();
+                        }
+                        try {
+                            httpClient.close();
+                        } catch (IOException e) {
+                        }
                     }
+
                 }
-
-
             }
         });
 

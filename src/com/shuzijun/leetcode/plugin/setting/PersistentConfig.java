@@ -1,9 +1,10 @@
 package com.shuzijun.leetcode.plugin.setting;
 
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
+import com.intellij.credentialStore.CredentialAttributes;
+import com.intellij.credentialStore.CredentialAttributesKt;
+import com.intellij.credentialStore.Credentials;
+import com.intellij.ide.passwordSafe.PasswordSafe;
+import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
@@ -18,7 +19,7 @@ import java.util.Map;
 /**
  * @author shuzijun
  */
-@State(name = "PersistentConfig", storages = {@Storage("leetcode-config.xml")})
+@State(name = "PersistentConfig", storages = {@Storage(value = "leetcode-config.xml", roamingType = RoamingType.DISABLED)})
 public class PersistentConfig implements PersistentStateComponent<PersistentConfig> {
 
     public static String PATH = "leetcode-plugin";
@@ -64,5 +65,24 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
 
     public String getTempFilePath() {
         return getConfig().getFilePath() + File.separator + PATH + File.separator + initConfig.get(INITNAME).getAlias() + File.separator;
+    }
+
+    public void savePassword(String password){
+        CredentialAttributes credentialAttributes = createCredentialAttributes(); // see previous sample
+        Credentials credentials = new Credentials("leetcode-editor", password);
+        PasswordSafe.getInstance().set(credentialAttributes, credentials);
+    }
+
+    public String getPassword(String password) {
+        if (getConfig().getVersion() != null) {
+            return  PasswordSafe.getInstance().getPassword(createCredentialAttributes());
+        } else {
+            return password;
+        }
+
+    }
+
+    private CredentialAttributes createCredentialAttributes() {
+        return new CredentialAttributes(CredentialAttributesKt.generateServiceName("leetcode-editor", "leetcode-editor"));
     }
 }

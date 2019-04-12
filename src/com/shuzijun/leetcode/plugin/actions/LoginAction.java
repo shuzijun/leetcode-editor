@@ -3,6 +3,7 @@ package com.shuzijun.leetcode.plugin.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
@@ -53,7 +54,7 @@ public class LoginAction extends AbstractAsynAction {
             HttpEntity ent = MultipartEntityBuilder.create()
                     .addTextBody("csrfmiddlewaretoken", HttpClientUtils.getToken())
                     .addTextBody("login", config.getLoginName())
-                    .addTextBody("password", config.getPassword())
+                    .addTextBody("password", PersistentConfig.getInstance().getPassword(config.getPassword()))
                     .addTextBody("next", "/problems")
                     .build();
             post.setEntity(ent);

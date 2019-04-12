@@ -97,7 +97,7 @@ public class SettingUI extends JDialog {
         Config config = PersistentConfig.getInstance().getInitConfig();
         if (config != null) {
             userNameField.setText(config.getLoginName());
-            passwordField.setText(config.getPassword());
+            passwordField.setText(PersistentConfig.getInstance().getPassword(config.getPassword()));
             if (StringUtils.isNotBlank(config.getFilePath())) {
                 fileFolderBtn.setText(config.getFilePath());
             }
@@ -107,7 +107,7 @@ public class SettingUI extends JDialog {
             if (StringUtils.isNotBlank(config.getUrl())) {
                 webComboBox.setSelectedItem(config.getUrl());
             }
-            updataCheckBox.setSelected(config.isUpdata());
+            updataCheckBox.setSelected(config.getUpdata());
         }
 
     }
@@ -123,8 +123,9 @@ public class SettingUI extends JDialog {
             config = new Config();
             config.setId(MTAUtils.getI(""));
         }
+        config.setVersion(1);
         config.setLoginName(userNameField.getText());
-        config.setPassword(passwordField.getText());
+        config.setPassword("");
         config.setFilePath(fileFolderBtn.getText());
         config.setCodeType(codeComboBox.getSelectedItem().toString());
         config.setUrl(webComboBox.getSelectedItem().toString());
@@ -134,7 +135,7 @@ public class SettingUI extends JDialog {
             file.mkdirs();
         }
         PersistentConfig.getInstance().setInitConfig(config);
-
+        PersistentConfig.getInstance().savePassword(passwordField.getText());
 
     }
 

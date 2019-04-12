@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class Config {
 
+    private Integer version;
 
     private String id;
 
@@ -44,7 +45,7 @@ public class Config {
     /**
      * 检查更新
      */
-    private boolean updata = true;
+    private Boolean updata = true;
 
     private List<String> favoriteList;
 
@@ -104,12 +105,20 @@ public class Config {
         this.url = url;
     }
 
-    public boolean isUpdata() {
+    public boolean getUpdata() {
         return updata;
     }
 
     public void setUpdata(boolean updata) {
         this.updata = updata;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 
     public List<String> getFavoriteList() {
