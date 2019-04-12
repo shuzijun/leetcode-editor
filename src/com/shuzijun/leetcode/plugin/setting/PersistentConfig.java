@@ -1,8 +1,5 @@
 package com.shuzijun.leetcode.plugin.setting;
 
-import com.intellij.credentialStore.CredentialAttributes;
-import com.intellij.credentialStore.CredentialAttributesKt;
-import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
@@ -68,21 +65,16 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
     }
 
     public void savePassword(String password){
-        CredentialAttributes credentialAttributes = createCredentialAttributes(); // see previous sample
-        Credentials credentials = new Credentials("leetcode-editor", password);
-        PasswordSafe.getInstance().set(credentialAttributes, credentials);
+        PasswordSafe.getInstance().storePassword(null,this.getClass(),"leetcode-editor",password != null ? password : "");
     }
 
     public String getPassword(String password) {
         if (getConfig().getVersion() != null) {
-            return  PasswordSafe.getInstance().getPassword(createCredentialAttributes());
+            return  PasswordSafe.getInstance().getPassword(null,this.getClass(),"leetcode-editor");
         } else {
             return password;
         }
 
     }
 
-    private CredentialAttributes createCredentialAttributes() {
-        return new CredentialAttributes(CredentialAttributesKt.generateServiceName("leetcode-editor", "leetcode-editor"));
-    }
 }
