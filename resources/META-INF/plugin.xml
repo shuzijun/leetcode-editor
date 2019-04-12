@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>3.5</version>
+    <version>4.0</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -102,6 +102,14 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v4.0<br>
+                1.增加tag筛选<br>
+                2.添加收藏功能<br>
+            </li>
+            <li>v4.0<br>
+                1.add tag filtrate<br>
+                2.add Favorite<br>
+            </li>
             <li>v3.5<br>
                 1.修复运行错误提示<br>
             </li>

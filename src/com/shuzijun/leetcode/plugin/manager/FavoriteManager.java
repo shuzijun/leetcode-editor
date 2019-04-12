@@ -20,6 +20,10 @@ import java.io.IOException;
 public class FavoriteManager {
 
     public static void addQuestionToFavorite(Tag tag, Question question) {
+        if (!HttpClientUtils.isLogin()) {
+            MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
+            return ;
+        }
         HttpPost post = new HttpPost(URLUtils.getLeetcodeGraphql());
         try {
             StringEntity entityCode = new StringEntity("{\"operationName\":\"addQuestionToFavorite\",\"variables\":{\"favoriteIdHash\":\""+tag.getSlug()+"\",\"questionId\":\""+question.getQuestionId()+"\"},\"query\":\"mutation addQuestionToFavorite($favoriteIdHash: String!, $questionId: String!) {\\n  addQuestionToFavorite(favoriteIdHash: $favoriteIdHash, questionId: $questionId) {\\n    ok\\n    error\\n    favoriteIdHash\\n    questionId\\n    __typename\\n  }\\n}\\n\"}");
@@ -47,6 +51,10 @@ public class FavoriteManager {
     }
 
     public static void removeQuestionFromFavorite(Tag tag, Question question) {
+        if (!HttpClientUtils.isLogin()) {
+            MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
+            return ;
+        }
         HttpPost post = new HttpPost(URLUtils.getLeetcodeGraphql());
         try {
             StringEntity entityCode = new StringEntity("{\"operationName\":\"removeQuestionFromFavorite\",\"variables\":{\"favoriteIdHash\":\"" + tag.getSlug() + "\",\"questionId\":\"" + question.getQuestionId() + "\"},\"query\":\"mutation removeQuestionFromFavorite($favoriteIdHash: String!, $questionId: String!) {\\n  removeQuestionFromFavorite(favoriteIdHash: $favoriteIdHash, questionId: $questionId) {\\n    ok\\n    error\\n    favoriteIdHash\\n    questionId\\n    __typename\\n  }\\n}\\n\"}");
