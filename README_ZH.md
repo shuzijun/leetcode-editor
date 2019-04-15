@@ -5,7 +5,8 @@
     
 ## 简介  
   在IDE中解决LeetCode问题,支持`leetcode.com`与`leetcode-cn.com`,满足基本的做题需求。  
-  理论上支持: IntelliJ IDEA  PhpStorm  WebStorm  PyCharm  RubyMine  AppCode  CLion  GoLand  DataGrip  Rider MPS  Android Studio  
+  理论上支持: IntelliJ IDEA  PhpStorm  WebStorm  PyCharm  RubyMine  AppCode  CLion  GoLand  DataGrip  Rider MPS  Android Studio。  
+  [be with you!](https://leetcode-editor.herokuapp.com/hour.html)
   
 ## 使用方式  
 <p align="center">
