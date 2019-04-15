@@ -5,8 +5,9 @@
   
 ## Introduction  
   Do Leetcode exercises in IDE, support `leetcode.com` and `leetcode-cn.com`, to meet the basic needs of doing exercises.
-  Support theoretically: IntelliJ IDEA PhpStorm WebStorm PyCharm RubyMine AppCode CLion GoLand DataGrip Rider MPS Android Studio
- 
+  Support theoretically: IntelliJ IDEA PhpStorm WebStorm PyCharm RubyMine AppCode CLion GoLand DataGrip Rider MPS Android Studio.  
+  [be with you!](https://leetcode-editor.herokuapp.com/hour.html)
+  
   
 ## How to use  
 <p align="center">
