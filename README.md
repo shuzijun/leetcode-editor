@@ -11,17 +11,17 @@
   
 ## How to use  
 <p align="center">
-  <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/leetcode-editor-3.0.gif" alt="demo"/>
+  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/leetcode-editor-3.0.gif" alt="demo"/>
 </p>  
 
 ### Installation  
 - **Install via plug-in library** https://plugins.jetbrains.com/plugin/12132-leetcode-editor  
-- **Install by downloading the file** https://github.com/shuzijun/leetcode-editor/blob/master/doc/leetcode-editor.zip  
+- **Install by downloading the file** https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/leetcode-editor.zip  
 
 ### Configuration (configuration for first installation)  
 
 <p align="center">
-  <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/config-3.0.png" alt="settings"/>
+  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/config-3.0.png" alt="settings"/>
 </p>  
  
 - **Configuration path**: `File` -> `settings`->`tools`->`leetcode plugin`  
@@ -31,20 +31,20 @@
   - **`Password`**: Login password  
   - **`Temp File Path`**: Temporary file storage catalogue  
   
-### Window (Icon in the lower right corner of the main window![icon](https://github.com/shuzijun/leetcode-editor/blob/master/doc/LeetCodeIcon.png))  
+### Window (Icon in the lower right corner of the main window![icon](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/LeetCodeIcon.png))  
   
 <p align="center">
-  <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/window-3.0.png" alt="window"/>
+  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/window-3.0.png" alt="window"/>
 </p>  
   
 - **Toolbar**:  
-  - ![login](https://github.com/shuzijun/leetcode-editor/blob/master/doc/login.png)**`Sign in`**:The login accounts of the two websites are not interoperable and the corresponding users need to be configured when switching websites.  
-  - ![logout](https://github.com/shuzijun/leetcode-editor/blob/master/doc/logout.png)**`Sign out`**:Exit the current account, if you encounter a login error, try to exit first.  
-  - ![refresh](https://github.com/shuzijun/leetcode-editor/blob/master/doc/refresh.png)**`Refresh`**:You can also refresh and load questions if you are not logged in, but you cannot submit it.  
-  - ![find](https://github.com/shuzijun/leetcode-editor/blob/master/doc/find.png)**`Find`**:Input the content and press Enter to search , press again to search for the next one. It can only search under the question bank node.  
-  - ![collapse](https://github.com/shuzijun/leetcode-editor/blob/master/doc/collapseAll.png)**`Collapse`**:Collapse all nodes.  
-  - ![config](https://github.com/shuzijun/leetcode-editor/blob/master/doc/config.png)**`Settings`**:Quick jump to the configuration page.  
-  - ![clear](https://github.com/shuzijun/leetcode-editor/blob/master/doc/clear.png)**`Clear`**:Clean up the files in the configured cache directories. The cache directories of the two websites are different and only the current configured websites are cleaned up. Carefully clean up cases without submitting.  
+  - ![login](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/login.png)**`Sign in`**:The login accounts of the two websites are not interoperable and the corresponding users need to be configured when switching websites.  
+  - ![logout](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/logout.png)**`Sign out`**:Exit the current account, if you encounter a login error, try to exit first.  
+  - ![refresh](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/refresh.png)**`Refresh`**:You can also refresh and load questions if you are not logged in, but you cannot submit it.  
+  - ![find](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/find.png)**`Find`**:Input the content and press Enter to search , press again to search for the next one. It can only search under the question bank node.  
+  - ![collapse](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/collapseAll.png)**`Collapse`**:Collapse all nodes.  
+  - ![config](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/config.png)**`Settings`**:Quick jump to the configuration page.  
+  - ![clear](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/clear.png)**`Clear`**:Clean up the files in the configured cache directories. The cache directories of the two websites are different and only the current configured websites are cleaned up. Carefully clean up cases without submitting.  
 
 - **Tree**:  
   - **`Problems`**:All questions  
@@ -56,7 +56,7 @@
   
 ### Menu  
 <p align="center">  
-  <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/menu-3.0.png" alt="menu"/>  
+  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/menu-3.0.png" alt="menu"/>  
 </p>   
 
 - **Menu (right-click on the questions)**:  

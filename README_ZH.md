@@ -10,17 +10,17 @@
   
 ## 使用方式  
 <p align="center">
-  <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/leetcode-editor-3.0.gif" alt="demo"/>
+  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/leetcode-editor-3.0.gif" alt="demo"/>
 </p>  
 
 ### 安装  
 - **通过插件库安装** https://plugins.jetbrains.com/plugin/12132-leetcode-editor  
-- **下载文件安装** https://github.com/shuzijun/leetcode-editor/blob/master/doc/leetcode-editor.zip  
+- **下载文件安装** https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/leetcode-editor.zip  
 
 ### 配置(第一次安装需要先配置)  
 
 <p align="center">
-  <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/config-3.0.png" alt="settings"/>
+  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/config-3.0.png" alt="settings"/>
 </p>  
  
 - **配置路径**: `File` -> `settings`->`tools`->`leetcode plugin`  
@@ -30,20 +30,20 @@
   - **`Password`**: 登录密码  
   - **`Temp File Path`**: 临时文件存放目录  
   
-### 窗口(主窗口右下角![icon](https://github.com/shuzijun/leetcode-editor/blob/master/doc/LeetCodeIcon.png))  
+### 窗口(主窗口右下角![icon](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/LeetCodeIcon.png))  
   
 <p align="center">
-  <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/window-3.0.png" alt="window"/>
+  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/window-3.0.png" alt="window"/>
 </p>  
   
 - **工具栏**:  
-  - ![login](https://github.com/shuzijun/leetcode-editor/blob/master/doc/login.png)**`登录`**:两个网站的登录帐号不互通，切换网站需配置对应的用户  
-  - ![logout](https://github.com/shuzijun/leetcode-editor/blob/master/doc/logout.png)**`退出`**:退出当前账户,如遇到登录错误,尝试先进行退出  
-  - ![refresh](https://github.com/shuzijun/leetcode-editor/blob/master/doc/refresh.png)**`刷新`**:在未登录的情况下也可查看刷新加载题目，但是无法提交  
-  - ![find](https://github.com/shuzijun/leetcode-editor/blob/master/doc/find.png)**`查找`**:输入内容后回车搜索，再次回车搜索下一个，只会搜索题库节点下  
-  - ![collapse](https://github.com/shuzijun/leetcode-editor/blob/master/doc/collapseAll.png)**`折叠`**:折叠全部节点.  
-  - ![config](https://github.com/shuzijun/leetcode-editor/blob/master/doc/config.png)**`配置`**:快捷跳转到配置界面  
-  - ![clear](https://github.com/shuzijun/leetcode-editor/blob/master/doc/clear.png)**`清理`**:清理配置的缓存目录下的文件，两个网站对应的缓存目录不同，只会清理当前配置的网站下的。部分题目未提交的情况下慎重清理  
+  - ![login](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/login.png)**`登录`**:两个网站的登录帐号不互通，切换网站需配置对应的用户  
+  - ![logout](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/logout.png)**`退出`**:退出当前账户,如遇到登录错误,尝试先进行退出  
+  - ![refresh](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/refresh.png)**`刷新`**:在未登录的情况下也可查看刷新加载题目，但是无法提交  
+  - ![find](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/find.png)**`查找`**:输入内容后回车搜索，再次回车搜索下一个，只会搜索题库节点下  
+  - ![collapse](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/collapseAll.png)**`折叠`**:折叠全部节点.  
+  - ![config](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/config.png)**`配置`**:快捷跳转到配置界面  
+  - ![clear](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/clear.png)**`清理`**:清理配置的缓存目录下的文件，两个网站对应的缓存目录不同，只会清理当前配置的网站下的。部分题目未提交的情况下慎重清理  
 
 - **树**:  
   - **`Problems`**:全部题目  
@@ -55,7 +55,7 @@
   
 ### 菜单  
 <p align="center">  
-  <img src="https://github.com/shuzijun/leetcode-editor/blob/master/doc/menu-3.0.png" alt="menu"/>  
+  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/menu-3.0.png" alt="menu"/>  
 </p>   
 
 - **菜单(在题目上右击出现)**:  
