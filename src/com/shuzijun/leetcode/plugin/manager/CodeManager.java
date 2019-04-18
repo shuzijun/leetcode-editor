@@ -130,7 +130,7 @@ public class CodeManager {
                 cachedThreadPool.execute(new SubmitCheckTask(returnObj, codeTypeEnum, question));
                 MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
             } else {
-                LogUtils.LOG.error("提交失败" + EntityUtils.toString(response.getEntity(), "UTF-8"));
+                LogUtils.LOG.error("提交失败：url："+post.getURI().getPath()+";param:"+arg.toJSONString()+";body:" + EntityUtils.toString(response.getEntity(), "UTF-8"));
                 MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
             }
         } catch (IOException i) {
