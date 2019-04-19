@@ -84,7 +84,7 @@ public class SubmissionManager {
             MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return;
         }
-        CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(submission.getLang());
+        CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnumByLangSlug(submission.getLang());
         String filePath = PersistentConfig.getInstance().getTempFilePath() + question.getTitle() + submission.getId() + codeTypeEnum.getSuffix();
 
         File file = new File(filePath);
