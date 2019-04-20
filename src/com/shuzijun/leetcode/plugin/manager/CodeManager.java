@@ -307,6 +307,7 @@ public class CodeManager {
 
                                     MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.success", runtime, runtimePercentile, codeTypeEnum.getType(), memory, memoryPercentile, codeTypeEnum.getType()));
                                     question.setStatus("ac");
+                                    ViewManager.updateStatus();
                                 } else {
 
                                     String input = jsonObject.getString("input");
@@ -316,12 +317,14 @@ public class CodeManager {
                                     MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.failed", input, output, expected));
                                     if (!"ac".equals(question.getStatus())) {
                                         question.setStatus("notac");
+                                        ViewManager.updateStatus();
                                     }
                                 }
                             } else {
                                 MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", jsonObject.getString("full_compile_error")));
                                 if (!"ac".equals(question.getStatus())) {
                                     question.setStatus("notac");
+                                    ViewManager.updateStatus();
                                 }
                             }
                             return;

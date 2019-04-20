@@ -124,6 +124,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
         ActionToolbar findToolbar = actionManager.createActionToolbar("",
                 (DefaultActionGroup) actionManager.getAction("leetcode.find.Toolbar"),
                 true);
+        findToolbar.setTargetComponent(tree);
         queryPanel.add(findToolbar.getComponent());
 
         queryPanel.setVisible(false);

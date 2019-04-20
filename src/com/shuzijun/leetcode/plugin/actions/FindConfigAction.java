@@ -25,6 +25,6 @@ public class FindConfigAction extends CheckboxAction {
         if (tree == null) {
             return;
         }
-        ViewManager.updata(tree);
+        ViewManager.update(tree);
     }
 }

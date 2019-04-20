@@ -33,6 +33,8 @@ public class QuestionManager {
 
     private final static Logger logger = LoggerFactory.getLogger(QuestionManager.class);
 
+    private  static List<Question> QUESTIONLIST = null;
+
     private final static String ALLNAME = "all.json";
 
     private final static String TRANSLATIONNAME = "translation.json";
@@ -56,19 +58,26 @@ public class QuestionManager {
         if (questionList != null && !questionList.isEmpty()) {
             String filePath = PersistentConfig.getInstance().getTempFilePath() + ALLNAME;
             FileUtils.saveFile(filePath, JSON.toJSONString(questionList));
+            QUESTIONLIST = questionList;
         }
         return questionList;
 
     }
 
     public static List<Question> getQuestionCache() {
+        if(QUESTIONLIST != null){
+            return QUESTIONLIST;
+        }
+
         String filePath = PersistentConfig.getInstance().getTempFilePath() + ALLNAME;
         String body = FileUtils.getFileBody(filePath);
 
         if (StringUtils.isBlank(body)) {
             return Lists.newArrayList();
         } else {
-            return JSON.parseArray(body, Question.class);
+            List<Question> questionList = JSON.parseArray(body, Question.class);
+            QUESTIONLIST = questionList;
+            return questionList;
         }
     }
 

@@ -33,7 +33,7 @@ public class FindTagAction extends ToggleAction {
         if (tree == null) {
             return;
         }
-        ViewManager.updata(tree);
+        ViewManager.update(tree);
     }
 
 

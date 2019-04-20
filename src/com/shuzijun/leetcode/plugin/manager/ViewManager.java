@@ -87,6 +87,10 @@ public class ViewManager {
         }
     }
 
+    public static void updateStatus(){
+        filter.put(Constant.FIND_TYPE_STATUS, QuestionManager.getStatus());
+    }
+
     public static boolean isIntersection() {
         return intersection;
     }
@@ -95,7 +99,7 @@ public class ViewManager {
         ViewManager.intersection = intersection;
     }
 
-    public static void updata(JTree tree) {
+    public static void update(JTree tree) {
         TreeSet<String> selectQuestionList = null;
         for (List<Tag> tagList : filter.values()) {
             TreeSet<String> tagQuestionList = null;

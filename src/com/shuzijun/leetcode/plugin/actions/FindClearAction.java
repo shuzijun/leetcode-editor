@@ -21,6 +21,6 @@ public class FindClearAction extends AbstractAction {
             return;
         }
         ViewManager.clearFilter();
-        ViewManager.updata(tree);
+        ViewManager.update(tree);
     }
 }
