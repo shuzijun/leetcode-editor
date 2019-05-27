@@ -30,7 +30,8 @@ public class SettingUI extends JDialog {
 
     private JComboBox webComboBox = new JComboBox();
     private JComboBox codeComboBox = new JComboBox();
-    private JCheckBox updataCheckBox = new JCheckBox("Check plugin update");
+    private JCheckBox updateCheckBox = new JCheckBox("Check plugin update");
+    private JCheckBox proxyCheckBox = new JCheckBox("proxy(HTTP Proxy)");
 
     public SettingUI() {
         setContentPane(mainPanel);
@@ -58,8 +59,8 @@ public class SettingUI extends JDialog {
         codePanel.add(codeComboBox);
 
         JPanel updataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        updataCheckBox.setSelected(true);
-        updataPanel.add(updataCheckBox);
+        updateCheckBox.setSelected(true);
+        updataPanel.add(updateCheckBox);
 
         webMainPane.add(webPanel);
         webMainPane.add(codePanel);
@@ -107,7 +108,8 @@ public class SettingUI extends JDialog {
             if (StringUtils.isNotBlank(config.getUrl())) {
                 webComboBox.setSelectedItem(config.getUrl());
             }
-            updataCheckBox.setSelected(config.getUpdata());
+            updateCheckBox.setSelected(config.getUpdate());
+            proxyCheckBox.setSelected(config.getProxy());
         }
 
     }
@@ -129,7 +131,8 @@ public class SettingUI extends JDialog {
         config.setFilePath(fileFolderBtn.getText());
         config.setCodeType(codeComboBox.getSelectedItem().toString());
         config.setUrl(webComboBox.getSelectedItem().toString());
-        config.setUpdata(updataCheckBox.isSelected());
+        config.setUpdate(updateCheckBox.isSelected());
+        config.setProxy(proxyCheckBox.isSelected());
         File file = new File(config.getFilePath() + File.separator + PersistentConfig.PATH + File.separator);
         if (!file.exists()) {
             file.mkdirs();

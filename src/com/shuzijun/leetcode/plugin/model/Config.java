@@ -45,7 +45,12 @@ public class Config {
     /**
      * 检查更新
      */
-    private Boolean updata = true;
+    private Boolean update = true;
+
+    /**
+     * 使用代理
+     */
+    private Boolean proxy = false;
 
     private List<String> favoriteList;
 
@@ -105,12 +110,12 @@ public class Config {
         this.url = url;
     }
 
-    public boolean getUpdata() {
-        return updata;
+    public boolean getUpdate() {
+        return update;
     }
 
-    public void setUpdata(boolean updata) {
-        this.updata = updata;
+    public void setUpdate(boolean update) {
+        this.update = update;
     }
 
     public Integer getVersion() {
@@ -119,6 +124,14 @@ public class Config {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Boolean getProxy() {
+        return proxy;
+    }
+
+    public void setProxy(Boolean proxy) {
+        this.proxy = proxy;
     }
 
     public List<String> getFavoriteList() {

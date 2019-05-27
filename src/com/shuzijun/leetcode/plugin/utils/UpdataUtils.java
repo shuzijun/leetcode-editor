@@ -26,7 +26,7 @@ public class UpdataUtils {
         ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
             @Override
             public void run() {
-                if (config != null && config.getUpdata() && isCheck) {
+                if (config != null && config.getUpdate() && isCheck) {
                     UpdataUtils.isCheck = false;
                     CloseableHttpClient httpClient = HttpClients.custom().build();
                     HttpGet httpget = null;

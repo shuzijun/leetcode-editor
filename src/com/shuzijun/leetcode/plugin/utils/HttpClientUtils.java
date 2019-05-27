@@ -1,5 +1,6 @@
 package com.shuzijun.leetcode.plugin.utils;
 
+import com.intellij.util.net.HttpConfigurable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
@@ -49,6 +50,9 @@ public class HttpClientUtils {
 
     private static void creatHttpClient() {
         if (httpclient == null) {
+
+            HttpConfigurable httpConfigurable = HttpConfigurable.getInstance();
+
 
             RequestConfig globalConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build();
             context = HttpClientContext.create();
