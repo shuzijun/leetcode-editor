@@ -58,13 +58,9 @@ public class SettingUI extends JDialog {
         codeComboBox.setSelectedIndex(0);
         codePanel.add(codeComboBox);
 
-        JPanel updataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        updateCheckBox.setSelected(true);
-        updataPanel.add(updateCheckBox);
-
         webMainPane.add(webPanel);
         webMainPane.add(codePanel);
-        webMainPane.add(updataPanel);
+
 
         JPanel loginMainPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel userNamePanel = new JPanel();
@@ -90,9 +86,16 @@ public class SettingUI extends JDialog {
         filePanel.add(fileFolderBtn);
 
 
+        JPanel updatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        updateCheckBox.setSelected(true);
+        updatePanel.add(updateCheckBox);
+        proxyCheckBox.setSelected(false);
+        updatePanel.add(proxyCheckBox);
+
         mainPanel.add(webMainPane);
         mainPanel.add(loginMainPane);
         mainPanel.add(filePanel);
+        mainPanel.add(updatePanel);
 
 
         Config config = PersistentConfig.getInstance().getInitConfig();

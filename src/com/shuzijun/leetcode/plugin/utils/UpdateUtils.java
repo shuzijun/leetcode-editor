@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * @author shuzijun
  */
-public class UpdataUtils {
+public class UpdateUtils{
 
     public static Boolean isCheck = true;
 
@@ -27,7 +27,7 @@ public class UpdataUtils {
             @Override
             public void run() {
                 if (config != null && config.getUpdate() && isCheck) {
-                    UpdataUtils.isCheck = false;
+                    UpdateUtils.isCheck = false;
                     CloseableHttpClient httpClient = HttpClients.custom().build();
                     HttpGet httpget = null;
                     try {
