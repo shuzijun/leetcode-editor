@@ -30,7 +30,8 @@ public class SettingUI extends JDialog {
 
     private JComboBox webComboBox = new JComboBox();
     private JComboBox codeComboBox = new JComboBox();
-    private JCheckBox updataCheckBox = new JCheckBox("Check plugin update");
+    private JCheckBox updateCheckBox = new JCheckBox("Check plugin update");
+    private JCheckBox proxyCheckBox = new JCheckBox("proxy(HTTP Proxy)");
 
     public SettingUI() {
         setContentPane(mainPanel);
@@ -57,13 +58,9 @@ public class SettingUI extends JDialog {
         codeComboBox.setSelectedIndex(0);
         codePanel.add(codeComboBox);
 
-        JPanel updataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        updataCheckBox.setSelected(true);
-        updataPanel.add(updataCheckBox);
-
         webMainPane.add(webPanel);
         webMainPane.add(codePanel);
-        webMainPane.add(updataPanel);
+
 
         JPanel loginMainPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel userNamePanel = new JPanel();
@@ -89,9 +86,16 @@ public class SettingUI extends JDialog {
         filePanel.add(fileFolderBtn);
 
 
+        JPanel updatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        updateCheckBox.setSelected(true);
+        updatePanel.add(updateCheckBox);
+        proxyCheckBox.setSelected(false);
+        updatePanel.add(proxyCheckBox);
+
         mainPanel.add(webMainPane);
         mainPanel.add(loginMainPane);
         mainPanel.add(filePanel);
+        mainPanel.add(updatePanel);
 
 
         Config config = PersistentConfig.getInstance().getInitConfig();
@@ -107,7 +111,8 @@ public class SettingUI extends JDialog {
             if (StringUtils.isNotBlank(config.getUrl())) {
                 webComboBox.setSelectedItem(config.getUrl());
             }
-            updataCheckBox.setSelected(config.getUpdata());
+            updateCheckBox.setSelected(config.getUpdate());
+            proxyCheckBox.setSelected(config.getProxy());
         }
 
     }
@@ -129,7 +134,8 @@ public class SettingUI extends JDialog {
         config.setFilePath(fileFolderBtn.getText());
         config.setCodeType(codeComboBox.getSelectedItem().toString());
         config.setUrl(webComboBox.getSelectedItem().toString());
-        config.setUpdata(updataCheckBox.isSelected());
+        config.setUpdate(updateCheckBox.isSelected());
+        config.setProxy(proxyCheckBox.isSelected());
         File file = new File(config.getFilePath() + File.separator + PersistentConfig.PATH + File.separator);
         if (!file.exists()) {
             file.mkdirs();

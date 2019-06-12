@@ -9,7 +9,7 @@ import com.shuzijun.leetcode.plugin.setting.SettingConfigurable;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
-import com.shuzijun.leetcode.plugin.utils.UpdataUtils;
+import com.shuzijun.leetcode.plugin.utils.UpdateUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -30,7 +30,7 @@ public abstract class AbstractAction extends AnAction {
 
         try {
             MTAUtils.click(anActionEvent.getActionManager().getId(this),config);
-            UpdataUtils.examine(config);
+            UpdateUtils.examine(config);
         }catch (Exception e){
         }
 

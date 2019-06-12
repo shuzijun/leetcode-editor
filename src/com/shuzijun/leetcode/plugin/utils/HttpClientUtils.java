@@ -1,8 +1,15 @@
 package com.shuzijun.leetcode.plugin.utils;
 
+import com.intellij.util.net.HttpConfigurable;
+import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -18,9 +25,7 @@ import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.*;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
@@ -45,47 +50,61 @@ public class HttpClientUtils {
 
     private static CloseableHttpClient httpclient = null;
     private static HttpClientContext context = null;
-    private static RequestConfig requestConfig = null;
 
-    private static void creatHttpClient() {
+    private static void createHttpClient() {
         if (httpclient == null) {
 
-            RequestConfig globalConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build();
             context = HttpClientContext.create();
             BasicCookieStore cookieStore = new BasicCookieStore();
             context.setCookieStore(cookieStore);
 
-            requestConfig = RequestConfig.custom()
+            RequestConfig.Builder globalConfigBuilder = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD)
                     .setConnectTimeout(5000).setConnectionRequestTimeout(1000)
                     .setSocketTimeout(5000)
                     .setCookieSpec(CookieSpecs.STANDARD_STRICT)
                     .setExpectContinueEnabled(Boolean.TRUE).setTargetPreferredAuthSchemes(Arrays.asList(AuthSchemes.NTLM, AuthSchemes.DIGEST))
-                    .setProxyPreferredAuthSchemes(Arrays.asList(AuthSchemes.BASIC)).build();
+                    .setProxyPreferredAuthSchemes(Arrays.asList(AuthSchemes.BASIC));
 
-            httpclient = HttpClients.custom()
-                    .setDefaultRequestConfig(globalConfig)
+            //proxy
+            Config config = PersistentConfig.getInstance().getInitConfig();
+            HttpConfigurable proxySettings = HttpConfigurable.getInstance();
+            CredentialsProvider provider = null;
+            if (config != null && config.getProxy() && proxySettings != null && proxySettings.USE_HTTP_PROXY && !proxySettings.PROXY_TYPE_IS_SOCKS) {
+                HttpHost proxy = new HttpHost(proxySettings.PROXY_HOST, proxySettings.PROXY_PORT, "http");
+                globalConfigBuilder.setProxy(proxy);
+                if(proxySettings.PROXY_AUTHENTICATION){
+                    provider = new BasicCredentialsProvider();
+                    provider.setCredentials(new AuthScope(proxy), new UsernamePasswordCredentials(proxySettings.getProxyLogin(), proxySettings.getPlainProxyPassword()));
+                }
+
+            }
+
+
+            HttpClientBuilder httpClientBuilder = HttpClients.custom()
+                    .setDefaultRequestConfig(globalConfigBuilder.build())
                     .setDefaultCookieStore(cookieStore)
                     .setDefaultHeaders(defaultHeader())
-                    .setConnectionManager(getconnectionManager())
-                    .build();
+                    .setConnectionManager(getconnectionManager());
+            if (provider != null) {
+                httpClientBuilder.setDefaultCredentialsProvider(provider);
+            }
+            httpclient = httpClientBuilder.build();
 
         }
     }
 
     public static CloseableHttpResponse executeGet(HttpGet httpGet) {
         if (httpclient == null) {
-            creatHttpClient();
+            createHttpClient();
         }
-        httpGet.setConfig(requestConfig);
         return execute(httpGet);
 
     }
 
     public static CloseableHttpResponse executePost(HttpPost httpPost) {
         if (httpclient == null) {
-            creatHttpClient();
+            createHttpClient();
         }
-        httpPost.setConfig(requestConfig);
         return execute(httpPost);
     }
 

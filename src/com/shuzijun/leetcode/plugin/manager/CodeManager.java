@@ -155,10 +155,8 @@ public class CodeManager {
         if (!fillQuestion(question)) {
             return;
         }
-
+        HttpPost post = new HttpPost(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/interpret_solution/");
         try {
-
-            HttpPost post = new HttpPost(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/interpret_solution/");
             JSONObject arg = new JSONObject();
             arg.put("question_id", question.getQuestionId());
             arg.put("data_input", question.getTestCase());
@@ -180,9 +178,10 @@ public class CodeManager {
                 LogUtils.LOG.error("提交测试失败" + EntityUtils.toString(response.getEntity(), "UTF-8"));
                 MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
             }
-            post.abort();
         } catch (IOException i) {
             MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
+        }finally {
+            post.abort();
         }
     }
 
@@ -356,11 +355,12 @@ public class CodeManager {
         public void run() {
             String key = returnObj.getString("interpret_expected_id");
             for (int i = 0; i < 50; i++) {
+                String body = null;
                 try {
                     HttpGet httpget = new HttpGet(URLUtils.getLeetcodeSubmissions() + key + "/check/");
                     CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
                     if (response != null && response.getStatusLine().getStatusCode() == 200) {
-                        String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+                        body = EntityUtils.toString(response.getEntity(), "UTF-8");
                         JSONObject jsonObject = JSONObject.parseObject(body);
                         if ("SUCCESS".equals(jsonObject.getString("state"))) {
                             if (!key.equals(returnObj.getString("interpret_id"))) {
@@ -383,7 +383,7 @@ public class CodeManager {
                     httpget.abort();
                     Thread.sleep(300L);
                 } catch (Exception e) {
-                    LogUtils.LOG.error("提交出错", e);
+                    LogUtils.LOG.error("提交出错，body:"+body +",returnObj:"+returnObj.toJSONString(), e);
                     MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
                     return;
                 }
