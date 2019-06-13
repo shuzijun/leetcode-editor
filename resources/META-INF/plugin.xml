@@ -102,6 +102,15 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v4.2<br>
+                1.增加代理<br>
+                2.修复订阅题目展示<br>
+            </li>
+            <li>v4.2<br>
+                1.proxy<br>
+                2.Fix subscription view<br>
+            </li>
+
             <li>v4.1<br>
                 1.修复部分bug<br>
                 2.增加电子邮件未验证提醒<br>
