@@ -56,7 +56,7 @@ public class ViewManager {
         DefaultTreeModel treeMode = (DefaultTreeModel) tree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeMode.getRoot();
         root.removeAllChildren();
-        DefaultMutableTreeNode node = new DefaultMutableTreeNode(new Question("Problems"));
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode(new Question(String.format("Problems(%d)",questionList.size())));
         root.add(node);
         for (Question q : questionList) {
             node.add(new DefaultMutableTreeNode(q));
@@ -151,6 +151,7 @@ public class ViewManager {
             for (Question q : question.values()) {
                 node.add(new DefaultMutableTreeNode(q));
             }
+            ((Question)node.getUserObject()).setTitle(String.format("Problems(%d)",node.getChildCount()));
         } else {
             for (String key : selectQuestionList) {
                 Question q = question.get(key);
@@ -158,6 +159,7 @@ public class ViewManager {
                     node.add(new DefaultMutableTreeNode(q));
                 }
             }
+            ((Question)node.getUserObject()).setTitle(String.format("Problems(%d)",node.getChildCount()));
         }
         treeMode.reload();
         tree.expandPath(new TreePath(node.getPath()));

@@ -201,7 +201,11 @@ public class QuestionManager {
                 question.setQuestionId(object.getJSONObject("stat").getString("question_id"));
                 question.setFrontendQuestionId(object.getJSONObject("stat").getString("frontend_question_id"));
                 try {
-                    question.setStatus(object.get("status") == null ? "" : object.getString("status"));
+                    if(object.getBoolean("paid_only")){
+                        question.setStatus(object.getBoolean("paid_only") ? "lock" : null);
+                    }else {
+                        question.setStatus(object.get("status") == null ? "" : object.getString("status"));
+                    }
                 } catch (Exception ee) {
                     question.setStatus("");
                 }
