@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>4.2</version>
+    <version>4.3</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -102,6 +102,13 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v4.3<br>
+                1.修复付费用户订阅题目展示<br>
+            </li>
+            <li>v4.3<br>
+                1.Fix subscription view<br>
+            </li>
+
             <li>v4.2<br>
                 1.增加代理<br>
                 2.修复订阅题目展示<br>
