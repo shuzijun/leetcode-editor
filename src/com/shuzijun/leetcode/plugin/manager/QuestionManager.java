@@ -192,8 +192,9 @@ public class QuestionManager {
         List<Question> questionList = new ArrayList<Question>();
 
         if (StringUtils.isNotBlank(str)) {
-
-            JSONArray jsonArray = JSONObject.parseObject(str).getJSONArray("stat_status_pairs");
+            JSONObject jsonObject = JSONObject.parseObject(str);
+            Boolean isPremium = new Integer("1").equals(jsonObject.getInteger("frequency_high")); //Premium users display frequency
+            JSONArray jsonArray = jsonObject.getJSONArray("stat_status_pairs");
             for (int i = 0; i < jsonArray.size(); i++) {
                 JSONObject object = jsonArray.getJSONObject(i);
                 Question question = new Question(object.getJSONObject("stat").getString("question__title"));
@@ -201,7 +202,7 @@ public class QuestionManager {
                 question.setQuestionId(object.getJSONObject("stat").getString("question_id"));
                 question.setFrontendQuestionId(object.getJSONObject("stat").getString("frontend_question_id"));
                 try {
-                    if(object.getBoolean("paid_only")){
+                    if(object.getBoolean("paid_only") && !isPremium){
                         question.setStatus(object.getBoolean("paid_only") ? "lock" : null);
                     }else {
                         question.setStatus(object.get("status") == null ? "" : object.getString("status"));
@@ -255,7 +256,9 @@ public class QuestionManager {
                         translationMap.put(object.getJSONObject("question").getString("questionId"), object.getString("title"));
                     }
                     for (Question question : questions) {
-                        question.setTitle(translationMap.get(question.getQuestionId()));
+                        if(translationMap.containsKey(question.getQuestionId())){
+                            question.setTitle(translationMap.get(question.getQuestionId()));
+                        }
                     }
                 } else {
                     logger.error("读取翻译内容为空");

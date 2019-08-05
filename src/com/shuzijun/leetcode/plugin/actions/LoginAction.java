@@ -28,7 +28,7 @@ public class LoginAction extends AbstractAsynAction {
     public void perform(AnActionEvent anActionEvent, Config config) {
 
         if (StringUtils.isBlank(HttpClientUtils.getToken())) {
-            HttpGet httpget = new HttpGet(URLUtils.getLeetcodeUrl());
+            HttpGet httpget = new HttpGet(URLUtils.getLeetcodeVerify());
             CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
             httpget.abort();
             if (response == null) {
