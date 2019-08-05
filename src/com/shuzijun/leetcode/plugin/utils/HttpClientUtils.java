@@ -176,6 +176,7 @@ public class HttpClientUtils {
                 e.printStackTrace();
             } finally {
                 httpclient = null;
+                context = null;
             }
         }
     }
