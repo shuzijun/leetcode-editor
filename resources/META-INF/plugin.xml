@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>4.3</version>
+    <version>4.4</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -102,6 +102,13 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v4.4<br>
+                1.增加跳转到题目对应的leetcode官网地址的功能<br>
+            </li>
+            <li>v4.4<br>
+                1.add a new feature of browsing certain question on the website of leetcode<br>
+            </li>
+
             <li>v4.3<br>
                 1.修复付费用户订阅题目展示<br>
                 2.修复leetcode-cn.com登陆问题<br>
@@ -274,6 +281,11 @@
         <action id="leetcode.OpenAction" class="com.shuzijun.leetcode.plugin.actions.OpenAction"
                 text="open question" description="open question" icon="AllIcons.Actions.Annotate">
         </action>
+
+        <action id="leetcode.OpenInLeetCodeAction" class="com.shuzijun.leetcode.plugin.actions.OpenInLeetCodeAction"
+                text="open in leetcode" description="open in leetcode" icon="AllIcons.Actions.Annotate">
+        </action>
+
         <action id="leetcode.SubmitAction" class="com.shuzijun.leetcode.plugin.actions.SubmitAction"
                 text="Submit" description="Submit" icon="AllIcons.Actions.StepOut">
         </action>
@@ -311,6 +323,7 @@
 
         <group id="leetcode.NavigatorActionsMenu">
             <reference id="leetcode.OpenAction"/>
+            <reference id="leetcode.OpenInLeetCodeAction"/>
             <separator/>
             <reference id="leetcode.SubmitAction"/>
             <reference id="leetcode.SubmissionsAction"/>
