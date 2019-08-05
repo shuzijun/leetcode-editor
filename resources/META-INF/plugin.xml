@@ -104,9 +104,11 @@
          <ul>
             <li>v4.3<br>
                 1.修复付费用户订阅题目展示<br>
+                2.修复leetcode-cn.com登陆问题<br>
             </li>
             <li>v4.3<br>
                 1.Fix subscription view<br>
+                2.fix leetcode-cn.com login<br>
             </li>
 
             <li>v4.2<br>
