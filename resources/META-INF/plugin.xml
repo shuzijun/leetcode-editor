@@ -105,10 +105,12 @@
             <li>v4.3<br>
                 1.修复付费用户订阅题目展示<br>
                 2.修复leetcode-cn.com登陆问题<br>
+                3.增加跳转到题目对应的leetcode官网地址的功能 @zzdcon<br>
             </li>
             <li>v4.3<br>
                 1.Fix subscription view<br>
                 2.fix leetcode-cn.com login<br>
+                3.add a new feature of browsing certain question on the website of leetcode @zzdcon<br>
             </li>
 
             <li>v4.2<br>
@@ -274,6 +276,11 @@
         <action id="leetcode.OpenAction" class="com.shuzijun.leetcode.plugin.actions.OpenAction"
                 text="open question" description="open question" icon="AllIcons.Actions.Annotate">
         </action>
+
+        <action id="leetcode.OpenInWebAction" class="com.shuzijun.leetcode.plugin.actions.OpenInWebAction"
+                text="open in web" description="open in web" icon="AllIcons.Actions.MoveTo2">
+        </action>
+
         <action id="leetcode.SubmitAction" class="com.shuzijun.leetcode.plugin.actions.SubmitAction"
                 text="Submit" description="Submit" icon="AllIcons.Actions.StepOut">
         </action>
@@ -311,6 +318,7 @@
 
         <group id="leetcode.NavigatorActionsMenu">
             <reference id="leetcode.OpenAction"/>
+            <reference id="leetcode.OpenInWebAction"/>
             <separator/>
             <reference id="leetcode.SubmitAction"/>
             <reference id="leetcode.SubmissionsAction"/>
