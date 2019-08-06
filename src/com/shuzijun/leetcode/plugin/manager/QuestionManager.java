@@ -193,7 +193,7 @@ public class QuestionManager {
 
         if (StringUtils.isNotBlank(str)) {
             JSONObject jsonObject = JSONObject.parseObject(str);
-            Boolean isPremium = new Integer("1").equals(jsonObject.getInteger("frequency_high")); //Premium users display frequency
+            Boolean isPremium = new Integer("0").equals(jsonObject.getInteger("frequency_high")); //Premium users display frequency
             JSONArray jsonArray = jsonObject.getJSONArray("stat_status_pairs");
             for (int i = 0; i < jsonArray.size(); i++) {
                 JSONObject object = jsonArray.getJSONObject(i);
@@ -202,7 +202,7 @@ public class QuestionManager {
                 question.setQuestionId(object.getJSONObject("stat").getString("question_id"));
                 question.setFrontendQuestionId(object.getJSONObject("stat").getString("frontend_question_id"));
                 try {
-                    if(object.getBoolean("paid_only") && !isPremium){
+                    if(object.getBoolean("paid_only") && isPremium){
                         question.setStatus(object.getBoolean("paid_only") ? "lock" : null);
                     }else {
                         question.setStatus(object.get("status") == null ? "" : object.getString("status"));
