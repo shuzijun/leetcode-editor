@@ -190,7 +190,9 @@ public class ViewManager {
     private static void addChild(DefaultMutableTreeNode rootNode, List<Tag> Lists, Map<String, Question> questionMap) {
         if (!Lists.isEmpty()) {
             for (Tag tag : Lists) {
-                DefaultMutableTreeNode tagNode = new DefaultMutableTreeNode(new Question(tag.getName()));
+                long qCnt = tag.getQuestions().stream().filter(q -> questionMap.get(q) != null).count();
+                DefaultMutableTreeNode tagNode = new DefaultMutableTreeNode(new Question(String.format("%s(%d)",
+                    tag.getName(), qCnt)));
                 rootNode.add(tagNode);
                 for (String key : tag.getQuestions()) {
                     if (questionMap.get(key) != null) {
