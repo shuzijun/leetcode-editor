@@ -320,7 +320,7 @@ public class CodeManager {
                                     }
                                 }
                             } else {
-                                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", jsonObject.getString("full_compile_error")));
+                                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", buildSumitErrorMsg(jsonObject)));
                                 if (!"ac".equals(question.getStatus())) {
                                     question.setStatus("notac");
                                     ViewManager.updateStatus();
@@ -343,6 +343,19 @@ public class CodeManager {
             MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("response.timeout"));
         }
     }
+
+    private static String buildSumitErrorMsg(JSONObject errorBody) {
+        String statusMsg = (String)errorBody.get("status_msg");
+        if (StringUtils.isNotBlank(statusMsg)) {
+            if (statusMsg.equals("Compile Error")) {
+                return (String)errorBody.get("full_compile_error");
+            } else if (statusMsg.equals("Runtime Error")){
+                return (String)errorBody.get("full_runtime_error");
+            } else return statusMsg;
+        }
+        return "Unknown error";
+    }
+
 
     private static class RunCodeCheckTask implements Runnable {
         private JSONObject returnObj;
