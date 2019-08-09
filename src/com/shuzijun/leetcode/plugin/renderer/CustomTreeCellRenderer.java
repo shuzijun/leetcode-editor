@@ -20,16 +20,18 @@ public class CustomTreeCellRenderer extends NodeRenderer {
     }
 
     public static BufferedImage getResourceBufferedImage(String filePath) {
-        if (CustomTreeCellRenderer.class.getClassLoader().getResourceAsStream(filePath) != null)
+        if (CustomTreeCellRenderer.class.getClassLoader().getResourceAsStream(filePath) != null) {
             try {
                 return ImageIO.read(CustomTreeCellRenderer.class.getClassLoader().getResourceAsStream(filePath));
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
         return com.intellij.util.ui.UIUtil.createImage(10, 10, 1);
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public void customizeCellRenderer(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
 
         super.customizeCellRenderer(tree,value,selected,expanded,leaf,row,hasFocus);

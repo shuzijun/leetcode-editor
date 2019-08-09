@@ -51,4 +51,9 @@ public class Constant {
     public static final String STATUS_SOLVED = "Solved";
     public static final String STATUS_ATTEMPTED = "Attempted";
 
+    /**
+     * 默认模板
+     */
+    public static final String CUSTOM_FILE_NAME = "[$!{question.frontendQuestionId}]${question.title}";
+    public static final String CUSTOM_TEMPLATE = "${question.content}\n\n${question.code}";
 }

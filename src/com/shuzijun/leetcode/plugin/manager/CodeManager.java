@@ -345,13 +345,15 @@ public class CodeManager {
     }
 
     private static String buildSumitErrorMsg(JSONObject errorBody) {
-        String statusMsg = (String)errorBody.get("status_msg");
+        String statusMsg = errorBody.getString("status_msg");
         if (StringUtils.isNotBlank(statusMsg)) {
             if (statusMsg.equals("Compile Error")) {
-                return (String)errorBody.get("full_compile_error");
+                return errorBody.getString("full_compile_error");
             } else if (statusMsg.equals("Runtime Error")){
-                return (String)errorBody.get("full_runtime_error");
-            } else return statusMsg;
+                return errorBody.getString("full_runtime_error");
+            } else {
+                return statusMsg;
+            }
         }
         return "Unknown error";
     }

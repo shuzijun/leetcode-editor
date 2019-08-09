@@ -52,6 +52,20 @@ public class Config {
      */
     private Boolean proxy = false;
 
+    /**
+     * 自定义代码生成
+     */
+    private Boolean customCode = false;
+
+    /**
+     * 自定义文件名
+     */
+    private String customFileName = Constant.CUSTOM_FILE_NAME;
+    /**
+     * 自定义代码
+     */
+    private String customTemplate = Constant.CUSTOM_TEMPLATE;
+
     private List<String> favoriteList;
 
     public String getId() {
@@ -134,8 +148,32 @@ public class Config {
         this.proxy = proxy;
     }
 
+    public Boolean getCustomCode() {
+        return customCode;
+    }
+
+    public void setCustomCode(Boolean customCode) {
+        this.customCode = customCode;
+    }
+
+    public String getCustomFileName() {
+        return customFileName;
+    }
+
+    public void setCustomFileName(String customFileName) {
+        this.customFileName = customFileName;
+    }
+
+    public String getCustomTemplate() {
+        return customTemplate;
+    }
+
+    public void setCustomTemplate(String customTemplate) {
+        this.customTemplate = customTemplate;
+    }
+
     public List<String> getFavoriteList() {
-        if(favoriteList == null || favoriteList.isEmpty()){
+        if (favoriteList == null || favoriteList.isEmpty()) {
             favoriteList = new ArrayList<>();
             favoriteList.add("Favorite");
         }
