@@ -3,7 +3,7 @@ package com.shuzijun.leetcode.plugin.listener;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import org.apache.commons.io.FileUtils;
+import com.shuzijun.leetcode.plugin.utils.FileUtils;
 
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;

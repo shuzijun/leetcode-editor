@@ -41,6 +41,9 @@
 				<li> Login Name: Login Username</li>
 				<li> Password: Login password</li>
 				<li>Temp File Path: Temporary file storage catalogue</li>
+				<li>proxy(HTTP Proxy): HTTP Proxy,config path:`File` -> `settings`->`Appearance & Behavior`->`System Settings`->`HTTP Proxy`</li>
+                <li>Custom code template: Custom code template ([details](https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode.md))([demo](https://github.com/shuzijun/leetcode-question))</li>
+
 			</ul>
 		</div>
 		<br>
@@ -95,6 +98,7 @@
 				<li>Submissions: View the submission record, select the record details in the pop-up window (Show detail)</li>
 				<li>Run Code: Run the code, the test case for the question is used by default</li>
 				<li>Test case: Customize test cases</li>
+				<li>favorite:Add or remove favorite</li>
 				<li>Clear cache: Clean up the current questionL</li>
 			</ul>
 		</div>
