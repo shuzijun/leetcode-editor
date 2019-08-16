@@ -56,7 +56,7 @@ public class HtmlListener  implements Runnable {
             }
         }
 
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + question.getTitle() + ".md";
+        String filePath = PersistentConfig.getInstance().getTempFilePath() + question.getFormTitle() + ".md";
 
         File file = new File(filePath);
         if (file.exists()) {

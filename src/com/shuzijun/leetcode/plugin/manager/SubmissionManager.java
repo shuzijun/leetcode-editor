@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
+import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Submission;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
@@ -84,8 +85,9 @@ public class SubmissionManager {
             MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return;
         }
+        Config config = PersistentConfig.getInstance().getInitConfig();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnumByLangSlug(submission.getLang());
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + question.getTitle() + submission.getId() + codeTypeEnum.getSuffix();
+        String filePath = PersistentConfig.getInstance().getTempFilePath() + VelocityUtils.convert(config.getCustomFileName(), question) + submission.getId() + ".txt";
 
         File file = new File(filePath);
         if (file.exists()) {
@@ -110,25 +112,25 @@ public class SubmissionManager {
                             JSONObject jsonObject = JSONObject.parseObject(body);
                             StringBuffer sb = new StringBuffer();
 
-                            sb.append(jsonObject.getString("submissionCode").replaceAll("\\u000A","\n")).append("\n");
+                            sb.append(jsonObject.getString("submissionCode").replaceAll("\\u000A", "\n")).append("\n");
 
-                            JSONObject submissionData= jsonObject.getJSONObject("submissionData");
-                            if("Accepted".equals(submission.getStatus())){
+                            JSONObject submissionData = jsonObject.getJSONObject("submissionData");
+                            if ("Accepted".equals(submission.getStatus())) {
                                 sb.append(codeTypeEnum.getComment()).append("runtime:").append(submissionData.getString("runtime")).append("\n");
                                 sb.append(codeTypeEnum.getComment()).append("memory:").append(submissionData.getString("memory")).append("\n");
-                            }else if("Wrong Answer".equals(submission.getStatus())){
+                            } else if ("Wrong Answer".equals(submission.getStatus())) {
                                 sb.append(codeTypeEnum.getComment()).append("total_testcases:").append(submissionData.getString("total_testcases")).append("\n");
                                 sb.append(codeTypeEnum.getComment()).append("total_correct:").append(submissionData.getString("total_correct")).append("\n");
                                 sb.append(codeTypeEnum.getComment()).append("input_formatted:").append(submissionData.getString("input_formatted")).append("\n");
                                 sb.append(codeTypeEnum.getComment()).append("expected_output:").append(submissionData.getString("expected_output")).append("\n");
                                 sb.append(codeTypeEnum.getComment()).append("code_output:").append(submissionData.getString("code_output")).append("\n");
-                            }else if("Runtime Error".equals(submission.getStatus())){
+                            } else if ("Runtime Error".equals(submission.getStatus())) {
                                 sb.append(codeTypeEnum.getComment()).append("runtime_error:").append(submissionData.getString("runtime_error")).append("\n");
-                                sb.append(codeTypeEnum.getComment()).append("last_testcase:").append(submissionData.getString("last_testcase").replaceAll("(\\r|\\r\\n|\\n\\r|\\n)"," ")).append("\n");
-                            }else if("Compile Error".equals(submission.getStatus())){
+                                sb.append(codeTypeEnum.getComment()).append("last_testcase:").append(submissionData.getString("last_testcase").replaceAll("(\\r|\\r\\n|\\n\\r|\\n)", " ")).append("\n");
+                            } else if ("Compile Error".equals(submission.getStatus())) {
                                 sb.append(codeTypeEnum.getComment()).append("total_correct:").append(submissionData.getString("total_correct")).append("\n");
                                 sb.append(codeTypeEnum.getComment()).append("compile_error:").append(submissionData.getString("compile_error")).append("\n");
-                            }else{
+                            } else {
                                 sb.append(codeTypeEnum.getComment()).append("runtime:").append(submissionData.getString("runtime")).append("\n");
                                 sb.append(codeTypeEnum.getComment()).append("memory:").append(submissionData.getString("memory")).append("\n");
                                 sb.append(codeTypeEnum.getComment()).append("total_testcases:").append(submissionData.getString("total_testcases")).append("\n");
@@ -137,7 +139,7 @@ public class SubmissionManager {
                                 sb.append(codeTypeEnum.getComment()).append("expected_output:").append(submissionData.getString("expected_output")).append("\n");
                                 sb.append(codeTypeEnum.getComment()).append("code_output:").append(submissionData.getString("code_output")).append("\n");
                                 sb.append(codeTypeEnum.getComment()).append("runtime_error:").append(submissionData.getString("runtime_error")).append("\n");
-                                sb.append(codeTypeEnum.getComment()).append("last_testcase:").append(submissionData.getString("last_testcase").replaceAll("(\\r|\\r\\n|\\n\\r|\\n)"," ")).append("\n");
+                                sb.append(codeTypeEnum.getComment()).append("last_testcase:").append(submissionData.getString("last_testcase").replaceAll("(\\r|\\r\\n|\\n\\r|\\n)", " ")).append("\n");
 
                             }
 
@@ -148,7 +150,7 @@ public class SubmissionManager {
                             FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
 
                         } catch (Exception e) {
-                            LogUtils.LOG.error(body,e);
+                            LogUtils.LOG.error(body, e);
                             MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("submission.parse"));
                         }
                     }

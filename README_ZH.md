@@ -29,6 +29,8 @@
   - **`LoginName`**: 登录用户名
   - **`Password`**: 登录密码  
   - **`Temp File Path`**: 临时文件存放目录  
+  - **`proxy(HTTP Proxy)`**: 使用http代理,配置路径:`File` -> `settings`->`Appearance & Behavior`->`System Settings`->`HTTP Proxy`
+  - **`Custom code template`**: 自定义代码生成模板 ([详细介绍](https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode_ZH.md))([示例](https://github.com/shuzijun/leetcode-question))
   
 ### 窗口(主窗口右下角![icon](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/LeetCodeIcon.png))  
   
@@ -64,4 +66,5 @@
   - **`Submissions`**:查看提交记录,在弹出的窗口上选择记录查看详情(`Show detail`)  
   - **`Run Code`**:运行代码,默认使用题目的测试用例  
   - **`Testcase`**:自定义测试用例  
+  - **`favorite`**:添加或移除收藏
   - **`Clear cache`**:清理当前题目  

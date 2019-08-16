@@ -56,4 +56,18 @@ public class Constant {
      */
     public static final String CUSTOM_FILE_NAME = "[$!{question.frontendQuestionId}]${question.title}";
     public static final String CUSTOM_TEMPLATE = "${question.content}\n\n${question.code}";
+
+    /**
+     * 提交代码标识 submit
+     */
+    public static final String SUBMIT_REGION_BEGIN = "leetcode submit region begin(Prohibit modification and deletion)";
+    public static final String SUBMIT_REGION_END = "leetcode submit region end(Prohibit modification and deletion)";
+
+    /**
+     * 配置文件版本记录
+     */
+    //第一版本，不兼容之间的明文密码，从此版本开始隐藏密码
+    public static final Integer PLUGIN_CONFIG_VERSION_1 = 1;
+    //第二版本，不兼容之前的临时目录，从此版本开始更换新临时目录
+    public static final Integer PLUGIN_CONFIG_VERSION_2 = 2;
 }

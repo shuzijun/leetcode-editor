@@ -18,9 +18,22 @@ public class Question {
     private String testCase;
     private String langSlug;
     private String nodeType = Constant.NODETYPE_DEF;
+    /**
+     * 页面的题目编号
+     */
     private String frontendQuestionId;
+    /**
+     * 题目描述
+     */
+    private String content;
 
-    public Question(){
+    /**
+     * 题目代码
+     */
+    private String code;
+
+
+    public Question() {
 
     }
 
@@ -34,6 +47,10 @@ public class Question {
     }
 
     public String getTitle() {
+        return title;
+    }
+
+    public String getFormTitle() {
         StringBuffer sb = new StringBuffer();
         if (StringUtils.isNotBlank(frontendQuestionId)) {
             sb.append("[").append(frontendQuestionId).append("]");
@@ -131,6 +148,22 @@ public class Question {
 
     public void setFrontendQuestionId(String frontendQuestionId) {
         this.frontendQuestionId = frontendQuestionId;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     @Override

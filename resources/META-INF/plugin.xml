@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>4.3</version>
+    <version>5.0</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -102,6 +102,12 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v5.0<br>
+                1.增加代码自定义生成(<a href="https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode_ZH.md">详细介绍</a>)(<a href="https://github.com/shuzijun/leetcode-question">示例</a>)
+            </li>
+            <li>v5.0<br>
+                1.add code custom(<a href="https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode.md">details</a>)(<a href="https://github.com/shuzijun/leetcode-question">demo</a>)
+            </li>
             <li>v4.3<br>
                 1.修复付费用户订阅题目展示<br>
                 2.修复leetcode-cn.com登陆问题<br>
@@ -238,6 +244,7 @@
     </application-components>
 
     <extensions defaultExtensionNs="com.intellij">
+<!--    <postStartupActivity  implementation = "com.shuzijun.leetcode.plugin.listener.RegisterPluginInstallerStateListener"></postStartupActivity>-->
         <toolWindow id="leetcode" secondary="true" icon="/image/LeetCodeIcon.png" anchor="right"
                     factoryClass="com.shuzijun.leetcode.plugin.window.WindowFactory"/>
         <applicationService serviceInterface="com.shuzijun.leetcode.plugin.setting.PersistentConfig"

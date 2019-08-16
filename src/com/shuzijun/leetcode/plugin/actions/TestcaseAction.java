@@ -39,7 +39,7 @@ public class TestcaseAction extends AbstractAction {
             CodeManager.setTestCaeAndLang(question, codeTypeEnum);
         }
         TestcasePanel dialog = new TestcasePanel(anActionEvent.getProject());
-        dialog.setTitle(question.getTitle() + " Testcase");
+        dialog.setTitle(question.getFormTitle() + " Testcase");
         dialog.setText(question.getTestCase());
         if (dialog.showAndGet()) {
             String text = dialog.testcaeText();

@@ -19,7 +19,8 @@ import java.util.Map;
 @State(name = "PersistentConfig", storages = {@Storage(value = "leetcode-config.xml", roamingType = RoamingType.DISABLED)})
 public class PersistentConfig implements PersistentStateComponent<PersistentConfig> {
 
-    public static String PATH = "leetcode-plugin";
+    public static String PATH = "leetcode" + File.separator + "editor";
+    public static String OLDPATH = "leetcode-plugin";
     private static String INITNAME = "initConfig";
 
     private Map<String, Config> initConfig = new HashMap<>();
@@ -64,15 +65,15 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
         return getConfig().getFilePath() + File.separator + PATH + File.separator + initConfig.get(INITNAME).getAlias() + File.separator;
     }
 
-    public void savePassword(String password){
-        PasswordSafe.getInstance().storePassword(null,this.getClass(),"leetcode-editor",password != null ? password : "");
+    public void savePassword(String password) {
+        PasswordSafe.getInstance().storePassword(null, this.getClass(), "leetcode-editor", password != null ? password : "");
     }
 
-    public String getPassword(String password) {
+    public String getPassword() {
         if (getConfig().getVersion() != null) {
-            return  PasswordSafe.getInstance().getPassword(null,this.getClass(),"leetcode-editor");
+            return PasswordSafe.getInstance().getPassword(null, this.getClass(), "leetcode-editor");
         } else {
-            return password;
+            return getInitConfig().getPassword();
         }
 
     }

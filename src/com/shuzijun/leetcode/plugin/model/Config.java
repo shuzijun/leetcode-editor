@@ -1,5 +1,7 @@
 package com.shuzijun.leetcode.plugin.model;
 
+import com.intellij.util.xmlb.annotations.Transient;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +27,7 @@ public class Config {
     /**
      * 密码
      */
+    @Transient
     private String password;
 
     /**
@@ -157,7 +160,11 @@ public class Config {
     }
 
     public String getCustomFileName() {
-        return customFileName;
+        if (!customCode) {
+            return Constant.CUSTOM_FILE_NAME;
+        } else {
+            return customFileName;
+        }
     }
 
     public void setCustomFileName(String customFileName) {
@@ -165,7 +172,11 @@ public class Config {
     }
 
     public String getCustomTemplate() {
-        return customTemplate;
+        if (!customCode) {
+            return Constant.CUSTOM_TEMPLATE;
+        } else {
+            return customTemplate;
+        }
     }
 
     public void setCustomTemplate(String customTemplate) {

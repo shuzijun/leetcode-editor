@@ -66,6 +66,7 @@ public class SettingConfigurable implements SearchableConfigurable {
 
     @Override
     public void disposeUIResources() {
+        mainPanel.disposeUIResources();
         mainPanel = null;
     }
 }

@@ -38,7 +38,7 @@ public class SubmissionsAction extends AbstractAction {
         }
         SubmissionsAction.TableModel tableModel = new SubmissionsAction.TableModel(submissionList);
         SubmissionsPanel dialog = new SubmissionsPanel(anActionEvent.getProject(), tableModel);
-        dialog.setTitle(question.getTitle() + " Submissions");
+        dialog.setTitle(question.getFormTitle() + " Submissions");
 
         if (dialog.showAndGet()) {
             SubmissionManager.openSubmission(submissionList.get(dialog.getSelectedRow()), question, anActionEvent.getProject());

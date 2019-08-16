@@ -30,6 +30,8 @@
   - **`LoginName`**: Login Username
   - **`Password`**: Login password  
   - **`Temp File Path`**: Temporary file storage catalogue  
+  - **`proxy(HTTP Proxy)`**: HTTP Proxy,config path:`File` -> `settings`->`Appearance & Behavior`->`System Settings`->`HTTP Proxy`
+  - **`Custom code template`**: Custom code template ([details](https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode.md))([demo](https://github.com/shuzijun/leetcode-question))
   
 ### Window (Icon in the lower right corner of the main window![icon](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/LeetCodeIcon.png))  
   
@@ -65,4 +67,5 @@
   - **`Submissions`**:View the submission record, select the record details in the pop-up window(`Show detail`)  
   - **`Run Code`**:Run the code, the test case for the question is used by default  
   - **`Testcase`**:Customize test cases  
+  - **`favorite`**:Add or remove favorite
   - **`Clear cache`**:Clean up the current question  

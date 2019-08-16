@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
+import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
@@ -33,7 +34,8 @@ public class CodeManager {
     private static ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
 
     public static void openCode(Question question, Project project) {
-        String codeType = PersistentConfig.getInstance().getInitConfig().getCodeType();
+        Config config = PersistentConfig.getInstance().getInitConfig();
+        String codeType = config.getCodeType();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
         if (codeTypeEnum == null) {
             MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("config.code"));
@@ -44,7 +46,7 @@ public class CodeManager {
             return;
         }
 
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + question.getTitle() + codeTypeEnum.getSuffix();
+        String filePath = PersistentConfig.getInstance().getTempFilePath() + VelocityUtils.convert(config.getCustomFileName(), question) + codeTypeEnum.getSuffix();
 
         File file = new File(filePath);
         if (file.exists()) {
@@ -64,10 +66,9 @@ public class CodeManager {
 
                     String body = EntityUtils.toString(response.getEntity(), "UTF-8");
 
-                    StringBuffer sb = new StringBuffer();
                     JSONObject jsonObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("question");
 
-                    sb.append(CommentUtils.createComment(jsonObject.getString(URLUtils.getDescContent()), codeTypeEnum));
+                    question.setContent(CommentUtils.createComment(jsonObject.getString(URLUtils.getDescContent()), codeTypeEnum));
 
                     question.setTestCase(jsonObject.getString("sampleTestCase"));
 
@@ -76,12 +77,17 @@ public class CodeManager {
                         JSONObject object = jsonArray.getJSONObject(i);
                         if (codeTypeEnum.getType().equals(object.getString("lang"))) {
                             question.setLangSlug(object.getString("langSlug"));
-                            sb.append("\n\n").append(object.getString("code").replaceAll("\\n", "\n"));
+                            StringBuffer sb = new StringBuffer();
+                            sb.append("\n\n");
+                            sb.append(codeTypeEnum.getComment()).append(Constant.SUBMIT_REGION_BEGIN).append("\n");
+                            sb.append(object.getString("code").replaceAll("\\n", "\n")).append("\n");
+                            sb.append(codeTypeEnum.getComment()).append(Constant.SUBMIT_REGION_END).append("\n");
+                            question.setCode(sb.toString());
                             break;
                         }
                     }
 
-                    FileUtils.saveFile(file, sb.toString());
+                    FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
 
                     VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
                     OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
@@ -101,10 +107,10 @@ public class CodeManager {
     }
 
     public static void SubmitCode(Question question) {
-
-        String codeType = PersistentConfig.getInstance().getInitConfig().getCodeType();
+        Config config = PersistentConfig.getInstance().getInitConfig();
+        String codeType = config.getCodeType();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
-        String code = getCodeText(question, codeTypeEnum);
+        String code = getCodeText(question, config, codeTypeEnum);
         if (StringUtils.isBlank(code)) {
             return;
         }
@@ -130,7 +136,7 @@ public class CodeManager {
                 cachedThreadPool.execute(new SubmitCheckTask(returnObj, codeTypeEnum, question));
                 MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
             } else {
-                LogUtils.LOG.error("提交失败：url："+post.getURI().getPath()+";param:"+arg.toJSONString()+";body:" + EntityUtils.toString(response.getEntity(), "UTF-8"));
+                LogUtils.LOG.error("提交失败：url：" + post.getURI().getPath() + ";param:" + arg.toJSONString() + ";body:" + EntityUtils.toString(response.getEntity(), "UTF-8"));
                 MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
             }
         } catch (IOException i) {
@@ -144,10 +150,11 @@ public class CodeManager {
     }
 
     public static void RuncodeCode(Question question) {
-        String codeType = PersistentConfig.getInstance().getInitConfig().getCodeType();
+        Config config = PersistentConfig.getInstance().getInitConfig();
+        String codeType = config.getCodeType();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
 
-        String code = getCodeText(question, codeTypeEnum);
+        String code = getCodeText(question, config, codeTypeEnum);
         if (StringUtils.isBlank(code)) {
             return;
         }
@@ -180,12 +187,12 @@ public class CodeManager {
             }
         } catch (IOException i) {
             MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
-        }finally {
+        } finally {
             post.abort();
         }
     }
 
-    private static String getCodeText(Question question, CodeTypeEnum codeTypeEnum) {
+    private static String getCodeText(Question question, Config config, CodeTypeEnum codeTypeEnum) {
         if (codeTypeEnum == null) {
             MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("config.code"));
             return null;
@@ -194,7 +201,7 @@ public class CodeManager {
             MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return null;
         }
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + question.getTitle() + codeTypeEnum.getSuffix();
+        String filePath = PersistentConfig.getInstance().getTempFilePath() + VelocityUtils.convert(config.getCustomFileName(), question) + codeTypeEnum.getSuffix();
         File file = new File(filePath);
         if (!file.exists()) {
             MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("request.code"));
@@ -349,7 +356,7 @@ public class CodeManager {
         if (StringUtils.isNotBlank(statusMsg)) {
             if (statusMsg.equals("Compile Error")) {
                 return errorBody.getString("full_compile_error");
-            } else if (statusMsg.equals("Runtime Error")){
+            } else if (statusMsg.equals("Runtime Error")) {
                 return errorBody.getString("full_runtime_error");
             } else {
                 return statusMsg;
@@ -398,7 +405,7 @@ public class CodeManager {
                     httpget.abort();
                     Thread.sleep(300L);
                 } catch (Exception e) {
-                    LogUtils.LOG.error("提交出错，body:"+body +",returnObj:"+returnObj.toJSONString(), e);
+                    LogUtils.LOG.error("提交出错，body:" + body + ",returnObj:" + returnObj.toJSONString(), e);
                     MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
                     return;
                 }

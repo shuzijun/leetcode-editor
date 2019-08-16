@@ -59,7 +59,7 @@ public class LoginAction extends AbstractAsynAction {
             HttpEntity ent = MultipartEntityBuilder.create()
                     .addTextBody("csrfmiddlewaretoken", HttpClientUtils.getToken())
                     .addTextBody("login", config.getLoginName())
-                    .addTextBody("password", PersistentConfig.getInstance().getPassword(config.getPassword()))
+                    .addTextBody("password", PersistentConfig.getInstance().getPassword())
                     .addTextBody("next", "/problems")
                     .build();
             post.setEntity(ent);

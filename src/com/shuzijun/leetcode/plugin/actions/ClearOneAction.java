@@ -8,6 +8,7 @@ import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.utils.VelocityUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -31,13 +32,13 @@ public class ClearOneAction extends AbstractAction {
             return;
         }
 
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + question.getTitle() + codeTypeEnum.getSuffix();
+        String filePath = PersistentConfig.getInstance().getTempFilePath() + VelocityUtils.convert(config.getCustomFileName(), question) + codeTypeEnum.getSuffix();
 
         File file = new File(filePath);
         if (file.exists()) {
             file.delete();
         }
-        MessageUtils.showInfoMsg(question.getTitle(), PropertiesUtils.getInfo("clear.success"));
+        MessageUtils.showInfoMsg(question.getFormTitle(), PropertiesUtils.getInfo("clear.success"));
 
     }
 }
