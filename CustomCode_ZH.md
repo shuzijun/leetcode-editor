@@ -1,8 +1,8 @@
-#自定义代码生成介绍
+# 自定义代码生成介绍  
   通过配置自定义代码生成模板可以自由生成代码格式，配合IDE可在本地调试代码。[示例工程](https://github.com/shuzijun/leetcode-question)  
   - [English Document](https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode.md)  
   - [中文文档](#配置)   
-##配置
+## 配置  
 <p align="center">
   <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/customConfig.png" alt="customConfig"/>
 </p>  
@@ -18,7 +18,7 @@
     - **${question.code}**：题目代码部分  
     - **$!velocityTool.camelCaseName(str)**：一个函数，用来将字符串转化为驼峰样式  
 
-##注意
+## 注意  
   在生成的自定义模板中包含该两行关键信息:  
   - `leetcode submit region begin(Prohibit modification and deletion)`:提交到leetcode进行验证的代码开始标记  
   - `leetcode submit region end(Prohibit modification and deletion)`:提交到leetcode进行验证的代码结束标记  
@@ -26,7 +26,7 @@
   除了此范围内，其他区域是可以任意填写的，内容不会提交到leetcode，可以增加一些可以本地调试的内容，例如:import java.util.Arrays;  
   所以，这两行内容是不能被删除和修改的，否则将识别不到提交的内容。
   
-##JAVA常用配置
+## JAVA常用配置  
   可参考示例：[示例工程](https://github.com/shuzijun/leetcode-question)  
   CodeFileName:
   ```java
