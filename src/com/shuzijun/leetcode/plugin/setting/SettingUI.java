@@ -14,6 +14,7 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
+import com.shuzijun.leetcode.plugin.listener.DonateListener;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
@@ -192,6 +193,7 @@ public class SettingUI extends JDialog  {
                 templateEditor.getDocument().setText(Constant.CUSTOM_TEMPLATE);
             });
         }
+        customCodeBox.addActionListener(new DonateListener(customCodeBox));
     }
 
     private void addComponent(Component component, GridBagConstraints constraints, int x, int y, int ex, int ey) {
