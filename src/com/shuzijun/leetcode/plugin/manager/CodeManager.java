@@ -68,7 +68,7 @@ public class CodeManager {
 
                     JSONObject jsonObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("question");
 
-                    question.setContent(CommentUtils.createComment(jsonObject.getString(URLUtils.getDescContent()), codeTypeEnum));
+                    question.setContent(CommentUtils.createComment(getContent(jsonObject), codeTypeEnum));
 
                     question.setTestCase(jsonObject.getString("sampleTestCase"));
 
@@ -279,6 +279,27 @@ public class CodeManager {
             }
         }
         return true;
+    }
+
+    private static String getContent(JSONObject jsonObject) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(jsonObject.getString(URLUtils.getDescContent()));
+        JSONArray topicTagsArray = jsonObject.getJSONArray("topicTags");
+        if (topicTagsArray != null && !topicTagsArray.isEmpty()) {
+            sb.append("<div><div>Related Topics</div><div>");
+            for (int i = 0; i < topicTagsArray.size(); i++) {
+                JSONObject tag = topicTagsArray.getJSONObject(i);
+                sb.append("<span>");
+                if(StringUtils.isBlank(tag.getString("translatedName"))){
+                    sb.append(tag.getString("name"));
+                }else {
+                    sb.append(tag.getString("translatedName"));
+                }
+                sb.append("</span>");
+            }
+            sb.append("</div></div>");
+        }
+        return sb.toString();
     }
 
     private static class SubmitCheckTask implements Runnable {
