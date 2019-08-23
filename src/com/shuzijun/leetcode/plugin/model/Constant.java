@@ -6,6 +6,8 @@ package com.shuzijun.leetcode.plugin.model;
  * @author shuzijun
  */
 public class Constant {
+
+    public static final String PLUGIN_ID = "leetcode-editor";
     /**
      * 通知分组
      */

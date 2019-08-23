@@ -77,7 +77,9 @@ public class LoginAction extends AbstractAsynAction {
                 examineEmail();
                 MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
             } else {
-                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.failed"));
+                HttpClientUtils.resetHttpclient();
+                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
+                SentryUtils.submitErrorReport(null,String.format("login.unknown:\nStatusCode:%s\nbody:%s",loginResponse.getStatusLine().getStatusCode(),body));
                 return;
             }
         } catch (Exception e) {

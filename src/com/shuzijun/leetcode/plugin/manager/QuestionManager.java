@@ -13,6 +13,7 @@ import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.FileUtils;
 import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
+import com.shuzijun.leetcode.plugin.utils.LogUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -20,8 +21,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -31,7 +30,6 @@ import java.util.*;
  */
 public class QuestionManager {
 
-    private final static Logger logger = LoggerFactory.getLogger(QuestionManager.class);
 
     private  static List<Question> QUESTIONLIST = null;
 
@@ -50,7 +48,7 @@ public class QuestionManager {
                 String body = EntityUtils.toString(response.getEntity(), "UTF-8");
                 questionList = parseQuestion(body);
             } catch (IOException e1) {
-                logger.error("获取题目内容错误", e1);
+                LogUtils.LOG.error("获取题目内容错误", e1);
             }
         }
         httpget.abort();
@@ -156,10 +154,10 @@ public class QuestionManager {
                 String body = EntityUtils.toString(response.getEntity(), "UTF-8");
                 tags = parseTag(body);
             } catch (IOException e1) {
-                logger.error("获取题目分类错误", e1);
+                LogUtils.LOG.error("获取题目分类错误", e1);
             }
         } else {
-            logger.error("获取题目分类网络错误");
+            LogUtils.LOG.error("获取题目分类网络错误");
         }
         httpget.abort();
 
@@ -176,10 +174,10 @@ public class QuestionManager {
                 String body = EntityUtils.toString(response.getEntity(), "UTF-8");
                 tags = parseList(body);
             } catch (IOException e1) {
-                logger.error("获取列表分类错误", e1);
+                LogUtils.LOG.error("获取列表分类错误", e1);
             }
         } else {
-            logger.error("获取列表分类网络错误");
+            LogUtils.LOG.error("获取列表分类网络错误");
         }
         httpget.abort();
 
@@ -262,11 +260,11 @@ public class QuestionManager {
                         }
                     }
                 } else {
-                    logger.error("读取翻译内容为空");
+                    LogUtils.LOG.error("读取翻译内容为空");
                 }
 
             } catch (IOException e1) {
-                logger.error("获取题目翻译错误", e1);
+                LogUtils.LOG.error("获取题目翻译错误", e1);
             } finally {
                 translationPost.abort();
             }

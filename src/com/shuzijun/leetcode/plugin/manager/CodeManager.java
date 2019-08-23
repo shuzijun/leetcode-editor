@@ -55,55 +55,99 @@ public class CodeManager {
             OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
             FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
         } else {
-            try {
-                HttpPost post = new HttpPost(URLUtils.getLeetcodeGraphql());
-                StringEntity entity = new StringEntity("{\"operationName\":\"questionData\",\"variables\":{\"titleSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query questionData($titleSlug: String!) {\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    questionFrontendId\\n    boundTopicId\\n    title\\n    titleSlug\\n    content\\n    translatedTitle\\n    translatedContent\\n    isPaidOnly\\n    difficulty\\n    likes\\n    dislikes\\n    isLiked\\n    similarQuestions\\n    contributors {\\n      username\\n      profileUrl\\n      avatarUrl\\n      __typename\\n    }\\n    langToValidPlayground\\n    topicTags {\\n      name\\n      slug\\n      translatedName\\n      __typename\\n    }\\n    companyTagStats\\n    codeSnippets {\\n      lang\\n      langSlug\\n      code\\n      __typename\\n    }\\n    stats\\n    hints\\n    solution {\\n      id\\n      canSeeDetail\\n      __typename\\n    }\\n    status\\n    sampleTestCase\\n    metaData\\n    judgerAvailable\\n    judgeType\\n    mysqlSchemas\\n    enableRunCode\\n    enableTestMode\\n    envInfo\\n    __typename\\n  }\\n}\\n\"}");
-                post.setEntity(entity);
-                post.setHeader("Accept", "application/json");
-                post.setHeader("Content-type", "application/json");
-                CloseableHttpResponse response = HttpClientUtils.executePost(post);
-                if (response != null && response.getStatusLine().getStatusCode() == 200) {
 
-                    String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+            if (getQuestion(question, codeTypeEnum)) {
+                question.setContent(CommentUtils.createComment(question.getContent(), codeTypeEnum));
+                FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
 
-                    JSONObject jsonObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("question");
+                VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+                OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
+                FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+            }
+        }
+    }
 
-                    question.setContent(CommentUtils.createComment(getContent(jsonObject), codeTypeEnum));
 
-                    question.setTestCase(jsonObject.getString("sampleTestCase"));
+    public static void openContent(Question question, Project project) {
+        Config config = PersistentConfig.getInstance().getInitConfig();
+        String codeType = config.getCodeType();
+        CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
+        if (codeTypeEnum == null) {
+            MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("config.code"));
+            return;
+        }
 
-                    JSONArray jsonArray = jsonObject.getJSONArray("codeSnippets");
-                    for (int i = 0; i < jsonArray.size(); i++) {
-                        JSONObject object = jsonArray.getJSONObject(i);
-                        if (codeTypeEnum.getType().equals(object.getString("lang"))) {
-                            question.setLangSlug(object.getString("langSlug"));
-                            StringBuffer sb = new StringBuffer();
-                            sb.append("\n\n");
-                            sb.append(codeTypeEnum.getComment()).append(Constant.SUBMIT_REGION_BEGIN).append("\n");
-                            sb.append(object.getString("code").replaceAll("\\n", "\n")).append("\n");
-                            sb.append(codeTypeEnum.getComment()).append(Constant.SUBMIT_REGION_END).append("\n");
-                            question.setCode(sb.toString());
-                            break;
-                        }
-                    }
+        if (!fillQuestion(question)) {
+            return;
+        }
 
-                    FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
+        String filePath = PersistentConfig.getInstance().getTempFilePath() + VelocityUtils.convert(config.getCustomFileName(), question) + ".md";
 
-                    VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-                    OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
-                    FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+        File file = new File(filePath);
+        if (file.exists()) {
 
-                } else {
-                    MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
-                }
-                post.abort();
-            } catch (Exception e) {
-                LogUtils.LOG.error("获取代码失败", e);
-                MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
-                return;
+            VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+            OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
+            FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+        } else {
+            if (getQuestion(question, codeTypeEnum)) {
+                FileUtils.saveFile(file, question.getContent());
+
+                VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+                OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
+                FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
             }
 
         }
+    }
+
+    private static boolean getQuestion(Question question, CodeTypeEnum codeTypeEnum) {
+        HttpPost post = null;
+        try {
+            post = new HttpPost(URLUtils.getLeetcodeGraphql());
+            StringEntity entity = new StringEntity("{\"operationName\":\"questionData\",\"variables\":{\"titleSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query questionData($titleSlug: String!) {\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    questionFrontendId\\n    boundTopicId\\n    title\\n    titleSlug\\n    content\\n    translatedTitle\\n    translatedContent\\n    isPaidOnly\\n    difficulty\\n    likes\\n    dislikes\\n    isLiked\\n    similarQuestions\\n    contributors {\\n      username\\n      profileUrl\\n      avatarUrl\\n      __typename\\n    }\\n    langToValidPlayground\\n    topicTags {\\n      name\\n      slug\\n      translatedName\\n      __typename\\n    }\\n    companyTagStats\\n    codeSnippets {\\n      lang\\n      langSlug\\n      code\\n      __typename\\n    }\\n    stats\\n    hints\\n    solution {\\n      id\\n      canSeeDetail\\n      __typename\\n    }\\n    status\\n    sampleTestCase\\n    metaData\\n    judgerAvailable\\n    judgeType\\n    mysqlSchemas\\n    enableRunCode\\n    enableTestMode\\n    envInfo\\n    __typename\\n  }\\n}\\n\"}");
+            post.setEntity(entity);
+            post.setHeader("Accept", "application/json");
+            post.setHeader("Content-type", "application/json");
+            CloseableHttpResponse response = HttpClientUtils.executePost(post);
+            if (response != null && response.getStatusLine().getStatusCode() == 200) {
+
+                String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+
+                JSONObject jsonObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("question");
+
+                question.setContent(getContent(jsonObject));
+
+                question.setTestCase(jsonObject.getString("sampleTestCase"));
+
+                JSONArray jsonArray = jsonObject.getJSONArray("codeSnippets");
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JSONObject object = jsonArray.getJSONObject(i);
+                    if (codeTypeEnum.getType().equals(object.getString("lang"))) {
+                        question.setLangSlug(object.getString("langSlug"));
+                        StringBuffer sb = new StringBuffer();
+                        sb.append("\n\n");
+                        sb.append(codeTypeEnum.getComment()).append(Constant.SUBMIT_REGION_BEGIN).append("\n");
+                        sb.append(object.getString("code").replaceAll("\\n", "\n")).append("\n");
+                        sb.append(codeTypeEnum.getComment()).append(Constant.SUBMIT_REGION_END).append("\n");
+                        question.setCode(sb.toString());
+                        break;
+                    }
+                }
+                return Boolean.TRUE;
+            } else {
+                MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
+            }
+
+        } catch (Exception e) {
+            LogUtils.LOG.error("获取代码失败", e);
+            MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
+        } finally {
+            if (post != null) {
+                post.abort();
+            }
+        }
+        return Boolean.FALSE;
     }
 
     public static void SubmitCode(Question question) {
@@ -289,13 +333,13 @@ public class CodeManager {
             sb.append("<div><div>Related Topics</div><div>");
             for (int i = 0; i < topicTagsArray.size(); i++) {
                 JSONObject tag = topicTagsArray.getJSONObject(i);
-                sb.append("<span>");
-                if(StringUtils.isBlank(tag.getString("translatedName"))){
+                sb.append("<li>");
+                if (StringUtils.isBlank(tag.getString("translatedName"))) {
                     sb.append(tag.getString("name"));
-                }else {
+                } else {
                     sb.append(tag.getString("translatedName"));
                 }
-                sb.append("</span>");
+                sb.append("</li>");
             }
             sb.append("</div></div>");
         }

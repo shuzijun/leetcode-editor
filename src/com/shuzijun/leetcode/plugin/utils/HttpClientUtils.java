@@ -28,8 +28,6 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.*;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -44,9 +42,6 @@ import java.util.List;
  * @author shuzijun
  */
 public class HttpClientUtils {
-
-    private final static Logger logger = LoggerFactory.getLogger(HttpClientUtils.class);
-
 
     private static CloseableHttpClient httpclient = null;
     private static HttpClientContext context = null;
@@ -120,8 +115,8 @@ public class HttpClientUtils {
         try {
             CloseableHttpResponse response = httpclient.execute(httpUriRequest, context);
             return response;
-        } catch (IOException e) {
-            logger.error("请求出错:", e);
+        } catch (Exception e) {
+            LogUtils.LOG.error("请求出错:", e);
         } finally {
         }
 
@@ -173,7 +168,7 @@ public class HttpClientUtils {
             try {
                 httpclient.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                LogUtils.LOG.error("close error:", e);
             } finally {
                 httpclient = null;
                 context = null;
@@ -210,7 +205,7 @@ public class HttpClientUtils {
             return connectionManager;
 
         } catch (Exception e) {
-            logger.error("创建PoolingHttpClientConnectionManager失败", e);
+            LogUtils.LOG.error("创建PoolingHttpClientConnectionManager失败", e);
         }
         return new PoolingHttpClientConnectionManager();
     }

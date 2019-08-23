@@ -25,6 +25,13 @@
 			</p>
 		</div>
 		<br>
+		<div>
+			<h2>Local debugging  </h2>
+			<br>
+			<p >
+				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/customConfig-100.gif" alt="demo" />
+			</p>
+		</div>
 		<br>
 		<div>
 			<h2>Configuration (configuration for first installation)</h2>
@@ -107,10 +114,12 @@
     <change-notes><![CDATA[
          <ul>
             <li>v5.0<br>
-                1.增加代码自定义生成(<a href="https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode_ZH.md">详细介绍</a>)(<a href="https://github.com/shuzijun/leetcode-question">示例</a>)
+                1.增加代码自定义生成(<a href="https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode_ZH.md">详细介绍</a>)(<a href="https://github.com/shuzijun/leetcode-question">示例</a>)<br>
+                2.增加查看题目描述(依赖 Markdown)<br>
             </li>
             <li>v5.0<br>
-                1.add code custom(<a href="https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode.md">details</a>)(<a href="https://github.com/shuzijun/leetcode-question">demo</a>)
+                1.add code custom(<a href="https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode.md">details</a>)(<a href="https://github.com/shuzijun/leetcode-question">demo</a>)<br>
+                2.add show content(Rely on Markdown)
             </li>
             <li>v4.3<br>
                 1.修复付费用户订阅题目展示<br>
@@ -249,6 +258,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
 <!--    <postStartupActivity  implementation = "com.shuzijun.leetcode.plugin.listener.RegisterPluginInstallerStateListener"></postStartupActivity>-->
+        <errorHandler implementation="com.shuzijun.leetcode.plugin.listener.ErrorReportHandler"/>
         <toolWindow id="leetcode" secondary="true" icon="/image/LeetCodeIcon.png" anchor="right"
                     factoryClass="com.shuzijun.leetcode.plugin.window.WindowFactory"/>
         <applicationService serviceInterface="com.shuzijun.leetcode.plugin.setting.PersistentConfig"
@@ -287,6 +297,11 @@
         <action id="leetcode.OpenAction" class="com.shuzijun.leetcode.plugin.actions.OpenAction"
                 text="open question" description="open question" icon="AllIcons.Actions.Annotate">
         </action>
+
+        <action id="leetcode.OpenContentAction" class="com.shuzijun.leetcode.plugin.actions.OpenContentAction"
+                text="open content" description="open content" icon="AllIcons.FileTypes.UiForm">
+        </action>
+
 
         <action id="leetcode.OpenInWebAction" class="com.shuzijun.leetcode.plugin.actions.OpenInWebAction"
                 text="open in web" description="open in web" icon="AllIcons.Actions.MoveTo2">
@@ -329,6 +344,7 @@
 
         <group id="leetcode.NavigatorActionsMenu">
             <reference id="leetcode.OpenAction"/>
+            <reference id="leetcode.OpenContentAction"/>
             <reference id="leetcode.OpenInWebAction"/>
             <separator/>
             <reference id="leetcode.SubmitAction"/>

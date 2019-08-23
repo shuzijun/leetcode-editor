@@ -3,8 +3,6 @@ package com.shuzijun.leetcode.plugin.utils;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.LinkedList;
@@ -15,7 +13,6 @@ import java.util.List;
  */
 public class FileUtils {
 
-    private final static Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
     public static void saveFile(String path, String body) {
         saveFile(new File(path), body);
@@ -33,7 +30,7 @@ public class FileUtils {
             fileOutputStream.write(body.getBytes("UTF-8"));
             fileOutputStream.close();
         } catch (IOException io) {
-            logger.error("获取题目翻译错误", io);
+            LogUtils.LOG.error("保存文件错误", io);
         }
     }
 
@@ -52,7 +49,7 @@ public class FileUtils {
                 in.close();
                 all = new String(filecontent, "UTF-8");
             } catch (IOException i) {
-                logger.error("读取文件错误", i);
+                LogUtils.LOG.error("读取文件错误", i);
 
             }
         }

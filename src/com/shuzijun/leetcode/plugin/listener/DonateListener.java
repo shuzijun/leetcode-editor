@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.shuzijun.leetcode.plugin.utils.LogUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -28,7 +29,7 @@ public class DonateListener implements ActionListener {
         if (jcb.isSelected()) {
             Project project = ProjectManager.getInstance().getDefaultProject();
             DonateListener.DonatePanel dialog = new DonateListener.DonatePanel(project);
-            dialog.setTitle("Donate");
+            dialog.setTitle(PropertiesUtils.getInfo("donate.info"));
             dialog.showAndGet();
         }
     }

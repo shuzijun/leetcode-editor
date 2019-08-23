@@ -13,6 +13,11 @@
   <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/leetcode-editor-3.0.gif" alt="demo"/>
 </p>  
 
+## 本地调试  
+<p align="center">
+  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/dev/doc/customConfig-100.gif" alt="demo"/>
+</p>  
+
 ### 安装  
 - **通过插件库安装** https://plugins.jetbrains.com/plugin/12132-leetcode-editor  
 - **下载文件安装** https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/leetcode-editor.zip  
@@ -62,6 +67,7 @@
 
 - **菜单(在题目上右击出现)**:  
   - **`open question`**:打开题目,在题目上双击也可以打开  
+  - **`open content`**:查看描述，包含图片(依赖 Markdown)  
   - **`Submit`**:提交题目  
   - **`Submissions`**:查看提交记录,在弹出的窗口上选择记录查看详情(`Show detail`)  
   - **`Run Code`**:运行代码,默认使用题目的测试用例  
