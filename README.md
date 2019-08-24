@@ -16,7 +16,7 @@
 
 ## Local debugging  
 <p align="center">
-  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/dev/doc/customConfig-100.gif" alt="demo"/>
+  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/customConfig-100.gif" alt="demo"/>
 </p>  
 
 ### Installation  

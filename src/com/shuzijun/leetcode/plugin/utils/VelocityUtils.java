@@ -5,6 +5,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 
 import java.io.StringWriter;
+import java.util.Properties;
 
 /**
  * @author shuzijun
@@ -21,7 +22,13 @@ public class VelocityUtils {
         engine.setProperty(RuntimeConstants.PARSER_POOL_SIZE, 20);
         engine.setProperty(RuntimeConstants.INPUT_ENCODING, "UTF-8");
         engine.setProperty(RuntimeConstants.OUTPUT_ENCODING, "UTF-8");
-        engine.init();
+
+        Properties props = new Properties();
+        props.put("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
+        props.put("runtime.log.logsystem.log4j.category", "velocity");
+        props.put("runtime.log.logsystem.log4j.logger", "velocity");
+
+        engine.init(props);
     }
 
     public static String convert(String template, Object data) {

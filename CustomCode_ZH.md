@@ -3,12 +3,12 @@
   - [English Document](https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode.md)  
   - [中文文档](#配置)   
   <p align="center">
-    <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/dev/doc/customConfig-100.gif" alt="demo"/>
+    <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/customConfig-100.gif" alt="demo"/>
   </p>  
   
 ## 配置  
 <p align="center">
-  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/dev/doc/customConfig.png" alt="customConfig"/>
+  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/customConfig.png" alt="customConfig"/>
 </p>  
   
   - **Custom code template**: 开启使用自定义模板，否则使用默认生成格式  

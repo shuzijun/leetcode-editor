@@ -3,5 +3,5 @@
   - [English Document]()  
   - [中文文档](https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode_ZH.md)   
   <p align="center">
-    <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/dev/doc/customConfig-100.gif" alt="demo"/>
+    <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/customConfig-100.gif" alt="demo"/>
   </p>  
