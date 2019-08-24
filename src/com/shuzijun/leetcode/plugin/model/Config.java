@@ -1,5 +1,7 @@
 package com.shuzijun.leetcode.plugin.model;
 
+import com.intellij.util.xmlb.annotations.Transient;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +27,7 @@ public class Config {
     /**
      * 密码
      */
+    @Transient
     private String password;
 
     /**
@@ -51,6 +54,20 @@ public class Config {
      * 使用代理
      */
     private Boolean proxy = false;
+
+    /**
+     * 自定义代码生成
+     */
+    private Boolean customCode = false;
+
+    /**
+     * 自定义文件名
+     */
+    private String customFileName = Constant.CUSTOM_FILE_NAME;
+    /**
+     * 自定义代码
+     */
+    private String customTemplate = Constant.CUSTOM_TEMPLATE;
 
     private List<String> favoriteList;
 
@@ -134,8 +151,40 @@ public class Config {
         this.proxy = proxy;
     }
 
+    public Boolean getCustomCode() {
+        return customCode;
+    }
+
+    public void setCustomCode(Boolean customCode) {
+        this.customCode = customCode;
+    }
+
+    public String getCustomFileName() {
+        if (!customCode) {
+            return Constant.CUSTOM_FILE_NAME;
+        } else {
+            return customFileName;
+        }
+    }
+
+    public void setCustomFileName(String customFileName) {
+        this.customFileName = customFileName;
+    }
+
+    public String getCustomTemplate() {
+        if (!customCode) {
+            return Constant.CUSTOM_TEMPLATE;
+        } else {
+            return customTemplate;
+        }
+    }
+
+    public void setCustomTemplate(String customTemplate) {
+        this.customTemplate = customTemplate;
+    }
+
     public List<String> getFavoriteList() {
-        if(favoriteList == null || favoriteList.isEmpty()){
+        if (favoriteList == null || favoriteList.isEmpty()) {
             favoriteList = new ArrayList<>();
             favoriteList.add("Favorite");
         }

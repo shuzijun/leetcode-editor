@@ -59,7 +59,7 @@ public class LoginAction extends AbstractAsynAction {
             HttpEntity ent = MultipartEntityBuilder.create()
                     .addTextBody("csrfmiddlewaretoken", HttpClientUtils.getToken())
                     .addTextBody("login", config.getLoginName())
-                    .addTextBody("password", PersistentConfig.getInstance().getPassword(config.getPassword()))
+                    .addTextBody("password", PersistentConfig.getInstance().getPassword())
                     .addTextBody("next", "/problems")
                     .build();
             post.setEntity(ent);
@@ -77,7 +77,9 @@ public class LoginAction extends AbstractAsynAction {
                 examineEmail();
                 MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
             } else {
-                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.failed"));
+                HttpClientUtils.resetHttpclient();
+                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
+                SentryUtils.submitErrorReport(null,String.format("login.unknown:\nStatusCode:%s\nbody:%s",loginResponse.getStatusLine().getStatusCode(),body));
                 return;
             }
         } catch (Exception e) {
