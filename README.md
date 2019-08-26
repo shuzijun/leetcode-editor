@@ -19,7 +19,7 @@
   <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/customConfig-100.gif" alt="demo"/>
 </p>  
 
-### Installation  
+### Installation([help](https://www.jetbrains.com/help/idea/2019.2/managing-plugins.html))  
 - **Install via plug-in library** https://plugins.jetbrains.com/plugin/12132-leetcode-editor  
 - **Install by downloading the file** https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/leetcode-editor.zip  
 
