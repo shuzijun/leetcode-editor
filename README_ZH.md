@@ -7,7 +7,7 @@
   在IDE中解决LeetCode问题,支持`leetcode.com`与`leetcode-cn.com`,满足基本的做题需求。  
   理论上支持: IntelliJ IDEA  PhpStorm  WebStorm  PyCharm  RubyMine  AppCode  CLion  GoLand  DataGrip  Rider MPS  Android Studio。  
   [be with you!](https://leetcode-editor.herokuapp.com/hour.html)  
-  [常见问题](https://github.com/shuzijun/leetcode-editor/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)
+
   
 ## 使用方式  
 <p align="center">
@@ -75,3 +75,6 @@
   - **`Testcase`**:自定义测试用例  
   - **`favorite`**:添加或移除收藏
   - **`Clear cache`**:清理当前题目  
+  
+### 常见问题  
+  [常见问题](https://github.com/shuzijun/leetcode-editor/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)
