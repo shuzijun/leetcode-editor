@@ -48,7 +48,7 @@ public class LoginAction extends AbstractAsynAction {
             }
         }
 
-        if (StringUtils.isBlank(config.getLoginName()) || StringUtils.isBlank(config.getLoginName())) {
+        if (StringUtils.isBlank(config.getLoginName()) || StringUtils.isBlank(PersistentConfig.getInstance().getPassword())) {
             MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("config.user"));
             return;
         }
