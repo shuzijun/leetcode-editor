@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>5.0</version>
+    <version>5.1</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -113,6 +113,14 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v5.1<br>
+                1.修复登陆提示<br>
+                2.修复favorite图标<br>
+            </li>
+            <li>v5.1<br>
+                1.fix login warn<br>
+                2.fix favorite icon<br>
+            </li>
             <li>v5.0<br>
                 1.增加代码自定义生成(<a href="https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode_ZH.md">详细介绍</a>)(<a href="https://github.com/shuzijun/leetcode-question">示例</a>)<br>
                 2.增加查看题目描述(依赖 Markdown)<br>
@@ -354,7 +362,7 @@
             <reference id="leetcode.TestcaseAction"/>
             <separator/>
             <group id="leetcode.FavoriteGroup" class="com.shuzijun.leetcode.plugin.actions.FavoriteActionGroup"
-                   popup="true"  text="Favorite" description="Favorite" icon="AllIcons.General.OpenDiskHover">
+                   popup="true"  text="Favorite" description="Favorite" icon="AllIcons.Actions.Menu_open">
             </group>
             <reference id="leetcode.ClearOneAction"/>
         </group>
