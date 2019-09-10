@@ -384,15 +384,16 @@ public class CodeManager {
                                     String input = jsonObject.getString("input");
                                     String output = jsonObject.getString("code_output");
                                     String expected = jsonObject.getString("expected_output");
-
-                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.failed", input, output, expected));
+                                    String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"),"\n\t\t");
+                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.failed", input, output, expected,outputs));
                                     if (!"ac".equals(question.getStatus())) {
                                         question.setStatus("notac");
                                         ViewManager.updateStatus();
                                     }
                                 }
                             } else {
-                                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", buildSumitErrorMsg(jsonObject)));
+                                String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"),"\n\t\t");
+                                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", buildErrorMsg(jsonObject),outputs));
                                 if (!"ac".equals(question.getStatus())) {
                                     question.setStatus("notac");
                                     ViewManager.updateStatus();
@@ -416,7 +417,7 @@ public class CodeManager {
         }
     }
 
-    private static String buildSumitErrorMsg(JSONObject errorBody) {
+    private static String buildErrorMsg(JSONObject errorBody) {
         String statusMsg = errorBody.getString("status_msg");
         if (StringUtils.isNotBlank(statusMsg)) {
             if (statusMsg.equals("Compile Error")) {
@@ -458,9 +459,11 @@ public class CodeManager {
                                     String input = returnObj.getString("test_case");
                                     String output = jsonObject.getJSONArray("code_answer").getString(0);
                                     String expected = returnObj.getJSONArray("expected_code_answer").getString(0);
-                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("test.success", input, output, expected));
+                                    String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"),"\n\t\t");
+                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("test.success", input, output, expected,outputs));
                                 } else {
-                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", jsonObject.getString("full_compile_error")));
+                                    String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"),"\n\t\t");
+                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", buildErrorMsg(jsonObject),outputs));
                                 }
                                 return;
                             }
