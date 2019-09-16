@@ -118,7 +118,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
         queryPanel.setLayout(new BoxLayout(queryPanel, BoxLayout.Y_AXIS));
         JTextField queryField = new JBTextField();
         queryField.setToolTipText("Enter Search");
-        queryField.addKeyListener(new QueryKeyListener(queryField, contentScrollPanel, toolWindow));
+        queryField.addKeyListener(new QueryKeyListener(queryField, contentScrollPanel, toolWindow, queryPanel));
         queryPanel.add(queryField);
 
         ActionToolbar findToolbar = actionManager.createActionToolbar("",
