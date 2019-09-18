@@ -31,6 +31,7 @@ public class QueryKeyListener implements KeyListener {
     private JBScrollPane contentScrollPanel;
     private ToolWindow toolWindow;
     private JPanel queryPanel;
+    private JBPopup jbPopup; // 搜索题目下拉弹窗
 
     public QueryKeyListener(JTextField jTextField, JBScrollPane contentScrollPanel, ToolWindow toolWindow, JPanel queryPanel) {
         this.jTextField = jTextField;
@@ -50,6 +51,9 @@ public class QueryKeyListener implements KeyListener {
 
             String selectText = jTextField.getText();
             if (StringUtils.isBlank(selectText)) {
+                if (jbPopup != null) {
+                    jbPopup.dispose();
+                }
                 return;
             }
 
@@ -60,6 +64,9 @@ public class QueryKeyListener implements KeyListener {
             DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeMode.getRoot();
             if (root.isLeaf() || root.getChildAt(0).isLeaf()) {
                 MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", "not question");
+                if (jbPopup != null) {
+                    jbPopup.dispose();
+                }
                 return;
             }
 
@@ -104,6 +111,9 @@ public class QueryKeyListener implements KeyListener {
                 }
             }
             MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", "not find next");
+            if (jbPopup != null) {
+                jbPopup.dispose();
+            }
             return;
         }
     }
@@ -117,13 +127,16 @@ public class QueryKeyListener implements KeyListener {
         if (data == null || data.isEmpty()) {
             return;
         }
+        if (jbPopup != null) { // 匹配新的关键词时，要把上一次的弹窗关闭。
+            jbPopup.dispose();
+        }
         JBList<DefaultMutableTreeNode> list = new JBList<>(data);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         list.setVisibleRowCount(-1);
         list.setToolTipText("Double click to jump");
         list.setCellRenderer(new ProblemsListRenderer());
         JBScrollPane listScroller = new JBScrollPane(list);
-        JBPopup jbPopup = JBPopupFactory.getInstance().createComponentPopupBuilder(listScroller, null).setTitle("Similar Problems").createPopup();
+        jbPopup = JBPopupFactory.getInstance().createComponentPopupBuilder(listScroller, null).setTitle("Similar Problems").createPopup();
         jbPopup.setSize(new JBDimension(queryPanel.getWidth(), 150));
         // 双击选中题目，关闭popup并跳转到相应位置
         list.addMouseListener(new MouseAdapter() {
