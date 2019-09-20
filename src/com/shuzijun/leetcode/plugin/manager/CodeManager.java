@@ -7,10 +7,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
-import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.Constant;
-import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
@@ -99,6 +96,94 @@ public class CodeManager {
             }
 
         }
+    }
+
+    public static void openTopVotedSolution(Question question, Project project){
+        Config config = PersistentConfig.getInstance().getInitConfig();
+
+        String filePath = PersistentConfig.getInstance().getTempFilePath() + "solution_" + VelocityUtils.convert(config.getCustomFileName(), question) +".md";
+        File file = new File(filePath);
+        if (file.exists()) {
+            VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+            OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
+            FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+        } else {
+            SolutionArticle solution = getTopVotedSolution(question);
+            if (solution != null){
+                FileUtils.saveFile(file, solution.toString());
+
+                VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+                OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
+                FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+            }
+        }
+    }
+
+    private static SolutionArticle getTopVotedSolution(Question question){
+        HttpPost post = null;
+        String slug = null;
+        try {
+            post = new HttpPost(URLUtils.getLeetcodeGraphql());
+            StringEntity getTileEntity = new StringEntity("{\n" +
+                    "\t\"operationName\": \"questionSolutionArticles\",\n" +
+                    "\t\"variables\": {\n" +
+                    "\t\t\"questionSlug\": \""+ question.getTitleSlug() +"\",\n" +
+                    "\t\t\"first\": 10,\n" +
+                    "\t\t\"skip\": 0,\n" +
+                    "\t\t\"orderBy\": \"MOST_UPVOTE\"\n" +
+                    "\t},\n" +
+                    "\t\"query\": \"query questionSolutionArticles($questionSlug: String!, $skip: Int, $first: Int, $orderBy: SolutionArticleOrderBy, $userInput: String) {\\n  questionSolutionArticles(questionSlug: $questionSlug, skip: $skip, first: $first, orderBy: $orderBy, userInput: $userInput) {\\n    totalNum\\n    edges {\\n      node {\\n        ...article\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\\nfragment article on SolutionArticleNode {\\n  slug\\n  status\\n  __typename\\n}\\n\"\n" +
+                    "}");
+            post.setEntity(getTileEntity);
+            post.setHeader("Accept", "application/json");
+            post.setHeader("Content-type", "application/json");
+            CloseableHttpResponse response = HttpClientUtils.executePost(post);
+            if (response != null && response.getStatusLine().getStatusCode() == 200) {
+
+                String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+
+                JSONObject jsonObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("questionSolutionArticles").getJSONArray("edges").getJSONObject(0).getJSONObject("node");
+                slug = jsonObject.getString("slug");
+            } else {
+                MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
+            }
+
+            StringEntity getDetailEntity = new StringEntity("{\n" +
+                    "\t\"operationName\": \"solutionDetailArticle\",\n" +
+                    "\t\"variables\": {\n" +
+                    "\t\t\"slug\": \""+ slug +"\"\n" +
+                    "\t},\n" +
+                    "\t\"query\": \"query solutionDetailArticle($slug: String!) {\\n  solutionArticle(slug: $slug) {\\n    ...article\\n    content\\n    __typename\\n  }\\n}\\n\\nfragment article on SolutionArticleNode {\\n  title\\n  slug\\n  reactedType\\n  status\\n  identifier\\n  canEdit\\n  reactions {\\n    count\\n    reactionType\\n    __typename\\n  }\\n  tags {\\n    name\\n    nameTranslated\\n    slug\\n    __typename\\n  }\\n  createdAt\\n  thumbnail\\n  author {\\n    username\\n    profile {\\n      userAvatar\\n      userSlug\\n      realName\\n      __typename\\n    }\\n    __typename\\n  }\\n  summary\\n  topic {\\n    id\\n    commentCount\\n    viewCount\\n    __typename\\n  }\\n  byLeetcode\\n  isMyFavorite\\n  isMostPopular\\n  isEditorsPick\\n  upvoteCount\\n  upvoted\\n  hitCount\\n  __typename\\n}\\n\"\n" +
+                    "}");
+            post.setEntity(getDetailEntity);
+            post.setHeader("Accept", "application/json");
+            post.setHeader("Content-type", "application/json");
+            response = HttpClientUtils.executePost(post);
+            if (response != null && response.getStatusLine().getStatusCode() == 200) {
+
+                String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+
+                JSONObject jsonObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("solutionArticle");
+                String summary = jsonObject.getString("summary");
+                String content = jsonObject.getString("content");
+                String author = jsonObject.getJSONObject("author").getString("username");
+                int upvoteCount = jsonObject.getInteger("upvoteCount");
+
+                return new SolutionArticle(author, summary, content, upvoteCount);
+            } else {
+                MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
+            }
+
+        } catch (Exception e) {
+            LogUtils.LOG.error("获取答案失败", e);
+            MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
+        } finally {
+            if (post != null) {
+                post.abort();
+            }
+        }
+
+        return null;
     }
 
     private static boolean getQuestion(Question question, CodeTypeEnum codeTypeEnum) {
