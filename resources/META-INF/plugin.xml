@@ -310,6 +310,10 @@
                 text="open content" description="open content" icon="AllIcons.FileTypes.UiForm">
         </action>
 
+        <action id="leetcode.OpenTopVotedSolution" class="com.shuzijun.leetcode.plugin.actions.OpenTopVotedSolution"
+                text="open top voted solution" description="open top voted solution" icon="AllIcons.Actions.Find">
+        </action>
+
 
         <action id="leetcode.OpenInWebAction" class="com.shuzijun.leetcode.plugin.actions.OpenInWebAction"
                 text="open in web" description="open in web" icon="AllIcons.Actions.MoveTo2">
@@ -353,6 +357,7 @@
         <group id="leetcode.NavigatorActionsMenu">
             <reference id="leetcode.OpenAction"/>
             <reference id="leetcode.OpenContentAction"/>
+            <reference id="leetcode.OpenTopVotedSolution"/>
             <reference id="leetcode.OpenInWebAction"/>
             <separator/>
             <reference id="leetcode.SubmitAction"/>
