@@ -198,7 +198,7 @@ public class QuestionManager {
                 Question question = new Question(object.getJSONObject("stat").getString("question__title"));
                 question.setLeaf(Boolean.TRUE);
                 question.setQuestionId(object.getJSONObject("stat").getString("question_id"));
-                question.setFrontendQuestionId(object.getJSONObject("stat").getString("frontend_question_id"));
+                question.setFrontendQuestionId(object.getJSONObject("stat").getString("frontend_question_id").replaceAll("[^\\d]+", ""));
                 try {
                     if(object.getBoolean("paid_only") && isPremium){
                         question.setStatus(object.getBoolean("paid_only") ? "lock" : null);
