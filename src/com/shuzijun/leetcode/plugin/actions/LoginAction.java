@@ -63,6 +63,8 @@ public class LoginAction extends AbstractAsynAction {
                     .addTextBody("next", "/problems")
                     .build();
             post.setEntity(ent);
+            post.setHeader("x-requested-with", "XMLHttpRequest");
+            post.setHeader("accept", "*/*");
             CloseableHttpResponse loginResponse = HttpClientUtils.executePost(post);
 
             if (loginResponse == null) {
@@ -72,10 +74,30 @@ public class LoginAction extends AbstractAsynAction {
 
             String body = EntityUtils.toString(loginResponse.getEntity(), "UTF-8");
 
-            if ((loginResponse.getStatusLine().getStatusCode() == 200 || loginResponse.getStatusLine().getStatusCode() == 302)
-                    && StringUtils.isBlank(body)) {
-                examineEmail();
-                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
+            if ((loginResponse.getStatusLine().getStatusCode() == 200 || loginResponse.getStatusLine().getStatusCode() == 302)) {
+                if(StringUtils.isNotBlank(body) && body.startsWith("{")){
+                    JSONObject jsonObject = JSONObject.parseObject(body);
+                    JSONArray jsonArray = jsonObject.getJSONObject("form").getJSONArray("errors");
+                    if(jsonArray.isEmpty()){
+                        examineEmail();
+                        MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
+                    }else {
+                        MessageUtils.showInfoMsg("info", StringUtils.join(jsonArray,","));
+                        return;
+                    }
+                }else if(StringUtils.isBlank(body)) {
+                    examineEmail();
+                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
+                }else {
+                    HttpClientUtils.resetHttpclient();
+                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
+                    SentryUtils.submitErrorReport(null,String.format("login.unknown:\nStatusCode:%s\nbody:%s",loginResponse.getStatusLine().getStatusCode(),body));
+                    return;
+                }
+            }else if(loginResponse.getStatusLine().getStatusCode() == 400){
+                JSONObject jsonObject = JSONObject.parseObject(body);
+                MessageUtils.showInfoMsg("info", StringUtils.join(jsonObject.getJSONObject("form").getJSONArray("errors"),","));
+                return;
             } else {
                 HttpClientUtils.resetHttpclient();
                 MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));

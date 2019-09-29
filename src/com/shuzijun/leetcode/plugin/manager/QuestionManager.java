@@ -31,7 +31,7 @@ import java.util.*;
 public class QuestionManager {
 
 
-    private  static List<Question> QUESTIONLIST = null;
+    private static List<Question> QUESTIONLIST = null;
 
     private final static String ALLNAME = "all.json";
 
@@ -63,7 +63,7 @@ public class QuestionManager {
     }
 
     public static List<Question> getQuestionCache() {
-        if(QUESTIONLIST != null){
+        if (QUESTIONLIST != null) {
             return QUESTIONLIST;
         }
 
@@ -200,9 +200,9 @@ public class QuestionManager {
                 question.setQuestionId(object.getJSONObject("stat").getString("question_id"));
                 question.setFrontendQuestionId(object.getJSONObject("stat").getString("frontend_question_id"));
                 try {
-                    if(object.getBoolean("paid_only") && isPremium){
+                    if (object.getBoolean("paid_only") && isPremium) {
                         question.setStatus(object.getBoolean("paid_only") ? "lock" : null);
-                    }else {
+                    } else {
                         question.setStatus(object.get("status") == null ? "" : object.getString("status"));
                     }
                 } catch (Exception ee) {
@@ -218,7 +218,18 @@ public class QuestionManager {
             Collections.sort(questionList, new Comparator<Question>() {
                 @Override
                 public int compare(Question arg0, Question arg1) {
-                    return Integer.valueOf(arg0.getFrontendQuestionId()).compareTo(Integer.valueOf(arg1.getFrontendQuestionId()));
+                    String frontendId0 = arg0.getFrontendQuestionId();
+                    String frontendId1 = arg1.getFrontendQuestionId();
+                    if (StringUtils.isNumeric(frontendId0) && StringUtils.isNumeric(frontendId1)) {
+                        return Integer.valueOf(frontendId0).compareTo(Integer.valueOf(frontendId1));
+                    } else if (StringUtils.isNumeric(frontendId0)) {
+                        return -1;
+                    } else if (StringUtils.isNumeric(frontendId1)) {
+                        return 1;
+                    } else {
+                        return frontendId0.compareTo(frontendId1);
+                    }
+
                 }
             });
         }
@@ -255,7 +266,7 @@ public class QuestionManager {
                         translationMap.put(object.getJSONObject("question").getString("questionId"), object.getString("title"));
                     }
                     for (Question question : questions) {
-                        if(translationMap.containsKey(question.getQuestionId())){
+                        if (translationMap.containsKey(question.getQuestionId())) {
                             question.setTitle(translationMap.get(question.getQuestionId()));
                         }
                     }

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>5.1</version>
+    <version>5.2</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -113,6 +113,14 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v5.2<br>
+                1.修复登陆提示<br>
+                2.修复leetcode-cn列表无法展示问题<br>
+            </li>
+            <li>v5.2<br>
+                1.fix login warn<br>
+                2.fix leetcode-cn list<br>
+            </li>
             <li>v5.1<br>
                 1.修复登陆提示<br>
                 2.修复favorite图标<br>
