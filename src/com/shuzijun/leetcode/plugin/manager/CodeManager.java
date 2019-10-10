@@ -179,6 +179,8 @@ public class CodeManager {
                 JSONObject returnObj = JSONObject.parseObject(body);
                 cachedThreadPool.execute(new SubmitCheckTask(returnObj, codeTypeEnum, question));
                 MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
+            }else if(response != null && response.getStatusLine().getStatusCode() == 429){
+                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
             } else {
                 LogUtils.LOG.error("提交失败：url：" + post.getURI().getPath() + ";param:" + arg.toJSONString() + ";body:" + EntityUtils.toString(response.getEntity(), "UTF-8"));
                 MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
@@ -441,6 +443,9 @@ public class CodeManager {
         @Override
         public void run() {
             String key = returnObj.getString("interpret_expected_id");
+            if(StringUtils.isBlank(key)){
+                key = returnObj.getString("interpret_id");
+            }
             for (int i = 0; i < 50; i++) {
                 String body = null;
                 try {
@@ -458,6 +463,9 @@ public class CodeManager {
                                     String input = returnObj.getString("test_case");
                                     String output = jsonObject.getJSONArray("code_answer").getString(0);
                                     String expected = returnObj.getJSONArray("expected_code_answer").getString(0);
+                                    if(StringUtils.isBlank(expected)){
+                                        expected = jsonObject.getJSONArray("expected_code_answer").getString(0);
+                                    }
                                     MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("test.success", input, output, expected));
                                 } else {
                                     MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", jsonObject.getString("full_compile_error")));
