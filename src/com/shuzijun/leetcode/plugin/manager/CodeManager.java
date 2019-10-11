@@ -462,8 +462,10 @@ public class CodeManager {
                                 if (jsonObject.getBoolean("run_success")) {
                                     String input = returnObj.getString("test_case");
                                     String output = jsonObject.getJSONArray("code_answer").getString(0);
-                                    String expected = returnObj.getJSONArray("expected_code_answer").getString(0);
-                                    if(StringUtils.isBlank(expected)){
+                                    String expected = "";
+                                    if (returnObj.getJSONArray("expected_code_answer") != null && !returnObj.getJSONArray("expected_code_answer").isEmpty()) {
+                                        expected = returnObj.getJSONArray("expected_code_answer").getString(0);
+                                    } else if (jsonObject.getJSONArray("expected_code_answer") != null && !jsonObject.getJSONArray("expected_code_answer").isEmpty()) {
                                         expected = jsonObject.getJSONArray("expected_code_answer").getString(0);
                                     }
                                     MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("test.success", input, output, expected));

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>5.3</version>
+    <version>5.4</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -113,10 +113,10 @@
 
     <change-notes><![CDATA[
          <ul>
-          <li>v5.3<br>
+          <li>v5.4<br>
                 1.修复leetcode.com Run Code 超时问题<br>
             </li>
-            <li>v5.3<br>
+            <li>v5.4<br>
                 1.fix leetcode.com RunCode Wait result timeout<br>
             </li>
             <li>v5.2<br>
