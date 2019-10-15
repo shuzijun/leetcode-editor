@@ -54,8 +54,8 @@ public class HttpClientUtils {
             context.setCookieStore(cookieStore);
 
             RequestConfig.Builder globalConfigBuilder = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD)
-                    .setConnectTimeout(5000).setConnectionRequestTimeout(1000)
-                    .setSocketTimeout(5000)
+                    .setConnectTimeout(30000).setConnectionRequestTimeout(10000)
+                    .setSocketTimeout(30000)
                     .setCookieSpec(CookieSpecs.STANDARD_STRICT)
                     .setExpectContinueEnabled(Boolean.TRUE).setTargetPreferredAuthSchemes(Arrays.asList(AuthSchemes.NTLM, AuthSchemes.DIGEST))
                     .setProxyPreferredAuthSchemes(Arrays.asList(AuthSchemes.BASIC));
@@ -67,7 +67,7 @@ public class HttpClientUtils {
             if (config != null && config.getProxy() && proxySettings != null && proxySettings.USE_HTTP_PROXY && !proxySettings.PROXY_TYPE_IS_SOCKS) {
                 HttpHost proxy = new HttpHost(proxySettings.PROXY_HOST, proxySettings.PROXY_PORT, "http");
                 globalConfigBuilder.setProxy(proxy);
-                if(proxySettings.PROXY_AUTHENTICATION){
+                if (proxySettings.PROXY_AUTHENTICATION) {
                     provider = new BasicCredentialsProvider();
                     provider.setCredentials(new AuthScope(proxy), new UsernamePasswordCredentials(proxySettings.getProxyLogin(), proxySettings.getPlainProxyPassword()));
                 }
@@ -201,7 +201,8 @@ public class HttpClientUtils {
                     .register("http", PlainConnectionSocketFactory.INSTANCE)
                     .register("https", socketFactory).build();
             PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-
+            connectionManager.setDefaultMaxPerRoute(200);
+            connectionManager.setMaxTotal(400);
             return connectionManager;
 
         } catch (Exception e) {
@@ -209,6 +210,4 @@ public class HttpClientUtils {
         }
         return new PoolingHttpClientConnectionManager();
     }
-
-
 }
