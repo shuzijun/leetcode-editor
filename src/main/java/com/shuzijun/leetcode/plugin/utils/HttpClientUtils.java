@@ -88,6 +88,15 @@ public class HttpClientUtils {
         }
     }
 
+    public static void setCookie(List<Cookie> cookieList) {
+        if (httpclient == null) {
+            createHttpClient();
+        }
+        for (Cookie cookie : cookieList) {
+            context.getCookieStore().addCookie(cookie);
+        }
+    }
+
     public static CloseableHttpResponse executeGet(HttpGet httpGet) {
         if (httpclient == null) {
             createHttpClient();

@@ -23,3 +23,9 @@
 hs_err_pid*
 /*.iml
 .idea/
+.gradle/
+/gradle
+/gradlew
+/gradlew.bat
+/build/
+/out/
