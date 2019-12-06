@@ -2,35 +2,30 @@ package com.shuzijun.leetcode.plugin.window;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.codebrig.journey.JourneyBrowserView;
+import com.codebrig.journey.JourneyLoader;
+import com.codebrig.journey.proxy.CefBrowserProxy;
+import com.codebrig.journey.proxy.browser.CefFrameProxy;
+import com.codebrig.journey.proxy.callback.CefCookieVisitorProxy;
+import com.codebrig.journey.proxy.handler.CefLoadHandlerProxy;
+import com.codebrig.journey.proxy.misc.BoolRefProxy;
+import com.codebrig.journey.proxy.network.CefCookieManagerProxy;
+import com.codebrig.journey.proxy.network.CefCookieProxy;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.ui.components.JBPanel;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
+import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.util.EntityUtils;
-import org.cef.browser.CefBrowser;
-import org.cef.browser.CefFrame;
-import org.cef.callback.CefCookieVisitor;
-import org.cef.handler.CefLoadHandler;
-import org.cef.handler.CefLoadHandlerAdapter;
-import org.cef.misc.BoolRef;
-import org.cef.network.CefCookie;
-import org.cef.network.CefCookieManager;
-import org.cef.network.CefRequest;
 import org.jetbrains.annotations.Nullable;
-import org.panda_lang.pandomium.Pandomium;
-import org.panda_lang.pandomium.settings.PandomiumSettings;
-import org.panda_lang.pandomium.util.FileUtils;
-import org.panda_lang.pandomium.util.os.PandomiumOS;
-import org.panda_lang.pandomium.wrapper.PandomiumBrowser;
-import org.panda_lang.pandomium.wrapper.PandomiumClient;
+import org.joor.Reflect;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,6 +33,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,83 +42,12 @@ import java.util.List;
  */
 public class LoginPanel extends DialogWrapper {
 
-    private static Pandomium pandomium;
-    private static PandomiumClient client;
-    private JPanel jpanel;
-    final JFrame frame = new JFrame();
     private JTree tree;
-
 
     public LoginPanel(@Nullable Project project, JTree tree) {
         super(project, true);
         this.tree = tree;
-        jpanel = new JBPanel();
-        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                frame.dispose();
-                if (client != null) {
-                    client.getCefClient().dispose();
-                    client = null;
-                }
-            }
-        });
-
-        createClient();
-        client.getCefClient().addLoadHandler(new CefLoadHandlerAdapter() {
-
-            @Override
-            public void onLoadStart(CefBrowser cefBrowser, CefFrame cefFrame, CefRequest.TransitionType transitionType) {
-                LogUtils.LOG.debug("onLoadEnd:" + cefBrowser.getURL());
-                if (CefCookieManager.getGlobalManager() != null) {
-                    final List<Cookie> cookieList = new ArrayList<Cookie>();
-                    final Boolean[] isSession = {Boolean.FALSE};
-                    boolean v = CefCookieManager.getGlobalManager().visitAllCookies(new CefCookieVisitor() {
-                        @Override
-                        public boolean visit(CefCookie cefCookie, int count, int total, BoolRef boolRef) {
-                            if (cefCookie.domain.contains("leetcode")) {
-                                BasicClientCookie cookie = new BasicClientCookie(cefCookie.name, cefCookie.value);
-                                cookie.setDomain(cefCookie.domain);
-                                cookie.setPath(cefCookie.path);
-                                cookieList.add(cookie);
-                                if ("LEETCODE_SESSION".equals(cefCookie.name)) {
-                                    isSession[0] = Boolean.TRUE;
-                                }
-                            }
-                            if (count == total - 1 && isSession[0]) {
-                                HttpClientUtils.setCookie(cookieList);
-                                if (HttpClientUtils.isLogin()) {
-                                    ViewManager.loadServiceData(tree);
-                                    examineEmail();
-                                    cefFrame.executeJavaScript("alert('Login is successful. Please close the window')", "leetcode-editor", 0);
-                                } else {
-                                    LogUtils.LOG.info("login failure");
-                                }
-                            }
-                            return true;
-                        }
-                    });
-
-                }
-            }
-
-
-            @Override
-            public void onLoadError(CefBrowser cefBrowser, CefFrame cefFrame, CefLoadHandler.ErrorCode errorCode, String s, String s1) {
-                cefFrame.executeJavaScript("alert('页面加载失败，请检查网络后再次打开')", "leetcode-editor", 0);
-            }
-        });
-
-
-        PandomiumBrowser browser = client.loadURL(URLUtils.getLeetcodeLogin());
-
-        frame.getContentPane().add(browser.toAWTComponent(), BorderLayout.CENTER);
-
-        frame.setTitle("login");
-        frame.setSize(600, 400);
-        frame.setVisible(true);
-        jpanel.add(frame);
+        classLoader();
         setModal(true);
         init();
     }
@@ -130,74 +55,104 @@ public class LoginPanel extends DialogWrapper {
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        return jpanel;
+
+        JPanel dialogPanel = new JPanel(new BorderLayout());
+
+        JourneyBrowserView browser = new JourneyBrowserView(URLUtils.getLeetcodeLogin());
+
+        Window frame = getWindow();
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (browser != null) {
+                    browser.getCefClient().dispose();
+                }
+                frame.dispose();
+            }
+        });
+
+
+        browser.getCefClient().addLoadHandler(CefLoadHandlerProxy.createHandler(new CefLoadHandlerProxy() {
+
+            @Override
+            public void onLoadingStateChange(CefBrowserProxy cefBrowserProxy, boolean b, boolean b1, boolean b2) {
+                LogUtils.LOG.debug("onLoadEnd:" + cefBrowserProxy.getURL());
+                if (CefCookieManagerProxy.getGlobalManager() != null) {
+                    final List<BasicClientCookie> cookieList = new ArrayList<>();
+                    final Boolean[] isSession = {Boolean.FALSE};
+
+                    boolean v = CefCookieManagerProxy.getGlobalManager().visitAllCookies(CefCookieVisitorProxy.createVisitor(new CefCookieVisitorProxy() {
+
+                        @Override
+                        public boolean visit(CefCookieProxy cefCookieProxy, int count, int total, BoolRefProxy boolRefProxy) {
+                            Object cefCookie = ((Reflect.ProxyInvocationHandler) Proxy.getInvocationHandler(cefCookieProxy)).getUnderlyingObject();
+                            if (Reflect.on(cefCookie).field("domain").toString().contains("leetcode")) {
+                                BasicClientCookie cookie = new BasicClientCookie(Reflect.on(cefCookie).field("name").toString(), Reflect.on(cefCookie).field("value").toString());
+                                cookie.setDomain(Reflect.on(cefCookie).field("domain").toString());
+                                cookie.setPath(Reflect.on(cefCookie).field("path").toString());
+                                cookieList.add(cookie);
+                                if ("LEETCODE_SESSION".equals(Reflect.on(cefCookie).field("name").toString())) {
+                                    isSession[0] = Boolean.TRUE;
+                                }
+                            }
+                            if (count == total - 1 && isSession[0]) {
+                                HttpClientUtils.setCookie(cookieList);
+                                if (HttpClientUtils.isLogin()) {
+                                    Config config = PersistentConfig.getInstance().getInitConfig();
+                                    config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.toJSONString(cookieList));
+                                    PersistentConfig.getInstance().setInitConfig(config);
+                                    ViewManager.loadServiceData(tree);
+                                    examineEmail();
+                                    cefBrowserProxy.executeJavaScript("alert('Login is successful. Please close the window')", "leetcode-editor", 0);
+                                } else {
+                                    LogUtils.LOG.info("login failure");
+                                }
+                            }
+                            return true;
+                        }
+                    }));
+
+                }
+            }
+
+            @Override
+            public void onLoadEnd(CefBrowserProxy cefBrowserProxy, CefFrameProxy cefFrameProxy, int i) {
+
+            }
+
+            @Override
+            public void onLoadError(CefBrowserProxy cefBrowserProxy, CefFrameProxy cefFrameProxy, ErrorCode errorCode, String s, String s1) {
+                cefFrameProxy.executeJavaScript("alert('The page failed to load, please check the network and open it again')", "leetcode-editor", 0);
+            }
+        }));
+
+        dialogPanel.setVisible(true);
+        dialogPanel.setPreferredSize(new Dimension(600, 400));
+
+        dialogPanel.add(browser);
+
+        return dialogPanel;
     }
 
-    private void createClient() {
-
+    private void classLoader() {
         synchronized (this) {
             String path = PathManager.getPluginsPath() + File.separator + "leetcode-editor" + File.separator + "natives" + File.separator;
-
-            if (!checkNative(new File(path))) {
-                MessageUtils.showErrorMsg("login err", "natives Path is empty");
-                throw new RuntimeException("natives Path is empty");
-            }
-            if (pandomium == null) {
-                PandomiumSettings settings = PandomiumSettings.builder().nativeDirectory(path).loadAsync(false).build();
-                pandomium = new Pandomium(settings);
-                pandomium.initialize();
-            }
-            if (client == null) {
-                client = pandomium.createClient();
+            if (!new File(path, "icudtl.dat").exists()
+                    && !new File(path, "jcef_app.app").exists()) {
+                MessageUtils.showErrorMsg("login err", "natives Path is empty,path:" + path);
+                throw new RuntimeException("natives Path is empty,path:" + path);
+            } else {
+                JourneyLoader.getJourneyClassLoader(path);
             }
         }
     }
+
 
     @Override
     protected void dispose() {
         super.dispose();
     }
 
-    private boolean checkNative(File directory) {
-        if (!directory.exists()) {
-            return false;
-        } else if (!directory.isDirectory()) {
-            FileUtils.handleFileResult(directory.delete(), "Couldn't delete directory %s", new Object[]{directory.getAbsolutePath()});
-            return false;
-        } else {
-            File[] directoryContent = directory.listFiles();
-            boolean success = FileUtils.isIn("libcef.so", directoryContent) || FileUtils.isIn("libcef.dll", directoryContent);
-            if (PandomiumOS.isWindows()) {
-                success = success && FileUtils.isIn("chrome_elf.dll", directoryContent) && FileUtils.isIn("jcef.dll", directoryContent);
-            } else if (PandomiumOS.isLinux()) {
-                success = success && FileUtils.isIn("cef.pak", directoryContent);
-            }
-
-            String cefHelperName = null;
-            if (PandomiumOS.isMacOS()) {
-                cefHelperName = "jcef Helper";
-            } else if (PandomiumOS.isWindows()) {
-                cefHelperName = "jcef_helper.exe";
-            } else if (PandomiumOS.isLinux()) {
-                cefHelperName = "jcef_helper";
-            }
-
-            if (cefHelperName != null && directoryContent != null) {
-                File[] var5 = directoryContent;
-                int var6 = directoryContent.length;
-
-                for (int var7 = 0; var7 < var6; ++var7) {
-                    File file = var5[var7];
-                    if (file.getName().equals(cefHelperName)) {
-                        file.setExecutable(true);
-                        break;
-                    }
-                }
-            }
-
-            return success;
-        }
-    }
 
     private void examineEmail() {
         ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {

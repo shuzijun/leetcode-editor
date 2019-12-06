@@ -27,6 +27,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.*;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicHeader;
 
 import javax.net.ssl.SSLContext;
@@ -88,7 +89,7 @@ public class HttpClientUtils {
         }
     }
 
-    public static void setCookie(List<Cookie> cookieList) {
+    public static void setCookie(List<BasicClientCookie> cookieList) {
         if (httpclient == null) {
             createHttpClient();
         }

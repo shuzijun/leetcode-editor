@@ -3,7 +3,9 @@ package com.shuzijun.leetcode.plugin.model;
 import com.intellij.util.xmlb.annotations.Transient;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author shuzijun
@@ -68,6 +70,11 @@ public class Config {
      * 自定义代码
      */
     private String customTemplate = Constant.CUSTOM_TEMPLATE;
+    /**
+     * 用户cookie
+     */
+    private Map<String, String> userCookie = new HashMap<>();
+
 
     private List<String> favoriteList;
 
@@ -183,6 +190,14 @@ public class Config {
         this.customTemplate = customTemplate;
     }
 
+    public Map<String, String> getUserCookie() {
+        return userCookie;
+    }
+
+    public void setUserCookie(Map<String, String> userCookie) {
+        this.userCookie = userCookie;
+    }
+
     public List<String> getFavoriteList() {
         if (favoriteList == null || favoriteList.isEmpty()) {
             favoriteList = new ArrayList<>();
@@ -202,4 +217,16 @@ public class Config {
             return "cn";
         }
     }
+
+    public void addCookie(String user, String cookie) {
+        userCookie.put(user, cookie);
+    }
+
+    public String getCookie(String user) {
+        if (userCookie == null) {
+            return null;
+        }
+        return userCookie.get(user);
+    }
+
 }
