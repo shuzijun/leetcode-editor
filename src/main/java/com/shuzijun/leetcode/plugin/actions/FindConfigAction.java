@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ex.CheckboxAction;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
+import com.shuzijun.leetcode.plugin.window.WindowFactory;
 
 import javax.swing.*;
 
@@ -21,7 +22,7 @@ public class FindConfigAction extends CheckboxAction {
     @Override
     public void setSelected(AnActionEvent anActionEvent, boolean b) {
         ViewManager.setIntersection(b);
-        JTree tree = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TREE);
+        JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
         if (tree == null) {
             return;
         }

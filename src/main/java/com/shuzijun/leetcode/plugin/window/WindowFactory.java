@@ -1,8 +1,11 @@
 package com.shuzijun.leetcode.plugin.window;
 
+import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.shuzijun.leetcode.plugin.listener.UpdatePluginListener;
@@ -15,6 +18,8 @@ import javax.swing.*;
  */
 public class WindowFactory implements ToolWindowFactory {
 
+    public static String ID = "leetcode";
+
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 
@@ -24,6 +29,12 @@ public class WindowFactory implements ToolWindowFactory {
         Content content = contentFactory.createContent(navigatorPanel, "", false);
         toolWindow.getContentManager().addContent(content);
 
+    }
+
+    public static DataContext getDataContext(@NotNull Project project) {
+        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
+        DataContext dataContext = DataManager.getInstance().getDataContext(leetcodeToolWindows.getContentManager().getContent(0).getComponent());
+        return dataContext;
     }
 
 }

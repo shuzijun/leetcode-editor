@@ -187,6 +187,28 @@ public class ViewManager {
         return;
     }
 
+    public static Question getTreeQuestion(JTree tree) {
+        Question question = null;
+        if (tree != null) {
+            DefaultMutableTreeNode note = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+            if (note != null) {
+                question = (Question) note.getUserObject();
+                if (question != null) {
+                    if ("lock".equals(question.getStatus())) {
+                        question = null;
+                    }
+                    if (!question.isLeaf()) {
+                        question = null;
+                    }
+                }
+            }
+        }
+        if(question == null){
+            MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("response.select"));
+        }
+        return question;
+    }
+
     private static void addChild(DefaultMutableTreeNode rootNode, List<Tag> Lists, Map<String, Question> questionMap) {
         if (!Lists.isEmpty()) {
             for (Tag tag : Lists) {

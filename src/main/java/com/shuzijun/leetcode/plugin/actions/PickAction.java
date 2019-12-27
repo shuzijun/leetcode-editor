@@ -5,6 +5,7 @@ import com.intellij.ui.components.JBScrollPane;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
+import com.shuzijun.leetcode.plugin.window.WindowFactory;
 
 import javax.swing.*;
 
@@ -14,12 +15,11 @@ import javax.swing.*;
 public class PickAction extends AbstractAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config) {
-        JTree tree = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TREE);
+        JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
         if (tree == null) {
             return;
         }
-        JBScrollPane scrollPane = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_SCROLL);
-
+        JBScrollPane scrollPane = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_SCROLL);
         ViewManager.pick(tree, scrollPane);
     }
 }

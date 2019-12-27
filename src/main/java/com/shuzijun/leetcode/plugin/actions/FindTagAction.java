@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.ToggleAction;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
+import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -29,7 +30,7 @@ public class FindTagAction extends ToggleAction {
     @Override
     public void setSelected(AnActionEvent anActionEvent, boolean b) {
         tag.setSelect(b);
-        JTree tree = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TREE);
+        JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
         if (tree == null) {
             return;
         }

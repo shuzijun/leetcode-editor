@@ -7,16 +7,17 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.shuzijun.leetcode.plugin.manager.SubmissionManager;
+import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Submission;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
+import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
@@ -28,10 +29,11 @@ import java.util.Locale;
 public class SubmissionsAction extends AbstractAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config) {
-        JTree tree = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TREE);
-        DefaultMutableTreeNode note = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-        Question question = (Question) note.getUserObject();
-
+        JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
+        Question question = ViewManager.getTreeQuestion(tree);
+        if(question == null){
+            return;
+        }
         List<Submission> submissionList = SubmissionManager.getSubmissionService(question);
         if (submissionList == null || submissionList.isEmpty()) {
             return;

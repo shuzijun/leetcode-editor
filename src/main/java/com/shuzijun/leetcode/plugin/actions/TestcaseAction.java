@@ -6,6 +6,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.shuzijun.leetcode.plugin.manager.CodeManager;
+import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
@@ -13,12 +14,12 @@ import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 
 /**
@@ -28,10 +29,11 @@ public class TestcaseAction extends AbstractAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config) {
 
-        JTree tree = anActionEvent.getData(DataKeys.LEETCODE_PROJECTS_TREE);
-        DefaultMutableTreeNode note = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-        Question question = (Question) note.getUserObject();
-
+        JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
+        Question question = ViewManager.getTreeQuestion(tree);
+        if (question == null) {
+            return;
+        }
         if (StringUtils.isBlank(question.getTestCase())) {
             String codeType = PersistentConfig.getInstance().getInitConfig().getCodeType();
             CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
