@@ -1,0 +1,423 @@
+<idea-plugin>
+    <id>leetcode-editor</id>
+    <name>leetcode editor</name>
+    <version>6.0</version>
+    <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
+
+    <description><![CDATA[
+        <div>
+			<h2>Introduction</h2>
+			<br>
+			<ul>
+				<li>Support for leetcode.com and leetcode-cn.com, can test and submit questions</li>
+				<li>More tutorial please visit： <a href="https://github.com/shuzijun/leetcode-editor">here</a></li>
+			</ul>
+			<ul>
+				<li>支持leetcode.com和leetcode-cn.com,可测试与提交问题</li>
+				<li>更多的插件使用截图： <a href="https://github.com/shuzijun/leetcode-editor">插件使用介绍</a></li>
+			</ul>
+		</div>
+		<div>
+			<h2>How to use</h2>
+			<br>
+			<p >
+				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/leetcode-editor-3.0.gif" alt="demo" />
+			</p>
+		</div>
+		<br>
+		<div>
+			<h2>Local debugging  </h2>
+			<br>
+			<p >
+				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/customConfig-100.gif" alt="demo" />
+			</p>
+		</div>
+		<br>
+		<div>
+			<h2>Configuration (configuration for first installation)</h2>
+			<br>
+			<p>
+				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/config-3.0.png" alt="settings" />
+			</p>
+			<br>
+			<h3>Configuration path: File -> settings->tools->leetcode plugin</h3>
+			<br>
+			<ul>
+				<li>URL options: leetcode.com and leetcode-cn.com</li>
+				<li>Code Type: Java, Python, C++, Python3, C, C#, JavaScript, Ruby, Swift, Go, Scala, Kotlin, Rust, PHP</li>
+				<li> Login Name: Login Username</li>
+				<li> Password: Login password</li>
+				<li>Temp File Path: Temporary file storage catalogue</li>
+				<li>proxy(HTTP Proxy): HTTP Proxy,config path:`File` -> `settings`->`Appearance & Behavior`->`System Settings`->`HTTP Proxy`</li>
+                <li>Custom code template: Custom code template ([details](https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md))([demo](https://github.com/shuzijun/leetcode-question))</li>
+
+			</ul>
+		</div>
+		<br>
+		<br>
+		<div>
+			<h2>Window (Icon in the lower right corner of the main window)</h2>
+			<br>
+			<p >
+				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/window-3.0.png" alt="window" />
+			</p>
+			<br>
+			<h3>Toolbar:</h3>
+			<ul>
+				<li>Login: The login accounts of the two websites are not interoperable and the corresponding users need to be
+					configured when switching websites.</li>
+				<li>Logout: Exit the current account, if you encounter a login error, try to exit first</li>
+				<li>Refresh: You can also refresh and load questions if you are not logged in, but you cannot submit it.</li>
+				<li>Find: Input the content and press Enter to search , press again to search for the next one. It can only
+					search under the question bank node.</li>
+				<li>Collapse: Collapse all nodes.</li>
+				<li> Configuration: Quick jump to the configuration page</li>
+				<li> Clear: Clean up the files in the configured cache directories. The cache directories of the two websites
+					are different and only the current configured websites are cleaned up. Carefully clean up cases without
+					submitting.</li>
+			</ul>
+			<br>
+			<h3>Tree:</h3>
+			<ul>
+				<li>Questions: All questions</li>
+				<li>Difficulty: Classification of difficulties</li>
+				<li>Tags: Classification of types</li>
+				<li>Explore: Explore content, only contains titles of the questions, exclusive content that needs to pay ; some
+					questions are loaded in order</li>
+				<li>Color: The color represents the difficulty of the question</li>
+				<li>Symbol: The symbols of “√” and “?” represent the status of the current questions, and explores with the
+					beginning of “$” needs to pay or that cannot be viewed due to other causes.</li>
+			</ul>
+		</div>
+		<br>
+		<br>
+		<div>
+			<h2> Menu:</h2>
+			<br>
+			<p >
+				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/menu-3.0.png" alt="menu" />
+			</p>
+			<br>
+			<h3>Menu (right-click on the questions)</h3>
+			<ul>
+				<li>Open question: Open the question or double click on the question</li>
+				<li>Submit: Submit the question</li>
+				<li>Submissions: View the submission record, select the record details in the pop-up window (Show detail)</li>
+				<li>Run Code: Run the code, the test case for the question is used by default</li>
+				<li>Test case: Customize test cases</li>
+				<li>favorite:Add or remove favorite</li>
+				<li>Clear cache: Clean up the current questionL</li>
+			</ul>
+		</div>
+    ]]></description>
+
+    <change-notes><![CDATA[
+         <ul>
+         <li>v6.0<br>
+                1.修改leetcode.com登录方式, <a href="https://github.com/shuzijun/leetcode-editor/blob/master/LoginHelp_ZH.md">参考</a><br>
+                2.修复快捷键无法使用问题<br>
+                3.修复题目名称不展示中文问题<br>
+                4.增加提交时自动保存<br>
+                5.增加结果stdout信息<br>
+                6.增加自定义题目颜色<br>
+                7.优化题目描述超长<br>
+            </li>
+            <li>v6.0<br>
+                1.Modify leetcode.com login method, <a href="https://github.com/shuzijun/leetcode-editor/blob/master/LoginHelp_ZH.md">help</a><br>
+                2.Fix the problem that the shortcut keys cannot be used<br>
+                3.Fix the problem that the title name does not show Chinese<br>
+                4.Automatically save when adding commits<br>
+                5.Increase result stdout information<br>
+                6.Add custom title color<br>
+                7.Optimize the title description<br>
+            </li>
+          <li>v5.4<br>
+                1.修复leetcode.com Run Code 超时问题<br>
+            </li>
+            <li>v5.4<br>
+                1.fix leetcode.com RunCode Wait result timeout<br>
+            </li>
+            <li>v5.2<br>
+                1.修复登陆提示<br>
+                2.修复leetcode-cn列表无法展示问题<br>
+            </li>
+            <li>v5.2<br>
+                1.fix login warn<br>
+                2.fix leetcode-cn list<br>
+            </li>
+            <li>v5.1<br>
+                1.修复登陆提示<br>
+                2.修复favorite图标<br>
+            </li>
+            <li>v5.1<br>
+                1.fix login warn<br>
+                2.fix favorite icon<br>
+            </li>
+            <li>v5.0<br>
+                1.增加代码自定义生成(<a href="https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode_ZH.md">详细介绍</a>)(<a href="https://github.com/shuzijun/leetcode-question">示例</a>)<br>
+                2.增加查看题目描述(依赖 Markdown)<br>
+            </li>
+            <li>v5.0<br>
+                1.add code custom(<a href="https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md">details</a>)(<a href="https://github.com/shuzijun/leetcode-question">demo</a>)<br>
+                2.add show content(Rely on Markdown)
+            </li>
+            <li>v4.3<br>
+                1.修复付费用户订阅题目展示<br>
+                2.修复leetcode-cn.com登陆问题<br>
+                3.增加跳转到题目对应的leetcode官网地址的功能 @zzdcon<br>
+            </li>
+            <li>v4.3<br>
+                1.Fix subscription view<br>
+                2.fix leetcode-cn.com login<br>
+                3.add a new feature of browsing certain question on the website of leetcode @zzdcon<br>
+            </li>
+
+            <li>v4.2<br>
+                1.增加代理<br>
+                2.修复订阅题目展示<br>
+            </li>
+            <li>v4.2<br>
+                1.proxy<br>
+                2.Fix subscription view<br>
+            </li>
+
+            <li>v4.1<br>
+                1.修复部分bug<br>
+                2.增加电子邮件未验证提醒<br>
+            </li>
+            <li>v4.1<br>
+                1.Fix bugs<br>
+                2.add verify email info<br>
+            </li>
+
+            <li>v4.0<br>
+                1.增加tag筛选<br>
+                2.添加收藏功能<br>
+            </li>
+            <li>v4.0<br>
+                1.add tag filtrate<br>
+                2.add Favorite<br>
+            </li>
+            <li>v3.5<br>
+                1.修复运行错误提示<br>
+            </li>
+            <li>v3.5<br>
+                1.Fix compile error info<br>
+            </li>
+
+            <li>v3.4<br>
+                1.修复题目编号与网页显示不一致<br>
+            </li>
+            <li>v3.4<br>
+                1.Fix  question number is inconsistent with web page display<br>
+            </li>
+
+            <li>v3.3<br>
+                1.解决UI阻塞问题<br>
+            </li>
+            <li>v3.3<br>
+                1.Fix UI blocking<br>
+            </li>
+
+            <li>v3.2<br>
+                1.修复搜索定位问题<br>
+            </li>
+            <li>v3.2<br>
+                1.Fix search positioning<br>
+            </li>
+            <li>v3.1<br>
+                1.添加列表查看节点<br>
+            </li>
+            <li>v3.1<br>
+                1.add Lists<br>
+            </li>
+
+            <li>v3.0<br>
+                1.增加查看提交记录<br>
+                2.增加自定义测试用例<br>
+                3.更换UI<br>
+            </li>
+            <li>v3.0<br>
+                1.add show Submissions<br>
+                2.add custom test case <br>
+                3.update UI<br>
+            </li>
+
+            <li>v2.1<br>
+                1.增加英语提示<br>
+            </li>
+            <li>v2.1<br>
+                1.add English tips<br>
+            </li>
+            <br>
+            <li>v2.0<br>
+                1.增加探索分类,只支持题目<br>
+                2.增加难度与标签分类<br>
+                3.增加搜索功能<br>
+                4.增加支持语言类型<br>
+                5.优化题目描述展示<br>
+            </li>
+            <li>v2.0<br>
+                1.add explore<br>
+                2.add difficulty and tags<br>
+                3.add query<br>
+                4.add code type<br>
+                5.optimize  comment<br>
+            </li>
+            <br>
+            <br>
+            <li>v1.0<br>
+                1.支持leetcode.com和leetcode-cn.com<br>
+                2.支持获取题目与编辑<br>
+                3.支持测试<br>
+                4.支持提交<br>
+            </li>
+
+            <li>v1.0<br>
+                1.Support leetcode.com and leetcode-cn.com<br>
+                2.pull and edit <br>
+                3.test<br>
+                4.submit<br>
+            </li>
+
+        </ul>
+    ]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="143.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products -->
+    <depends>com.intellij.modules.lang</depends>
+      
+    <application-components>
+            <!-- Add your application components here -->
+    </application-components>
+
+    <extensions defaultExtensionNs="com.intellij">
+<!--    <postStartupActivity  implementation = "com.shuzijun.leetcode.plugin.listener.RegisterPluginInstallerStateListener"></postStartupActivity>-->
+        <errorHandler implementation="com.shuzijun.leetcode.plugin.listener.ErrorReportHandler"/>
+        <toolWindow id="leetcode" secondary="true" icon="/image/LeetCodeIcon.png" anchor="right"
+                    factoryClass="com.shuzijun.leetcode.plugin.window.WindowFactory"/>
+        <applicationService serviceInterface="com.shuzijun.leetcode.plugin.setting.PersistentConfig"
+                            serviceImplementation="com.shuzijun.leetcode.plugin.setting.PersistentConfig"/>
+        <applicationConfigurable groupId="tools" displayName="leetcode plugin" id="leetcode.id"
+                                 instance="com.shuzijun.leetcode.plugin.setting.SettingConfigurable"/>
+    </extensions>
+
+    <actions>
+        <action id="leetcode.LoginAction" class="com.shuzijun.leetcode.plugin.actions.LoginAction"
+                text="Sign in" description="Sign in" icon="AllIcons.General.Web">
+        </action>
+        <action id="leetcode.LogoutAction" class="com.shuzijun.leetcode.plugin.actions.LogoutAction"
+                text="Sign out" description="Sign out" icon="AllIcons.Actions.Exit">
+        </action>
+        <action id="leetcode.RefreshAction" class="com.shuzijun.leetcode.plugin.actions.RefreshAction"
+                text="Refresh question" description="Refreshquestion" icon="AllIcons.Actions.Refresh">
+        </action>
+        <action id="leetcode.FindAction" class="com.shuzijun.leetcode.plugin.actions.FindAction"
+                text="Find question" description="Refreshquestion" icon="AllIcons.Actions.Find">
+        </action>
+        <action id="leetcode.ConfigAction" class="com.shuzijun.leetcode.plugin.actions.ConfigAction"
+                text="Settings" description="Settings" icon="AllIcons.General.GearPlain">
+        </action>
+        <action id="leetcode.ClearAllAction" class="com.shuzijun.leetcode.plugin.actions.ClearAllAction"
+                text="Clear cache" description="Clear cache" icon="AllIcons.Process.StopHovered">
+        </action>
+        <action id="leetcode.CollapseAction" class="com.shuzijun.leetcode.plugin.actions.CollapseAction"
+                text="Collapse All"  description="Collapse All" icon="AllIcons.Actions.Collapseall">
+        </action>
+
+        <action id="leetcode.HelpAction" class="com.shuzijun.leetcode.plugin.actions.HelpAction"
+                text="Help"  description="Help" icon="AllIcons.Actions.Help">
+        </action>
+
+        <action id="leetcode.OpenAction" class="com.shuzijun.leetcode.plugin.actions.OpenAction"
+                text="open question" description="open question" icon="AllIcons.Actions.Annotate">
+        </action>
+
+        <action id="leetcode.OpenContentAction" class="com.shuzijun.leetcode.plugin.actions.OpenContentAction"
+                text="open content" description="open content" icon="AllIcons.FileTypes.UiForm">
+        </action>
+
+
+        <action id="leetcode.OpenInWebAction" class="com.shuzijun.leetcode.plugin.actions.OpenInWebAction"
+                text="open in web" description="open in web" icon="AllIcons.Actions.MoveTo2">
+        </action>
+
+        <action id="leetcode.SubmitAction" class="com.shuzijun.leetcode.plugin.actions.SubmitAction"
+                text="Submit" description="Submit" icon="AllIcons.Actions.StepOut">
+        </action>
+        <action id="leetcode.SubmissionsAction" class="com.shuzijun.leetcode.plugin.actions.SubmissionsAction"
+                text="Submissions" description="Submissions" icon="AllIcons.Actions.ShowHiddens">
+        </action>
+        <action id="leetcode.RunCodeAction" class="com.shuzijun.leetcode.plugin.actions.RunCodeAction"
+                text="Run Code" description="Run Code" icon="AllIcons.Actions.Execute">
+        </action>
+        <action id="leetcode.TestcaseAction" class="com.shuzijun.leetcode.plugin.actions.TestcaseAction"
+                text="Testcase" description="Test case" icon="AllIcons.Actions.Edit">
+        </action>
+        <action id="leetcode.ClearOneAction" class="com.shuzijun.leetcode.plugin.actions.ClearOneAction"
+                text="Clear cache" description="Clear cache" icon="AllIcons.Process.StopHovered">
+        </action>
+
+        <action id="leetcode.PickAction" class="com.shuzijun.leetcode.plugin.actions.PickAction"
+                text="Pick one" description="Pick one" icon="AllIcons.Diff.MagicResolve">
+        </action>
+
+
+        <group id="leetcode.NavigatorActionsToolbar">
+            <reference id="leetcode.LoginAction"/>
+            <reference id="leetcode.LogoutAction"/>
+            <separator/>
+            <reference id="leetcode.RefreshAction"/>
+            <reference id="leetcode.PickAction"/>
+            <reference id="leetcode.FindAction"/>
+            <reference id="leetcode.CollapseAction"/>
+            <separator/>
+            <reference id="leetcode.ConfigAction"/>
+            <reference id="leetcode.ClearAllAction"/>
+            <reference id="leetcode.HelpAction"/>
+        </group>
+
+        <group id="leetcode.NavigatorActionsMenu">
+            <reference id="leetcode.OpenAction"/>
+            <reference id="leetcode.OpenContentAction"/>
+            <reference id="leetcode.OpenInWebAction"/>
+            <separator/>
+            <reference id="leetcode.SubmitAction"/>
+            <reference id="leetcode.SubmissionsAction"/>
+            <separator/>
+            <reference id="leetcode.RunCodeAction"/>
+            <reference id="leetcode.TestcaseAction"/>
+            <separator/>
+            <group id="leetcode.FavoriteGroup" class="com.shuzijun.leetcode.plugin.actions.FavoriteActionGroup"
+                   popup="true"  text="Favorite" description="Favorite" icon="AllIcons.Actions.Menu_open">
+            </group>
+            <reference id="leetcode.ClearOneAction"/>
+        </group>
+
+        <group id="leetcode.find.Toolbar" popup="true" text="Status" description="Status">
+            <group id="leetcode.find.Difficulty" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Difficulty" description="Difficulty">
+            </group>
+            <group id="leetcode.find.Status"  class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Status" description="Status">
+            </group>
+            <group id="leetcode.find.Lists"  class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Lists" description="Lists">
+            </group>
+            <group id="leetcode.find.Tags"  class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Tags" description="Tags">
+            </group>
+            <separator/>
+            <action id="leetcode.find.Clear" class="com.shuzijun.leetcode.plugin.actions.FindClearAction"
+                    text="Clear find" description="Clear find " icon="AllIcons.Process.StopHovered">
+            </action>
+            <action id="leetcode.find.Config" class="com.shuzijun.leetcode.plugin.actions.FindConfigAction"
+                    text="∩" description="find intersection" >
+            </action>
+        </group>
+
+    </actions>
+
+
+</idea-plugin>

@@ -1,0 +1,68 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '0.4.14'
+    id "de.undercouch.download" version "4.0.2"
+}
+
+group 'com.shuzijun.leetcode'
+version "6.0" + (project.build_env.isEmpty() ? "" : "-") + project.build_env
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.alibaba:fastjson:1.2.47'
+    compile 'org.jsoup:jsoup:1.11.3'
+    compile('io.sentry:sentry:1.7.9') {
+        exclude module: 'slf4j-api'
+    }
+    compile fileTree(dir: 'src/main/resources/lib', include: ['*.jar'])
+
+}
+
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+    pluginName 'leetcode-editor'
+    version 'IU-193.5233.102'
+    type 'IU'
+    downloadSources false
+    buildSearchableOptions.enabled(false)
+    /*   updateSinceUntilBuild false
+     localPath project.idea_local_path
+     alternativeIdePath project.idea_local_path*/
+
+    prepareSandbox {
+        from("src/main/natives" + (project.build_env.isEmpty() ? "" : "-") + project.build_env) { into(getPluginName() + '/natives') }
+    }
+
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+
+
+
+
+/*
+task downloadJCEF(type: Copy) {
+    if (project.build_env.isEmpty()) {
+        return
+    }
+    def tempFile = new File(buildDir, "/download/natives-" + project.build_env + ".zip")
+    download {
+       src("https://github.com/shuzijun/leetcode-editor/releases/download/" + project.jcef_version + "/natives-" + project.build_env + ".zip")
+       dest tempFile
+    }
+
+    from zipTree(tempFile)
+    into "src/main/"
+}
+*/
+
+
