@@ -1,5 +1,4 @@
 # login config  
-  - [English Document](#login config)  
   - [中文文档](https://github.com/shuzijun/leetcode-editor/blob/master/doc/LoginHelp_ZH.md)   
   Login method: Configure username and password login, cookie login, browser login  
 ## Username password login  
