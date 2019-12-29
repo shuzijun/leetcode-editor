@@ -12,6 +12,7 @@
   <p align="center">
     <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/cookieLogin.png" alt="cookieLogin"/>
   </p>   
+    
 ## 浏览器登录  
   此登录需要额外下载依赖文件，在地址[releases](https://github.com/shuzijun/leetcode-editor/releases)下载版号带有**jcef**的压缩包,
   下载后，解压到配置页展示的JCEFFilePath的路径中。  
