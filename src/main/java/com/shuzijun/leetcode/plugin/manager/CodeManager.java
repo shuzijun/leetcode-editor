@@ -169,7 +169,7 @@ public class CodeManager {
             arg.put("question_id", question.getQuestionId());
             arg.put("lang", question.getLangSlug());
             arg.put("typed_code", code);
-            StringEntity entity = new StringEntity(arg.toJSONString());
+            StringEntity entity = new StringEntity(arg.toJSONString(), "UTF-8");
             post.setEntity(entity);
             post.setHeader("Accept", "application/json");
             post.setHeader("Content-type", "application/json");
@@ -216,7 +216,7 @@ public class CodeManager {
             arg.put("lang", question.getLangSlug());
             arg.put("judge_type", "large");
             arg.put("typed_code", code);
-            StringEntity entity = new StringEntity(arg.toJSONString());
+            StringEntity entity = new StringEntity(arg.toJSONString(), "UTF-8");
             post.setEntity(entity);
             post.setHeader("Accept", "application/json");
             post.setHeader("Content-type", "application/json");

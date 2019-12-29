@@ -2,6 +2,7 @@ package com.shuzijun.leetcode.plugin.setting;
 
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
@@ -32,13 +33,14 @@ import java.io.File;
 /**
  * @author shuzijun
  */
-public class SettingUI extends JDialog  {
+public class SettingUI extends JDialog {
 
     public JPanel mainPanel = new JBPanel();
 
     private JTextField userNameField = new JBTextField(10);
     private JPasswordField passwordField = new JBPasswordField();
     private TextFieldWithBrowseButton fileFolderBtn = new TextFieldWithBrowseButton();
+    private JTextField LevelColourField = new JBTextField(20);
 
     private JComboBox webComboBox = new JComboBox();
     private JComboBox codeComboBox = new JComboBox();
@@ -48,7 +50,7 @@ public class SettingUI extends JDialog  {
 
     private Editor fileNameEditor = null;
     private Editor templateEditor = null;
-    private Editor templateHelpEditor =null;
+    private Editor templateHelpEditor = null;
 
     public SettingUI() {
         setContentPane(mainPanel);
@@ -107,19 +109,24 @@ public class SettingUI extends JDialog  {
         customCodeBox.setSelected(false);
         addComponent(customCodeBox, constraints, 6, 2, 7, 2);
 
+        addComponent(new JLabel("JCEFFilePath:"), constraints, 0, 3, 0, 3);
+        addComponent(new JLabel(PathManager.getPluginsPath() + File.separator + "leetcode-editor" + File.separator + "natives" + File.separator), constraints, 1, 3, 5, 3);
+
+        addComponent(new JLabel("LevelColour:"), constraints, 0, 4, 0, 4);
+        addComponent(LevelColourField, constraints, 1, 4, 5, 4);
 
         JLabel templateConfigHelp = new JLabel("CustomConfig(help)");
         templateConfigHelp.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                BrowserUtil.browse("https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode.md");
+                BrowserUtil.browse("https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md");
             }
         });
         templateConfigHelp.setForeground(new Color(88, 157, 246));
-        addComponent(templateConfigHelp, constraints, 0, 3, 0, 3);
-        addComponent(new JSeparator(), constraints, 1, 3, 8, 3);
+        addComponent(templateConfigHelp, constraints, 0, 5, 0, 5);
+        addComponent(new JSeparator(), constraints, 1, 5, 8, 5);
 
-        addComponent(new JLabel("CodeFileName:"), constraints, 0, 4, 0, 4);
+        addComponent(new JLabel("CodeFileName:"), constraints, 0, 6, 0, 6);
 
         fileNameEditor = EditorFactory.getInstance().createEditor(EditorFactory.getInstance().createDocument(""), null, FileTypeManager.getInstance().getFileTypeByExtension("vm"), false);
         EditorSettings settings = fileNameEditor.getSettings();
@@ -138,10 +145,10 @@ public class SettingUI extends JDialog  {
         settings.setAdditionalPageAtBottom(false); //底部附加
         settings.setAutoCodeFoldingEnabled(false); //代码自动折叠
 
-        addComponent(fileNameEditor.getComponent(), constraints, 1, 4, 8, 4);
+        addComponent(fileNameEditor.getComponent(), constraints, 1, 6, 8, 6);
 
         constraints.anchor = GridBagConstraints.NORTHWEST;
-        addComponent(new JLabel("CodeTemplate:"), constraints, 0, 5, 0, 5);
+        addComponent(new JLabel("CodeTemplate:"), constraints, 0, 7, 0, 7);
 
         templateEditor = EditorFactory.getInstance().createEditor(EditorFactory.getInstance().createDocument(""), null, FileTypeManager.getInstance().getFileTypeByExtension("vm"), false);
         EditorSettings templateEditorSettings = templateEditor.getSettings();
@@ -151,10 +158,10 @@ public class SettingUI extends JDialog  {
         templateEditorSettings.setVirtualSpace(false); //虚拟空间
         JBScrollPane jbScrollPane = new JBScrollPane(templateEditor.getComponent());
         jbScrollPane.setMaximumSize(new Dimension(150, 50));
-        addComponent(jbScrollPane, constraints, 1, 5, 8, 5);
+        addComponent(jbScrollPane, constraints, 1, 7, 8, 7);
 
 
-        addComponent(new JLabel("TemplateConstant:"), constraints, 0, 6, 0, 6);
+        addComponent(new JLabel("TemplateConstant:"), constraints, 0, 8, 0, 8);
 
         templateHelpEditor = EditorFactory.getInstance().createEditor(EditorFactory.getInstance().createDocument(PropertiesUtils.getInfo("template.variable", "{", "}")), null, FileTypeManager.getInstance().getFileTypeByExtension("vm"), true);
 
@@ -165,7 +172,8 @@ public class SettingUI extends JDialog  {
         templateHelpEditorSettings.setLineNumbersShown(false); //行号
         templateHelpEditorSettings.setVirtualSpace(false); //虚拟空间
 
-        addComponent(templateHelpEditor.getComponent(), constraints, 1, 6, 8, 6);
+        addComponent(templateHelpEditor.getComponent(), constraints, 1, 8, 8, 8);
+
 
         Config config = PersistentConfig.getInstance().getInitConfig();
         if (config != null) {
@@ -187,6 +195,7 @@ public class SettingUI extends JDialog  {
                 fileNameEditor.getDocument().setText(config.getCustomFileName());
                 templateEditor.getDocument().setText(config.getCustomTemplate());
             });
+            LevelColourField.setText(config.getLevelColour());
         } else {
             ApplicationManager.getApplication().runWriteAction(() -> {
                 fileNameEditor.getDocument().setText(Constant.CUSTOM_FILE_NAME);
@@ -228,6 +237,7 @@ public class SettingUI extends JDialog  {
         config.setCustomCode(customCodeBox.isSelected());
         config.setCustomFileName(fileNameEditor.getDocument().getText());
         config.setCustomTemplate(templateEditor.getDocument().getText());
+        config.setLevelColour(LevelColourField.getText());
         File file = new File(config.getFilePath() + File.separator + PersistentConfig.PATH + File.separator);
         if (!file.exists()) {
             file.mkdirs();
@@ -245,7 +255,7 @@ public class SettingUI extends JDialog  {
         return mainPanel;
     }
 
-    public void disposeUIResources(){
+    public void disposeUIResources() {
         if (this.fileNameEditor != null) {
             EditorFactory.getInstance().releaseEditor(this.fileNameEditor);
             this.fileNameEditor = null;
@@ -254,7 +264,7 @@ public class SettingUI extends JDialog  {
             EditorFactory.getInstance().releaseEditor(this.templateEditor);
             this.templateEditor = null;
         }
-        if (this.templateHelpEditor!=null){
+        if (this.templateHelpEditor != null) {
             EditorFactory.getInstance().releaseEditor(this.templateHelpEditor);
             this.templateHelpEditor = null;
         }

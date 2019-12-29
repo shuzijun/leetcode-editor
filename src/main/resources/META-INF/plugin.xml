@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>5.4</version>
+    <version>6.0</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -49,7 +49,7 @@
 				<li> Password: Login password</li>
 				<li>Temp File Path: Temporary file storage catalogue</li>
 				<li>proxy(HTTP Proxy): HTTP Proxy,config path:`File` -> `settings`->`Appearance & Behavior`->`System Settings`->`HTTP Proxy`</li>
-                <li>Custom code template: Custom code template ([details](https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode.md))([demo](https://github.com/shuzijun/leetcode-question))</li>
+                <li>Custom code template: Custom code template ([details](https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md))([demo](https://github.com/shuzijun/leetcode-question))</li>
 
 			</ul>
 		</div>
@@ -113,6 +113,24 @@
 
     <change-notes><![CDATA[
          <ul>
+         <li>v6.0<br>
+                1.修改leetcode.com登录方式, <a href="https://github.com/shuzijun/leetcode-editor/blob/master/LoginHelp_ZH.md">参考</a><br>
+                2.修复快捷键无法使用问题<br>
+                3.修复题目名称不展示中文问题<br>
+                4.增加提交时自动保存<br>
+                5.增加结果stdout信息<br>
+                6.增加自定义题目颜色<br>
+                7.优化题目描述超长<br>
+            </li>
+            <li>v6.0<br>
+                1.Modify leetcode.com login method, <a href="https://github.com/shuzijun/leetcode-editor/blob/master/LoginHelp_ZH.md">help</a><br>
+                2.Fix the problem that the shortcut keys cannot be used<br>
+                3.Fix the problem that the title name does not show Chinese<br>
+                4.Automatically save when adding commits<br>
+                5.Increase result stdout information<br>
+                6.Add custom title color<br>
+                7.Optimize the title description<br>
+            </li>
           <li>v5.4<br>
                 1.修复leetcode.com Run Code 超时问题<br>
             </li>
@@ -136,11 +154,11 @@
                 2.fix favorite icon<br>
             </li>
             <li>v5.0<br>
-                1.增加代码自定义生成(<a href="https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode_ZH.md">详细介绍</a>)(<a href="https://github.com/shuzijun/leetcode-question">示例</a>)<br>
+                1.增加代码自定义生成(<a href="https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode_ZH.md">详细介绍</a>)(<a href="https://github.com/shuzijun/leetcode-question">示例</a>)<br>
                 2.增加查看题目描述(依赖 Markdown)<br>
             </li>
             <li>v5.0<br>
-                1.add code custom(<a href="https://github.com/shuzijun/leetcode-editor/blob/master/CustomCode.md">details</a>)(<a href="https://github.com/shuzijun/leetcode-question">demo</a>)<br>
+                1.add code custom(<a href="https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md">details</a>)(<a href="https://github.com/shuzijun/leetcode-question">demo</a>)<br>
                 2.add show content(Rely on Markdown)
             </li>
             <li>v4.3<br>

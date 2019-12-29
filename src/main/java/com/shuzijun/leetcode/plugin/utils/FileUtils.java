@@ -1,5 +1,11 @@
 package com.shuzijun.leetcode.plugin.utils;
 
+import com.intellij.openapi.application.WriteAction;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.util.ThrowableComputable;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import org.apache.commons.lang.StringUtils;
@@ -58,49 +64,63 @@ public class FileUtils {
 
     public static String getClearCommentFileBody(File file, CodeTypeEnum codeTypeEnum) {
 
+        VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+        if (FileDocumentManager.getInstance().isFileModified(vf)) {
+            try {
+                WriteAction.computeAndWait(new ThrowableComputable<Boolean, Throwable>() {
+                    @Override
+                    public Boolean compute() throws Throwable {
+                        FileDocumentManager.getInstance().saveDocument(FileDocumentManager.getInstance().getDocument(vf));
+                        return true;
+                    }
+                });
+            } catch (Throwable ignore) {
+                LogUtils.LOG.error("自动保存文件错误", ignore);
+            }
+
+        }
+
         StringBuffer code = new StringBuffer();
         try {
-            InputStreamReader inputReader = new InputStreamReader(new FileInputStream(file));
-            BufferedReader bf = new BufferedReader(inputReader);
-            List<String> codeList = new LinkedList<>();
+            String body = VfsUtil.loadText(vf);
+            if (StringUtils.isNotBlank(body)) {
 
-            int codeBegin = -1;
-            int codeEnd = -1;
-            int lineCount = 0;
-            String str;
-            while ((str = bf.readLine()) != null) {
-                if (StringUtils.isNotBlank(str) && trim(str).equals(codeTypeEnum.getComment() + trim(Constant.SUBMIT_REGION_BEGIN))) {
-                    codeBegin = lineCount;
-                } else if (StringUtils.isNotBlank(str) && trim(str).equals(codeTypeEnum.getComment() + trim(Constant.SUBMIT_REGION_END))) {
-                    codeEnd = lineCount;
-                }
-                codeList.add(str);
-                lineCount++;
-            }
-            bf.close();
-            inputReader.close();
+                List<String> codeList = new LinkedList<>();
+                int codeBegin = -1;
+                int codeEnd = -1;
+                int lineCount = 0;
 
-            if (codeBegin >= 0 && codeEnd > 0 && codeBegin < codeEnd) {
-                for (int i = codeBegin + 1; i < codeEnd; i++) {
-                    code.append(codeList.get(i)).append("\n");
+                String[] lines = body.split("\r\n|\r|\n");
+                for (String line : lines) {
+                    if (StringUtils.isNotBlank(line) && trim(line).equals(codeTypeEnum.getComment() + trim(Constant.SUBMIT_REGION_BEGIN))) {
+                        codeBegin = lineCount;
+                    } else if (StringUtils.isNotBlank(line) && trim(line).equals(codeTypeEnum.getComment() + trim(Constant.SUBMIT_REGION_END))) {
+                        codeEnd = lineCount;
+                    }
+                    codeList.add(line);
+                    lineCount++;
                 }
-            } else {
-                Boolean isCode = Boolean.FALSE;
-                for (int i = 0; i < codeList.size(); i++) {
-                    str = codeList.get(i);
-                    if (!isCode) {
-                        if (StringUtils.isNotBlank(str) && !str.startsWith(codeTypeEnum.getComment())) {
-                            isCode = Boolean.TRUE;
-                            code.append(str).append("\n");
+                if (codeBegin >= 0 && codeEnd > 0 && codeBegin < codeEnd) {
+                    for (int i = codeBegin + 1; i < codeEnd; i++) {
+                        code.append(codeList.get(i)).append("\n");
+                    }
+                } else {
+                    Boolean isCode = Boolean.FALSE;
+                    for (int i = 0; i < codeList.size(); i++) {
+                       String str = codeList.get(i);
+                        if (!isCode) {
+                            if (StringUtils.isNotBlank(str) && !str.startsWith(codeTypeEnum.getComment())) {
+                                isCode = Boolean.TRUE;
+                                code.append(str).append("\n");
+                            } else {
+                                continue;
+                            }
                         } else {
-                            continue;
+                            code.append(str).append("\n");
                         }
-                    } else {
-                        code.append(str).append("\n");
                     }
                 }
             }
-
         } catch (IOException id) {
 
         }
@@ -116,15 +136,15 @@ public class FileUtils {
     }
 
     public static void copyDirectory(File srcDir, File destDir, boolean preserveFileDate) throws IOException {
-        if(srcDir == null) {
+        if (srcDir == null) {
             throw new NullPointerException("Source must not be null");
-        } else if(destDir == null) {
+        } else if (destDir == null) {
             throw new NullPointerException("Destination must not be null");
-        } else if(!srcDir.exists()) {
+        } else if (!srcDir.exists()) {
             throw new FileNotFoundException("Source \'" + srcDir + "\' does not exist");
-        } else if(!srcDir.isDirectory()) {
+        } else if (!srcDir.isDirectory()) {
             throw new IOException("Source \'" + srcDir + "\' exists but is not a directory");
-        } else if(srcDir.getCanonicalPath().equals(destDir.getCanonicalPath())) {
+        } else if (srcDir.getCanonicalPath().equals(destDir.getCanonicalPath())) {
             throw new IOException("Source \'" + srcDir + "\' and destination \'" + destDir + "\' are the same");
         } else {
             doCopyDirectory(srcDir, destDir, preserveFileDate);
@@ -132,30 +152,30 @@ public class FileUtils {
     }
 
     private static void doCopyDirectory(File srcDir, File destDir, boolean preserveFileDate) throws IOException {
-        if(destDir.exists()) {
-            if(!destDir.isDirectory()) {
+        if (destDir.exists()) {
+            if (!destDir.isDirectory()) {
                 throw new IOException("Destination \'" + destDir + "\' exists but is not a directory");
             }
         } else {
-            if(!destDir.mkdirs()) {
+            if (!destDir.mkdirs()) {
                 throw new IOException("Destination \'" + destDir + "\' directory cannot be created");
             }
 
-            if(preserveFileDate) {
+            if (preserveFileDate) {
                 destDir.setLastModified(srcDir.lastModified());
             }
         }
 
-        if(!destDir.canWrite()) {
+        if (!destDir.canWrite()) {
             throw new IOException("Destination \'" + destDir + "\' cannot be written to");
         } else {
             File[] files = srcDir.listFiles();
-            if(files == null) {
+            if (files == null) {
                 throw new IOException("Failed to list contents of " + srcDir);
             } else {
-                for(int i = 0; i < files.length; ++i) {
+                for (int i = 0; i < files.length; ++i) {
                     File copiedFile = new File(destDir, files[i].getName());
-                    if(files[i].isDirectory()) {
+                    if (files[i].isDirectory()) {
                         doCopyDirectory(files[i], copiedFile, preserveFileDate);
                     } else {
                         doCopyFile(files[i], copiedFile, preserveFileDate);
@@ -167,7 +187,7 @@ public class FileUtils {
     }
 
     private static void doCopyFile(File srcFile, File destFile, boolean preserveFileDate) throws IOException {
-        if(destFile.exists() && destFile.isDirectory()) {
+        if (destFile.exists() && destFile.isDirectory()) {
             throw new IOException("Destination \'" + destFile + "\' exists but is a directory");
         } else {
             FileInputStream input = new FileInputStream(srcFile);
@@ -184,10 +204,10 @@ public class FileUtils {
                 IOUtils.closeQuietly(input);
             }
 
-            if(srcFile.length() != destFile.length()) {
+            if (srcFile.length() != destFile.length()) {
                 throw new IOException("Failed to copy full contents from \'" + srcFile + "\' to \'" + destFile + "\'");
             } else {
-                if(preserveFileDate) {
+                if (preserveFileDate) {
                     destFile.setLastModified(srcFile.lastModified());
                 }
 

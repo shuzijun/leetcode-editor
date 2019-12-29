@@ -75,6 +75,10 @@ public class Config {
      */
     private Map<String, String> userCookie = new HashMap<>();
 
+    /**
+     * 题目颜色
+     */
+    private String levelColour="#5CB85C;#F0AD4E;#D9534F";
 
     private List<String> favoriteList;
 
@@ -229,4 +233,11 @@ public class Config {
         return userCookie.get(user);
     }
 
+    public String getLevelColour() {
+        return levelColour;
+    }
+
+    public void setLevelColour(String levelColour) {
+        this.levelColour = levelColour;
+    }
 }

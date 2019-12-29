@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'com.shuzijun.leetcode'
-version "v5.4" + (project.build_env.isEmpty() ? "" : "-") + project.build_env
+version "6.0" + (project.build_env.isEmpty() ? "" : "-") + project.build_env
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -27,13 +27,13 @@ dependencies {
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     pluginName 'leetcode-editor'
-    //version 'IU-193.5233.102'
-    //type 'IU'
+    version 'IU-193.5233.102'
+    type 'IU'
     downloadSources false
-    updateSinceUntilBuild false
     buildSearchableOptions.enabled(false)
-    localPath project.idea_local_path
-    alternativeIdePath project.idea_local_path
+    /*   updateSinceUntilBuild false
+     localPath project.idea_local_path
+     alternativeIdePath project.idea_local_path*/
 
     prepareSandbox {
         from("src/main/natives" + (project.build_env.isEmpty() ? "" : "-") + project.build_env) { into(getPluginName() + '/natives') }
@@ -48,18 +48,21 @@ tasks.withType(JavaCompile) {
 
 
 
+
+/*
 task downloadJCEF(type: Copy) {
     if (project.build_env.isEmpty()) {
         return
     }
     def tempFile = new File(buildDir, "/download/natives-" + project.build_env + ".zip")
     download {
-        src 'https://github.com/shuzijun/leetcode-editor/releases/download/v6.0-beta.1/leetcode-editor-V5.4.zip'
-        /*src("https://github.com/shuzijun/leetcode-editor/releases/download/" + project.jcef_version + "/natives-" + project.build_env + ".zip")*/
-        dest tempFile
+       src("https://github.com/shuzijun/leetcode-editor/releases/download/" + project.jcef_version + "/natives-" + project.build_env + ".zip")
+       dest tempFile
     }
 
     from zipTree(tempFile)
     into "src/main/"
 }
+*/
+
 

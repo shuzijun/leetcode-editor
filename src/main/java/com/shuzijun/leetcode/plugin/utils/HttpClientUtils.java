@@ -93,6 +93,7 @@ public class HttpClientUtils {
         if (httpclient == null) {
             createHttpClient();
         }
+        context.getCookieStore().clear();
         for (Cookie cookie : cookieList) {
             context.getCookieStore().addCookie(cookie);
         }

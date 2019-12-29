@@ -26,7 +26,7 @@ public class URLUtils {
     public static String getLeetcodeHost() {
         String host = PersistentConfig.getInstance().getConfig().getUrl();
         if (StringUtils.isBlank(host)) {
-            return "leetcode.com";
+            return leetcode;
         }
         return host;
     }

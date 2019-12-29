@@ -246,7 +246,7 @@ public class QuestionManager {
             HttpPost translationPost = new HttpPost(URLUtils.getLeetcodeGraphql());
             try {
                 String body = null;
-                StringEntity entityCode = new StringEntity("{\"operationName\":\"getQuestionTranslation\",\"variables\":{},\"query\":\"query getQuestionTranslation($lang: String) {\\n  translations: allAppliedQuestionTranslations(lang: $lang) {\\n    title\\n    question {\\n      questionId\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}");
+                StringEntity entityCode = new StringEntity("{\"operationName\":\"getQuestionTranslation\",\"variables\":{},\"query\":\"query getQuestionTranslation($lang: String) {\\n  translations: allAppliedQuestionTranslations(lang: $lang) {\\n    title\\n    questionId\\n    __typename\\n  }\\n}\\n\"}");
                 translationPost.setEntity(entityCode);
                 translationPost.setHeader("Accept", "application/json");
                 translationPost.setHeader("Content-type", "application/json");
@@ -263,7 +263,7 @@ public class QuestionManager {
                     JSONArray jsonArray = JSONObject.parseObject(body).getJSONObject("data").getJSONArray("translations");
                     for (int i = 0; i < jsonArray.size(); i++) {
                         JSONObject object = jsonArray.getJSONObject(i);
-                        translationMap.put(object.getJSONObject("question").getString("questionId"), object.getString("title"));
+                        translationMap.put(object.getString("questionId"), object.getString("title"));
                     }
                     for (Question question : questions) {
                         if (translationMap.containsKey(question.getQuestionId())) {

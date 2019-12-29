@@ -31,7 +31,7 @@ public class UpdateUtils{
                     CloseableHttpClient httpClient = HttpClients.custom().build();
                     HttpGet httpget = null;
                     try {
-                        String[] version = PluginManager.getPlugin(PluginId.getId("leetcode-editor")).getVersion().split("\\.");
+                        String[] version = PluginManager.getPlugin(PluginId.getId("leetcode-editor")).getVersion().replace("v","").split("\\.|-");
                         httpget = new HttpGet("https://plugins.jetbrains.com/api/plugins/12132/updates");
                         CloseableHttpResponse response = httpClient.execute(httpget);
                         String body = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -39,7 +39,7 @@ public class UpdateUtils{
                         for (int i = 0; i < jsonArray.size(); i++) {
                             JSONObject jsonObject = jsonArray.getJSONObject(i);
                             if (jsonObject.getBoolean("approve")) {
-                                String[] nweVersion = jsonObject.getString("version").split("\\.");
+                                String[] nweVersion = jsonObject.getString("version").replace("v","").split("\\.|-");
                                 if (Integer.valueOf(version[0]) < Integer.valueOf(nweVersion[0])) {
                                     MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("updata", jsonObject.getString("version")));
                                     break;
