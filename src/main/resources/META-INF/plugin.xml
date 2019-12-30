@@ -114,7 +114,7 @@
     <change-notes><![CDATA[
          <ul>
          <li>v6.0<br>
-                1.修改leetcode.com登录方式, <a href="https://github.com/shuzijun/leetcode-editor/blob/master/LoginHelp_ZH.md">参考</a><br>
+                1.修改leetcode.com登录方式, <a href="https://github.com/shuzijun/leetcode-editor/blob/master/doc/LoginHelp_ZH.md">参考</a><br>
                 2.修复快捷键无法使用问题<br>
                 3.修复题目名称不展示中文问题<br>
                 4.增加提交时自动保存<br>
@@ -123,7 +123,7 @@
                 7.优化题目描述超长<br>
             </li>
             <li>v6.0<br>
-                1.Modify leetcode.com login method, <a href="https://github.com/shuzijun/leetcode-editor/blob/master/LoginHelp_ZH.md">help</a><br>
+                1.Modify leetcode.com login method, <a href="https://github.com/shuzijun/leetcode-editor/blob/master/doc/LoginHelp_ZH.md">help</a><br>
                 2.Fix the problem that the shortcut keys cannot be used<br>
                 3.Fix the problem that the title name does not show Chinese<br>
                 4.Automatically save when adding commits<br>

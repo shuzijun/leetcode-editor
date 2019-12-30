@@ -1,6 +1,7 @@
 package com.shuzijun.leetcode.plugin.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
@@ -62,20 +63,28 @@ public class LoginAction extends AbstractAsynAction {
             }
         }
 
-        LoginFrame loginFrame = new LoginFrame(anActionEvent.getProject(),tree);
+        LoginFrame loginFrame = new LoginFrame(anActionEvent.getProject(), tree);
         if (URLUtils.leetcodecn.equals(URLUtils.getLeetcodeHost())) {
-            if(!loginFrame.ajaxLogin(config)){
-                loginFrame.loadComponent();
-                loginFrame.show();
+            if (!loginFrame.ajaxLogin(config)) {
+                ApplicationManager.getApplication().invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        loginFrame.loadComponent();
+                        loginFrame.show();
+                    }
+                });
             }
         } else {
-            loginFrame.loadComponent();
-            loginFrame.show();
+            ApplicationManager.getApplication().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    loginFrame.loadComponent();
+                    loginFrame.show();
+                }
+            });
         }
 
     }
-
-
 
 
 }
