@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/2020.jpg" alt="demo"/>
+</p>  
 # leetcode-editor   
   
   - [English Document](#Introduction)  
