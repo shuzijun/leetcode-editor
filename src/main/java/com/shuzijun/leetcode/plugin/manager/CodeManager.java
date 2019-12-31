@@ -7,11 +7,9 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
-import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.Constant;
-import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
+import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -54,6 +52,8 @@ public class CodeManager {
             VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
             OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
             FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+            LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(vf.getPath());
+            leetcodeEditor.setQuestionId(question.getQuestionId());
         } else {
 
             if (getQuestion(question, codeTypeEnum)) {
@@ -63,6 +63,8 @@ public class CodeManager {
                 VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
                 OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
                 FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+                LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(vf.getPath());
+                leetcodeEditor.setQuestionId(question.getQuestionId());
             }
         }
     }
@@ -179,7 +181,7 @@ public class CodeManager {
                 JSONObject returnObj = JSONObject.parseObject(body);
                 cachedThreadPool.execute(new SubmitCheckTask(returnObj, codeTypeEnum, question));
                 MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
-            }else if(response != null && response.getStatusLine().getStatusCode() == 429){
+            } else if (response != null && response.getStatusLine().getStatusCode() == 429) {
                 MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
             } else {
                 LogUtils.LOG.error("提交失败：url：" + post.getURI().getPath() + ";param:" + arg.toJSONString() + ";body:" + EntityUtils.toString(response.getEntity(), "UTF-8"));
@@ -386,8 +388,8 @@ public class CodeManager {
                                     String input = jsonObject.getString("input");
                                     String output = jsonObject.getString("code_output");
                                     String expected = jsonObject.getString("expected_output");
-                                    String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"),"\n\t\t");
-                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.failed", input, output, expected,outputs));
+                                    String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"), "\n\t\t");
+                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.failed", input, output, expected, outputs));
 
                                     MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.failed", input, output, expected));
                                     if (!"ac".equals(question.getStatus())) {
@@ -396,8 +398,8 @@ public class CodeManager {
                                     }
                                 }
                             } else {
-                                String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"),"\n\t\t");
-                                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", buildErrorMsg(jsonObject),outputs));
+                                String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"), "\n\t\t");
+                                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", buildErrorMsg(jsonObject), outputs));
                                 if (!"ac".equals(question.getStatus())) {
                                     question.setStatus("notac");
                                     ViewManager.updateStatus();
@@ -446,7 +448,7 @@ public class CodeManager {
         @Override
         public void run() {
             String key = returnObj.getString("interpret_expected_id");
-            if(StringUtils.isBlank(key)){
+            if (StringUtils.isBlank(key)) {
                 key = returnObj.getString("interpret_id");
             }
             for (int i = 0; i < 50; i++) {
@@ -471,11 +473,11 @@ public class CodeManager {
                                     } else if (jsonObject.getJSONArray("expected_code_answer") != null && !jsonObject.getJSONArray("expected_code_answer").isEmpty()) {
                                         expected = jsonObject.getJSONArray("expected_code_answer").getString(0);
                                     }
-                                    String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"),"\n\t\t");
-                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("test.success", input, output, expected,outputs));
+                                    String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"), "\n\t\t");
+                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("test.success", input, output, expected, outputs));
                                 } else {
-                                    String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"),"\n\t\t");
-                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", buildErrorMsg(jsonObject),outputs));
+                                    String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"), "\n\t\t");
+                                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", buildErrorMsg(jsonObject), outputs));
                                 }
                                 return;
                             }

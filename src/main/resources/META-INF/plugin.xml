@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>6.0</version>
+    <version>6.1</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -297,12 +297,14 @@
     </application-components>
 
     <extensions defaultExtensionNs="com.intellij">
-<!--    <postStartupActivity  implementation = "com.shuzijun.leetcode.plugin.listener.RegisterPluginInstallerStateListener"></postStartupActivity>-->
+        <!--    <postStartupActivity  implementation = "com.shuzijun.leetcode.plugin.listener.RegisterPluginInstallerStateListener"></postStartupActivity>-->
         <errorHandler implementation="com.shuzijun.leetcode.plugin.listener.ErrorReportHandler"/>
         <toolWindow id="leetcode" secondary="true" icon="/image/LeetCodeIcon.png" anchor="right"
                     factoryClass="com.shuzijun.leetcode.plugin.window.WindowFactory"/>
         <applicationService serviceInterface="com.shuzijun.leetcode.plugin.setting.PersistentConfig"
                             serviceImplementation="com.shuzijun.leetcode.plugin.setting.PersistentConfig"/>
+        <projectService serviceInterface="com.shuzijun.leetcode.plugin.setting.ProjectConfig"
+                        serviceImplementation="com.shuzijun.leetcode.plugin.setting.ProjectConfig"/>
         <applicationConfigurable groupId="tools" displayName="leetcode plugin" id="leetcode.id"
                                  instance="com.shuzijun.leetcode.plugin.setting.SettingConfigurable"/>
     </extensions>
@@ -327,11 +329,11 @@
                 text="Clear cache" description="Clear cache" icon="AllIcons.Process.StopHovered">
         </action>
         <action id="leetcode.CollapseAction" class="com.shuzijun.leetcode.plugin.actions.CollapseAction"
-                text="Collapse All"  description="Collapse All" icon="AllIcons.Actions.Collapseall">
+                text="Collapse All" description="Collapse All" icon="AllIcons.Actions.Collapseall">
         </action>
 
         <action id="leetcode.HelpAction" class="com.shuzijun.leetcode.plugin.actions.HelpAction"
-                text="Help"  description="Help" icon="AllIcons.Actions.Help">
+                text="Help" description="Help" icon="AllIcons.Actions.Help">
         </action>
 
         <action id="leetcode.OpenAction" class="com.shuzijun.leetcode.plugin.actions.OpenAction"
@@ -394,26 +396,30 @@
             <reference id="leetcode.TestcaseAction"/>
             <separator/>
             <group id="leetcode.FavoriteGroup" class="com.shuzijun.leetcode.plugin.actions.FavoriteActionGroup"
-                   popup="true"  text="Favorite" description="Favorite" icon="AllIcons.Actions.Menu_open">
+                   popup="true" text="Favorite" description="Favorite" icon="AllIcons.Actions.Menu_open">
             </group>
             <reference id="leetcode.ClearOneAction"/>
         </group>
 
         <group id="leetcode.find.Toolbar" popup="true" text="Status" description="Status">
-            <group id="leetcode.find.Difficulty" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Difficulty" description="Difficulty">
+            <group id="leetcode.find.Difficulty" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup"
+                   popup="true" text="Difficulty" description="Difficulty">
             </group>
-            <group id="leetcode.find.Status"  class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Status" description="Status">
+            <group id="leetcode.find.Status" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true"
+                   text="Status" description="Status">
             </group>
-            <group id="leetcode.find.Lists"  class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Lists" description="Lists">
+            <group id="leetcode.find.Lists" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true"
+                   text="Lists" description="Lists">
             </group>
-            <group id="leetcode.find.Tags"  class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Tags" description="Tags">
+            <group id="leetcode.find.Tags" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true"
+                   text="Tags" description="Tags">
             </group>
             <separator/>
             <action id="leetcode.find.Clear" class="com.shuzijun.leetcode.plugin.actions.FindClearAction"
                     text="Clear find" description="Clear find " icon="AllIcons.Process.StopHovered">
             </action>
             <action id="leetcode.find.Config" class="com.shuzijun.leetcode.plugin.actions.FindConfigAction"
-                    text="∩" description="find intersection" >
+                    text="∩" description="find intersection">
             </action>
         </group>
 
