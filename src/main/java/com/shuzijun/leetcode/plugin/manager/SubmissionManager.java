@@ -30,10 +30,10 @@ import java.util.List;
  */
 public class SubmissionManager {
 
-    public static List<Submission> getSubmissionService(Question question) {
+    public static List<Submission> getSubmissionService(Question question,Project project) {
 
         if (!HttpClientUtils.isLogin()) {
-            MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
+            MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return null;
         }
 
@@ -64,15 +64,15 @@ public class SubmissionManager {
                         submissionList.add(submission);
                     }
                     if (submissionList.size() == 0) {
-                        MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("submission.empty"));
+                        MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("submission.empty"));
                     }
                 }
             } else {
-                MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
+                MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
             }
 
         } catch (IOException io) {
-            MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
+            MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
         } finally {
             post.abort();
         }
@@ -82,7 +82,7 @@ public class SubmissionManager {
     public static void openSubmission(Submission submission, Question question, Project project) {
 
         if (!HttpClientUtils.isLogin()) {
-            MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
+            MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return;
         }
         Config config = PersistentConfig.getInstance().getInitConfig();
@@ -106,7 +106,7 @@ public class SubmissionManager {
                     String body = CommentUtils.createSubmissions(html);
                     if (StringUtils.isBlank(body)) {
                         LogUtils.LOG.error(html);
-                        MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("submission.parse"));
+                        MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("submission.parse"));
                     } else {
                         try {
                             JSONObject jsonObject = JSONObject.parseObject(body);
@@ -151,17 +151,17 @@ public class SubmissionManager {
 
                         } catch (Exception e) {
                             LogUtils.LOG.error(body, e);
-                            MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("submission.parse"));
+                            MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("submission.parse"));
                         }
                     }
 
                 } else {
-                    MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
+                    MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
                 }
 
             } catch (Exception e) {
                 LogUtils.LOG.error("获取提交详情失败", e);
-                MessageUtils.showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
+                MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
                 return;
             } finally {
                 get.abort();

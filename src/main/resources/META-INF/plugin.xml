@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>6.0</version>
+    <version>6.1</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -113,6 +113,20 @@
 
     <change-notes><![CDATA[
          <ul>
+           <li>v6.1<br>
+               1.增加 Editor 右键菜单.<br>
+               2.增加 Bash SQL 支持.<br>
+               3.增加支持展示英文描述(leetcode-cn.com).<br>
+               4.增加计时器,统计做题时间.<br>
+               5.修复通知范围问题.
+            </li>
+            <li>v6.1<br>
+               1.Add editor menu.<br>
+               2.Add Bash SQL support.<br>
+               3.Add English description(leetcode-cn.com).<br>
+               4.Add timer.<br>
+               5.Repair notification scope.
+            </li>
          <li>v6.0<br>
                 1.修改leetcode.com登录方式, <a href="https://github.com/shuzijun/leetcode-editor/blob/master/doc/LoginHelp_ZH.md">参考</a><br>
                 2.修复快捷键无法使用问题<br>
@@ -297,14 +311,19 @@
     </application-components>
 
     <extensions defaultExtensionNs="com.intellij">
-<!--    <postStartupActivity  implementation = "com.shuzijun.leetcode.plugin.listener.RegisterPluginInstallerStateListener"></postStartupActivity>-->
+        <!--    <postStartupActivity  implementation = "com.shuzijun.leetcode.plugin.listener.RegisterPluginInstallerStateListener"></postStartupActivity>-->
         <errorHandler implementation="com.shuzijun.leetcode.plugin.listener.ErrorReportHandler"/>
         <toolWindow id="leetcode" secondary="true" icon="/image/LeetCodeIcon.png" anchor="right"
                     factoryClass="com.shuzijun.leetcode.plugin.window.WindowFactory"/>
         <applicationService serviceInterface="com.shuzijun.leetcode.plugin.setting.PersistentConfig"
                             serviceImplementation="com.shuzijun.leetcode.plugin.setting.PersistentConfig"/>
+        <projectService serviceInterface="com.shuzijun.leetcode.plugin.setting.ProjectConfig"
+                        serviceImplementation="com.shuzijun.leetcode.plugin.setting.ProjectConfig"/>
+        <projectService serviceInterface="com.shuzijun.leetcode.plugin.utils.MessageUtils"
+                        serviceImplementation="com.shuzijun.leetcode.plugin.utils.MessageUtils"/>
         <applicationConfigurable groupId="tools" displayName="leetcode plugin" id="leetcode.id"
                                  instance="com.shuzijun.leetcode.plugin.setting.SettingConfigurable"/>
+        <statusBarWidgetProvider implementation="com.shuzijun.leetcode.plugin.timer.TimerStatusBarWidgetProvider"/>
     </extensions>
 
     <actions>
@@ -327,11 +346,11 @@
                 text="Clear cache" description="Clear cache" icon="AllIcons.Process.StopHovered">
         </action>
         <action id="leetcode.CollapseAction" class="com.shuzijun.leetcode.plugin.actions.CollapseAction"
-                text="Collapse All"  description="Collapse All" icon="AllIcons.Actions.Collapseall">
+                text="Collapse All" description="Collapse All" icon="AllIcons.Actions.Collapseall">
         </action>
 
         <action id="leetcode.HelpAction" class="com.shuzijun.leetcode.plugin.actions.HelpAction"
-                text="Help"  description="Help" icon="AllIcons.Actions.Help">
+                text="Help" description="Help" icon="AllIcons.Actions.Help">
         </action>
 
         <action id="leetcode.OpenAction" class="com.shuzijun.leetcode.plugin.actions.OpenAction"
@@ -367,7 +386,6 @@
                 text="Pick one" description="Pick one" icon="AllIcons.Diff.MagicResolve">
         </action>
 
-
         <group id="leetcode.NavigatorActionsToolbar">
             <reference id="leetcode.LoginAction"/>
             <reference id="leetcode.LogoutAction"/>
@@ -394,29 +412,91 @@
             <reference id="leetcode.TestcaseAction"/>
             <separator/>
             <group id="leetcode.FavoriteGroup" class="com.shuzijun.leetcode.plugin.actions.FavoriteActionGroup"
-                   popup="true"  text="Favorite" description="Favorite" icon="AllIcons.Actions.Menu_open">
+                   popup="true" text="Favorite" description="Favorite" icon="AllIcons.Actions.Menu_open">
             </group>
+            <separator/>
+            <group id="leetcode.timer" popup="true" text="Timer" description="timer" icon="AllIcons.Vcs.History">
+                <action id="leetcode.StartTimeAction"
+                        class="com.shuzijun.leetcode.plugin.actions.StartTimeAction"
+                        text="Start" description="Start Time">
+                </action>
+                <action id="leetcode.StopTimeAction" class="com.shuzijun.leetcode.plugin.actions.StopTimeAction"
+                        text="Stop" description="Stop Time">
+                </action>
+                <action id="leetcode.ResetTimeAction" class="com.shuzijun.leetcode.plugin.actions.ResetTimeAction"
+                        text="Reset" description="Reset Time">
+                </action>
+            </group>
+            <separator/>
             <reference id="leetcode.ClearOneAction"/>
         </group>
 
         <group id="leetcode.find.Toolbar" popup="true" text="Status" description="Status">
-            <group id="leetcode.find.Difficulty" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Difficulty" description="Difficulty">
+            <group id="leetcode.find.Difficulty" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup"
+                   popup="true" text="Difficulty" description="Difficulty">
             </group>
-            <group id="leetcode.find.Status"  class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Status" description="Status">
+            <group id="leetcode.find.Status" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true"
+                   text="Status" description="Status">
             </group>
-            <group id="leetcode.find.Lists"  class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Lists" description="Lists">
+            <group id="leetcode.find.Lists" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true"
+                   text="Lists" description="Lists">
             </group>
-            <group id="leetcode.find.Tags"  class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true" text="Tags" description="Tags">
+            <group id="leetcode.find.Tags" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true"
+                   text="Tags" description="Tags">
             </group>
             <separator/>
             <action id="leetcode.find.Clear" class="com.shuzijun.leetcode.plugin.actions.FindClearAction"
                     text="Clear find" description="Clear find " icon="AllIcons.Process.StopHovered">
             </action>
             <action id="leetcode.find.Config" class="com.shuzijun.leetcode.plugin.actions.FindConfigAction"
-                    text="∩" description="find intersection" >
+                    text="∩" description="find intersection">
             </action>
         </group>
 
+
+        <group id="leetcode.editor.menu" class="com.shuzijun.leetcode.plugin.actions.EditorMenuActionGroup"
+               text="leetcode editor menu" popup="true" icon="/image/LeetCodeIcon.png">
+
+            <action id="leetcode.editor.RunCodeAction" class="com.shuzijun.leetcode.plugin.actions.editor.RunCodeAction"
+                    text="Run Code" description="Run Code" icon="AllIcons.Actions.Execute">
+            </action>
+            <action id="leetcode.editor.TestcaseAction"
+                    class="com.shuzijun.leetcode.plugin.actions.editor.TestcaseAction"
+                    text="Testcase" description="Test case" icon="AllIcons.Actions.Edit">
+            </action>
+            <separator/>
+            <action id="leetcode.editor.SubmitAction" class="com.shuzijun.leetcode.plugin.actions.editor.SubmitAction"
+                    text="Submit" description="Submit" icon="AllIcons.Actions.StepOut">
+            </action>
+            <action id="leetcode.editor.SubmissionsAction"
+                    class="com.shuzijun.leetcode.plugin.actions.editor.SubmissionsAction"
+                    text="Submissions" description="Submissions" icon="AllIcons.Actions.ShowHiddens">
+            </action>
+            <separator/>
+            <action id="leetcode.editor.OpenContentAction"
+                    class="com.shuzijun.leetcode.plugin.actions.editor.OpenContentAction"
+                    text="open content" description="open content" icon="AllIcons.FileTypes.UiForm">
+            </action>
+
+            <action id="leetcode.editor.OpenInWebAction"
+                    class="com.shuzijun.leetcode.plugin.actions.editor.OpenInWebAction"
+                    text="open in web" description="open in web" icon="AllIcons.Actions.MoveTo2">
+            </action>
+            <separator/>
+            <group id="leetcode.editor.timer" popup="true" text="Timer" description="timer" icon="AllIcons.Vcs.History">
+                <action id="leetcode.editor.StartTimeAction"
+                        class="com.shuzijun.leetcode.plugin.actions.editor.StartTimeAction"
+                        text="Start" description="Start Time">
+                </action>
+                <action id="leetcode.editor.StopTimeAction" class="com.shuzijun.leetcode.plugin.actions.StopTimeAction"
+                        text="Stop" description="Stop Time">
+                </action>
+                <action id="leetcode.editor.ResetTimeAction" class="com.shuzijun.leetcode.plugin.actions.ResetTimeAction"
+                        text="Reset" description="Reset Time">
+                </action>
+            </group>
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </group>
     </actions>
 
 

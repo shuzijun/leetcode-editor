@@ -35,7 +35,7 @@
  
 - **Configuration path**: `File` -> `settings`->`tools`->`leetcode plugin`  
   - **`URL options`**: `leetcode.com`OR`leetcode-cn.com`  
-  - **`Code Type`**: `Java`,`Python`,`C++`,`Python3`,`C`,`C#`,`JavaScript`,`Ruby`,`Swift`,`Go` ,`Scala`,`Kotlin`,`Rust`,`PHP`   
+  - **`Code Type`**: `Java`,`Python`,`C++`,`Python3`,`C`,`C#`,`JavaScript`,`Ruby`,`Swift`,`Go` ,`Scala`,`Kotlin`,`Rust`,`PHP`,`Bash`,`SQL`   
   - **`LoginName`**: Login Username
   - **`Password`**: Login password  
   - **`Temp File Path`**: Temporary file storage catalogue  
@@ -80,3 +80,7 @@
   - **`Testcase`**:Customize test cases  
   - **`favorite`**:Add or remove favorite
   - **`Clear cache`**:Clean up the current question  
+  - **`Timer`**:Timer, when it is turned on, it will prompt the problem solving time in the status bar in the lower right corner    
+
+- **Editor Menu(Right-click on Editor to appear)**:  
+  Function as above

@@ -20,7 +20,7 @@ public class OpenContentAction  extends AbstractAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config) {
         JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
-        Question question = ViewManager.getTreeQuestion(tree);
+        Question question = ViewManager.getTreeQuestion(tree, anActionEvent.getProject());
         if (question == null) {
             return;
         }

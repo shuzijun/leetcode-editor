@@ -49,13 +49,18 @@ import java.util.List;
 public class LoginFrame extends FrameWrapper {
 
     private JTree tree;
+    private Project project;
+
+    private boolean isComponent = false;
 
     public LoginFrame(Project project, JTree tree) {
         super(project);
         this.tree = tree;
+        this.project = project;
     }
 
     public void loadComponent() {
+        isComponent = true;
         if (classLoader()) {
             loadJCEFComponent();
 
@@ -107,8 +112,8 @@ public class LoginFrame extends FrameWrapper {
                                     Config config = PersistentConfig.getInstance().getInitConfig();
                                     config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.toJSONString(cookieList));
                                     PersistentConfig.getInstance().setInitConfig(config);
-                                    ViewManager.loadServiceData(tree);
-                                    examineEmail();
+                                    ViewManager.loadServiceData(tree, project);
+                                    httpLogin.examineEmail(project);
                                     cefBrowserProxy.executeJavaScript("alert('Login is successful. Please close the window')", "leetcode-editor", 0);
                                 } else {
                                     LogUtils.LOG.info("login failure");
@@ -182,9 +187,9 @@ public class LoginFrame extends FrameWrapper {
                     Config config = PersistentConfig.getInstance().getInitConfig();
                     config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.toJSONString(cookieList));
                     PersistentConfig.getInstance().setInitConfig(config);
-                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                    ViewManager.loadServiceData(tree);
-                    examineEmail();
+                    MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
+                    ViewManager.loadServiceData(tree, project);
+                    httpLogin.examineEmail(project);
                     close();
                     return;
                 } else {
@@ -211,74 +216,6 @@ public class LoginFrame extends FrameWrapper {
 
     }
 
-    public boolean ajaxLogin(Config config) {
-        if (StringUtils.isBlank(PersistentConfig.getInstance().getPassword())) {
-            return Boolean.FALSE;
-        }
-
-        HttpPost post = new HttpPost(URLUtils.getLeetcodeLogin());
-        try {
-            HttpEntity ent = MultipartEntityBuilder.create()
-                    .addTextBody("csrfmiddlewaretoken", HttpClientUtils.getToken())
-                    .addTextBody("login", config.getLoginName())
-                    .addTextBody("password", PersistentConfig.getInstance().getPassword())
-                    .addTextBody("next", "/problems")
-                    .build();
-            post.setEntity(ent);
-            post.setHeader("x-requested-with", "XMLHttpRequest");
-            post.setHeader("accept", "*/*");
-            CloseableHttpResponse loginResponse = HttpClientUtils.executePost(post);
-
-            if (loginResponse == null) {
-                MessageUtils.showWarnMsg("warning", PropertiesUtils.getInfo("request.failed"));
-                return Boolean.FALSE;
-            }
-
-            String body = EntityUtils.toString(loginResponse.getEntity(), "UTF-8");
-
-            if ((loginResponse.getStatusLine().getStatusCode() == 200 || loginResponse.getStatusLine().getStatusCode() == 302)) {
-                if (StringUtils.isNotBlank(body) && body.startsWith("{")) {
-                    JSONObject jsonObject = JSONObject.parseObject(body);
-                    JSONArray jsonArray = jsonObject.getJSONObject("form").getJSONArray("errors");
-                    if (jsonArray.isEmpty()) {
-                        MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                        examineEmail();
-                        ViewManager.loadServiceData(tree);
-                        return Boolean.TRUE;
-                    } else {
-                        MessageUtils.showInfoMsg("info", StringUtils.join(jsonArray, ","));
-                        return Boolean.FALSE;
-                    }
-                } else if (StringUtils.isBlank(body)) {
-                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                    examineEmail();
-                    ViewManager.loadServiceData(tree);
-                    return Boolean.TRUE;
-                } else {
-                    HttpClientUtils.resetHttpclient();
-                    MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
-                    SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", loginResponse.getStatusLine().getStatusCode(), body));
-                    return Boolean.FALSE;
-                }
-            } else if (loginResponse.getStatusLine().getStatusCode() == 400) {
-                JSONObject jsonObject = JSONObject.parseObject(body);
-                MessageUtils.showInfoMsg("info", StringUtils.join(jsonObject.getJSONObject("form").getJSONArray("errors"), ","));
-                return Boolean.FALSE;
-            } else {
-                HttpClientUtils.resetHttpclient();
-                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
-                SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", loginResponse.getStatusLine().getStatusCode(), body));
-                return Boolean.FALSE;
-            }
-        } catch (Exception e) {
-            LogUtils.LOG.error("登陆错误", e);
-            MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.failed"));
-            return Boolean.FALSE;
-        } finally {
-            post.abort();
-        }
-    }
-
     private boolean classLoader() {
         synchronized (this) {
             String path = PathManager.getPluginsPath() + File.separator + "leetcode-editor" + File.separator + "natives" + File.separator;
@@ -292,40 +229,109 @@ public class LoginFrame extends FrameWrapper {
         }
     }
 
-    private void examineEmail() {
-        ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
-            @Override
-            public void run() {
-                HttpPost post = new HttpPost(URLUtils.getLeetcodeGraphql());
-                try {
-                    StringEntity entity = new StringEntity("{\"operationName\":\"user\",\"variables\":{},\"query\":\"query user {\\n  user {\\n    socialAccounts\\n    username\\n    emails {\\n      email\\n      primary\\n      verified\\n      __typename\\n    }\\n    phone\\n    profile {\\n      rewardStats\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}");
-                    post.setEntity(entity);
-                    post.setHeader("Accept", "application/json");
-                    post.setHeader("Content-type", "application/json");
-                    CloseableHttpResponse response = HttpClientUtils.executePost(post);
-                    if (response != null && response.getStatusLine().getStatusCode() == 200) {
-
-                        String body = EntityUtils.toString(response.getEntity(), "UTF-8");
-
-                        JSONArray jsonArray = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("user").getJSONArray("emails");
-                        if (jsonArray != null && jsonArray.size() > 0) {
-                            for (int i = 0; i < jsonArray.size(); i++) {
-                                JSONObject object = jsonArray.getJSONObject(i);
-                                if (object.getBoolean("verified")) {
-                                    return;
-                                }
-                            }
-
-                        }
-                        MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("user.email"));
-                    }
-                } catch (IOException i) {
-                    LogUtils.LOG.error("验证邮箱错误");
-                } finally {
-                    post.abort();
-                }
+    public static class httpLogin {
+        public static boolean ajaxLogin(Config config, JTree tree, Project project) {
+            if (StringUtils.isBlank(PersistentConfig.getInstance().getPassword())) {
+                return Boolean.FALSE;
             }
-        });
-    }
 
+            HttpPost post = new HttpPost(URLUtils.getLeetcodeLogin());
+            try {
+                HttpEntity ent = MultipartEntityBuilder.create()
+                        .addTextBody("csrfmiddlewaretoken", HttpClientUtils.getToken())
+                        .addTextBody("login", config.getLoginName())
+                        .addTextBody("password", PersistentConfig.getInstance().getPassword())
+                        .addTextBody("next", "/problems")
+                        .build();
+                post.setEntity(ent);
+                post.setHeader("x-requested-with", "XMLHttpRequest");
+                post.setHeader("accept", "*/*");
+                CloseableHttpResponse loginResponse = HttpClientUtils.executePost(post);
+
+                if (loginResponse == null) {
+                    MessageUtils.getInstance(project).showWarnMsg("warning", PropertiesUtils.getInfo("request.failed"));
+                    return Boolean.FALSE;
+                }
+
+                String body = EntityUtils.toString(loginResponse.getEntity(), "UTF-8");
+
+                if ((loginResponse.getStatusLine().getStatusCode() == 200 || loginResponse.getStatusLine().getStatusCode() == 302)) {
+                    if (StringUtils.isNotBlank(body) && body.startsWith("{")) {
+                        JSONObject jsonObject = JSONObject.parseObject(body);
+                        JSONArray jsonArray = jsonObject.getJSONObject("form").getJSONArray("errors");
+                        if (jsonArray.isEmpty()) {
+                            MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
+                            examineEmail(project);
+                            ViewManager.loadServiceData(tree, project);
+                            return Boolean.TRUE;
+                        } else {
+                            MessageUtils.getInstance(project).showInfoMsg("info", StringUtils.join(jsonArray, ","));
+                            return Boolean.FALSE;
+                        }
+                    } else if (StringUtils.isBlank(body)) {
+                        MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
+                        examineEmail(project);
+                        ViewManager.loadServiceData(tree, project);
+                        return Boolean.TRUE;
+                    } else {
+                        HttpClientUtils.resetHttpclient();
+                        MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
+                        SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", loginResponse.getStatusLine().getStatusCode(), body));
+                        return Boolean.FALSE;
+                    }
+                } else if (loginResponse.getStatusLine().getStatusCode() == 400) {
+                    JSONObject jsonObject = JSONObject.parseObject(body);
+                    MessageUtils.getInstance(project).showInfoMsg("info", StringUtils.join(jsonObject.getJSONObject("form").getJSONArray("errors"), ","));
+                    return Boolean.FALSE;
+                } else {
+                    HttpClientUtils.resetHttpclient();
+                    MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
+                    SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", loginResponse.getStatusLine().getStatusCode(), body));
+                    return Boolean.FALSE;
+                }
+            } catch (Exception e) {
+                LogUtils.LOG.error("登陆错误", e);
+                MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.failed"));
+                return Boolean.FALSE;
+            } finally {
+                post.abort();
+            }
+        }
+
+        public static void examineEmail(Project project) {
+            ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
+                @Override
+                public void run() {
+                    HttpPost post = new HttpPost(URLUtils.getLeetcodeGraphql());
+                    try {
+                        StringEntity entity = new StringEntity("{\"operationName\":\"user\",\"variables\":{},\"query\":\"query user {\\n  user {\\n    socialAccounts\\n    username\\n    emails {\\n      email\\n      primary\\n      verified\\n      __typename\\n    }\\n    phone\\n    profile {\\n      rewardStats\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}");
+                        post.setEntity(entity);
+                        post.setHeader("Accept", "application/json");
+                        post.setHeader("Content-type", "application/json");
+                        CloseableHttpResponse response = HttpClientUtils.executePost(post);
+                        if (response != null && response.getStatusLine().getStatusCode() == 200) {
+
+                            String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+
+                            JSONArray jsonArray = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("user").getJSONArray("emails");
+                            if (jsonArray != null && jsonArray.size() > 0) {
+                                for (int i = 0; i < jsonArray.size(); i++) {
+                                    JSONObject object = jsonArray.getJSONObject(i);
+                                    if (object.getBoolean("verified")) {
+                                        return;
+                                    }
+                                }
+
+                            }
+                            MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("user.email"));
+                        }
+                    } catch (IOException i) {
+                        LogUtils.LOG.error("验证邮箱错误");
+                    } finally {
+                        post.abort();
+                    }
+                }
+            });
+        }
+    }
 }

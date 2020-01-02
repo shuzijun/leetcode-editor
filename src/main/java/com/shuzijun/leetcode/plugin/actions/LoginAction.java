@@ -30,23 +30,23 @@ public class LoginAction extends AbstractAsynAction {
             CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
             httpget.abort();
             if (response == null) {
-                MessageUtils.showWarnMsg("warning", PropertiesUtils.getInfo("request.failed"));
+                MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("warning", PropertiesUtils.getInfo("request.failed"));
                 return;
             }
             if (response.getStatusLine().getStatusCode() != 200) {
-                ViewManager.loadServiceData(tree);
-                MessageUtils.showWarnMsg("warning", PropertiesUtils.getInfo("request.failed"));
+                ViewManager.loadServiceData(tree, anActionEvent.getProject());
+                MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("warning", PropertiesUtils.getInfo("request.failed"));
                 return;
             }
         } else {
             if (HttpClientUtils.isLogin()) {
-                MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("login.exist"));
+                MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("info", PropertiesUtils.getInfo("login.exist"));
                 return;
             }
         }
 
         if (StringUtils.isBlank(config.getLoginName())) {
-            MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("config.user"));
+            MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("info", PropertiesUtils.getInfo("config.user"));
             return;
         }
 
@@ -54,8 +54,8 @@ public class LoginAction extends AbstractAsynAction {
             List<BasicClientCookie> cookieList = CookieUtils.toCookie(config.getCookie(config.getUrl() + config.getLoginName()));
             HttpClientUtils.setCookie(cookieList);
             if (HttpClientUtils.isLogin()) {
-                MessageUtils.showInfoMsg("login", PropertiesUtils.getInfo("login.success"));
-                ViewManager.loadServiceData(tree);
+                MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("login", PropertiesUtils.getInfo("login.success"));
+                ViewManager.loadServiceData(tree, anActionEvent.getProject());
                 return;
             } else {
                 config.addCookie(config.getUrl() + config.getLoginName(), null);
@@ -63,12 +63,13 @@ public class LoginAction extends AbstractAsynAction {
             }
         }
 
-        LoginFrame loginFrame = new LoginFrame(anActionEvent.getProject(), tree);
+
         if (URLUtils.leetcodecn.equals(URLUtils.getLeetcodeHost())) {
-            if (!loginFrame.ajaxLogin(config)) {
+            if (!LoginFrame.httpLogin.ajaxLogin(config, tree, anActionEvent.getProject())) {
                 ApplicationManager.getApplication().invokeLater(new Runnable() {
                     @Override
                     public void run() {
+                        LoginFrame loginFrame = new LoginFrame(anActionEvent.getProject(), tree);
                         loginFrame.loadComponent();
                         loginFrame.show();
                     }
@@ -78,6 +79,7 @@ public class LoginAction extends AbstractAsynAction {
             ApplicationManager.getApplication().invokeLater(new Runnable() {
                 @Override
                 public void run() {
+                    LoginFrame loginFrame = new LoginFrame(anActionEvent.getProject(), tree);
                     loginFrame.loadComponent();
                     loginFrame.show();
                 }

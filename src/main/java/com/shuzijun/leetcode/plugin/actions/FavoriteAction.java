@@ -28,7 +28,7 @@ public class FavoriteAction extends ToggleAction {
     public boolean isSelected(AnActionEvent anActionEvent) {
 
         JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
-        Question question = ViewManager.getTreeQuestion(tree);
+        Question question = ViewManager.getTreeQuestion(tree, anActionEvent.getProject());
         if (question == null) {
             return false;
         }
@@ -38,14 +38,14 @@ public class FavoriteAction extends ToggleAction {
     @Override
     public void setSelected(AnActionEvent anActionEvent, boolean b) {
         JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
-        Question question = ViewManager.getTreeQuestion(tree);
+        Question question = ViewManager.getTreeQuestion(tree, anActionEvent.getProject());
         if (question == null) {
             return;
         }
         if (b) {
-            FavoriteManager.addQuestionToFavorite(tag, question);
-        }else {
-            FavoriteManager.removeQuestionFromFavorite(tag, question);
+            FavoriteManager.addQuestionToFavorite(tag, question, anActionEvent.getProject());
+        } else {
+            FavoriteManager.removeQuestionFromFavorite(tag, question, anActionEvent.getProject());
         }
 
     }

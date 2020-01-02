@@ -47,6 +47,7 @@ public class SettingUI extends JDialog {
     private JCheckBox customCodeBox = new JCheckBox("Custom code template");
     private JCheckBox updateCheckBox = new JCheckBox("Check plugin update");
     private JCheckBox proxyCheckBox = new JCheckBox("proxy(HTTP Proxy)");
+    private JCheckBox englishContentBox = new JCheckBox("English Content");
 
     private Editor fileNameEditor = null;
     private Editor templateEditor = null;
@@ -114,6 +115,9 @@ public class SettingUI extends JDialog {
 
         addComponent(new JLabel("LevelColour:"), constraints, 0, 4, 0, 4);
         addComponent(LevelColourField, constraints, 1, 4, 5, 4);
+
+        englishContentBox.setSelected(false);
+        addComponent(englishContentBox, constraints, 6, 3, 7, 3);
 
         JLabel templateConfigHelp = new JLabel("CustomConfig(help)");
         templateConfigHelp.addMouseListener(new MouseAdapter() {
@@ -196,7 +200,9 @@ public class SettingUI extends JDialog {
                 templateEditor.getDocument().setText(config.getCustomTemplate());
             });
             LevelColourField.setText(config.getLevelColour());
+            englishContentBox.setSelected(config.getEnglishContent());
         } else {
+            LevelColourField.setText(config.getLevelColour());
             ApplicationManager.getApplication().runWriteAction(() -> {
                 fileNameEditor.getDocument().setText(Constant.CUSTOM_FILE_NAME);
                 templateEditor.getDocument().setText(Constant.CUSTOM_TEMPLATE);

@@ -20,7 +20,7 @@ public abstract class AbstractAction extends AnAction {
     public void actionPerformed(AnActionEvent anActionEvent) {
         Config config = PersistentConfig.getInstance().getInitConfig();
         if (config == null) {
-            MessageUtils.showWarnMsg("warning", PropertiesUtils.getInfo("config.first"));
+            MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("warning", PropertiesUtils.getInfo("config.first"));
             ShowSettingsUtil.getInstance().showSettingsDialog(anActionEvent.getProject(), SettingConfigurable.DISPLAY_NAME);
             return;
         } else if (StringUtils.isBlank(config.getId())) {
@@ -29,11 +29,10 @@ public abstract class AbstractAction extends AnAction {
         }
 
         try {
-            MTAUtils.click(anActionEvent.getActionManager().getId(this),config);
-            UpdateUtils.examine(config);
-        }catch (Exception e){
+            MTAUtils.click(anActionEvent.getActionManager().getId(this), config);
+            UpdateUtils.examine(config, anActionEvent.getProject());
+        } catch (Exception e) {
         }
-
 
 
         actionPerformed(anActionEvent, config);
