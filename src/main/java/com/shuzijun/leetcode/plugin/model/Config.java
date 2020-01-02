@@ -61,6 +61,10 @@ public class Config {
      * 自定义代码生成
      */
     private Boolean customCode = false;
+    /**
+     * 适应英文描述
+     */
+    private Boolean englishContent = false;
 
     /**
      * 自定义文件名
@@ -78,7 +82,7 @@ public class Config {
     /**
      * 题目颜色
      */
-    private String levelColour="#5CB85C;#F0AD4E;#D9534F";
+    private String levelColour = "#5CB85C;#F0AD4E;#D9534F";
 
     private List<String> favoriteList;
 
@@ -239,5 +243,13 @@ public class Config {
 
     public void setLevelColour(String levelColour) {
         this.levelColour = levelColour;
+    }
+
+    public Boolean getEnglishContent() {
+        return englishContent;
+    }
+
+    public void setEnglishContent(Boolean englishContent) {
+        this.englishContent = englishContent;
     }
 }

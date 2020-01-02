@@ -31,13 +31,14 @@
  
 - **配置路径**: `File` -> `settings`->`tools`->`leetcode plugin`  
   - **`URL可选项`**: `leetcode.com`与`leetcode-cn.com`  
-  - **`Code Type`**: `Java`,`Python`,`C++`,`Python3`,`C`,`C#`,`JavaScript`,`Ruby`,`Swift`,`Go` ,`Scala`,`Kotlin`,`Rust`,`PHP`   
+  - **`Code Type`**: `Java`,`Python`,`C++`,`Python3`,`C`,`C#`,`JavaScript`,`Ruby`,`Swift`,`Go` ,`Scala`,`Kotlin`,`Rust`,`PHP`,`Bash`,`SQL`   
   - **`LoginName`**: 登录用户名
   - **`Password`**: 登录密码  
   - **`Temp File Path`**: 临时文件存放目录  
   - **`proxy(HTTP Proxy)`**: 使用http代理,配置路径:`File` -> `settings`->`Appearance & Behavior`->`System Settings`->`HTTP Proxy`
   - **`Custom code template`**: 自定义代码生成模板 ([详细介绍](https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode_ZH.md))([示例](https://github.com/shuzijun/leetcode-question))  
-  - **`LevelColour`**: 自定义题目难度颜色,重启后生效
+  - **`LevelColour`**: 自定义题目难度颜色,重启后生效  
+  - **`English Content`**: 题目显示英文描述  
   
 ### 窗口(主窗口右下角![icon](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/LeetCodeIcon.png))  
   
@@ -76,6 +77,10 @@
   - **`Testcase`**:自定义测试用例  
   - **`favorite`**:添加或移除收藏
   - **`Clear cache`**:清理当前题目  
+  - **`Timer`**:计时器,开启后在右下角状态栏提示解题时间    
+  
+- **Editor菜单(在Editor上右击出现)**:  
+  功能同上
   
 ### 常见问题  
   [常见问题](https://github.com/shuzijun/leetcode-editor/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)

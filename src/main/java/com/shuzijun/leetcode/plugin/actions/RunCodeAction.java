@@ -17,10 +17,10 @@ public class RunCodeAction extends AbstractAsynAction {
     @Override
     public void perform(AnActionEvent anActionEvent, Config config) {
         JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
-        Question question = ViewManager.getTreeQuestion(tree);
+        Question question = ViewManager.getTreeQuestion(tree, anActionEvent.getProject());
         if (question == null) {
             return;
         }
-        CodeManager.RuncodeCode(question);
+        CodeManager.RuncodeCode(question, anActionEvent.getProject());
     }
 }

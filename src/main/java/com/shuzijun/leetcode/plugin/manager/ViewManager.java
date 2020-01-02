@@ -2,12 +2,16 @@ package com.shuzijun.leetcode.plugin.manager;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.components.JBScrollPane;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.window.WindowFactory;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -30,13 +34,13 @@ public class ViewManager {
 
     private static boolean intersection = Boolean.FALSE;
 
-    public static void loadServiceData(JTree tree) {
+    public static void loadServiceData(JTree tree, Project project) {
         List<Question> questionList = QuestionManager.getQuestionService();
         if (questionList == null || questionList.isEmpty()) {
-            MessageUtils.showWarnMsg("warning", PropertiesUtils.getInfo("response.cache"));
+            MessageUtils.getInstance(project).showWarnMsg("warning", PropertiesUtils.getInfo("response.cache"));
             questionList = QuestionManager.getQuestionCache();
             if (questionList == null || questionList.isEmpty()) {
-                MessageUtils.showErrorMsg("error", PropertiesUtils.getInfo("response.question"));
+                MessageUtils.getInstance(project).showErrorMsg("error", PropertiesUtils.getInfo("response.question"));
                 return;
             }
         }
@@ -56,7 +60,7 @@ public class ViewManager {
         DefaultTreeModel treeMode = (DefaultTreeModel) tree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeMode.getRoot();
         root.removeAllChildren();
-        DefaultMutableTreeNode node = new DefaultMutableTreeNode(new Question(String.format("Problems(%d)",questionList.size())));
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode(new Question(String.format("Problems(%d)", questionList.size())));
         root.add(node);
         for (Question q : questionList) {
             node.add(new DefaultMutableTreeNode(q));
@@ -87,7 +91,7 @@ public class ViewManager {
         }
     }
 
-    public static void updateStatus(){
+    public static void updateStatus() {
         filter.put(Constant.FIND_TYPE_STATUS, QuestionManager.getStatus());
     }
 
@@ -151,7 +155,7 @@ public class ViewManager {
             for (Question q : question.values()) {
                 node.add(new DefaultMutableTreeNode(q));
             }
-            ((Question)node.getUserObject()).setTitle(String.format("Problems(%d)",node.getChildCount()));
+            ((Question) node.getUserObject()).setTitle(String.format("Problems(%d)", node.getChildCount()));
         } else {
             for (String key : selectQuestionList) {
                 Question q = question.get(key);
@@ -159,7 +163,7 @@ public class ViewManager {
                     node.add(new DefaultMutableTreeNode(q));
                 }
             }
-            ((Question)node.getUserObject()).setTitle(String.format("Problems(%d)",node.getChildCount()));
+            ((Question) node.getUserObject()).setTitle(String.format("Problems(%d)", node.getChildCount()));
         }
         treeMode.reload();
         tree.expandPath(new TreePath(node.getPath()));
@@ -187,7 +191,7 @@ public class ViewManager {
         return;
     }
 
-    public static Question getTreeQuestion(JTree tree) {
+    public static Question getTreeQuestion(JTree tree,Project project) {
         Question question = null;
         if (tree != null) {
             DefaultMutableTreeNode note = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
@@ -203,10 +207,24 @@ public class ViewManager {
                 }
             }
         }
-        if(question == null){
-            MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("response.select"));
+        if (question == null) {
+            MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("response.select"));
         }
         return question;
+    }
+
+    public static Question getQuestionById(String id,Project project) {
+        if(question.isEmpty()){
+            MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("tree.load"));
+            ApplicationManager.getApplication().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    ToolWindowManager.getInstance(project).getToolWindow(WindowFactory.ID).show(null);
+                }
+            });
+            return null;
+        }
+        return question.get(id);
     }
 
     private static void addChild(DefaultMutableTreeNode rootNode, List<Tag> Lists, Map<String, Question> questionMap) {
@@ -214,7 +232,7 @@ public class ViewManager {
             for (Tag tag : Lists) {
                 long qCnt = tag.getQuestions().stream().filter(q -> questionMap.get(q) != null).count();
                 DefaultMutableTreeNode tagNode = new DefaultMutableTreeNode(new Question(String.format("%s(%d)",
-                    tag.getName(), qCnt)));
+                        tag.getName(), qCnt)));
                 rootNode.add(tagNode);
                 for (String key : tag.getQuestions()) {
                     if (questionMap.get(key) != null) {

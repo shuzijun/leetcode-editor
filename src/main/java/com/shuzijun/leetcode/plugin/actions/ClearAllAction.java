@@ -30,31 +30,33 @@ public class ClearAllAction extends AbstractAction {
 
             File file = new File(filePath);
             if (!file.exists() || !file.isDirectory()) {
-                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("clear.success"));
+                MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("info", PropertiesUtils.getInfo("clear.success"));
                 return;
             }
 
             try {
-                String[] tempList = file.list();
-                File temp = null;
-                for (int i = 0; i < tempList.length; i++) {
-                    if (filePath.endsWith(File.separator)) {
-                        temp = new File(filePath + tempList[i]);
-                    } else {
-                        temp = new File(filePath + File.separator + tempList[i]);
-                    }
-                    if (temp.isFile()) {
-                        temp.delete();
-                    }
-                }
-
-                MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("clear.success"));
+                delFile(file);
+                MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("info", PropertiesUtils.getInfo("clear.success"));
             } catch (Exception ee) {
                 LogUtils.LOG.error("清理文件错误", ee);
-                MessageUtils.showErrorMsg("error", PropertiesUtils.getInfo("clear.failed"));
+                MessageUtils.getInstance(anActionEvent.getProject()).showErrorMsg("error", PropertiesUtils.getInfo("clear.failed"));
             }
         }
 
+    }
+
+    public void delFile(File file) {
+        if (!file.exists()) {
+            return;
+        }
+
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (File f : files) {
+                delFile(f);
+            }
+        }
+        file.delete();
     }
 
     private class ClearAllWarningPanel extends DialogWrapper {

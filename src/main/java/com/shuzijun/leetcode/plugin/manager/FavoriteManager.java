@@ -1,6 +1,7 @@
 package com.shuzijun.leetcode.plugin.manager;
 
 import com.alibaba.fastjson.JSONObject;
+import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
@@ -19,9 +20,9 @@ import java.io.IOException;
  */
 public class FavoriteManager {
 
-    public static void addQuestionToFavorite(Tag tag, Question question) {
+    public static void addQuestionToFavorite(Tag tag, Question question, Project project) {
         if (!HttpClientUtils.isLogin()) {
-            MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
+            MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return ;
         }
         HttpPost post = new HttpPost(URLUtils.getLeetcodeGraphql());
@@ -38,21 +39,21 @@ public class FavoriteManager {
                 if (object.getBoolean("ok")) {
                     tag.getQuestions().add(question.getQuestionId());
                 } else {
-                    MessageUtils.showWarnMsg("info", object.getString("error"));
+                    MessageUtils.getInstance(project).showWarnMsg("info", object.getString("error"));
                 }
             } else {
-                MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
+                MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
             }
         } catch (IOException io) {
-            MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
+            MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
         } finally {
             post.abort();
         }
     }
 
-    public static void removeQuestionFromFavorite(Tag tag, Question question) {
+    public static void removeQuestionFromFavorite(Tag tag, Question question,Project project) {
         if (!HttpClientUtils.isLogin()) {
-            MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
+            MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return ;
         }
         HttpPost post = new HttpPost(URLUtils.getLeetcodeGraphql());
@@ -69,13 +70,13 @@ public class FavoriteManager {
                 if (object.getBoolean("ok")) {
                     tag.getQuestions().remove(question.getQuestionId());
                 } else {
-                    MessageUtils.showWarnMsg("info", object.getString("error"));
+                    MessageUtils.getInstance(project).showWarnMsg("info", object.getString("error"));
                 }
             } else {
-                MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
+                MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
             }
         } catch (IOException io) {
-            MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
+            MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
         } finally {
             post.abort();
         }

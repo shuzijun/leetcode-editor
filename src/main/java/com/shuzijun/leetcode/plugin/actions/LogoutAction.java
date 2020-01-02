@@ -20,6 +20,6 @@ public class LogoutAction extends AbstractAsynAction {
         CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
         httpget.abort();
         HttpClientUtils.resetHttpclient();
-        MessageUtils.showInfoMsg("info", PropertiesUtils.getInfo("login.out"));
+        MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("info", PropertiesUtils.getInfo("login.out"));
     }
 }

@@ -22,7 +22,6 @@ public class ProjectConfig implements ProjectComponent, PersistentStateComponent
 
     @Nullable
     public static ProjectConfig getInstance(Project project) {
-        // return project.getComponent(ProjectConfig.class);
         return ServiceManager.getService(project, ProjectConfig.class);
     }
 

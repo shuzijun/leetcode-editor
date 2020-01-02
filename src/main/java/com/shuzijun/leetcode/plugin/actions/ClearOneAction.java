@@ -23,7 +23,7 @@ public class ClearOneAction extends AbstractAction {
     public void actionPerformed(AnActionEvent anActionEvent, Config config) {
 
         JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
-        Question question = ViewManager.getTreeQuestion(tree);
+        Question question = ViewManager.getTreeQuestion(tree, anActionEvent.getProject());
         if (question == null) {
             return;
         }
@@ -31,7 +31,7 @@ public class ClearOneAction extends AbstractAction {
         String codeType = config.getCodeType();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
         if (codeTypeEnum == null) {
-            MessageUtils.showWarnMsg("info", PropertiesUtils.getInfo("config.code"));
+            MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("info", PropertiesUtils.getInfo("config.code"));
             return;
         }
 
@@ -41,7 +41,7 @@ public class ClearOneAction extends AbstractAction {
         if (file.exists()) {
             file.delete();
         }
-        MessageUtils.showInfoMsg(question.getFormTitle(), PropertiesUtils.getInfo("clear.success"));
+        MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg(question.getFormTitle(), PropertiesUtils.getInfo("clear.success"));
 
     }
 }

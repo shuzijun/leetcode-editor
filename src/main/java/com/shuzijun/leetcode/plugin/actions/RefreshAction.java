@@ -16,7 +16,7 @@ public class RefreshAction extends AbstractAsynAction {
     public void perform(AnActionEvent anActionEvent, Config config) {
 
         JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
-        ViewManager.loadServiceData(tree);
+        ViewManager.loadServiceData(tree, anActionEvent.getProject());
 
     }
 

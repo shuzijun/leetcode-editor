@@ -1,11 +1,15 @@
 package com.shuzijun.leetcode.plugin.utils;
 
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.TransactionGuard;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.ExceptionUtil;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import org.apache.commons.lang.StringUtils;
@@ -13,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author shuzijun
@@ -67,19 +72,45 @@ public class FileUtils {
         VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
         if (FileDocumentManager.getInstance().isFileModified(vf)) {
             try {
-                WriteAction.computeAndWait(new ThrowableComputable<Boolean, Throwable>() {
+                ThrowableComputable<Boolean, Throwable> action = new ThrowableComputable<Boolean, Throwable>() {
                     @Override
                     public Boolean compute() throws Throwable {
                         FileDocumentManager.getInstance().saveDocument(FileDocumentManager.getInstance().getDocument(vf));
                         return true;
                     }
-                });
+                };
+
+
+                Application application = ApplicationManager.getApplication();
+                if (application.isDispatchThread()) {
+                    ApplicationManager.getApplication().runWriteAction(action);
+                } else {
+                    if (application.isReadAccessAllowed()) {
+                        LogUtils.LOG.error("Must not start write action from within read action in the other thread - deadlock is coming");
+                    }
+
+                    AtomicReference<Boolean> result = new AtomicReference();
+                    AtomicReference<Throwable> exception = new AtomicReference();
+                    TransactionGuard.getInstance().submitTransactionAndWait(() -> {
+                        try {
+                            result.set(WriteAction.compute(action));
+                        } catch (Throwable var4) {
+                            exception.set(var4);
+                        }
+
+                    });
+                    Throwable t = (Throwable) exception.get();
+                    if (t != null) {
+                        t.addSuppressed(new RuntimeException());
+                        ExceptionUtil.rethrowUnchecked(t);
+                        throw t;
+                    }
+                }
             } catch (Throwable ignore) {
                 LogUtils.LOG.error("自动保存文件错误", ignore);
             }
 
         }
-
         StringBuffer code = new StringBuffer();
         try {
             String body = VfsUtil.loadText(vf);
@@ -107,7 +138,7 @@ public class FileUtils {
                 } else {
                     Boolean isCode = Boolean.FALSE;
                     for (int i = 0; i < codeList.size(); i++) {
-                       String str = codeList.get(i);
+                        String str = codeList.get(i);
                         if (!isCode) {
                             if (StringUtils.isNotBlank(str) && !str.startsWith(codeTypeEnum.getComment())) {
                                 isCode = Boolean.TRUE;

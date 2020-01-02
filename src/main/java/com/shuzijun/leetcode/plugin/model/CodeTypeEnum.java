@@ -21,6 +21,10 @@ public enum CodeTypeEnum {
     KOTLIN("Kotlin", "kotlin", ".kt", "//"),
     RUST("Rust", "rust", ".rs", "//"),
     PHP("PHP", "php", ".php", "//"),
+    BASH("Bash", "bash", ".sh", "#"),
+    MYSQL("MySQL", "mysql", ".sql", "#"),
+    ORACLE("Oracle", "oraclesql", ".sql", "#"),
+    MSSQLSERVER("MS SQL Server", "mssql", ".sql", "#"),
     ;
 
 
