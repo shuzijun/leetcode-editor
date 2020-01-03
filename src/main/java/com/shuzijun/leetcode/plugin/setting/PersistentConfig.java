@@ -1,6 +1,7 @@
 package com.shuzijun.leetcode.plugin.setting;
 
 import com.intellij.ide.passwordSafe.PasswordSafe;
+import com.intellij.ide.passwordSafe.PasswordSafeException;
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.shuzijun.leetcode.plugin.model.Config;
@@ -66,12 +67,23 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
     }
 
     public void savePassword(String password) {
-        PasswordSafe.getInstance().storePassword(null, this.getClass(), "leetcode-editor", password != null ? password : "");
+        try {
+            PasswordSafe.getInstance().storePassword
+                    (null, this.getClass(), "leetcode-editor", password != null ? password : "");
+        } catch (PasswordSafeException exception) {
+            MessageUtils.showAllWarnMsg("warning", "Failed to save password");
+        }
     }
 
     public String getPassword() {
         if (getConfig().getVersion() != null) {
-            return PasswordSafe.getInstance().getPassword(null, this.getClass(), "leetcode-editor");
+            try {
+                return PasswordSafe.getInstance().getPassword(null, this.getClass(), "leetcode-editor");
+            } catch (PasswordSafeException exception) {
+                MessageUtils.showAllWarnMsg("warning", "Password acquisition failed");
+                return null;
+            }
+
         } else {
             return getInitConfig().getPassword();
         }

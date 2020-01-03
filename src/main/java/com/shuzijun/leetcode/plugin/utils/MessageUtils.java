@@ -61,4 +61,20 @@ public class MessageUtils implements ProjectComponent {
     public static void showAllWarnMsg(String title, String body) {
         Notifications.Bus.notify(new Notification(Constant.NOTIFICATION_GROUP, title, body, NotificationType.WARNING));
     }
+
+    public String getComponentName() {
+        return this.getClass().getName();
+    }
+
+    public void initComponent() {
+    }
+
+    public void disposeComponent() {
+    }
+
+    public void projectOpened() {
+    }
+
+    public void projectClosed() {
+    }
 }

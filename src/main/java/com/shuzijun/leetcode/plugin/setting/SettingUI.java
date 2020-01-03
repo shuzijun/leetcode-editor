@@ -202,7 +202,7 @@ public class SettingUI extends JDialog {
             LevelColourField.setText(config.getLevelColour());
             englishContentBox.setSelected(config.getEnglishContent());
         } else {
-            LevelColourField.setText(config.getLevelColour());
+            LevelColourField.setText(new Config().getLevelColour());
             ApplicationManager.getApplication().runWriteAction(() -> {
                 fileNameEditor.getDocument().setText(Constant.CUSTOM_FILE_NAME);
                 templateEditor.getDocument().setText(Constant.CUSTOM_TEMPLATE);
