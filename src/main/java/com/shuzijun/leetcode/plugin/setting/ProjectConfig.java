@@ -62,4 +62,20 @@ public class ProjectConfig implements ProjectComponent, PersistentStateComponent
             projectConfig = new HashMap<>();
         }
     }
+
+    public String getComponentName() {
+        return this.getClass().getName();
+    }
+
+    public void initComponent() {
+    }
+
+    public void disposeComponent() {
+    }
+
+    public void projectOpened() {
+    }
+
+    public void projectClosed() {
+    }
 }
