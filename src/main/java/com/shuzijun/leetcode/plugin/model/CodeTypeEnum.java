@@ -8,9 +8,9 @@ import java.util.Map;
  */
 public enum CodeTypeEnum {
     JAVA("Java", "java", ".java", "//"),
-    PYTHON("Python", "python", ".py", "#"),
+    PYTHON("Python", "python", ".py", "# "),
     CPP("C++", "cpp", ".cpp", "//"),
-    PYTHON3("Python3", "python3", ".py", "#"),
+    PYTHON3("Python3", "python3", ".py", "# "),
     C("C", "c", ".c", "//"),
     CSHARP("C#", "csharp", ".cs", "//"),
     JAVASCRIPT("JavaScript", "javascript", ".js", "//"),
