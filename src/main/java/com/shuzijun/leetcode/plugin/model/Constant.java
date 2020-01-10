@@ -62,8 +62,8 @@ public class Constant {
     /**
      * 提交代码标识 submit
      */
-    public static final String SUBMIT_REGION_BEGIN = "leetcode submit region begin(Prohibit modification and deletion)";
-    public static final String SUBMIT_REGION_END = "leetcode submit region end(Prohibit modification and deletion)";
+    public static final String SUBMIT_REGION_BEGIN = "-----BEGIN LEETCODE SUBMIT REGION (Do Not Modify or Delete)-----";
+    public static final String SUBMIT_REGION_END = "-----END LEETCODE SUBMIT REGION (Do Not Modify or Delete)-----";
 
     /**
      * 配置文件版本记录
