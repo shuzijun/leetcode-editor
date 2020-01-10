@@ -55,7 +55,7 @@ public class TimerBarWidget implements CustomStatusBarWidget {
     });
 
     private String time() {
-        return String.format("[%s]%02d:%02d:%02d", name, second / 60 / 60, second / 60, second % 60);
+        return String.format("[%s]%02d:%02d:%02d", name, second / 60 / 60, second / 60 % 60, second % 60);
     }
 
     @Override
