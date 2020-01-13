@@ -392,7 +392,7 @@ public class CodeManager {
                                     String input = jsonObject.getString("input");
                                     String output = jsonObject.getString("code_output");
                                     String expected = jsonObject.getString("expected_output");
-                                    String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"), "\n\t\t");
+                                    String outputs = jsonObject.getString("std_output");
                                     MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("submit.failed", input, output, expected, outputs));
 
                                     if (!"ac".equals(question.getStatus())) {
