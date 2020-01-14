@@ -15,10 +15,12 @@ public class EditorMenuActionGroup extends DefaultActionGroup {
     @Override
     public void update(AnActionEvent e) {
         VirtualFile vf = e.getData(PlatformDataKeys.VIRTUAL_FILE);
-        LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(e.getProject()).getEditor(vf.getPath());
         boolean menuAllowed = false;
-        if (leetcodeEditor != null) {
-            menuAllowed = true;
+        if (vf != null) {
+            LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(e.getProject()).getEditor(vf.getPath());
+            if (leetcodeEditor != null) {
+                menuAllowed = true;
+            }
         }
         e.getPresentation().setEnabledAndVisible(menuAllowed);
     }

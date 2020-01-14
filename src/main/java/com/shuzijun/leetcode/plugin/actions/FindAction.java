@@ -15,6 +15,10 @@ public class FindAction extends ToggleAction {
 
     @Override
     public boolean isSelected(AnActionEvent anActionEvent) {
+        if (anActionEvent.getProject() == null) {
+            //Why is it null?
+            return false;
+        }
         JPanel panel = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TERRFIND);
         if (panel == null) {
             return false;
