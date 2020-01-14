@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'com.shuzijun.leetcode'
-version "6.1" + (project.build_env.isEmpty() ? "" : "-") + project.build_env
+version "6.2" + (project.build_env.isEmpty() ? "" : "-") + project.build_env
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8

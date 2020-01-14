@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>6.1</version>
+    <version>6.2</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -113,6 +113,16 @@
 
     <change-notes><![CDATA[
          <ul>
+             <li>v6.2<br>
+               1.修复计时器显示错误.<br>
+               2.修复提交问题时异常.<br>
+               3.修复IDE低版本部分功能不支持出现异常<br>
+            </li>
+            <li>v6.2<br>
+               1.fix wrong minute elapsed of timer.<br>
+               2.Fix the submit failure prompt.<br>
+               3.Fix IDE low version exception<br>
+            </li>
            <li>v6.1<br>
                1.增加 Editor 右键菜单.<br>
                2.增加 Bash SQL 支持.<br>
