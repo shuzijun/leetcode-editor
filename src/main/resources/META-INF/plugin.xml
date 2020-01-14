@@ -337,62 +337,62 @@
     </extensions>
 
     <actions>
-        <action id="leetcode.LoginAction" class="com.shuzijun.leetcode.plugin.actions.LoginAction"
+        <action id="leetcode.LoginAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.LoginAction"
                 text="Sign in" description="Sign in" icon="AllIcons.General.Web">
         </action>
-        <action id="leetcode.LogoutAction" class="com.shuzijun.leetcode.plugin.actions.LogoutAction"
+        <action id="leetcode.LogoutAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.LogoutAction"
                 text="Sign out" description="Sign out" icon="AllIcons.Actions.Exit">
         </action>
-        <action id="leetcode.RefreshAction" class="com.shuzijun.leetcode.plugin.actions.RefreshAction"
+        <action id="leetcode.RefreshAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.RefreshAction"
                 text="Refresh question" description="Refreshquestion" icon="AllIcons.Actions.Refresh">
         </action>
-        <action id="leetcode.FindAction" class="com.shuzijun.leetcode.plugin.actions.FindAction"
+        <action id="leetcode.FindAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindAction"
                 text="Find question" description="Refreshquestion" icon="AllIcons.Actions.Find">
         </action>
-        <action id="leetcode.ConfigAction" class="com.shuzijun.leetcode.plugin.actions.ConfigAction"
+        <action id="leetcode.ConfigAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.ConfigAction"
                 text="Settings" description="Settings" icon="AllIcons.General.GearPlain">
         </action>
-        <action id="leetcode.ClearAllAction" class="com.shuzijun.leetcode.plugin.actions.ClearAllAction"
+        <action id="leetcode.ClearAllAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.ClearAllAction"
                 text="Clear cache" description="Clear cache" icon="AllIcons.Process.StopHovered">
         </action>
-        <action id="leetcode.CollapseAction" class="com.shuzijun.leetcode.plugin.actions.CollapseAction"
+        <action id="leetcode.CollapseAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.CollapseAction"
                 text="Collapse All" description="Collapse All" icon="AllIcons.Actions.Collapseall">
         </action>
 
-        <action id="leetcode.HelpAction" class="com.shuzijun.leetcode.plugin.actions.HelpAction"
+        <action id="leetcode.HelpAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.HelpAction"
                 text="Help" description="Help" icon="AllIcons.Actions.Help">
         </action>
 
-        <action id="leetcode.OpenAction" class="com.shuzijun.leetcode.plugin.actions.OpenAction"
+        <action id="leetcode.OpenAction" class="com.shuzijun.leetcode.plugin.actions.tree.OpenAction"
                 text="open question" description="open question" icon="AllIcons.Actions.Annotate">
         </action>
 
-        <action id="leetcode.OpenContentAction" class="com.shuzijun.leetcode.plugin.actions.OpenContentAction"
+        <action id="leetcode.OpenContentAction" class="com.shuzijun.leetcode.plugin.actions.tree.OpenContentAction"
                 text="open content" description="open content" icon="AllIcons.FileTypes.UiForm">
         </action>
 
 
-        <action id="leetcode.OpenInWebAction" class="com.shuzijun.leetcode.plugin.actions.OpenInWebAction"
+        <action id="leetcode.OpenInWebAction" class="com.shuzijun.leetcode.plugin.actions.tree.OpenInWebAction"
                 text="open in web" description="open in web" icon="AllIcons.Actions.MoveTo2">
         </action>
 
-        <action id="leetcode.SubmitAction" class="com.shuzijun.leetcode.plugin.actions.SubmitAction"
+        <action id="leetcode.SubmitAction" class="com.shuzijun.leetcode.plugin.actions.tree.SubmitAction"
                 text="Submit" description="Submit" icon="AllIcons.Actions.StepOut">
         </action>
-        <action id="leetcode.SubmissionsAction" class="com.shuzijun.leetcode.plugin.actions.SubmissionsAction"
+        <action id="leetcode.SubmissionsAction" class="com.shuzijun.leetcode.plugin.actions.tree.SubmissionsAction"
                 text="Submissions" description="Submissions" icon="AllIcons.Actions.ShowHiddens">
         </action>
-        <action id="leetcode.RunCodeAction" class="com.shuzijun.leetcode.plugin.actions.RunCodeAction"
+        <action id="leetcode.RunCodeAction" class="com.shuzijun.leetcode.plugin.actions.tree.RunCodeAction"
                 text="Run Code" description="Run Code" icon="AllIcons.Actions.Execute">
         </action>
-        <action id="leetcode.TestcaseAction" class="com.shuzijun.leetcode.plugin.actions.TestcaseAction"
+        <action id="leetcode.TestcaseAction" class="com.shuzijun.leetcode.plugin.actions.tree.TestcaseAction"
                 text="Testcase" description="Test case" icon="AllIcons.Actions.Edit">
         </action>
-        <action id="leetcode.ClearOneAction" class="com.shuzijun.leetcode.plugin.actions.ClearOneAction"
+        <action id="leetcode.ClearOneAction" class="com.shuzijun.leetcode.plugin.actions.tree.ClearOneAction"
                 text="Clear cache" description="Clear cache" icon="AllIcons.Process.StopHovered">
         </action>
 
-        <action id="leetcode.PickAction" class="com.shuzijun.leetcode.plugin.actions.PickAction"
+        <action id="leetcode.PickAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.PickAction"
                 text="Pick one" description="Pick one" icon="AllIcons.Diff.MagicResolve">
         </action>
 
@@ -421,19 +421,19 @@
             <reference id="leetcode.RunCodeAction"/>
             <reference id="leetcode.TestcaseAction"/>
             <separator/>
-            <group id="leetcode.FavoriteGroup" class="com.shuzijun.leetcode.plugin.actions.FavoriteActionGroup"
+            <group id="leetcode.FavoriteGroup" class="com.shuzijun.leetcode.plugin.actions.tree.FavoriteActionGroup"
                    popup="true" text="Favorite" description="Favorite" icon="AllIcons.Actions.Menu_open">
             </group>
             <separator/>
             <group id="leetcode.timer" popup="true" text="Timer" description="timer" icon="AllIcons.Vcs.History">
                 <action id="leetcode.StartTimeAction"
-                        class="com.shuzijun.leetcode.plugin.actions.StartTimeAction"
+                        class="com.shuzijun.leetcode.plugin.actions.tree.StartTimeAction"
                         text="Start" description="Start Time">
                 </action>
-                <action id="leetcode.StopTimeAction" class="com.shuzijun.leetcode.plugin.actions.StopTimeAction"
+                <action id="leetcode.StopTimeAction" class="com.shuzijun.leetcode.plugin.actions.tree.StopTimeAction"
                         text="Stop" description="Stop Time">
                 </action>
-                <action id="leetcode.ResetTimeAction" class="com.shuzijun.leetcode.plugin.actions.ResetTimeAction"
+                <action id="leetcode.ResetTimeAction" class="com.shuzijun.leetcode.plugin.actions.tree.ResetTimeAction"
                         text="Reset" description="Reset Time">
                 </action>
             </group>
@@ -442,29 +442,29 @@
         </group>
 
         <group id="leetcode.find.Toolbar" popup="true" text="Status" description="Status">
-            <group id="leetcode.find.Difficulty" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup"
+            <group id="leetcode.find.Difficulty" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindActionGroup"
                    popup="true" text="Difficulty" description="Difficulty">
             </group>
-            <group id="leetcode.find.Status" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true"
+            <group id="leetcode.find.Status" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindActionGroup" popup="true"
                    text="Status" description="Status">
             </group>
-            <group id="leetcode.find.Lists" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true"
+            <group id="leetcode.find.Lists" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindActionGroup" popup="true"
                    text="Lists" description="Lists">
             </group>
-            <group id="leetcode.find.Tags" class="com.shuzijun.leetcode.plugin.actions.FindActionGroup" popup="true"
+            <group id="leetcode.find.Tags" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindActionGroup" popup="true"
                    text="Tags" description="Tags">
             </group>
             <separator/>
-            <action id="leetcode.find.Clear" class="com.shuzijun.leetcode.plugin.actions.FindClearAction"
+            <action id="leetcode.find.Clear" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindClearAction"
                     text="Clear find" description="Clear find " icon="AllIcons.Process.StopHovered">
             </action>
-            <action id="leetcode.find.Config" class="com.shuzijun.leetcode.plugin.actions.FindConfigAction"
+            <action id="leetcode.find.Config" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindConfigAction"
                     text="∩" description="find intersection">
             </action>
         </group>
 
 
-        <group id="leetcode.editor.menu" class="com.shuzijun.leetcode.plugin.actions.EditorMenuActionGroup"
+        <group id="leetcode.editor.menu" class="com.shuzijun.leetcode.plugin.actions.editor.EditorMenuActionGroup"
                text="leetcode editor menu" popup="true" icon="/image/LeetCodeIcon.png">
 
             <action id="leetcode.editor.RunCodeAction" class="com.shuzijun.leetcode.plugin.actions.editor.RunCodeAction"
@@ -498,10 +498,10 @@
                         class="com.shuzijun.leetcode.plugin.actions.editor.StartTimeAction"
                         text="Start" description="Start Time">
                 </action>
-                <action id="leetcode.editor.StopTimeAction" class="com.shuzijun.leetcode.plugin.actions.StopTimeAction"
+                <action id="leetcode.editor.StopTimeAction" class="com.shuzijun.leetcode.plugin.actions.editor.StopTimeAction"
                         text="Stop" description="Stop Time">
                 </action>
-                <action id="leetcode.editor.ResetTimeAction" class="com.shuzijun.leetcode.plugin.actions.ResetTimeAction"
+                <action id="leetcode.editor.ResetTimeAction" class="com.shuzijun.leetcode.plugin.actions.editor.ResetTimeAction"
                         text="Reset" description="Reset Time">
                 </action>
             </group>

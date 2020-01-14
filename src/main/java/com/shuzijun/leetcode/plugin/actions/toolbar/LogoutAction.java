@@ -1,6 +1,7 @@
-package com.shuzijun.leetcode.plugin.actions;
+package com.shuzijun.leetcode.plugin.actions.toolbar;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.shuzijun.leetcode.plugin.actions.AbstractAsynAction;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;

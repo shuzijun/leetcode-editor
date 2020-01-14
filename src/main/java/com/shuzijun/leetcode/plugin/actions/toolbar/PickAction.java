@@ -1,10 +1,10 @@
-package com.shuzijun.leetcode.plugin.actions;
+package com.shuzijun.leetcode.plugin.actions.toolbar;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.shuzijun.leetcode.plugin.manager.CodeManager;
+import com.intellij.ui.components.JBScrollPane;
+import com.shuzijun.leetcode.plugin.actions.AbstractAction;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 
@@ -13,15 +13,14 @@ import javax.swing.*;
 /**
  * @author shuzijun
  */
-public class SubmitAction extends AbstractAsynAction {
+public class PickAction extends AbstractAction {
     @Override
-    public void perform(AnActionEvent anActionEvent, Config config) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config) {
         JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
-        Question question = ViewManager.getTreeQuestion(tree, anActionEvent.getProject());
-        if(question == null){
+        if (tree == null) {
             return;
         }
-
-        CodeManager.SubmitCode(question,anActionEvent.getProject());
+        JBScrollPane scrollPane = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_SCROLL);
+        ViewManager.pick(tree, scrollPane);
     }
 }

@@ -1,4 +1,4 @@
-package com.shuzijun.leetcode.plugin.actions;
+package com.shuzijun.leetcode.plugin.actions.tree;
 
 import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.ActionGroup;

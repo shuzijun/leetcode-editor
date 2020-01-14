@@ -76,7 +76,7 @@ public class URLUtils {
     }
 
     public static String getDescContent() {
-        if ("leetcode.com".equals(getLeetcodeHost()) && !PersistentConfig.getInstance().getConfig().getEnglishContent()) {
+        if ("leetcode.com".equals(getLeetcodeHost()) || PersistentConfig.getInstance().getConfig().getEnglishContent()) {
             return "content";
         } else {
             return "translatedContent";
