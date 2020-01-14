@@ -1,4 +1,4 @@
-package com.shuzijun.leetcode.plugin.actions;
+package com.shuzijun.leetcode.plugin.actions.tree;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;

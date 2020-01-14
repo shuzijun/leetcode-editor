@@ -1,4 +1,4 @@
-package com.shuzijun.leetcode.plugin.actions;
+package com.shuzijun.leetcode.plugin.actions.toolbar;
 
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.actionSystem.AnAction;

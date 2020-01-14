@@ -1,9 +1,10 @@
-package com.shuzijun.leetcode.plugin.actions;
+package com.shuzijun.leetcode.plugin.actions.toolbar;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBPanel;
+import com.shuzijun.leetcode.plugin.actions.AbstractAction;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.LogUtils;

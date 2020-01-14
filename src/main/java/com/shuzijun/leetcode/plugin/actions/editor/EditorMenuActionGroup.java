@@ -1,4 +1,4 @@
-package com.shuzijun.leetcode.plugin.actions;
+package com.shuzijun.leetcode.plugin.actions.editor;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;

@@ -244,6 +244,7 @@ public class SettingUI extends JDialog {
         config.setCustomFileName(fileNameEditor.getDocument().getText());
         config.setCustomTemplate(templateEditor.getDocument().getText());
         config.setLevelColour(LevelColourField.getText());
+        config.setEnglishContent(englishContentBox.isSelected());
         File file = new File(config.getFilePath() + File.separator + PersistentConfig.PATH + File.separator);
         if (!file.exists()) {
             file.mkdirs();
