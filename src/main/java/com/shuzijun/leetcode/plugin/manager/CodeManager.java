@@ -2,6 +2,7 @@ package com.shuzijun.leetcode.plugin.manager;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Joiner;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
@@ -472,12 +473,15 @@ public class CodeManager {
                             } else {
                                 if (jsonObject.getBoolean("run_success")) {
                                     String input = returnObj.getString("test_case");
-                                    String output = jsonObject.getJSONArray("code_answer").getString(0);
+                                    String output = "";
+                                    if (jsonObject.getJSONArray("code_answer") != null) {
+                                        output = Joiner.on("\n").join(jsonObject.getJSONArray("code_answer"));
+                                    }
                                     String expected = "";
                                     if (returnObj.getJSONArray("expected_code_answer") != null && !returnObj.getJSONArray("expected_code_answer").isEmpty()) {
-                                        expected = returnObj.getJSONArray("expected_code_answer").getString(0);
+                                        expected = Joiner.on("\n").join(returnObj.getJSONArray("expected_code_answer"));
                                     } else if (jsonObject.getJSONArray("expected_code_answer") != null && !jsonObject.getJSONArray("expected_code_answer").isEmpty()) {
-                                        expected = jsonObject.getJSONArray("expected_code_answer").getString(0);
+                                        expected = Joiner.on("\n").join(jsonObject.getJSONArray("expected_code_answer"));
                                     }
                                     String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"), "\n\t\t");
                                     MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("test.success", input, output, expected, outputs));
