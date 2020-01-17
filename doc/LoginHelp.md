@@ -4,7 +4,8 @@
 ## Username password login  
   Configure the username and password on the configuration page of the leetcode plugin. If the login fails, the following two login methods will be loaded. This method only supports leetcode-cn.  
 ## cookie login  
-  First log in to leetcode in your browser, open the browser console, copy the cookie to the login popup, and click login.   
+  First log in to leetcode in your browser, open the browser console, copy the cookie to the login popup, and click login.[reference](https://developers.google.com/web/tools/chrome-devtools/network)   
+  
   <p align="center">
     <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/browserCookie.png" alt="browserCookie"/>
   </p>  
