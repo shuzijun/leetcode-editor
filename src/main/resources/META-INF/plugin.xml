@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>6.2</version>
+    <version>6.3</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -113,6 +113,14 @@
 
     <change-notes><![CDATA[
          <ul>
+             <li>v6.3<br>
+               1.修复Python提交代码区域错误问题.<br>
+               2.修复使用快捷键时提示问题.(建议将快捷键绑定到editor右键菜单上)<br>
+            </li>
+            <li>v6.3<br>
+               1.Fixed Python commit code area error.<br>
+               2.Fix the prompt problem when using shortcut keys. (It is recommended to bind shortcut keys to the editor right-click menu)<br>
+            </li>
              <li>v6.2<br>
                1.修复计时器显示错误.<br>
                2.修复提交问题时异常.<br>
