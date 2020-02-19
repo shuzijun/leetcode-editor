@@ -468,41 +468,41 @@
                text="leetcode editor menu" popup="true" icon="/image/LeetCodeIcon.png">
 
             <action id="leetcode.editor.RunCodeAction" class="com.shuzijun.leetcode.plugin.actions.editor.RunCodeAction"
-                    text="Run Code" description="Run Code" icon="AllIcons.Actions.Execute">
+                    text="Run Code" description="Run Code(editor)" icon="AllIcons.Actions.Execute">
             </action>
             <action id="leetcode.editor.TestcaseAction"
                     class="com.shuzijun.leetcode.plugin.actions.editor.TestcaseAction"
-                    text="Testcase" description="Test case" icon="AllIcons.Actions.Edit">
+                    text="Testcase" description="Test case(editor)" icon="AllIcons.Actions.Edit">
             </action>
             <separator/>
             <action id="leetcode.editor.SubmitAction" class="com.shuzijun.leetcode.plugin.actions.editor.SubmitAction"
-                    text="Submit" description="Submit" icon="AllIcons.Actions.StepOut">
+                    text="Submit" description="Submit(editor)" icon="AllIcons.Actions.StepOut">
             </action>
             <action id="leetcode.editor.SubmissionsAction"
                     class="com.shuzijun.leetcode.plugin.actions.editor.SubmissionsAction"
-                    text="Submissions" description="Submissions" icon="AllIcons.Actions.ShowHiddens">
+                    text="Submissions" description="Submissions(editor)" icon="AllIcons.Actions.ShowHiddens">
             </action>
             <separator/>
             <action id="leetcode.editor.OpenContentAction"
                     class="com.shuzijun.leetcode.plugin.actions.editor.OpenContentAction"
-                    text="open content" description="open content" icon="AllIcons.FileTypes.UiForm">
+                    text="open content" description="open content(editor)" icon="AllIcons.FileTypes.UiForm">
             </action>
 
             <action id="leetcode.editor.OpenInWebAction"
                     class="com.shuzijun.leetcode.plugin.actions.editor.OpenInWebAction"
-                    text="open in web" description="open in web" icon="AllIcons.Actions.MoveTo2">
+                    text="open in web" description="open in web(editor)" icon="AllIcons.Actions.MoveTo2">
             </action>
             <separator/>
-            <group id="leetcode.editor.timer" popup="true" text="Timer" description="timer" icon="AllIcons.Vcs.History">
+            <group id="leetcode.editor.timer" popup="true" text="Timer" description="timer(editor)" icon="AllIcons.Vcs.History">
                 <action id="leetcode.editor.StartTimeAction"
                         class="com.shuzijun.leetcode.plugin.actions.editor.StartTimeAction"
-                        text="Start" description="Start Time">
+                        text="Start" description="Start Time(editor)">
                 </action>
                 <action id="leetcode.editor.StopTimeAction" class="com.shuzijun.leetcode.plugin.actions.editor.StopTimeAction"
-                        text="Stop" description="Stop Time">
+                        text="Stop" description="Stop Time(editor)">
                 </action>
                 <action id="leetcode.editor.ResetTimeAction" class="com.shuzijun.leetcode.plugin.actions.editor.ResetTimeAction"
-                        text="Reset" description="Reset Time">
+                        text="Reset" description="Reset Time(editor)">
                 </action>
             </group>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>

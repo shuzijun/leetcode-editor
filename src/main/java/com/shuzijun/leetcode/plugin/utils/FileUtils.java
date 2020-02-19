@@ -123,9 +123,9 @@ public class FileUtils {
 
                 String[] lines = body.split("\r\n|\r|\n");
                 for (String line : lines) {
-                    if (StringUtils.isNotBlank(line) && trim(line).equals(codeTypeEnum.getComment() + trim(Constant.SUBMIT_REGION_BEGIN))) {
+                    if (StringUtils.isNotBlank(line) && trim(line).equals(trim(codeTypeEnum.getComment() + Constant.SUBMIT_REGION_BEGIN))) {
                         codeBegin = lineCount;
-                    } else if (StringUtils.isNotBlank(line) && trim(line).equals(codeTypeEnum.getComment() + trim(Constant.SUBMIT_REGION_END))) {
+                    } else if (StringUtils.isNotBlank(line) && trim(line).equals(trim(codeTypeEnum.getComment() + Constant.SUBMIT_REGION_END))) {
                         codeEnd = lineCount;
                     }
                     codeList.add(line);
