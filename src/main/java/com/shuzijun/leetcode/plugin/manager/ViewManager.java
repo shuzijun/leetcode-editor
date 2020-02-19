@@ -208,7 +208,7 @@ public class ViewManager {
             }
         }
         if (question == null) {
-            MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("response.select"));
+            MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("tree.select"));
         }
         return question;
     }
