@@ -22,11 +22,11 @@ public class TestcasePanel extends DialogWrapper {
     public TestcasePanel(@Nullable Project project) {
         super(project, true);
         jpanel = new JBPanel();
+        jpanel.setLayout(new BorderLayout());
         caseText = new JTextArea();
         caseText.setMinimumSize(new Dimension(400, 200));
         caseText.setPreferredSize(new Dimension(400, 200));
-        jpanel.add(new JBScrollPane(caseText, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
-
+        jpanel.add(new JBScrollPane(caseText, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
         setModal(true);
         init();
     }
@@ -45,7 +45,7 @@ public class TestcasePanel extends DialogWrapper {
         return action;
     }
 
-    public String testcaeText() {
+    public String testcaseText() {
         return caseText.getText();
     }
 

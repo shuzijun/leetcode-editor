@@ -29,7 +29,7 @@ public class TestcaseAction extends AbstractTreeAction {
         dialog.setTitle(question.getFormTitle() + " Testcase");
         dialog.setText(question.getTestCase());
         if (dialog.showAndGet()) {
-            String text = dialog.testcaeText();
+            String text = dialog.testcaseText();
             if (StringUtils.isBlank(text)) {
                 MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("info", PropertiesUtils.getInfo("test.case"));
                 return;
