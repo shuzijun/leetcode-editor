@@ -80,14 +80,15 @@ public class QueryKeyListener implements KeyListener {
                 }
                 DefaultMutableTreeNode temp = (DefaultMutableTreeNode) all.getChildAt(i);
                 if (temp.getUserObject().toString().toUpperCase().replace(" ","").contains(selectText.toUpperCase().replace(" ",""))) {
-                    tree.setSelectionPath(new TreePath(temp.getPath()));
-                    Point point = new Point(0, i < 3 ? 0 : (i - 3) * tree.getRowHeight());
+                    TreePath toShowPath = new TreePath(temp.getPath());
+                    tree.setSelectionPath(toShowPath);
+                    Rectangle bounds = tree.getPathBounds(toShowPath);
+                    Point point = new Point(0, (int) bounds.getY());
                     viewport.setViewPosition(point);
                     return;
                 }
             }
             MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", "not find next");
-            return;
         }
     }
 
