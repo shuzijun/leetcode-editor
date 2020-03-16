@@ -1,15 +1,11 @@
 package com.shuzijun.leetcode.plugin.utils;
 
-import com.intellij.util.net.HttpConfigurable;
+import com.intellij.util.proxy.CommonProxy;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -20,13 +16,18 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.*;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicHeader;
 
@@ -61,29 +62,22 @@ public class HttpClientUtils {
                     .setExpectContinueEnabled(Boolean.TRUE).setTargetPreferredAuthSchemes(Arrays.asList(AuthSchemes.NTLM, AuthSchemes.DIGEST))
                     .setProxyPreferredAuthSchemes(Arrays.asList(AuthSchemes.BASIC));
 
-            //proxy
-            Config config = PersistentConfig.getInstance().getInitConfig();
-            HttpConfigurable proxySettings = HttpConfigurable.getInstance();
-            CredentialsProvider provider = null;
-            if (config != null && config.getProxy() && proxySettings != null && proxySettings.USE_HTTP_PROXY && !proxySettings.PROXY_TYPE_IS_SOCKS) {
-                HttpHost proxy = new HttpHost(proxySettings.PROXY_HOST, proxySettings.PROXY_PORT, "http");
-                globalConfigBuilder.setProxy(proxy);
-                if (proxySettings.PROXY_AUTHENTICATION) {
-                    provider = new BasicCredentialsProvider();
-                    provider.setCredentials(new AuthScope(proxy), new UsernamePasswordCredentials(proxySettings.getProxyLogin(), proxySettings.getPlainProxyPassword()));
-                }
-
-            }
-
 
             HttpClientBuilder httpClientBuilder = HttpClients.custom()
                     .setDefaultRequestConfig(globalConfigBuilder.build())
                     .setDefaultCookieStore(cookieStore)
                     .setDefaultHeaders(defaultHeader())
                     .setConnectionManager(getconnectionManager());
-            if (provider != null) {
-                httpClientBuilder.setDefaultCredentialsProvider(provider);
+
+            //proxy
+            Config config = PersistentConfig.getInstance().getInitConfig();
+
+            if (config != null && config.getProxy()) {
+                CommonProxy commonProxy = CommonProxy.getInstance();
+                HttpRoutePlanner routePlanner = new SystemDefaultRoutePlanner(commonProxy);
+                httpClientBuilder.setRoutePlanner(routePlanner);
             }
+
             httpclient = httpClientBuilder.build();
 
         }
@@ -127,7 +121,7 @@ public class HttpClientUtils {
             CloseableHttpResponse response = httpclient.execute(httpUriRequest, context);
             return response;
         } catch (Exception e) {
-            LogUtils.LOG.error("请求出错:", e);
+            LogUtils.LOG.error("httpclient request error:", e);
         } finally {
         }
 

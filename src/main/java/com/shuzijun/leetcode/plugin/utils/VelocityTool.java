@@ -12,7 +12,7 @@ public class VelocityTool extends StringUtils {
     public static String camelCaseName(String underscoreName) {
 
         if (isNotBlank(underscoreName)) {
-            underscoreName = underscoreName.replace(" ", "");
+            underscoreName = underscoreName.replace(" ", "_");
             StringBuilder result = new StringBuilder();
             if (isNumeric(underscoreName.substring(0, 1))) {
                 underscoreName = numsAry[Integer.valueOf(underscoreName.substring(0, 1))] + "-" + underscoreName.substring(1);
@@ -31,6 +31,31 @@ public class VelocityTool extends StringUtils {
                     } else {
                         result.append(ch);
                     }
+                }
+            }
+            return result.toString();
+        } else {
+            return underscoreName;
+        }
+    }
+
+
+    public static String snakeCaseName(String underscoreName) {
+
+        if (isNotBlank(underscoreName)) {
+            underscoreName = underscoreName.replace(" ", "_");
+            StringBuilder result = new StringBuilder();
+            for (int i = 0, j = underscoreName.length(); i < j; i++) {
+                char ch = underscoreName.charAt(i);
+                if ('_' == ch || '-' == ch) {
+                    if (i + 1 < j) {
+                        result.append("_").append(Character.toLowerCase(underscoreName.charAt(i + 1)));
+                        i = i + 1;
+                    }
+                } else if (Character.isUpperCase(ch)) {
+                    result.append("_").append(Character.toLowerCase(underscoreName.charAt(i)));
+                } else {
+                    result.append(ch);
                 }
             }
             return result.toString();

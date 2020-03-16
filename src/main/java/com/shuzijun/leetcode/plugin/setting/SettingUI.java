@@ -19,6 +19,7 @@ import com.shuzijun.leetcode.plugin.listener.DonateListener;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
+import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -56,7 +57,6 @@ public class SettingUI extends JDialog {
     public SettingUI() {
         setContentPane(mainPanel);
     }
-
 
     public void createUI() {
 
@@ -96,6 +96,7 @@ public class SettingUI extends JDialog {
         addComponent(passwordField, constraints, 4, 1, 5, 1);
 
         proxyCheckBox.setSelected(false);
+        proxyCheckBox.setToolTipText("Changes need to log in again");
         addComponent(proxyCheckBox, constraints, 6, 1, 7, 1);
 
         addComponent(new JLabel("TempFilePath:"), constraints, 0, 2, 0, 2);
@@ -239,6 +240,9 @@ public class SettingUI extends JDialog {
         config.setCodeType(codeComboBox.getSelectedItem().toString());
         config.setUrl(webComboBox.getSelectedItem().toString());
         config.setUpdate(updateCheckBox.isSelected());
+        if (config.getProxy() != proxyCheckBox.isSelected()) {
+            HttpClientUtils.resetHttpclient();
+        }
         config.setProxy(proxyCheckBox.isSelected());
         config.setCustomCode(customCodeBox.isSelected());
         config.setCustomFileName(fileNameEditor.getDocument().getText());
