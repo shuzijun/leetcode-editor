@@ -48,8 +48,10 @@ public class QuestionManager {
                 String body = EntityUtils.toString(response.getEntity(), "UTF-8");
                 questionList = parseQuestion(body);
             } catch (IOException e1) {
-                LogUtils.LOG.error("获取题目内容错误", e1);
+                LogUtils.LOG.error("Request question list exception:", e1);
             }
+        }else {
+            LogUtils.LOG.error("Request question list failed, status:" + response == null ? "" : response.getStatusLine().getStatusCode());
         }
         httpget.abort();
 
@@ -154,10 +156,10 @@ public class QuestionManager {
                 String body = EntityUtils.toString(response.getEntity(), "UTF-8");
                 tags = parseTag(body);
             } catch (IOException e1) {
-                LogUtils.LOG.error("获取题目分类错误", e1);
+                LogUtils.LOG.error("Request tags exception", e1);
             }
         } else {
-            LogUtils.LOG.error("获取题目分类网络错误");
+            LogUtils.LOG.error("Request tags failed, status:" + response == null ? "" : response.getStatusLine().getStatusCode());
         }
         httpget.abort();
 
@@ -174,10 +176,10 @@ public class QuestionManager {
                 String body = EntityUtils.toString(response.getEntity(), "UTF-8");
                 tags = parseList(body);
             } catch (IOException e1) {
-                LogUtils.LOG.error("获取列表分类错误", e1);
+                LogUtils.LOG.error("Request Lists exception", e1);
             }
         } else {
-            LogUtils.LOG.error("获取列表分类网络错误");
+            LogUtils.LOG.error("Request Lists failed, status:" + response == null ? "" : response.getStatusLine().getStatusCode());
         }
         httpget.abort();
 
