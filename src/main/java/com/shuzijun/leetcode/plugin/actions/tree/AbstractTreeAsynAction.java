@@ -14,12 +14,7 @@ public abstract class AbstractTreeAsynAction extends AbstractTreeAction {
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config, JTree tree, Question question) {
-        ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
-            @Override
-            public void run() {
-                perform(anActionEvent, config, tree, question);
-            }
-        });
+        ApplicationManager.getApplication().executeOnPooledThread(() -> perform(anActionEvent, config, tree, question));
     }
 
     public abstract void perform(AnActionEvent anActionEvent, Config config, JTree tree, Question question);

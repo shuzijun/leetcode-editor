@@ -14,14 +14,8 @@ import com.shuzijun.leetcode.plugin.model.Submission;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,25 +24,22 @@ import java.util.List;
  */
 public class SubmissionManager {
 
-    public static List<Submission> getSubmissionService(Question question,Project project) {
+    public static List<Submission> getSubmissionService(Question question, Project project) {
 
-        if (!HttpClientUtils.isLogin()) {
+        if (!HttpRequestUtils.isLogin()) {
             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return null;
         }
 
         List<Submission> submissionList = new ArrayList<Submission>();
 
-        HttpPost post = new HttpPost(URLUtils.getLeetcodeGraphql());
         try {
-
-            StringEntity entityCode = new StringEntity("{\"operationName\":\"Submissions\",\"variables\":{\"offset\":0,\"limit\":20,\"lastKey\":null,\"questionSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query Submissions($offset: Int!, $limit: Int!, $lastKey: String, $questionSlug: String!) {\\n  submissionList(offset: $offset, limit: $limit, lastKey: $lastKey, questionSlug: $questionSlug) {\\n    lastKey\\n    hasNext\\n    submissions {\\n      id\\n      statusDisplay\\n      lang\\n      runtime\\n      timestamp\\n      url\\n      isPending\\n      memory\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}");
-            post.setEntity(entityCode);
-            post.setHeader("Accept", "application/json");
-            post.setHeader("Content-type", "application/json");
-            CloseableHttpResponse responseCode = HttpClientUtils.executePost(post);
-            if (responseCode != null && responseCode.getStatusLine().getStatusCode() == 200) {
-                String body = EntityUtils.toString(responseCode.getEntity(), "UTF-8");
+            HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(),"application/json");
+            httpRequest.setBody("{\"operationName\":\"Submissions\",\"variables\":{\"offset\":0,\"limit\":20,\"lastKey\":null,\"questionSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query Submissions($offset: Int!, $limit: Int!, $lastKey: String, $questionSlug: String!) {\\n  submissionList(offset: $offset, limit: $limit, lastKey: $lastKey, questionSlug: $questionSlug) {\\n    lastKey\\n    hasNext\\n    submissions {\\n      id\\n      statusDisplay\\n      lang\\n      runtime\\n      timestamp\\n      url\\n      isPending\\n      memory\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}");
+            httpRequest.addHeader("Accept", "application/json");
+            HttpResponse response = HttpRequestUtils.executePost(httpRequest);
+            if (response != null && response.getStatusCode() == 200) {
+                String body = response.getBody();
                 if (StringUtils.isNotBlank(body)) {
 
                     JSONArray jsonArray = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("submissionList").getJSONArray("submissions");
@@ -71,17 +62,15 @@ public class SubmissionManager {
                 MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
             }
 
-        } catch (IOException io) {
+        } catch (Exception io) {
             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
-        } finally {
-            post.abort();
         }
         return submissionList;
     }
 
     public static void openSubmission(Submission submission, Question question, Project project) {
 
-        if (!HttpClientUtils.isLogin()) {
+        if (!HttpRequestUtils.isLogin()) {
             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return;
         }
@@ -97,12 +86,13 @@ public class SubmissionManager {
             FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
         } else {
 
-            HttpGet get = new HttpGet(URLUtils.getLeetcodeSubmissions() + submission.getId() + "/");
-            try {
-                CloseableHttpResponse response = HttpClientUtils.executeGet(get);
-                if (response != null && response.getStatusLine().getStatusCode() == 200) {
 
-                    String html = EntityUtils.toString(response.getEntity(), "UTF-8");
+            try {
+                HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeSubmissions() + submission.getId() + "/");
+                HttpResponse response = HttpRequestUtils.executeGet(httpRequest);
+                if (response != null && response.getStatusCode() == 200) {
+
+                    String html = response.getBody();
                     String body = CommentUtils.createSubmissions(html);
                     if (StringUtils.isBlank(body)) {
                         LogUtils.LOG.error(html);
@@ -163,8 +153,6 @@ public class SubmissionManager {
                 LogUtils.LOG.error("获取提交详情失败", e);
                 MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
                 return;
-            } finally {
-                get.abort();
             }
 
         }

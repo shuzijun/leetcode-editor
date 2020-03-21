@@ -2,6 +2,7 @@ package com.shuzijun.leetcode.plugin.actions.tree;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
+import com.intellij.openapi.application.ApplicationManager;
 import com.shuzijun.leetcode.plugin.manager.FavoriteManager;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Question;
@@ -42,11 +43,13 @@ public class FavoriteAction extends ToggleAction {
         if (question == null) {
             return;
         }
-        if (b) {
-            FavoriteManager.addQuestionToFavorite(tag, question, anActionEvent.getProject());
-        } else {
-            FavoriteManager.removeQuestionFromFavorite(tag, question, anActionEvent.getProject());
-        }
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            if (b) {
+                FavoriteManager.addQuestionToFavorite(tag, question, anActionEvent.getProject());
+            } else {
+                FavoriteManager.removeQuestionFromFavorite(tag, question, anActionEvent.getProject());
+            }
+        });
 
     }
 }

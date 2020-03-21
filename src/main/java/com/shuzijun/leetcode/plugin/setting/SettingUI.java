@@ -19,7 +19,6 @@ import com.shuzijun.leetcode.plugin.listener.DonateListener;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
-import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -96,7 +95,8 @@ public class SettingUI extends JDialog {
         addComponent(passwordField, constraints, 4, 1, 5, 1);
 
         proxyCheckBox.setSelected(false);
-        proxyCheckBox.setToolTipText("Changes need to log in again");
+        proxyCheckBox.setToolTipText("Employ File | Settings | Appearance & Behavior | System Settings | HTTP Proxy");
+        proxyCheckBox.setEnabled(false);
         addComponent(proxyCheckBox, constraints, 6, 1, 7, 1);
 
         addComponent(new JLabel("TempFilePath:"), constraints, 0, 2, 0, 2);
@@ -194,7 +194,7 @@ public class SettingUI extends JDialog {
                 webComboBox.setSelectedItem(config.getUrl());
             }
             updateCheckBox.setSelected(config.getUpdate());
-            proxyCheckBox.setSelected(config.getProxy());
+            //proxyCheckBox.setSelected(config.getProxy());
             customCodeBox.setSelected(config.getCustomCode());
             ApplicationManager.getApplication().runWriteAction(() -> {
                 fileNameEditor.getDocument().setText(config.getCustomFileName());
@@ -235,15 +235,11 @@ public class SettingUI extends JDialog {
         }
         config.setVersion(Constant.PLUGIN_CONFIG_VERSION_2);
         config.setLoginName(userNameField.getText());
-        config.setPassword("");
         config.setFilePath(fileFolderBtn.getText());
         config.setCodeType(codeComboBox.getSelectedItem().toString());
         config.setUrl(webComboBox.getSelectedItem().toString());
         config.setUpdate(updateCheckBox.isSelected());
-        if (config.getProxy() != proxyCheckBox.isSelected()) {
-            HttpClientUtils.resetHttpclient();
-        }
-        config.setProxy(proxyCheckBox.isSelected());
+        //config.setProxy(proxyCheckBox.isSelected());
         config.setCustomCode(customCodeBox.isSelected());
         config.setCustomFileName(fileNameEditor.getDocument().getText());
         config.setCustomTemplate(templateEditor.getDocument().getText());

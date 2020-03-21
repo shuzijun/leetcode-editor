@@ -10,11 +10,9 @@ import com.shuzijun.leetcode.plugin.utils.*;
 import com.shuzijun.leetcode.plugin.window.LoginFrame;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.cookie.BasicClientCookie;
 
 import javax.swing.*;
+import java.net.HttpCookie;
 import java.util.List;
 
 /**
@@ -26,21 +24,19 @@ public class LoginAction extends AbstractAsynAction {
 
         JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
 
-        if (StringUtils.isBlank(HttpClientUtils.getToken())) {
-            HttpGet httpget = new HttpGet(URLUtils.getLeetcodeVerify());
-            CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
-            httpget.abort();
+        if (StringUtils.isBlank(HttpRequestUtils.getToken())) {
+            HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeVerify());
+            HttpResponse response = HttpRequestUtils.executeGet(httpRequest);
             if (response == null) {
                 MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("warning", PropertiesUtils.getInfo("request.failed"));
                 return;
             }
-            if (response.getStatusLine().getStatusCode() != 200) {
-                ViewManager.loadServiceData(tree, anActionEvent.getProject());
+            if (response.getStatusCode() != 200) {
                 MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("warning", PropertiesUtils.getInfo("request.failed"));
                 return;
             }
         } else {
-            if (HttpClientUtils.isLogin()) {
+            if (HttpRequestUtils.isLogin()) {
                 MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("info", PropertiesUtils.getInfo("login.exist"));
                 return;
             }
@@ -52,9 +48,9 @@ public class LoginAction extends AbstractAsynAction {
         }
 
         if (StringUtils.isNotBlank(config.getCookie(config.getUrl() + config.getLoginName()))) {
-            List<BasicClientCookie> cookieList = CookieUtils.toCookie(config.getCookie(config.getUrl() + config.getLoginName()));
-            HttpClientUtils.setCookie(cookieList);
-            if (HttpClientUtils.isLogin()) {
+            List<HttpCookie> cookieList = CookieUtils.toHttpCookie(config.getCookie(config.getUrl() + config.getLoginName()));
+            HttpRequestUtils.setCookie(cookieList);
+            if (HttpRequestUtils.isLogin()) {
                 MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("login", PropertiesUtils.getInfo("login.success"));
                 ViewManager.loadServiceData(tree, anActionEvent.getProject());
                 return;

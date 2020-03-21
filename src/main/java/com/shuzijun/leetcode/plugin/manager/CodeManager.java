@@ -13,14 +13,8 @@ import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -105,17 +99,14 @@ public class CodeManager {
     }
 
     private static boolean getQuestion(Question question, CodeTypeEnum codeTypeEnum, Project project) {
-        HttpPost post = null;
         try {
-            post = new HttpPost(URLUtils.getLeetcodeGraphql());
-            StringEntity entity = new StringEntity("{\"operationName\":\"questionData\",\"variables\":{\"titleSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query questionData($titleSlug: String!) {\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    questionFrontendId\\n    boundTopicId\\n    title\\n    titleSlug\\n    content\\n    translatedTitle\\n    translatedContent\\n    isPaidOnly\\n    difficulty\\n    likes\\n    dislikes\\n    isLiked\\n    similarQuestions\\n    contributors {\\n      username\\n      profileUrl\\n      avatarUrl\\n      __typename\\n    }\\n    langToValidPlayground\\n    topicTags {\\n      name\\n      slug\\n      translatedName\\n      __typename\\n    }\\n    companyTagStats\\n    codeSnippets {\\n      lang\\n      langSlug\\n      code\\n      __typename\\n    }\\n    stats\\n    hints\\n    solution {\\n      id\\n      canSeeDetail\\n      __typename\\n    }\\n    status\\n    sampleTestCase\\n    metaData\\n    judgerAvailable\\n    judgeType\\n    mysqlSchemas\\n    enableRunCode\\n    enableTestMode\\n    envInfo\\n    __typename\\n  }\\n}\\n\"}");
-            post.setEntity(entity);
-            post.setHeader("Accept", "application/json");
-            post.setHeader("Content-type", "application/json");
-            CloseableHttpResponse response = HttpClientUtils.executePost(post);
-            if (response != null && response.getStatusLine().getStatusCode() == 200) {
+            HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(),"application/json");
+            httpRequest.setBody("{\"operationName\":\"questionData\",\"variables\":{\"titleSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query questionData($titleSlug: String!) {\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    questionFrontendId\\n    boundTopicId\\n    title\\n    titleSlug\\n    content\\n    translatedTitle\\n    translatedContent\\n    isPaidOnly\\n    difficulty\\n    likes\\n    dislikes\\n    isLiked\\n    similarQuestions\\n    contributors {\\n      username\\n      profileUrl\\n      avatarUrl\\n      __typename\\n    }\\n    langToValidPlayground\\n    topicTags {\\n      name\\n      slug\\n      translatedName\\n      __typename\\n    }\\n    companyTagStats\\n    codeSnippets {\\n      lang\\n      langSlug\\n      code\\n      __typename\\n    }\\n    stats\\n    hints\\n    solution {\\n      id\\n      canSeeDetail\\n      __typename\\n    }\\n    status\\n    sampleTestCase\\n    metaData\\n    judgerAvailable\\n    judgeType\\n    mysqlSchemas\\n    enableRunCode\\n    enableTestMode\\n    envInfo\\n    __typename\\n  }\\n}\\n\"}");
+            httpRequest.addHeader("Accept", "application/json");
+            HttpResponse response = HttpRequestUtils.executePost(httpRequest);
+            if (response != null && response.getStatusCode() == 200) {
 
-                String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+                String body = response.getBody();
 
                 JSONObject jsonObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("question");
 
@@ -147,10 +138,6 @@ public class CodeManager {
         } catch (Exception e) {
             LogUtils.LOG.error("获取代码失败", e);
             MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
-        } finally {
-            if (post != null) {
-                post.abort();
-            }
         }
         return Boolean.FALSE;
     }
@@ -168,34 +155,31 @@ public class CodeManager {
             return;
         }
 
-        HttpPost post = new HttpPost(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/submit/");
+
         try {
+            HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/submit/","application/json");
             JSONObject arg = new JSONObject();
             arg.put("question_id", question.getQuestionId());
             arg.put("lang", question.getLangSlug());
             arg.put("typed_code", code);
-            StringEntity entity = new StringEntity(arg.toJSONString(), "UTF-8");
-            post.setEntity(entity);
-            post.setHeader("Accept", "application/json");
-            post.setHeader("Content-type", "application/json");
-            CloseableHttpResponse response = HttpClientUtils.executePost(post);
-            if (response != null && response.getStatusLine().getStatusCode() == 200) {
-                String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+            httpRequest.setBody(arg.toJSONString());
+            httpRequest.addHeader("Accept", "application/json");
+            HttpResponse response = HttpRequestUtils.executePost(httpRequest);
+            if (response != null && response.getStatusCode() == 200) {
+                String body = response.getBody();
                 JSONObject returnObj = JSONObject.parseObject(body);
                 cachedThreadPool.execute(new SubmitCheckTask(returnObj, codeTypeEnum, question, project));
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
-            } else if (response != null && response.getStatusLine().getStatusCode() == 429) {
+            } else if (response != null && response.getStatusCode() == 429) {
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
             } else {
-                LogUtils.LOG.error("提交失败：url：" + post.getURI().getPath() + ";param:" + arg.toJSONString() + ";body:" + EntityUtils.toString(response.getEntity(), "UTF-8"));
+                LogUtils.LOG.error("提交失败：url：" + httpRequest.getUrl() + ";param:" + arg.toJSONString() + ";body:" + response.getBody());
                 MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
             }
-        } catch (IOException i) {
-            LogUtils.LOG.error("读取代码错误", i);
+        } catch (Exception i) {
+            LogUtils.LOG.error("SubmitCode error", i);
             MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
 
-        } finally {
-            post.abort();
         }
 
     }
@@ -213,33 +197,30 @@ public class CodeManager {
         if (!fillQuestion(question, project)) {
             return;
         }
-        HttpPost post = new HttpPost(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/interpret_solution/");
+
         try {
+            HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/interpret_solution/","application/json");
             JSONObject arg = new JSONObject();
             arg.put("question_id", question.getQuestionId());
             arg.put("data_input", question.getTestCase());
             arg.put("lang", question.getLangSlug());
             arg.put("judge_type", "large");
             arg.put("typed_code", code);
-            StringEntity entity = new StringEntity(arg.toJSONString(), "UTF-8");
-            post.setEntity(entity);
-            post.setHeader("Accept", "application/json");
-            post.setHeader("Content-type", "application/json");
-            CloseableHttpResponse response = HttpClientUtils.executePost(post);
-            if (response != null && response.getStatusLine().getStatusCode() == 200) {
+            httpRequest.setBody(arg.toJSONString());
+            httpRequest.addHeader("Accept", "application/json");
+            HttpResponse response = HttpRequestUtils.executePost(httpRequest);
+            if (response != null && response.getStatusCode() == 200) {
 
-                String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+                String body = response.getBody();
                 JSONObject returnObj = JSONObject.parseObject(body);
                 cachedThreadPool.execute(new RunCodeCheckTask(returnObj, project));
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
             } else {
-                LogUtils.LOG.error("提交测试失败" + EntityUtils.toString(response.getEntity(), "UTF-8"));
+                LogUtils.LOG.error("RuncodeCode failure " + response.getBody());
                 MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
             }
-        } catch (IOException i) {
+        } catch (Exception i) {
             MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
-        } finally {
-            post.abort();
         }
     }
 
@@ -248,7 +229,7 @@ public class CodeManager {
             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("config.code"));
             return null;
         }
-        if (!HttpClientUtils.isLogin()) {
+        if (!HttpRequestUtils.isLogin()) {
             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return null;
         }
@@ -282,15 +263,14 @@ public class CodeManager {
         if (!fillQuestion(question, project)) {
             return;
         }
-        HttpPost questionCodePost = new HttpPost(URLUtils.getLeetcodeGraphql());
+
         try {
-            StringEntity entityCode = new StringEntity("{\"operationName\":\"questionData\",\"variables\":{\"titleSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query questionData($titleSlug: String!) {\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    questionFrontendId\\n    boundTopicId\\n    title\\n    titleSlug\\n    content\\n    translatedTitle\\n    translatedContent\\n    isPaidOnly\\n    difficulty\\n    likes\\n    dislikes\\n    isLiked\\n    similarQuestions\\n    contributors {\\n      username\\n      profileUrl\\n      avatarUrl\\n      __typename\\n    }\\n    langToValidPlayground\\n    topicTags {\\n      name\\n      slug\\n      translatedName\\n      __typename\\n    }\\n    companyTagStats\\n    codeSnippets {\\n      lang\\n      langSlug\\n      code\\n      __typename\\n    }\\n    stats\\n    hints\\n    solution {\\n      id\\n      canSeeDetail\\n      __typename\\n    }\\n    status\\n    sampleTestCase\\n    metaData\\n    judgerAvailable\\n    judgeType\\n    mysqlSchemas\\n    enableRunCode\\n    enableTestMode\\n    envInfo\\n    __typename\\n  }\\n}\\n\"}");
-            questionCodePost.setEntity(entityCode);
-            questionCodePost.setHeader("Accept", "application/json");
-            questionCodePost.setHeader("Content-type", "application/json");
-            CloseableHttpResponse responseCode = HttpClientUtils.executePost(questionCodePost);
-            if (responseCode != null && responseCode.getStatusLine().getStatusCode() == 200) {
-                String body = EntityUtils.toString(responseCode.getEntity(), "UTF-8");
+            HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(),"application/json");
+            httpRequest.setBody("{\"operationName\":\"questionData\",\"variables\":{\"titleSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query questionData($titleSlug: String!) {\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    questionFrontendId\\n    boundTopicId\\n    title\\n    titleSlug\\n    content\\n    translatedTitle\\n    translatedContent\\n    isPaidOnly\\n    difficulty\\n    likes\\n    dislikes\\n    isLiked\\n    similarQuestions\\n    contributors {\\n      username\\n      profileUrl\\n      avatarUrl\\n      __typename\\n    }\\n    langToValidPlayground\\n    topicTags {\\n      name\\n      slug\\n      translatedName\\n      __typename\\n    }\\n    companyTagStats\\n    codeSnippets {\\n      lang\\n      langSlug\\n      code\\n      __typename\\n    }\\n    stats\\n    hints\\n    solution {\\n      id\\n      canSeeDetail\\n      __typename\\n    }\\n    status\\n    sampleTestCase\\n    metaData\\n    judgerAvailable\\n    judgeType\\n    mysqlSchemas\\n    enableRunCode\\n    enableTestMode\\n    envInfo\\n    __typename\\n  }\\n}\\n\"}");
+            httpRequest.addHeader("Accept", "application/json");
+            HttpResponse response = HttpRequestUtils.executePost(httpRequest);
+            if (response != null && response.getStatusCode() == 200) {
+                String body = response.getBody();
 
                 JSONObject jsonObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("question");
                 if (StringUtils.isBlank(question.getTestCase())) {
@@ -307,12 +287,10 @@ public class CodeManager {
                     }
                 }
             }
-        } catch (IOException i) {
+        } catch (Exception i) {
             LogUtils.LOG.error("get test case error", i);
             MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
             return;
-        } finally {
-            questionCodePost.abort();
         }
 
     }
@@ -372,10 +350,10 @@ public class CodeManager {
             String key = returnObj.getString("submission_id");
             for (int i = 0; i < 50; i++) {
                 try {
-                    HttpGet httpget = new HttpGet(URLUtils.getLeetcodeSubmissions() + key + "/check/");
-                    CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
-                    if (response != null && response.getStatusLine().getStatusCode() == 200) {
-                        String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+                    HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeSubmissions() + key + "/check/");
+                    HttpResponse response = HttpRequestUtils.executeGet(httpRequest);
+                    if (response != null && response.getStatusCode() == 200) {
+                        String body = response.getBody();
                         JSONObject jsonObject = JSONObject.parseObject(body);
                         if ("SUCCESS".equals(jsonObject.getString("state"))) {
                             if (jsonObject.getBoolean("run_success")) {
@@ -413,7 +391,6 @@ public class CodeManager {
                         }
 
                     }
-                    httpget.abort();
                     Thread.sleep(300L);
                 } catch (Exception e) {
                     LogUtils.LOG.error("提交出错", e);
@@ -460,10 +437,10 @@ public class CodeManager {
             for (int i = 0; i < 50; i++) {
                 String body = null;
                 try {
-                    HttpGet httpget = new HttpGet(URLUtils.getLeetcodeSubmissions() + key + "/check/");
-                    CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
-                    if (response != null && response.getStatusLine().getStatusCode() == 200) {
-                        body = EntityUtils.toString(response.getEntity(), "UTF-8");
+                    HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeSubmissions() + key + "/check/");
+                    HttpResponse response = HttpRequestUtils.executeGet(httpRequest);
+                    if (response != null && response.getStatusCode() == 200) {
+                        body = response.getBody();
                         JSONObject jsonObject = JSONObject.parseObject(body);
                         if ("SUCCESS".equals(jsonObject.getString("state"))) {
                             if (!key.equals(returnObj.getString("interpret_id"))) {
@@ -493,7 +470,6 @@ public class CodeManager {
                         }
 
                     }
-                    httpget.abort();
                     Thread.sleep(300L);
                 } catch (Exception e) {
                     LogUtils.LOG.error("提交出错，body:" + body + ",returnObj:" + returnObj.toJSONString(), e);
