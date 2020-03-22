@@ -1,6 +1,7 @@
 package com.shuzijun.leetcode.plugin.actions.toolbar;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.shuzijun.leetcode.plugin.actions.AbstractAction;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
@@ -18,11 +19,13 @@ public class CollapseAction extends AbstractAction {
         if (tree == null) {
             return;
         }
+        ApplicationManager.getApplication().invokeAndWait(() -> {
+            int row = tree.getRowCount() - 1;
+            while (row >= 0) {
+                tree.collapseRow(row);
+                row--;
+            }
+        });
 
-        int row = tree.getRowCount() - 1;
-        while (row >= 0) {
-            tree.collapseRow(row);
-            row--;
-        }
     }
 }

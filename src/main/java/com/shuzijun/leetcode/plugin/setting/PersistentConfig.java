@@ -84,9 +84,8 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
                 return null;
             }
 
-        } else {
-            return getInitConfig().getPassword();
         }
+        return null;
 
     }
 

@@ -15,6 +15,7 @@ import javax.swing.*;
  */
 public abstract class AbstractTreeAction extends AbstractAction {
 
+    @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config) {
         JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
         if (tree == null) {

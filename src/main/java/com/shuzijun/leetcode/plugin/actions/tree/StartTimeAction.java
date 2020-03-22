@@ -11,9 +11,9 @@ import javax.swing.*;
 /**
  * @author shuzijun
  */
-public class StartTimeAction extends AbstractTreeAsynAction {
+public class StartTimeAction extends  AbstractTreeAction {
     @Override
-    public void perform(AnActionEvent anActionEvent, Config config, JTree tree, Question question) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, JTree tree, Question question) {
         TimerBarWidget timerBarWidget = (TimerBarWidget) WindowManager.getInstance().getStatusBar(anActionEvent.getProject()).getWidget(TimerBarWidget.ID);
         if (timerBarWidget != null) {
             timerBarWidget.startTimer(question.getTitle());

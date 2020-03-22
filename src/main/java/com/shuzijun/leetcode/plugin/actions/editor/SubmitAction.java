@@ -8,10 +8,10 @@ import com.shuzijun.leetcode.plugin.model.Question;
 /**
  * @author shuzijun
  */
-public class SubmitAction extends AbstractEditAsynAction {
+public class SubmitAction extends AbstractEditAction {
 
     @Override
-    public void perform(AnActionEvent anActionEvent, Config config, Question question) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
         CodeManager.SubmitCode(question, anActionEvent.getProject());
     }
 }

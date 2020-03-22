@@ -1,6 +1,10 @@
 package com.shuzijun.leetcode.plugin.actions.tree;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
@@ -30,7 +34,13 @@ public class ClearOneAction extends AbstractTreeAction {
 
         File file = new File(filePath);
         if (file.exists()) {
-            file.delete();
+            ApplicationManager.getApplication().invokeAndWait(() -> {
+                VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+                if (FileEditorManager.getInstance(anActionEvent.getProject()).isFileOpen(vf)) {
+                    FileEditorManager.getInstance(anActionEvent.getProject()).closeFile(vf);
+                }
+                file.delete();
+            });
         }
         MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg(question.getFormTitle(), PropertiesUtils.getInfo("clear.success"));
 

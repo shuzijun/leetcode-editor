@@ -14,6 +14,9 @@ import com.codebrig.journey.proxy.network.CefCookieProxy;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.FrameWrapper;
 import com.intellij.ui.components.JBPanel;
@@ -23,12 +26,8 @@ import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.cookie.BasicClientCookie;
-import org.apache.http.util.EntityUtils;
+import org.jetbrains.annotations.NotNull;
 import org.joor.Reflect;
 
 import javax.swing.*;
@@ -38,8 +37,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Proxy;
+import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,7 +88,7 @@ public class LoginFrame extends FrameWrapper {
             public void onLoadingStateChange(CefBrowserProxy cefBrowserProxy, boolean b, boolean b1, boolean b2) {
                 LogUtils.LOG.debug("onLoadEnd:" + cefBrowserProxy.getURL());
                 if (CefCookieManagerProxy.getGlobalManager() != null) {
-                    final List<BasicClientCookie> cookieList = new ArrayList<>();
+                    final List<HttpCookie> cookieList = new ArrayList<>();
                     final Boolean[] isSession = {Boolean.FALSE};
 
                     boolean v = CefCookieManagerProxy.getGlobalManager().visitAllCookies(CefCookieVisitorProxy.createVisitor(new CefCookieVisitorProxy() {
@@ -98,7 +97,7 @@ public class LoginFrame extends FrameWrapper {
                         public boolean visit(CefCookieProxy cefCookieProxy, int count, int total, BoolRefProxy boolRefProxy) {
                             Object cefCookie = ((Reflect.ProxyInvocationHandler) Proxy.getInvocationHandler(cefCookieProxy)).getUnderlyingObject();
                             if (Reflect.on(cefCookie).field("domain").toString().contains("leetcode")) {
-                                BasicClientCookie cookie = new BasicClientCookie(Reflect.on(cefCookie).field("name").toString(), Reflect.on(cefCookie).field("value").toString());
+                                HttpCookie cookie = new HttpCookie(Reflect.on(cefCookie).field("name").toString(), Reflect.on(cefCookie).field("value").toString());
                                 cookie.setDomain(Reflect.on(cefCookie).field("domain").toString());
                                 cookie.setPath(Reflect.on(cefCookie).field("path").toString());
                                 cookieList.add(cookie);
@@ -107,10 +106,10 @@ public class LoginFrame extends FrameWrapper {
                                 }
                             }
                             if (count == total - 1 && isSession[0]) {
-                                HttpClientUtils.setCookie(cookieList);
-                                if (HttpClientUtils.isLogin()) {
+                                HttpRequestUtils.setCookie(cookieList);
+                                if (HttpRequestUtils.isLogin()) {
                                     Config config = PersistentConfig.getInstance().getInitConfig();
-                                    config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.toJSONString(cookieList));
+                                    config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.httpCookieToJSONString(cookieList));
                                     PersistentConfig.getInstance().setInitConfig(config);
                                     ViewManager.loadServiceData(tree, project);
                                     httpLogin.examineEmail(project);
@@ -171,31 +170,37 @@ public class LoginFrame extends FrameWrapper {
                     return;
                 }
 
-                final List<BasicClientCookie> cookieList = new ArrayList<>();
+                final List<HttpCookie> cookieList = new ArrayList<>();
                 String[] cookies = cookiesString.split(";");
                 for (String cookieString : cookies) {
                     String[] cookie = cookieString.trim().split("=");
                     if (cookie.length >= 2) {
-                        BasicClientCookie basicClientCookie = new BasicClientCookie(cookie[0], cookie[1]);
+                        HttpCookie basicClientCookie = new HttpCookie(cookie[0], cookie[1]);
                         basicClientCookie.setDomain("." + URLUtils.getLeetcodeHost());
                         basicClientCookie.setPath("/");
                         cookieList.add(basicClientCookie);
                     }
                 }
-                HttpClientUtils.setCookie(cookieList);
-                if (HttpClientUtils.isLogin()) {
-                    Config config = PersistentConfig.getInstance().getInitConfig();
-                    config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.toJSONString(cookieList));
-                    PersistentConfig.getInstance().setInitConfig(config);
-                    MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                    ViewManager.loadServiceData(tree, project);
-                    httpLogin.examineEmail(project);
-                    close();
-                    return;
-                } else {
-                    JOptionPane.showMessageDialog(null, PropertiesUtils.getInfo("login.failed"));
-                    return;
-                }
+                HttpRequestUtils.setCookie(cookieList);
+
+                ProgressManager.getInstance().run(new Task.Backgroundable(project, "leetcode.editor.login", false) {
+                    @Override
+                    public void run(@NotNull ProgressIndicator progressIndicator) {
+                        if (HttpRequestUtils.isLogin()) {
+                            Config config = PersistentConfig.getInstance().getInitConfig();
+                            config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.httpCookieToJSONString(cookieList));
+                            PersistentConfig.getInstance().setInitConfig(config);
+                            MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
+                            ViewManager.loadServiceData(tree, project);
+                            httpLogin.examineEmail(project);
+                            return;
+                        } else {
+                            JOptionPane.showMessageDialog(null, PropertiesUtils.getInfo("login.failed"));
+                            return;
+                        }
+                    }
+                });
+                close();
             }
         });
 
@@ -235,27 +240,27 @@ public class LoginFrame extends FrameWrapper {
                 return Boolean.FALSE;
             }
 
-            HttpPost post = new HttpPost(URLUtils.getLeetcodeLogin());
             try {
                 HttpEntity ent = MultipartEntityBuilder.create()
-                        .addTextBody("csrfmiddlewaretoken", HttpClientUtils.getToken())
+                        .addTextBody("csrfmiddlewaretoken", HttpRequestUtils.getToken())
                         .addTextBody("login", config.getLoginName())
                         .addTextBody("password", PersistentConfig.getInstance().getPassword())
                         .addTextBody("next", "/problems")
                         .build();
-                post.setEntity(ent);
-                post.setHeader("x-requested-with", "XMLHttpRequest");
-                post.setHeader("accept", "*/*");
-                CloseableHttpResponse loginResponse = HttpClientUtils.executePost(post);
+                HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeLogin(),ent.getContentType().getValue());
+                httpRequest.setBody(IOUtils.toString(ent.getContent(),"UTF-8"));
+                httpRequest.addHeader("x-requested-with", "XMLHttpRequest");
+                httpRequest.addHeader("accept", "*/*");
+                HttpResponse response = HttpRequestUtils.executePost(httpRequest);
 
-                if (loginResponse == null) {
+                if (response == null) {
                     MessageUtils.getInstance(project).showWarnMsg("warning", PropertiesUtils.getInfo("request.failed"));
                     return Boolean.FALSE;
                 }
 
-                String body = EntityUtils.toString(loginResponse.getEntity(), "UTF-8");
+                String body = response.getBody();
 
-                if ((loginResponse.getStatusLine().getStatusCode() == 200 || loginResponse.getStatusLine().getStatusCode() == 302)) {
+                if ((response.getStatusCode() == 200 || response.getStatusCode() == 302)) {
                     if (StringUtils.isNotBlank(body) && body.startsWith("{")) {
                         JSONObject jsonObject = JSONObject.parseObject(body);
                         JSONArray jsonArray = jsonObject.getJSONObject("form").getJSONArray("errors");
@@ -274,44 +279,40 @@ public class LoginFrame extends FrameWrapper {
                         ViewManager.loadServiceData(tree, project);
                         return Boolean.TRUE;
                     } else {
-                        HttpClientUtils.resetHttpclient();
+                        HttpRequestUtils.resetHttpclient();
                         MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
-                        SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", loginResponse.getStatusLine().getStatusCode(), body));
+                        SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", response.getStatusCode(), body));
                         return Boolean.FALSE;
                     }
-                } else if (loginResponse.getStatusLine().getStatusCode() == 400) {
+                } else if (response.getStatusCode() == 400) {
                     JSONObject jsonObject = JSONObject.parseObject(body);
                     MessageUtils.getInstance(project).showInfoMsg("info", StringUtils.join(jsonObject.getJSONObject("form").getJSONArray("errors"), ","));
                     return Boolean.FALSE;
                 } else {
-                    HttpClientUtils.resetHttpclient();
+                    HttpRequestUtils.resetHttpclient();
                     MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
-                    SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", loginResponse.getStatusLine().getStatusCode(), body));
+                    SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", response.getStatusCode(), body));
                     return Boolean.FALSE;
                 }
             } catch (Exception e) {
                 LogUtils.LOG.error("登陆错误", e);
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.failed"));
                 return Boolean.FALSE;
-            } finally {
-                post.abort();
-            }
+            } 
         }
 
         public static void examineEmail(Project project) {
             ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
                 @Override
                 public void run() {
-                    HttpPost post = new HttpPost(URLUtils.getLeetcodeGraphql());
+                    HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(),"application/json");
                     try {
-                        StringEntity entity = new StringEntity("{\"operationName\":\"user\",\"variables\":{},\"query\":\"query user {\\n  user {\\n    socialAccounts\\n    username\\n    emails {\\n      email\\n      primary\\n      verified\\n      __typename\\n    }\\n    phone\\n    profile {\\n      rewardStats\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}");
-                        post.setEntity(entity);
-                        post.setHeader("Accept", "application/json");
-                        post.setHeader("Content-type", "application/json");
-                        CloseableHttpResponse response = HttpClientUtils.executePost(post);
-                        if (response != null && response.getStatusLine().getStatusCode() == 200) {
+                        httpRequest.setBody("{\"operationName\":\"user\",\"variables\":{},\"query\":\"query user {\\n  user {\\n    socialAccounts\\n    username\\n    emails {\\n      email\\n      primary\\n      verified\\n      __typename\\n    }\\n    phone\\n    profile {\\n      rewardStats\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}");
+                        httpRequest.addHeader("Accept", "application/json");
+                        HttpResponse response = HttpRequestUtils.executePost(httpRequest);
+                        if (response != null && response.getStatusCode() == 200) {
 
-                            String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+                            String body = response.getBody();
 
                             JSONArray jsonArray = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("user").getJSONArray("emails");
                             if (jsonArray != null && jsonArray.size() > 0) {
@@ -325,10 +326,8 @@ public class LoginFrame extends FrameWrapper {
                             }
                             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("user.email"));
                         }
-                    } catch (IOException i) {
+                    } catch (Exception i) {
                         LogUtils.LOG.error("验证邮箱错误");
-                    } finally {
-                        post.abort();
                     }
                 }
             });

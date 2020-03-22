@@ -110,14 +110,6 @@ public class Config {
         this.loginName = loginName;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getFilePath() {
         return filePath;
     }

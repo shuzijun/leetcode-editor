@@ -11,18 +11,9 @@ import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import com.shuzijun.leetcode.plugin.utils.FileUtils;
-import com.shuzijun.leetcode.plugin.utils.HttpClientUtils;
-import com.shuzijun.leetcode.plugin.utils.LogUtils;
-import com.shuzijun.leetcode.plugin.utils.URLUtils;
+import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -41,19 +32,13 @@ public class QuestionManager {
     public static List<Question> getQuestionService() {
         List<Question> questionList = null;
 
-        HttpGet httpget = new HttpGet(URLUtils.getLeetcodeAll());
-        CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
-        if (response != null && response.getStatusLine().getStatusCode() == 200) {
-            try {
-                String body = EntityUtils.toString(response.getEntity(), "UTF-8");
-                questionList = parseQuestion(body);
-            } catch (IOException e1) {
-                LogUtils.LOG.error("Request question list exception:", e1);
-            }
-        }else {
-            LogUtils.LOG.error("Request question list failed, status:" + response == null ? "" : response.getStatusLine().getStatusCode());
+        HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeAll());
+        HttpResponse response = HttpRequestUtils.executeGet(httpRequest);
+        if (response != null && response.getStatusCode() == 200) {
+            questionList = parseQuestion(response.getBody());
+        } else {
+            LogUtils.LOG.error("Request question list failed, status:" + response == null ? "" : response.getStatusCode());
         }
-        httpget.abort();
 
         if (questionList != null && !questionList.isEmpty()) {
             String filePath = PersistentConfig.getInstance().getTempFilePath() + ALLNAME;
@@ -149,19 +134,18 @@ public class QuestionManager {
     public static List<Tag> getTags() {
         List<Tag> tags = new ArrayList<>();
 
-        HttpGet httpget = new HttpGet(URLUtils.getLeetcodeTags());
-        CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
-        if (response != null && response.getStatusLine().getStatusCode() == 200) {
+        HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeTags());
+        HttpResponse response = HttpRequestUtils.executeGet(httpRequest);
+        if (response != null && response.getStatusCode() == 200) {
             try {
-                String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+                String body = response.getBody();
                 tags = parseTag(body);
-            } catch (IOException e1) {
+            } catch (Exception e1) {
                 LogUtils.LOG.error("Request tags exception", e1);
             }
         } else {
-            LogUtils.LOG.error("Request tags failed, status:" + response == null ? "" : response.getStatusLine().getStatusCode());
+            LogUtils.LOG.error("Request tags failed, status:" + response.getStatusCode() + "body:" + response.getBody());
         }
-        httpget.abort();
 
         return tags;
     }
@@ -169,20 +153,18 @@ public class QuestionManager {
     public static List<Tag> getLists() {
         List<Tag> tags = new ArrayList<>();
 
-        HttpGet httpget = new HttpGet(URLUtils.getLeetcodeFavorites());
-        CloseableHttpResponse response = HttpClientUtils.executeGet(httpget);
-        if (response != null && response.getStatusLine().getStatusCode() == 200) {
+        HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeFavorites());
+        HttpResponse response = HttpRequestUtils.executeGet(httpRequest);
+        if (response != null && response.getStatusCode() == 200) {
             try {
-                String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+                String body = response.getBody();
                 tags = parseList(body);
-            } catch (IOException e1) {
+            } catch (Exception e1) {
                 LogUtils.LOG.error("Request Lists exception", e1);
             }
         } else {
-            LogUtils.LOG.error("Request Lists failed, status:" + response == null ? "" : response.getStatusLine().getStatusCode());
+            LogUtils.LOG.error("Request Lists failed, status:" + response.getStatusCode() + "body:" + response.getBody());
         }
-        httpget.abort();
-
         return tags;
     }
 
@@ -245,16 +227,14 @@ public class QuestionManager {
 
             String filePathTranslation = PersistentConfig.getInstance().getTempFilePath() + TRANSLATIONNAME;
 
-            HttpPost translationPost = new HttpPost(URLUtils.getLeetcodeGraphql());
             try {
-                String body = null;
-                StringEntity entityCode = new StringEntity("{\"operationName\":\"getQuestionTranslation\",\"variables\":{},\"query\":\"query getQuestionTranslation($lang: String) {\\n  translations: allAppliedQuestionTranslations(lang: $lang) {\\n    title\\n    questionId\\n    __typename\\n  }\\n}\\n\"}");
-                translationPost.setEntity(entityCode);
-                translationPost.setHeader("Accept", "application/json");
-                translationPost.setHeader("Content-type", "application/json");
-                CloseableHttpResponse responseCode = HttpClientUtils.executePost(translationPost);
-                if (responseCode != null && responseCode.getStatusLine().getStatusCode() == 200) {
-                    body = EntityUtils.toString(responseCode.getEntity(), "UTF-8");
+                HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(),"application/json");
+                httpRequest.setBody("{\"operationName\":\"getQuestionTranslation\",\"variables\":{},\"query\":\"query getQuestionTranslation($lang: String) {\\n  translations: allAppliedQuestionTranslations(lang: $lang) {\\n    title\\n    questionId\\n    __typename\\n  }\\n}\\n\"}");
+                httpRequest.addHeader("Accept", "application/json");
+                HttpResponse response = HttpRequestUtils.executePost(httpRequest);
+                String body;
+                if (response != null && response.getStatusCode() == 200) {
+                    body = response.getBody();
                     FileUtils.saveFile(filePathTranslation, body);
                 } else {
                     body = FileUtils.getFileBody(filePathTranslation);
@@ -276,10 +256,8 @@ public class QuestionManager {
                     LogUtils.LOG.error("读取翻译内容为空");
                 }
 
-            } catch (IOException e1) {
+            } catch (Exception e1) {
                 LogUtils.LOG.error("获取题目翻译错误", e1);
-            } finally {
-                translationPost.abort();
             }
 
         }

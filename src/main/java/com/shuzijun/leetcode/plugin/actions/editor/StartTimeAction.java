@@ -9,10 +9,10 @@ import com.shuzijun.leetcode.plugin.timer.TimerBarWidget;
 /**
  * @author shuzijun
  */
-public class StartTimeAction extends AbstractEditAsynAction {
+public class StartTimeAction extends AbstractEditAction {
 
     @Override
-    public void perform(AnActionEvent anActionEvent, Config config, Question question) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
         TimerBarWidget timerBarWidget = (TimerBarWidget) WindowManager.getInstance().getStatusBar(anActionEvent.getProject()).getWidget(TimerBarWidget.ID);
         if (timerBarWidget != null) {
             timerBarWidget.startTimer(question.getTitle());

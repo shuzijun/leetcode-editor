@@ -8,10 +8,10 @@ import com.shuzijun.leetcode.plugin.model.Question;
 /**
  * @author shuzijun
  */
-public class RunCodeAction extends AbstractEditAsynAction {
+public class RunCodeAction extends AbstractEditAction {
 
     @Override
-    public void perform(AnActionEvent anActionEvent, Config config, Question question) {
-        CodeManager.RuncodeCode(question, anActionEvent.getProject());
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
+        CodeManager.RunCodeCode(question, anActionEvent.getProject());
     }
 }

@@ -2,12 +2,16 @@ package com.shuzijun.leetcode.plugin.actions.tree;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.shuzijun.leetcode.plugin.manager.FavoriteManager;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -42,11 +46,17 @@ public class FavoriteAction extends ToggleAction {
         if (question == null) {
             return;
         }
-        if (b) {
-            FavoriteManager.addQuestionToFavorite(tag, question, anActionEvent.getProject());
-        } else {
-            FavoriteManager.removeQuestionFromFavorite(tag, question, anActionEvent.getProject());
-        }
+
+        ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(),"leetcode.editor.favorite",false) {
+            @Override
+            public void run(@NotNull ProgressIndicator progressIndicator) {
+                if (b) {
+                    FavoriteManager.addQuestionToFavorite(tag, question, anActionEvent.getProject());
+                } else {
+                    FavoriteManager.removeQuestionFromFavorite(tag, question, anActionEvent.getProject());
+                }
+            }
+        });
 
     }
 }
