@@ -216,7 +216,7 @@ public class ViewManager {
     public static Question getQuestionById(String id,Project project) {
         if(question.isEmpty()){
             MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("tree.load"));
-            ApplicationManager.getApplication().invokeLater(new Runnable() {
+            ApplicationManager.getApplication().invokeAndWait(new Runnable() {
                 @Override
                 public void run() {
                     ToolWindowManager.getInstance(project).getToolWindow(WindowFactory.ID).show(null);

@@ -3,6 +3,7 @@ package com.shuzijun.leetcode.plugin.manager;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Joiner;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
@@ -43,23 +44,25 @@ public class CodeManager {
 
         File file = new File(filePath);
         if (file.exists()) {
-
-            VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-            OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
-            FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
-            LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(vf.getPath());
-            leetcodeEditor.setQuestionId(question.getQuestionId());
-        } else {
-
-            if (getQuestion(question, codeTypeEnum, project)) {
-                question.setContent(CommentUtils.createComment(question.getContent(), codeTypeEnum));
-                FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
-
+            ApplicationManager.getApplication().invokeAndWait(()->{
                 VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
                 OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
                 FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
                 LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(vf.getPath());
                 leetcodeEditor.setQuestionId(question.getQuestionId());
+            });
+        } else {
+
+            if (getQuestion(question, codeTypeEnum, project)) {
+                question.setContent(CommentUtils.createComment(question.getContent(), codeTypeEnum));
+                FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
+                ApplicationManager.getApplication().invokeAndWait(() -> {
+                    VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+                    OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
+                    FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+                    LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(vf.getPath());
+                    leetcodeEditor.setQuestionId(question.getQuestionId());
+                });
             }
         }
     }
@@ -82,17 +85,20 @@ public class CodeManager {
 
         File file = new File(filePath);
         if (file.exists()) {
-
-            VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-            OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
-            FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
-        } else {
-            if (getQuestion(question, codeTypeEnum, project)) {
-                FileUtils.saveFile(file, question.getContent());
-
+            ApplicationManager.getApplication().invokeAndWait(() -> {
                 VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
                 OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
                 FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+            });
+        } else {
+            if (getQuestion(question, codeTypeEnum, project)) {
+                ApplicationManager.getApplication().invokeAndWait(() -> {
+                    FileUtils.saveFile(file, question.getContent());
+
+                    VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+                    OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
+                    FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+                });
             }
 
         }
@@ -155,7 +161,6 @@ public class CodeManager {
             return;
         }
 
-
         try {
             HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/submit/","application/json");
             JSONObject arg = new JSONObject();
@@ -184,7 +189,7 @@ public class CodeManager {
 
     }
 
-    public static void RuncodeCode(Question question, Project project) {
+    public static void RunCodeCode(Question question, Project project) {
         Config config = PersistentConfig.getInstance().getInitConfig();
         String codeType = config.getCodeType();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);

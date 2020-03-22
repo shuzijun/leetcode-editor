@@ -14,6 +14,9 @@ import com.codebrig.journey.proxy.network.CefCookieProxy;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.FrameWrapper;
 import com.intellij.ui.components.JBPanel;
@@ -24,6 +27,7 @@ import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.joor.Reflect;
 
 import javax.swing.*;
@@ -178,19 +182,25 @@ public class LoginFrame extends FrameWrapper {
                     }
                 }
                 HttpRequestUtils.setCookie(cookieList);
-                if (HttpRequestUtils.isLogin()) {
-                    Config config = PersistentConfig.getInstance().getInitConfig();
-                    config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.httpCookieToJSONString(cookieList));
-                    PersistentConfig.getInstance().setInitConfig(config);
-                    MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                    ViewManager.loadServiceData(tree, project);
-                    httpLogin.examineEmail(project);
-                    close();
-                    return;
-                } else {
-                    JOptionPane.showMessageDialog(null, PropertiesUtils.getInfo("login.failed"));
-                    return;
-                }
+
+                ProgressManager.getInstance().run(new Task.Backgroundable(project, "leetcode.editor.login", false) {
+                    @Override
+                    public void run(@NotNull ProgressIndicator progressIndicator) {
+                        if (HttpRequestUtils.isLogin()) {
+                            Config config = PersistentConfig.getInstance().getInitConfig();
+                            config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.httpCookieToJSONString(cookieList));
+                            PersistentConfig.getInstance().setInitConfig(config);
+                            MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
+                            ViewManager.loadServiceData(tree, project);
+                            httpLogin.examineEmail(project);
+                            return;
+                        } else {
+                            JOptionPane.showMessageDialog(null, PropertiesUtils.getInfo("login.failed"));
+                            return;
+                        }
+                    }
+                });
+                close();
             }
         });
 

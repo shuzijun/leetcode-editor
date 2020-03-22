@@ -2,7 +2,10 @@ package com.shuzijun.leetcode.plugin.window;
 
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.DataProvider;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.wm.ToolWindow;
@@ -11,7 +14,7 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.shuzijun.leetcode.plugin.listener.QueryKeyListener;
 import com.shuzijun.leetcode.plugin.listener.TreeMouseListener;
-import com.shuzijun.leetcode.plugin.listener.TreeeWillListener;
+import com.shuzijun.leetcode.plugin.listener.TreeWillListener;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.renderer.CustomTreeCellRenderer;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
@@ -95,7 +98,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setRootVisible(false);
         tree.addMouseListener(new TreeMouseListener(tree, project));
-        tree.addTreeWillExpandListener(new TreeeWillListener(tree, toolWindow));
+        tree.addTreeWillExpandListener(new TreeWillListener(tree, toolWindow, project));
 
 
         ActionToolbar actionToolbar = actionManager.createActionToolbar("leetcode Toolbar",

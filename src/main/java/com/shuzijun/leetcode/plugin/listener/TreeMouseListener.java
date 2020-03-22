@@ -2,12 +2,14 @@ package com.shuzijun.leetcode.plugin.listener;
 
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.shuzijun.leetcode.plugin.manager.CodeManager;
 import com.shuzijun.leetcode.plugin.model.Question;
-
-
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -46,7 +48,12 @@ public class TreeMouseListener extends MouseAdapter {
                         actionManager.createActionPopupMenu("", actionGroup).getComponent().show(e.getComponent(), e.getX(), e.getY());
                     }
                 } else if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-                    CodeManager.openCode(question, project);
+                    ProgressManager.getInstance().run(new Task.Backgroundable(project,"leetcode.editor.openCode",false) {
+                        @Override
+                        public void run(@NotNull ProgressIndicator progressIndicator) {
+                            CodeManager.openCode(question, project);
+                        }
+                    });
                 }
             }
         }

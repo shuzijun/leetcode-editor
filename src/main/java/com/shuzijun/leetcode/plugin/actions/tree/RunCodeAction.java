@@ -10,9 +10,9 @@ import javax.swing.*;
 /**
  * @author shuzijun
  */
-public class RunCodeAction extends AbstractTreeAsynAction {
+public class RunCodeAction extends  AbstractTreeAction {
     @Override
-    public void perform(AnActionEvent anActionEvent, Config config, JTree tree, Question question) {
-        CodeManager.RuncodeCode(question, anActionEvent.getProject());
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, JTree tree, Question question) {
+        CodeManager.RunCodeCode(question, anActionEvent.getProject());
     }
 }

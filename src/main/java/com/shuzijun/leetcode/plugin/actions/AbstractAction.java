@@ -3,6 +3,9 @@ package com.shuzijun.leetcode.plugin.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.setting.SettingConfigurable;
@@ -11,6 +14,7 @@ import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.UpdateUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author shuzijun
@@ -34,8 +38,13 @@ public abstract class AbstractAction extends AnAction {
         } catch (Exception e) {
         }
 
+        ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(),anActionEvent.getActionManager().getId(this),false) {
+            @Override
+            public void run(@NotNull ProgressIndicator progressIndicator) {
+                actionPerformed(anActionEvent, config);
+            }
+        });
 
-        actionPerformed(anActionEvent, config);
     }
 
     public abstract void actionPerformed(AnActionEvent anActionEvent, Config config);

@@ -2,6 +2,7 @@ package com.shuzijun.leetcode.plugin.manager;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
@@ -80,13 +81,12 @@ public class SubmissionManager {
 
         File file = new File(filePath);
         if (file.exists()) {
-
-            VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-            OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
-            FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+            ApplicationManager.getApplication().invokeAndWait(() -> {
+                VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+                OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
+                FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+            });
         } else {
-
-
             try {
                 HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeSubmissions() + submission.getId() + "/");
                 HttpResponse response = HttpRequestUtils.executeGet(httpRequest);
@@ -132,12 +132,12 @@ public class SubmissionManager {
                                 sb.append(codeTypeEnum.getComment()).append("last_testcase:").append(submissionData.getString("last_testcase").replaceAll("(\\r|\\r\\n|\\n\\r|\\n)", " ")).append("\n");
 
                             }
-
-                            FileUtils.saveFile(file, sb.toString());
-
-                            VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-                            OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
-                            FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+                            ApplicationManager.getApplication().invokeAndWait(() -> {
+                                FileUtils.saveFile(file, sb.toString());
+                                VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+                                OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
+                                FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+                            });
 
                         } catch (Exception e) {
                             LogUtils.LOG.error(body, e);

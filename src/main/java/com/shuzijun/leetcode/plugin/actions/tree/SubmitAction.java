@@ -10,9 +10,9 @@ import javax.swing.*;
 /**
  * @author shuzijun
  */
-public class SubmitAction extends AbstractTreeAsynAction {
+public class SubmitAction extends  AbstractTreeAction {
     @Override
-    public void perform(AnActionEvent anActionEvent, Config config, JTree tree, Question question) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, JTree tree, Question question) {
         CodeManager.SubmitCode(question, anActionEvent.getProject());
     }
 }
