@@ -1,6 +1,7 @@
 package com.shuzijun.leetcode.plugin.actions.toolbar;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.components.JBScrollPane;
 import com.shuzijun.leetcode.plugin.actions.AbstractAction;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
@@ -21,6 +22,8 @@ public class PickAction extends AbstractAction {
             return;
         }
         JBScrollPane scrollPane = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_SCROLL);
-        ViewManager.pick(tree, scrollPane);
+        ApplicationManager.getApplication().invokeAndWait(() -> {
+            ViewManager.pick(tree, scrollPane);
+        });
     }
 }
