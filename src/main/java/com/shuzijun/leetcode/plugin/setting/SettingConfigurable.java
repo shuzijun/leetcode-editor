@@ -45,7 +45,6 @@ public class SettingConfigurable implements SearchableConfigurable {
     @Override
     public JComponent createComponent() {
         mainPanel = new SettingUI();
-        mainPanel.createUI();
         return mainPanel.getContentPane();
     }
 
@@ -69,4 +68,5 @@ public class SettingConfigurable implements SearchableConfigurable {
         mainPanel.disposeUIResources();
         mainPanel = null;
     }
+
 }

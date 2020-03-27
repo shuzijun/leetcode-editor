@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import java.awt.*;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
@@ -27,7 +28,9 @@ public class SubmissionsPanel extends DialogWrapper {
 
     public SubmissionsPanel(@Nullable Project project, TableModel tableModel) {
         super(project, true);
-        jpanel = new JBPanel();
+        jpanel = new JBPanel(new BorderLayout());
+        jpanel.setMinimumSize(new Dimension(400, 400));
+        jpanel.setPreferredSize(new Dimension(400, 400));
         table = new JBTable(tableModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
@@ -38,7 +41,7 @@ public class SubmissionsPanel extends DialogWrapper {
         table.getColumnModel().getColumn(2).setPreferredWidth(100);
         table.getColumnModel().getColumn(3).setPreferredWidth(200);
         table.getColumnModel().getColumn(4).setPreferredWidth(100);
-        jpanel.add(new JBScrollPane(table, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+        jpanel.add(new JBScrollPane(table, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER),  BorderLayout.CENTER);
 
         setModal(true);
         init();
