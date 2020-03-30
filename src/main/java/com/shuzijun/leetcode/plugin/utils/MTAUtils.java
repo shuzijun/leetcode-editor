@@ -1,14 +1,12 @@
 package com.shuzijun.leetcode.plugin.utils;
 
+import com.intellij.ide.plugins.PluginManager;
+import com.intellij.openapi.extensions.PluginId;
+import com.intellij.openapi.util.SystemInfo;
 import com.shuzijun.leetcode.plugin.model.Config;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
+import com.shuzijun.leetcode.plugin.model.Constant;
+import com.shuzijun.leetcode.plugin.utils.io.HttpRequests;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.util.EntityUtils;
 
 import java.awt.*;
 import java.net.URI;
@@ -25,23 +23,10 @@ public class MTAUtils {
     private static String URL = "http://pingtcss.qq.com/pingd";
     private static String SID = "500676642";
     private static String SI = getI("s");
+    private static String version = null;
+    private static String userAgent = null;
 
     private static ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
-    private static final PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
-
-    public static CloseableHttpClient getHttpClient() {
-
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectionRequestTimeout(1000)
-                .setConnectTimeout(1000)
-                .setSocketTimeout(1000)
-                .build();
-
-        return HttpClients.custom()
-                .setDefaultRequestConfig(requestConfig)
-                .setConnectionManager(connManager)
-                .build();
-    }
 
     public static String getI(String prefix) {
         int[] b = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -59,17 +44,15 @@ public class MTAUtils {
     }
 
     public static void click(String actionsId, Config config) {
-        cachedThreadPool.execute(new ClickTask(getHttpClient(), config, actionsId));
+        cachedThreadPool.execute(new ClickTask(config, actionsId));
     }
 
     private static class ClickTask implements Runnable {
 
-        private CloseableHttpClient client;
         private Config config;
         private String actionsId;
 
-        public ClickTask(CloseableHttpClient client, Config config, String actionsId) {
-            this.client = client;
+        public ClickTask(Config config, String actionsId) {
             this.config = config;
             this.actionsId = actionsId;
         }
@@ -77,6 +60,19 @@ public class MTAUtils {
         @Override
         public void run() {
             try {
+                if (version == null) {
+                    version = PluginManager.getPlugin(PluginId.getId(Constant.PLUGIN_ID)).getVersion()
+                            .replace("v", "").replaceAll("-|_", ".");
+                }
+                if (userAgent == null) {
+                    if (SystemInfo.OS_NAME.toUpperCase().contains("MAC")) {
+                        userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36";
+                    } else if (SystemInfo.OS_NAME.toUpperCase().contains("LINUX")) {
+                        userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36";
+                    } else {
+                        userAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36";
+                    }
+                }
                 Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
                 Calendar calendar = Calendar.getInstance();
                 URI uri = new URIBuilder(URL)
@@ -89,7 +85,7 @@ public class MTAUtils {
                         .setParameter("rdm", "")
                         .setParameter("rurl", "")
                         .setParameter("rarg", "")
-                        .setParameter("adt", "")
+                        .setParameter("adt", version)
                         .setParameter("r2", SID)
                         .setParameter("scr", (int)screensize.getWidth() + "x" + (int)screensize.getHeight())
                         .setParameter("scl", Toolkit.getDefaultToolkit().getScreenResolution() + "-bit")
@@ -99,10 +95,8 @@ public class MTAUtils {
                         .setParameter("random", System.currentTimeMillis() + "")
                         .build();
 
-                HttpGet get = new HttpGet(uri);
+                HttpRequests.request(uri.toURL().toString()).userAgent(userAgent).tryConnect();
 
-                HttpResponse response = client.execute(get);
-                EntityUtils.consume(response.getEntity());
             } catch (Exception e) {
             }
         }

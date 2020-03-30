@@ -5,7 +5,6 @@ import com.intellij.ide.util.treeView.NodeRenderer;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import org.apache.commons.lang.StringUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -19,36 +18,22 @@ import java.io.IOException;
  */
 public class CustomTreeCellRenderer extends NodeRenderer {
 
-    private Color Level1 = new Color(92, 184, 92);
-    private Color Level2 = new Color(240, 173, 78);
-    private Color Level3 = new Color(217, 83, 79);
+    private static Color Level1 = new Color(92, 184, 92);
+    private static Color Level2 = new Color(240, 173, 78);
+    private static Color Level3 = new Color(217, 83, 79);
 
     public CustomTreeCellRenderer() {
+        loaColor();
+    }
+
+    public static void loaColor(){
         Config config = PersistentConfig.getInstance().getInitConfig();
         if (config != null) {
-            if (StringUtils.isNotBlank(config.getLevelColour())) {
-                String[] colors = config.getLevelColour().split(";");
-                if (colors.length > 0) {
-                    try {
-                        Level1 = new Color(Integer.parseInt(colors[0].replace("#",""), 16));
-                    } catch (Exception ignore) {
-                    }
-                }
-                if (colors.length > 1) {
-                    try {
-                        Level2 = new Color(Integer.parseInt(colors[1].replace("#",""), 16));
-                    } catch (Exception ignore) {
-                    }
-                }
-                if (colors.length > 2) {
-                    try {
-                        Level3 = new Color(Integer.parseInt(colors[2].replace("#",""), 16));
-                    } catch (Exception ignore) {
-                    }
-                }
-            }
+            Color[] colors = config.getFormatLevelColour();
+            Level1 = colors[0];
+            Level2 = colors[1];
+            Level3 = colors[2];
         }
-
     }
 
     public static BufferedImage getResourceBufferedImage(String filePath) {
@@ -70,7 +55,6 @@ public class CustomTreeCellRenderer extends NodeRenderer {
 
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
         Question question = (Question) node.getUserObject();
-
 
         if (question.getLevel() == null) {
 

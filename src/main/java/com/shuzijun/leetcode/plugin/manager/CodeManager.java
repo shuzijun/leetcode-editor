@@ -6,6 +6,9 @@ import com.google.common.base.Joiner;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -14,18 +17,15 @@ import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author shuzijun
  */
 public class CodeManager {
-
-    private static ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
 
     public static void openCode(Question question, Project project) {
         Config config = PersistentConfig.getInstance().getInitConfig();
@@ -173,7 +173,7 @@ public class CodeManager {
             if (response != null && response.getStatusCode() == 200) {
                 String body = response.getBody();
                 JSONObject returnObj = JSONObject.parseObject(body);
-                cachedThreadPool.execute(new SubmitCheckTask(returnObj, codeTypeEnum, question, project));
+                ProgressManager.getInstance().run(new SubmitCheckTask(returnObj, codeTypeEnum, question, project));
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
             } else if (response != null && response.getStatusCode() == 429) {
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
@@ -218,7 +218,7 @@ public class CodeManager {
 
                 String body = response.getBody();
                 JSONObject returnObj = JSONObject.parseObject(body);
-                cachedThreadPool.execute(new RunCodeCheckTask(returnObj, project));
+                ProgressManager.getInstance().run(new RunCodeCheckTask(returnObj, project));
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
             } else {
                 LogUtils.LOG.error("RuncodeCode failure " + response.getBody());
@@ -336,7 +336,7 @@ public class CodeManager {
         return sb.toString();
     }
 
-    private static class SubmitCheckTask implements Runnable {
+    private static class SubmitCheckTask extends Task.Backgroundable {
 
         private Question question;
         private JSONObject returnObj;
@@ -344,6 +344,7 @@ public class CodeManager {
         private Project project;
 
         public SubmitCheckTask(JSONObject returnObj, CodeTypeEnum codeTypeEnum, Question question, Project project) {
+            super(project,"leetcode.editor.submitCheckTask",true);
             this.returnObj = returnObj;
             this.codeTypeEnum = codeTypeEnum;
             this.question = question;
@@ -351,9 +352,13 @@ public class CodeManager {
         }
 
         @Override
-        public void run() {
+        public void run(@NotNull ProgressIndicator progressIndicator) {
             String key = returnObj.getString("submission_id");
             for (int i = 0; i < 50; i++) {
+                if(progressIndicator.isCanceled()){
+                    MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.cancel"));
+                    return;
+                }
                 try {
                     HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeSubmissions() + key + "/check/");
                     HttpResponse response = HttpRequestUtils.executeGet(httpRequest);
@@ -424,22 +429,27 @@ public class CodeManager {
     }
 
 
-    private static class RunCodeCheckTask implements Runnable {
+    private static class RunCodeCheckTask extends Task.Backgroundable  {
         private JSONObject returnObj;
         private Project project;
 
         public RunCodeCheckTask(JSONObject returnObj, Project project) {
+            super(project,"leetcode.editor.runCodeCheckTask",true);
             this.returnObj = returnObj;
             this.project = project;
         }
 
         @Override
-        public void run() {
+        public void run(@NotNull ProgressIndicator progressIndicator) {
             String key = returnObj.getString("interpret_expected_id");
             if (StringUtils.isBlank(key)) {
                 key = returnObj.getString("interpret_id");
             }
             for (int i = 0; i < 50; i++) {
+                if(progressIndicator.isCanceled()){
+                    MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.cancel"));
+                    return;
+                }
                 String body = null;
                 try {
                     HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeSubmissions() + key + "/check/");

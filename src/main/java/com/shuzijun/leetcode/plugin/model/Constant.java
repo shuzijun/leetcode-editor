@@ -72,4 +72,9 @@ public class Constant {
     public static final Integer PLUGIN_CONFIG_VERSION_1 = 1;
     //第二版本，不兼容之前的临时目录，从此版本开始更换新临时目录
     public static final Integer PLUGIN_CONFIG_VERSION_2 = 2;
+
+    /**
+     * 默认题目颜色
+     */
+    public static final String LEVEL_COLOUR = "#5CB85C;#F0AD4E;#D9534F";
 }

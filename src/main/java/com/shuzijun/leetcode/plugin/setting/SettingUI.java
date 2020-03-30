@@ -11,14 +11,16 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
+import com.shuzijun.leetcode.plugin.listener.ColorListener;
 import com.shuzijun.leetcode.plugin.listener.DonateListener;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
+import com.shuzijun.leetcode.plugin.renderer.CustomTreeCellRenderer;
+import com.shuzijun.leetcode.plugin.timer.TimerBarWidget;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -33,152 +35,117 @@ import java.io.File;
 /**
  * @author shuzijun
  */
-public class SettingUI extends JDialog {
+public class SettingUI {
+    private JPanel mainPanel;
+    private JComboBox webComboBox;
+    private JComboBox codeComboBox;
+    private JBTextField userNameField;
+    private JBPasswordField passwordField;
+    private JLabel easyLabel;
+    private JLabel mediumLabel;
+    private JLabel hardLabel;
+    private TextFieldWithBrowseButton fileFolderBtn;
+    private JTextField JCEFFileField;
+    private JCheckBox customCodeBox;
+    private JCheckBox updateCheckBox;
+    private JCheckBox proxyCheckBox;
+    private JCheckBox englishContentBox;
 
-    public JPanel mainPanel = new JBPanel();
+    private JLabel templateConfigHelp;
+    private JPanel codeFileName;
+    private JPanel codeTemplate;
+    private JPanel templateConstant;
 
-    private JTextField userNameField = new JBTextField(10);
-    private JPasswordField passwordField = new JBPasswordField();
-    private TextFieldWithBrowseButton fileFolderBtn = new TextFieldWithBrowseButton();
-    private JTextField LevelColourField = new JBTextField(20);
-
-    private JComboBox webComboBox = new JComboBox();
-    private JComboBox codeComboBox = new JComboBox();
-    private JCheckBox customCodeBox = new JCheckBox("Custom code template");
-    private JCheckBox updateCheckBox = new JCheckBox("Check plugin update");
-    private JCheckBox proxyCheckBox = new JCheckBox("proxy(HTTP Proxy)");
-    private JCheckBox englishContentBox = new JCheckBox("English Content");
 
     private Editor fileNameEditor = null;
     private Editor templateEditor = null;
     private Editor templateHelpEditor = null;
 
+
     public SettingUI() {
-        setContentPane(mainPanel);
+        initUI();
     }
 
-    public void createUI() {
-
-        GridBagLayout giGridBagLayout = new GridBagLayout();
-        GridBagConstraints constraints = new GridBagConstraints();
-
-        mainPanel.setLayout(giGridBagLayout);
-
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = new Insets(5, 5, 5, 5);
-
-        addComponent(new JLabel("URL:"), constraints, 0, 0, 0, 0);
+    public void initUI() {
 
         webComboBox.addItem(URLUtils.leetcodecn);
         webComboBox.addItem(URLUtils.leetcode);
-        webComboBox.setSelectedIndex(0);
-        addComponent(webComboBox, constraints, 1, 0, 2, 0);
-
-        addComponent(new JLabel("Code Type:"), constraints, 3, 0, 3, 0);
 
         for (CodeTypeEnum c : CodeTypeEnum.values()) {
             codeComboBox.addItem(c.getType());
         }
-        codeComboBox.setSelectedIndex(0);
-        addComponent(codeComboBox, constraints, 4, 0, 5, 0);
+        easyLabel.addMouseListener(new ColorListener(mainPanel, easyLabel));
+        mediumLabel.addMouseListener(new ColorListener(mainPanel, mediumLabel));
+        hardLabel.addMouseListener(new ColorListener(mainPanel, hardLabel));
 
-        updateCheckBox.setSelected(true);
-        addComponent(updateCheckBox, constraints, 6, 0, 6, 0);
-
-
-        addComponent(new JLabel("LoginName:"), constraints, 0, 1, 0, 1);
-
-        addComponent(userNameField, constraints, 1, 1, 2, 1);
-
-        addComponent(new JLabel("Password:"), constraints, 3, 1, 3, 1);
-
-        addComponent(passwordField, constraints, 4, 1, 5, 1);
-
-        proxyCheckBox.setSelected(false);
-        proxyCheckBox.setToolTipText("Employ File | Settings | Appearance & Behavior | System Settings | HTTP Proxy");
-        proxyCheckBox.setEnabled(false);
-        addComponent(proxyCheckBox, constraints, 6, 1, 7, 1);
-
-        addComponent(new JLabel("TempFilePath:"), constraints, 0, 2, 0, 2);
-
-        //fileFolderBtn.setTextFieldPreferredWidth(45);
-        fileFolderBtn.setText(System.getProperty("java.io.tmpdir"));
         fileFolderBtn.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrFolderDescriptor()) {
         });
 
-        addComponent(fileFolderBtn, constraints, 1, 2, 5, 2);
+        JCEFFileField.setText(PathManager.getPluginsPath() + File.separator + "leetcode-editor" + File.separator + "natives" + File.separator);
 
-        customCodeBox.setSelected(false);
-        addComponent(customCodeBox, constraints, 6, 2, 7, 2);
+        customCodeBox.addActionListener(new DonateListener(customCodeBox));
 
-        addComponent(new JLabel("JCEFFilePath:"), constraints, 0, 3, 0, 3);
-        addComponent(new JLabel(PathManager.getPluginsPath() + File.separator + "leetcode-editor" + File.separator + "natives" + File.separator), constraints, 1, 3, 5, 3);
-
-        addComponent(new JLabel("LevelColour:"), constraints, 0, 4, 0, 4);
-        addComponent(LevelColourField, constraints, 1, 4, 5, 4);
-
-        englishContentBox.setSelected(false);
-        addComponent(englishContentBox, constraints, 6, 3, 7, 3);
-
-        JLabel templateConfigHelp = new JLabel("CustomConfig(help)");
         templateConfigHelp.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 BrowserUtil.browse("https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md");
             }
         });
-        templateConfigHelp.setForeground(new Color(88, 157, 246));
-        addComponent(templateConfigHelp, constraints, 0, 5, 0, 5);
-        addComponent(new JSeparator(), constraints, 1, 5, 8, 5);
-
-        addComponent(new JLabel("CodeFileName:"), constraints, 0, 6, 0, 6);
 
         fileNameEditor = EditorFactory.getInstance().createEditor(EditorFactory.getInstance().createDocument(""), null, FileTypeManager.getInstance().getFileTypeByExtension("vm"), false);
         EditorSettings settings = fileNameEditor.getSettings();
         ((EditorImpl) fileNameEditor).setOneLineMode(true);
+        //额外的行
+        settings.setAdditionalLinesCount(0);
+        //额外的列
+        settings.setAdditionalColumnsCount(0);
+        settings.setCaretRowShown(false);
+        //折叠大纲
+        settings.setFoldingOutlineShown(false);
+        //缩进
+        settings.setIndentGuidesShown(false);
+        //线性标记区域
+        settings.setLineMarkerAreaShown(false);
+        //行号
+        settings.setLineNumbersShown(false);
+        //虚拟空间
+        settings.setVirtualSpace(false);
+        //允许单逻辑行折叠
+        settings.setAllowSingleLogicalLineFolding(false);
+        //滚动
+        settings.setAnimatedScrolling(false);
+        //底部附加
+        settings.setAdditionalPageAtBottom(false);
+        //代码自动折叠
+        settings.setAutoCodeFoldingEnabled(false);
+        codeFileName.add(fileNameEditor.getComponent(), BorderLayout.CENTER);
 
-        settings.setAdditionalLinesCount(0); //额外的行
-        settings.setAdditionalColumnsCount(0); //额外的列
-        settings.setCaretRowShown(false); //
-        settings.setFoldingOutlineShown(false); //折叠大纲
-        settings.setIndentGuidesShown(false); //缩进
-        settings.setLineMarkerAreaShown(false); //线性标记区域
-        settings.setLineNumbersShown(false); //行号
-        settings.setVirtualSpace(false); //虚拟空间
-        settings.setAllowSingleLogicalLineFolding(false);//允许单逻辑行折叠
-        settings.setAnimatedScrolling(false); //滚动
-        settings.setAdditionalPageAtBottom(false); //底部附加
-        settings.setAutoCodeFoldingEnabled(false); //代码自动折叠
-
-        addComponent(fileNameEditor.getComponent(), constraints, 1, 6, 8, 6);
-
-        constraints.anchor = GridBagConstraints.NORTHWEST;
-        addComponent(new JLabel("CodeTemplate:"), constraints, 0, 7, 0, 7);
 
         templateEditor = EditorFactory.getInstance().createEditor(EditorFactory.getInstance().createDocument(""), null, FileTypeManager.getInstance().getFileTypeByExtension("vm"), false);
         EditorSettings templateEditorSettings = templateEditor.getSettings();
-        templateEditorSettings.setAdditionalLinesCount(0); //额外的行
-        templateEditorSettings.setAdditionalColumnsCount(0); //额外的列
-        templateEditorSettings.setLineMarkerAreaShown(false); //线性标记区域
-        templateEditorSettings.setVirtualSpace(false); //虚拟空间
+        templateEditorSettings.setAdditionalLinesCount(0);
+        templateEditorSettings.setAdditionalColumnsCount(0);
+        templateEditorSettings.setLineMarkerAreaShown(false);
+        templateEditorSettings.setVirtualSpace(false);
         JBScrollPane jbScrollPane = new JBScrollPane(templateEditor.getComponent());
-        jbScrollPane.setMaximumSize(new Dimension(150, 50));
-        addComponent(jbScrollPane, constraints, 1, 7, 8, 7);
-
-
-        addComponent(new JLabel("TemplateConstant:"), constraints, 0, 8, 0, 8);
+        codeTemplate.add(jbScrollPane, BorderLayout.CENTER);
 
         templateHelpEditor = EditorFactory.getInstance().createEditor(EditorFactory.getInstance().createDocument(PropertiesUtils.getInfo("template.variable", "{", "}")), null, FileTypeManager.getInstance().getFileTypeByExtension("vm"), true);
-
         EditorSettings templateHelpEditorSettings = templateHelpEditor.getSettings();
-        templateHelpEditorSettings.setAdditionalLinesCount(0); //额外的行
-        templateHelpEditorSettings.setAdditionalColumnsCount(0); //额外的列
-        templateHelpEditorSettings.setLineMarkerAreaShown(false); //线性标记区域
-        templateHelpEditorSettings.setLineNumbersShown(false); //行号
-        templateHelpEditorSettings.setVirtualSpace(false); //虚拟空间
+        templateHelpEditorSettings.setAdditionalLinesCount(0);
+        templateHelpEditorSettings.setAdditionalColumnsCount(0);
+        templateHelpEditorSettings.setLineMarkerAreaShown(false);
+        templateHelpEditorSettings.setLineNumbersShown(false);
+        templateHelpEditorSettings.setVirtualSpace(false);
+        templateConstant.add(templateHelpEditor.getComponent(), BorderLayout.CENTER);
 
-        addComponent(templateHelpEditor.getComponent(), constraints, 1, 8, 8, 8);
+        loadSetting();
+    }
 
+    private void loadSetting() {
+        webComboBox.setSelectedIndex(0);
+        codeComboBox.setSelectedIndex(0);
+        fileFolderBtn.setText(System.getProperty("java.io.tmpdir"));
 
         Config config = PersistentConfig.getInstance().getInitConfig();
         if (config != null) {
@@ -194,37 +161,53 @@ public class SettingUI extends JDialog {
                 webComboBox.setSelectedItem(config.getUrl());
             }
             updateCheckBox.setSelected(config.getUpdate());
-            //proxyCheckBox.setSelected(config.getProxy());
             customCodeBox.setSelected(config.getCustomCode());
             ApplicationManager.getApplication().runWriteAction(() -> {
                 fileNameEditor.getDocument().setText(config.getCustomFileName());
                 templateEditor.getDocument().setText(config.getCustomTemplate());
             });
-            LevelColourField.setText(config.getLevelColour());
             englishContentBox.setSelected(config.getEnglishContent());
+
+            Color[] colors = config.getFormatLevelColour();
+            easyLabel.setForeground(colors[0]);
+            mediumLabel.setForeground(colors[1]);
+            hardLabel.setForeground(colors[2]);
+
         } else {
-            LevelColourField.setText(new Config().getLevelColour());
+            Color[] colors = new Config().getFormatLevelColour();
+            easyLabel.setForeground(colors[0]);
+            mediumLabel.setForeground(colors[1]);
+            hardLabel.setForeground(colors[2]);
             ApplicationManager.getApplication().runWriteAction(() -> {
                 fileNameEditor.getDocument().setText(Constant.CUSTOM_FILE_NAME);
                 templateEditor.getDocument().setText(Constant.CUSTOM_TEMPLATE);
             });
         }
-        customCodeBox.addActionListener(new DonateListener(customCodeBox));
+
+
     }
 
-    private void addComponent(Component component, GridBagConstraints constraints, int x, int y, int ex, int ey) {
-        constraints.gridx = x;
-        constraints.gridy = y;
-        constraints.gridwidth = ex - x + 1;
-        constraints.gridheight = ey - y + 1;
-        constraints.weightx = (ex - x + 1) * 0.1;
-        constraints.weighty = (ey - y + 1) * 0.1;
-        mainPanel.add(component, constraints);
+    public JPanel getContentPane() {
+        return mainPanel;
     }
 
     public boolean isModified() {
-        boolean modified = true;
-        return modified;
+        Config config = PersistentConfig.getInstance().getInitConfig();
+        if (config == null) {
+            return true;
+        } else {
+            Config currentState = new Config();
+            process(currentState);
+            if (currentState.isModified(config)) {
+                if (passwordField.getText() != null && passwordField.getText().equals(PersistentConfig.getInstance().getPassword())) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        }
     }
 
     public void apply() {
@@ -233,33 +216,34 @@ public class SettingUI extends JDialog {
             config = new Config();
             config.setId(MTAUtils.getI(""));
         }
-        config.setVersion(Constant.PLUGIN_CONFIG_VERSION_2);
-        config.setLoginName(userNameField.getText());
-        config.setFilePath(fileFolderBtn.getText());
-        config.setCodeType(codeComboBox.getSelectedItem().toString());
-        config.setUrl(webComboBox.getSelectedItem().toString());
-        config.setUpdate(updateCheckBox.isSelected());
-        //config.setProxy(proxyCheckBox.isSelected());
-        config.setCustomCode(customCodeBox.isSelected());
-        config.setCustomFileName(fileNameEditor.getDocument().getText());
-        config.setCustomTemplate(templateEditor.getDocument().getText());
-        config.setLevelColour(LevelColourField.getText());
-        config.setEnglishContent(englishContentBox.isSelected());
+        process(config);
         File file = new File(config.getFilePath() + File.separator + PersistentConfig.PATH + File.separator);
         if (!file.exists()) {
             file.mkdirs();
         }
         PersistentConfig.getInstance().setInitConfig(config);
         PersistentConfig.getInstance().savePassword(passwordField.getText());
+        CustomTreeCellRenderer.loaColor();
+        TimerBarWidget.loaColor();
     }
+
+    public void process(Config config) {
+        config.setVersion(Constant.PLUGIN_CONFIG_VERSION_2);
+        config.setLoginName(userNameField.getText());
+        config.setFilePath(fileFolderBtn.getText());
+        config.setCodeType(codeComboBox.getSelectedItem().toString());
+        config.setUrl(webComboBox.getSelectedItem().toString());
+        config.setUpdate(updateCheckBox.isSelected());
+        config.setCustomCode(customCodeBox.isSelected());
+        config.setCustomFileName(fileNameEditor.getDocument().getText());
+        config.setCustomTemplate(templateEditor.getDocument().getText());
+        config.setFormatLevelColour(easyLabel.getForeground(), mediumLabel.getForeground(), hardLabel.getForeground());
+        config.setEnglishContent(englishContentBox.isSelected());
+    }
+
 
     public void reset() {
-
-    }
-
-    @Override
-    public JPanel getContentPane() {
-        return mainPanel;
+        loadSetting();
     }
 
     public void disposeUIResources() {
@@ -276,6 +260,5 @@ public class SettingUI extends JDialog {
             this.templateHelpEditor = null;
         }
     }
-
 
 }

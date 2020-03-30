@@ -2,6 +2,7 @@ package com.shuzijun.leetcode.plugin.model;
 
 import com.intellij.util.xmlb.annotations.Transient;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -82,7 +83,7 @@ public class Config {
     /**
      * 题目颜色
      */
-    private String levelColour = "#5CB85C;#F0AD4E;#D9534F";
+    private String levelColour = Constant.LEVEL_COLOUR;
 
     private List<String> favoriteList;
 
@@ -232,8 +233,57 @@ public class Config {
     public String getLevelColour() {
         return levelColour;
     }
+    @Transient
+    public Color[] getFormatLevelColour() {
+        Color[] formatColors = new Color[3];
+        formatColors[0] = new Color(92, 184, 92);
+        formatColors[1] = new Color(240, 173, 78);
+        formatColors[2] = new Color(217, 83, 79);
+        String[] colors = getLevelColour().split(";");
+        if (colors.length > 0) {
+            try {
+                formatColors[0] = new Color(Integer.parseInt(colors[0].replace("#", ""), 16));
+            } catch (Exception ignore) {
+            }
+        }
+        if (colors.length > 1) {
+            try {
+                formatColors[1] = new Color(Integer.parseInt(colors[1].replace("#", ""), 16));
+            } catch (Exception ignore) {
+            }
+        }
+        if (colors.length > 2) {
+            try {
+                formatColors[2] = new Color(Integer.parseInt(colors[2].replace("#", ""), 16));
+            } catch (Exception ignore) {
+            }
+        }
+        return formatColors;
+    }
 
     public void setLevelColour(String levelColour) {
+        if(levelColour ==null || levelColour.isEmpty()){
+            this.levelColour = Constant.LEVEL_COLOUR;
+        }else {
+            this.levelColour = levelColour;
+        }
+    }
+
+    @Transient
+    public void setFormatLevelColour(Color... colors) {
+        String levelColour = "";
+        if (colors != null && colors.length > 0) {
+            for (Color color : colors) {
+                String R = Integer.toHexString(color.getRed());
+                R = R.length() < 2 ? ('0' + R) : R;
+                String G = Integer.toHexString(color.getGreen());
+                G = G.length() < 2 ? ('0' + G) : G;
+                String B = Integer.toHexString(color.getBlue());
+                B = B.length() < 2 ? ('0' + B) : B;
+
+                levelColour = levelColour + '#' + R + G + B + ";";
+            }
+        }
         this.levelColour = levelColour;
     }
 
@@ -244,4 +294,28 @@ public class Config {
     public void setEnglishContent(Boolean englishContent) {
         this.englishContent = englishContent;
     }
+
+
+    public boolean isModified(Config config){
+        if(config ==null){
+            return false;
+        }
+        if (version != null ? !version.equals(config.version) : config.version != null) return false;
+        if (loginName != null ? !loginName.equals(config.loginName) : config.loginName != null) return false;
+        if (filePath != null ? !filePath.equals(config.filePath) : config.filePath != null) return false;
+        if (codeType != null ? !codeType.equals(config.codeType) : config.codeType != null) return false;
+        if (url != null ? !url.equals(config.url) : config.url != null) return false;
+        if (update != null ? !update.equals(config.update) : config.update != null) return false;
+        if (proxy != null ? !proxy.equals(config.proxy) : config.proxy != null) return false;
+        if (customCode != null ? !customCode.equals(config.customCode) : config.customCode != null) return false;
+        if (englishContent != null ? !englishContent.equals(config.englishContent) : config.englishContent != null)
+            return false;
+        if (customFileName != null ? !customFileName.equals(config.customFileName) : config.customFileName != null)
+            return false;
+        if (customTemplate != null ? !customTemplate.equals(config.customTemplate) : config.customTemplate != null)
+            return false;
+        return levelColour != null ? levelColour.equals(config.levelColour) : config.levelColour == null;
+    }
+
+
 }
