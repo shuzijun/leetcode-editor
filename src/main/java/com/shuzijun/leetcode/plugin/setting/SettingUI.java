@@ -20,6 +20,7 @@ import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.renderer.CustomTreeCellRenderer;
+import com.shuzijun.leetcode.plugin.timer.TimerBarWidget;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -223,6 +224,7 @@ public class SettingUI {
         PersistentConfig.getInstance().setInitConfig(config);
         PersistentConfig.getInstance().savePassword(passwordField.getText());
         CustomTreeCellRenderer.loaColor();
+        TimerBarWidget.loaColor();
     }
 
     public void process(Config config) {

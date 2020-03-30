@@ -29,12 +29,22 @@ public class TimerBarWidget implements CustomStatusBarWidget {
     private Project project;
 
 
-    private Color Level1 = new Color(92, 184, 92);
-    private Color Level2 = new Color(240, 173, 78);
-    private Color Level3 = new Color(217, 83, 79);
+    private static Color Level1 = new Color(92, 184, 92);
+    private static Color Level2 = new Color(240, 173, 78);
+    private static Color Level3 = new Color(217, 83, 79);
 
     public TimerBarWidget(Project project) {
         this.project = project;
+        loaColor();
+    }
+    public static void loaColor(){
+        Config config = PersistentConfig.getInstance().getInitConfig();
+        if (config != null) {
+            Color[] colors = config.getFormatLevelColour();
+            Level1 = colors[0];
+            Level2 = colors[1];
+            Level3 = colors[2];
+        }
     }
 
     private JLabel label = new JLabel(time());
