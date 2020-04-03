@@ -51,6 +51,20 @@ public class HttpRequestUtils {
         return httpResponse;
     }
 
+    public static HttpResponse executePut(HttpRequest httpRequest) {
+        HttpResponse httpResponse = new HttpResponse();
+        try {
+            HttpRequests.put(httpRequest.getUrl(), httpRequest.getContentType())
+                    .throwStatusCodeException(false)
+                    .tuner(new HttpRequestTuner(httpRequest))
+                    .connect(new HttpResponseProcessor(httpRequest, httpResponse));
+        } catch (IOException e) {
+            LogUtils.LOG.error("HttpRequestUtils request error:", e);
+            httpResponse.setStatusCode(-1);
+        }
+        return httpResponse;
+    }
+
     public static String getToken() {
         if (cookieManager.getCookieStore().getCookies() == null) {
             return null;

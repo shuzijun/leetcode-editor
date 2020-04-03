@@ -357,6 +357,10 @@
         <action id="leetcode.FindAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindAction"
                 text="Find question" description="Refreshquestion" icon="AllIcons.Actions.Find">
         </action>
+        <action id="leetcode.ProgressAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.ProgressAction"
+                text="Progress" description="Progress" icon="AllIcons.Diff.Compare4LeftBottom">
+        </action>
+
         <action id="leetcode.ConfigAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.ConfigAction"
                 text="Settings" description="Settings" icon="AllIcons.General.GearPlain">
         </action>
@@ -415,6 +419,7 @@
             <reference id="leetcode.PickAction"/>
             <reference id="leetcode.FindAction"/>
             <reference id="leetcode.CollapseAction"/>
+            <reference id="leetcode.ProgressAction"/>
             <separator/>
             <reference id="leetcode.ConfigAction"/>
             <reference id="leetcode.ClearAllAction"/>

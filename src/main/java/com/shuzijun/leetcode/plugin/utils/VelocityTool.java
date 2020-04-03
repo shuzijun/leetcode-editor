@@ -1,6 +1,6 @@
 package com.shuzijun.leetcode.plugin.utils;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author shuzijun
