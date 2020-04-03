@@ -5,6 +5,9 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.TransactionGuard;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -12,6 +15,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ExceptionUtil;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Constant;
+import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
+import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
@@ -246,5 +252,22 @@ public class FileUtils {
         }
     }
 
+    public static void openFileEditor(File file, Project project){
+        ApplicationManager.getApplication().invokeAndWait(()->{
+            VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+            OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
+            FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+        });
+    }
+
+    public static void openFileEditorAndSaveState(File file, Project project, Question question){
+        ApplicationManager.getApplication().invokeAndWait(()->{
+            VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+            OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
+            FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+            LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(vf.getPath());
+            leetcodeEditor.setQuestionId(question.getQuestionId());
+        });
+    }
 
 }

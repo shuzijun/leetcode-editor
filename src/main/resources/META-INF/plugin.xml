@@ -357,6 +357,10 @@
         <action id="leetcode.FindAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindAction"
                 text="Find question" description="Refreshquestion" icon="AllIcons.Actions.Find">
         </action>
+        <action id="leetcode.ProgressAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.ProgressAction"
+                text="Progress" description="Progress" icon="AllIcons.Diff.Compare4LeftBottom">
+        </action>
+
         <action id="leetcode.ConfigAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.ConfigAction"
                 text="Settings" description="Settings" icon="AllIcons.General.GearPlain">
         </action>
@@ -377,6 +381,9 @@
 
         <action id="leetcode.OpenContentAction" class="com.shuzijun.leetcode.plugin.actions.tree.OpenContentAction"
                 text="open content" description="open content" icon="AllIcons.FileTypes.UiForm">
+        </action>
+        <action id="leetcode.OpenSolutionAction" class="com.shuzijun.leetcode.plugin.actions.tree.OpenSolutionAction"
+                text="open solution" description="open solution" icon="AllIcons.Actions.IntentionBulbGrey">
         </action>
 
 
@@ -412,6 +419,7 @@
             <reference id="leetcode.PickAction"/>
             <reference id="leetcode.FindAction"/>
             <reference id="leetcode.CollapseAction"/>
+            <reference id="leetcode.ProgressAction"/>
             <separator/>
             <reference id="leetcode.ConfigAction"/>
             <reference id="leetcode.ClearAllAction"/>
@@ -421,6 +429,7 @@
         <group id="leetcode.NavigatorActionsMenu">
             <reference id="leetcode.OpenAction"/>
             <reference id="leetcode.OpenContentAction"/>
+            <reference id="leetcode.OpenSolutionAction"/>
             <reference id="leetcode.OpenInWebAction"/>
             <separator/>
             <reference id="leetcode.SubmitAction"/>
@@ -495,7 +504,9 @@
                     class="com.shuzijun.leetcode.plugin.actions.editor.OpenContentAction"
                     text="open content" description="open content(editor)" icon="AllIcons.FileTypes.UiForm">
             </action>
-
+            <action id="leetcode.editor.OpenSolutionAction" class="com.shuzijun.leetcode.plugin.actions.editor.OpenSolutionAction"
+                    text="open solution" description="open solution" icon="AllIcons.Actions.IntentionBulbGrey">
+            </action>
             <action id="leetcode.editor.OpenInWebAction"
                     class="com.shuzijun.leetcode.plugin.actions.editor.OpenInWebAction"
                     text="open in web" description="open in web(editor)" icon="AllIcons.Actions.MoveTo2">

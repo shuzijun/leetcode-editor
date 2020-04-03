@@ -27,6 +27,10 @@ public class HttpRequest {
         return new HttpRequest(url, contentType);
     }
 
+    public static HttpRequest put(String url, String contentType) {
+        return new HttpRequest(url, contentType);
+    }
+
     private HttpRequest(String url, String contentType) {
         this.url = url;
         this.contentType = contentType;

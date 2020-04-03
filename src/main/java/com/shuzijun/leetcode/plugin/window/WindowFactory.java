@@ -9,6 +9,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.shuzijun.leetcode.plugin.listener.UpdatePluginListener;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -35,6 +36,15 @@ public class WindowFactory implements ToolWindowFactory {
         ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
         DataContext dataContext = DataManager.getInstance().getDataContext(leetcodeToolWindows.getContentManager().getContent(0).getComponent());
         return dataContext;
+    }
+
+    public static void updateTitle(@NotNull Project project, String userName) {
+        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
+        if (StringUtils.isNotBlank(userName)) {
+            leetcodeToolWindows.setTitle("[" + userName + "]");
+        } else {
+            leetcodeToolWindows.setTitle("");
+        }
     }
 
 }

@@ -77,4 +77,12 @@ public class Constant {
      * 默认题目颜色
      */
     public static final String LEVEL_COLOUR = "#5CB85C;#F0AD4E;#D9534F";
+
+    /**
+     * 文章类型
+     */
+    public static final Integer ARTICLE_LIVE_NONE = 0;
+    public static final Integer ARTICLE_LIVE_ONE = 1;
+    public static final Integer ARTICLE_LIVE_LIST = 2;
+
 }

@@ -35,7 +35,7 @@ public class ViewManager {
     private static boolean intersection = Boolean.FALSE;
 
     public static void loadServiceData(JTree tree, Project project) {
-        List<Question> questionList = QuestionManager.getQuestionService();
+        List<Question> questionList = QuestionManager.getQuestionService(project);
         if (questionList == null || questionList.isEmpty()) {
             MessageUtils.getInstance(project).showWarnMsg("warning", PropertiesUtils.getInfo("response.cache"));
             questionList = QuestionManager.getQuestionCache();

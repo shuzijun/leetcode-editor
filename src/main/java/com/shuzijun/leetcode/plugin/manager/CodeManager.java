@@ -3,18 +3,15 @@ package com.shuzijun.leetcode.plugin.manager;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Joiner;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
+import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.model.Constant;
+import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -44,25 +41,13 @@ public class CodeManager {
 
         File file = new File(filePath);
         if (file.exists()) {
-            ApplicationManager.getApplication().invokeAndWait(()->{
-                VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-                OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
-                FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
-                LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(vf.getPath());
-                leetcodeEditor.setQuestionId(question.getQuestionId());
-            });
+            FileUtils.openFileEditorAndSaveState(file,project,question);
         } else {
 
             if (getQuestion(question, codeTypeEnum, project)) {
                 question.setContent(CommentUtils.createComment(question.getContent(), codeTypeEnum));
                 FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
-                ApplicationManager.getApplication().invokeAndWait(() -> {
-                    VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-                    OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
-                    FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
-                    LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(vf.getPath());
-                    leetcodeEditor.setQuestionId(question.getQuestionId());
-                });
+                FileUtils.openFileEditorAndSaveState(file,project,question);
             }
         }
     }
@@ -85,20 +70,11 @@ public class CodeManager {
 
         File file = new File(filePath);
         if (file.exists()) {
-            ApplicationManager.getApplication().invokeAndWait(() -> {
-                VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-                OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
-                FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
-            });
+            FileUtils.openFileEditor(file,project);
         } else {
             if (getQuestion(question, codeTypeEnum, project)) {
-                ApplicationManager.getApplication().invokeAndWait(() -> {
-                    FileUtils.saveFile(file, question.getContent());
-
-                    VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-                    OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
-                    FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
-                });
+                FileUtils.saveFile(file, question.getContent());
+                FileUtils.openFileEditor(file,project);
             }
 
         }

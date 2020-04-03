@@ -7,11 +7,14 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimaps;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
+import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
@@ -29,13 +32,17 @@ public class QuestionManager {
     private final static String TRANSLATIONNAME = "translation.json";
 
 
-    public static List<Question> getQuestionService() {
+    public static List<Question> getQuestionService(Project project) {
         List<Question> questionList = null;
 
         HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeAll());
         HttpResponse response = HttpRequestUtils.executeGet(httpRequest);
         if (response != null && response.getStatusCode() == 200) {
             questionList = parseQuestion(response.getBody());
+            JSONObject jsonObject = JSONObject.parseObject(response.getBody());
+            ApplicationManager.getApplication().invokeAndWait(() -> {
+                WindowFactory.updateTitle(project, jsonObject.getString("user_name"));
+            });
         } else {
             LogUtils.LOG.error("Request question list failed, status:" + response == null ? "" : response.getStatusCode());
         }
@@ -194,6 +201,22 @@ public class QuestionManager {
                 }
                 question.setTitleSlug(object.getJSONObject("stat").getString("question__title_slug"));
                 question.setLevel(object.getJSONObject("difficulty").getInteger("level"));
+                try {
+                    if(object.getJSONObject("stat").containsKey("question__article__live")) {
+                        if (object.getJSONObject("stat").get("question__article__live") == null
+                                || !object.getJSONObject("stat").getBoolean("question__article__live")) {
+                            question.setArticleLive(Constant.ARTICLE_LIVE_NONE);
+                        } else {
+                            question.setArticleLive(Constant.ARTICLE_LIVE_ONE);
+                            question.setArticleSlug(object.getJSONObject("stat").getString("question__title_slug"));
+                        }
+                    }else {
+                        question.setArticleLive(Constant.ARTICLE_LIVE_LIST);
+                    }
+                }catch (Exception e){
+                    LogUtils.LOG.error("Identify abnormal article", e);
+                    question.setArticleLive(Constant.ARTICLE_LIVE_NONE);
+                }
                 questionList.add(question);
             }
 
@@ -223,7 +246,7 @@ public class QuestionManager {
 
     private static void translation(List<Question> questions) {
 
-        if (URLUtils.getQuestionTranslation()) {
+        if (URLUtils.isCn()) {
 
             String filePathTranslation = PersistentConfig.getInstance().getTempFilePath() + TRANSLATIONNAME;
 
