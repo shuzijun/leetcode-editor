@@ -201,6 +201,22 @@ public class QuestionManager {
                 }
                 question.setTitleSlug(object.getJSONObject("stat").getString("question__title_slug"));
                 question.setLevel(object.getJSONObject("difficulty").getInteger("level"));
+                try {
+                    if(object.getJSONObject("stat").containsKey("question__article__live")) {
+                        if (object.getJSONObject("stat").get("question__article__live") == null
+                                || !object.getJSONObject("stat").getBoolean("question__article__live")) {
+                            question.setArticleLive(Constant.ARTICLE_LIVE_NONE);
+                        } else {
+                            question.setArticleLive(Constant.ARTICLE_LIVE_ONE);
+                            question.setArticleSlug(object.getJSONObject("stat").getString("question__title_slug"));
+                        }
+                    }else {
+                        question.setArticleLive(Constant.ARTICLE_LIVE_LIST);
+                    }
+                }catch (Exception e){
+                    LogUtils.LOG.error("Identify abnormal article", e);
+                    question.setArticleLive(Constant.ARTICLE_LIVE_NONE);
+                }
                 questionList.add(question);
             }
 
@@ -230,7 +246,7 @@ public class QuestionManager {
 
     private static void translation(List<Question> questions) {
 
-        if (URLUtils.getQuestionTranslation()) {
+        if (URLUtils.isCn()) {
 
             String filePathTranslation = PersistentConfig.getInstance().getTempFilePath() + TRANSLATIONNAME;
 

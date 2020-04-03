@@ -83,7 +83,7 @@ public class URLUtils {
         }
     }
 
-    public static boolean getQuestionTranslation() {
+    public static boolean isCn() {
         if ("leetcode.com".equals(getLeetcodeHost())) {
             return Boolean.FALSE;
         } else {

@@ -32,6 +32,16 @@ public class Question {
      */
     private String code;
 
+    /**
+     * 文章类型
+     */
+    private Integer articleLive;
+
+    /**
+     * 文章标识
+     */
+    private String articleSlug;
+
 
     public Question() {
 
@@ -164,6 +174,22 @@ public class Question {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public Integer getArticleLive() {
+        return articleLive;
+    }
+
+    public void setArticleLive(Integer articleLive) {
+        this.articleLive = articleLive;
+    }
+
+    public String getArticleSlug() {
+        return articleSlug;
+    }
+
+    public void setArticleSlug(String articleSlug) {
+        this.articleSlug = articleSlug;
     }
 
     @Override
