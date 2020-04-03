@@ -14,6 +14,7 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
+import com.intellij.util.net.HttpConfigurable;
 import com.shuzijun.leetcode.plugin.listener.ColorListener;
 import com.shuzijun.leetcode.plugin.listener.DonateListener;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
@@ -84,6 +85,13 @@ public class SettingUI {
         JCEFFileField.setText(PathManager.getPluginsPath() + File.separator + "leetcode-editor" + File.separator + "natives" + File.separator);
 
         customCodeBox.addActionListener(new DonateListener(customCodeBox));
+
+        proxyCheckBox.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                HttpConfigurable.editConfigurable(mainPanel);
+            }
+        });
 
         templateConfigHelp.addMouseListener(new MouseAdapter() {
             @Override
