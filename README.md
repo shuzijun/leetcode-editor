@@ -1,11 +1,11 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/2020.jpg" alt="Happy New Year"/>
-</p>  
-
 # leetcode-editor   
   
   - [English Document](#Introduction)  
   - [中文文档](https://github.com/shuzijun/leetcode-editor/blob/master/README_ZH.md)   
+  
+  - Useful Links  
+    - [Login Help](https://github.com/shuzijun/leetcode-editor/blob/master/doc/LoginHelp.md)  
+    - [Custom Code](https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md) ([demo](https://github.com/shuzijun/leetcode-question))    
   
 ## Introduction  
   Do Leetcode exercises in IDE, support `leetcode.com` and `leetcode-cn.com`, to meet the basic needs of doing exercises.
@@ -40,7 +40,7 @@
   - **`Password`**: Login password  
   - **`Temp File Path`**: Temporary file storage catalogue  
   - **`proxy(HTTP Proxy)`**: HTTP Proxy,config path:`File` -> `settings`->`Appearance & Behavior`->`System Settings`->`HTTP Proxy`
-  - **`Custom code template`**: Custom code template ([details](https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md))([demo](https://github.com/shuzijun/leetcode-question))  
+  - **`Custom code template`**: Custom code template ([details](https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md)) ([demo](https://github.com/shuzijun/leetcode-question))  
   - **`LevelColour`**: Customize the difficulty color of the question, it will take effect after restart
   
 ### Window (Icon in the lower right corner of the main window![icon](https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/LeetCodeIcon.png))  

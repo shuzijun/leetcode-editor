@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>6.3</version>
+    <version>6.4</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -113,6 +113,21 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v6.4<br>
+               1.替换代理方式,与IDE保持一致.<br>
+               2.增加转换蛇形命名.<br>
+               3.导航栏增加展示登录人名称.<br>
+               4.增加查看解决方案.<br>
+               5.增加查看进展.<br>
+            </li>
+            <li>v6.4<br>
+               1.Replace the proxy mode.<br>
+               2.add snakeCaseName.<br>
+               3.Navigation bar displays login information.<br>
+               4.Add open solution.<br>
+               5.add Progress.<br>
+            </li>
+            <br>
              <li>v6.3<br>
                1.修复Python提交代码区域错误问题.<br>
                2.修复使用快捷键时提示问题.(建议将快捷键绑定到editor右键菜单上)<br>
