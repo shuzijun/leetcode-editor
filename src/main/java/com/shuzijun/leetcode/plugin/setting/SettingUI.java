@@ -85,11 +85,13 @@ public class SettingUI {
         JCEFFileField.setText(PathManager.getPluginsPath() + File.separator + "leetcode-editor" + File.separator + "natives" + File.separator);
 
         customCodeBox.addActionListener(new DonateListener(customCodeBox));
-
+        proxyCheckBox.setSelected(HttpConfigurable.getInstance().USE_HTTP_PROXY || HttpConfigurable.getInstance().USE_PROXY_PAC);
         proxyCheckBox.addMouseListener(new MouseAdapter(){
             @Override
             public void mouseClicked(MouseEvent e) {
-                HttpConfigurable.editConfigurable(mainPanel);
+                if(HttpConfigurable.editConfigurable(mainPanel)){
+                    proxyCheckBox.setSelected(HttpConfigurable.getInstance().USE_HTTP_PROXY || HttpConfigurable.getInstance().USE_PROXY_PAC);
+                }
             }
         });
 

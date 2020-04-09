@@ -301,6 +301,7 @@
       <grid id="3dd05" binding="codeTemplate" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
           <grid row="9" column="1" row-span="1" col-span="10" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="-1" height="200"/>
             <maximum-size width="-1" height="200"/>
           </grid>
         </constraints>

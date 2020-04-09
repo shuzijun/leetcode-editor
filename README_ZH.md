@@ -2,6 +2,10 @@
 
   - [English Document](https://github.com/shuzijun/leetcode-editor/blob/master/README.md)  
   - [中文文档](#简介)  
+  
+  - 有用的链接  
+    - [登录帮助](https://github.com/shuzijun/leetcode-editor/blob/master/doc/LoginHelp_ZH.md)  
+    - [自定义代码生成](https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode_ZH.md) ([示例](https://github.com/shuzijun/leetcode-question))    
     
 ## 简介  
   在IDE中解决LeetCode问题,支持`leetcode.com`与`leetcode-cn.com`,满足基本的做题需求。  
