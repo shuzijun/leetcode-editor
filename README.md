@@ -25,7 +25,7 @@
 
 ### Installation([help](https://www.jetbrains.com/help/idea/2019.2/managing-plugins.html))  
 - **Install via plug-in library** https://plugins.jetbrains.com/plugin/12132-leetcode-editor  
-- **Install by downloading the file** https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/leetcode-editor.zip  
+- **Install by downloading the file** https://github.com/shuzijun/leetcode-editor/releases  
 
 ### Configuration (configuration for first installation)  
 
