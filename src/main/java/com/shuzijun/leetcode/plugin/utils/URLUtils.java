@@ -103,7 +103,7 @@ public class URLUtils {
     }
 
     public static String getTagName() {
-        if ("leetcode.com".equals(getLeetcodeHost())) {
+        if ("leetcode.com".equals(getLeetcodeHost()) || PersistentConfig.getInstance().getConfig().getEnglishContent()) {
             return "name";
         } else {
             return "translatedName";
