@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
@@ -24,6 +25,17 @@ import java.math.BigDecimal;
  */
 public class CodeManager {
 
+    private static String prepareProblemsDirectory() {
+        PersistentConfig setting = PersistentConfig.getInstance();
+        String directory = setting.getProblemCodeDirectory();
+
+        File d = new File(directory);
+        if (!d.exists()) {
+            d.mkdirs();
+        }
+        return directory;
+    }
+
     public static void openCode(Question question, Project project) {
         Config config = PersistentConfig.getInstance().getInitConfig();
         String codeType = config.getCodeType();
@@ -37,7 +49,10 @@ public class CodeManager {
             return;
         }
 
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + VelocityUtils.convert(config.getCustomFileName(), question) + codeTypeEnum.getSuffix();
+        String directory = prepareProblemsDirectory();
+        String basename = VelocityUtils.convert(config.getCustomFileName(), question) + codeTypeEnum.getSuffix();
+
+        String filePath = directory +  basename;
 
         File file = new File(filePath);
         if (file.exists()) {

@@ -56,6 +56,9 @@ public class SettingUI {
     private JPanel codeFileName;
     private JPanel codeTemplate;
     private JPanel templateConstant;
+    private JBTextField problemSubDirectoryName;
+    private JCheckBox addToProject;
+    private JLabel labelAddToSubDirectory;
 
 
     private Editor fileNameEditor = null;
@@ -161,6 +164,13 @@ public class SettingUI {
         if (config != null) {
             userNameField.setText(config.getLoginName());
             passwordField.setText(PersistentConfig.getInstance().getPassword());
+
+            addToProject.setSelected(config.getAddToProject());
+            problemSubDirectoryName.setEnabled(config.getAddToProject());
+            labelAddToSubDirectory.setEnabled(config.getAddToProject());
+
+            problemSubDirectoryName.setText(config.getProblemSubDirectoryName()); // allow blank, that means save to project root.
+
             if (StringUtils.isNotBlank(config.getFilePath())) {
                 fileFolderBtn.setText(config.getFilePath());
             }
@@ -240,6 +250,12 @@ public class SettingUI {
     public void process(Config config) {
         config.setVersion(Constant.PLUGIN_CONFIG_VERSION_2);
         config.setLoginName(userNameField.getText());
+        config.setAddToProject(addToProject.isSelected());
+
+        problemSubDirectoryName.setEnabled(addToProject.isSelected());
+        labelAddToSubDirectory.setEnabled(addToProject.isSelected());
+
+        config.setProblemSubDirectoryName(problemSubDirectoryName.getText());
         config.setFilePath(fileFolderBtn.getText());
         config.setCodeType(codeComboBox.getSelectedItem().toString());
         config.setUrl(webComboBox.getSelectedItem().toString());

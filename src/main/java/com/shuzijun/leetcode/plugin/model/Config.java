@@ -44,6 +44,16 @@ public class Config {
     private String codeType;
 
     /**
+     * 生成的代码文件添加到当前工程
+     */
+    private Boolean addToProject = false;
+
+    /**
+     * 生成的代码文件相对于当前工程的位置，默认为 leetcode 目录。
+     */
+    private String problemSubDirectory = "";
+
+    /**
      * url
      */
     private String url;
@@ -302,6 +312,8 @@ public class Config {
         }
         if (version != null ? !version.equals(config.version) : config.version != null) return false;
         if (loginName != null ? !loginName.equals(config.loginName) : config.loginName != null) return false;
+        if (addToProject != null ? !addToProject.equals(config.addToProject) : config.addToProject != null) return false;
+        if (problemSubDirectory != null ? !problemSubDirectory.equals(config.problemSubDirectory) : config.problemSubDirectory != null) return false;
         if (filePath != null ? !filePath.equals(config.filePath) : config.filePath != null) return false;
         if (codeType != null ? !codeType.equals(config.codeType) : config.codeType != null) return false;
         if (url != null ? !url.equals(config.url) : config.url != null) return false;
@@ -318,4 +330,25 @@ public class Config {
     }
 
 
+    /**
+     * 题的代码文件生成的相对路径（相对于当前第一个打开工程根目录）
+     */
+    public String getProblemSubDirectoryName() {
+        if (problemSubDirectory == null) {
+            return "";
+        }
+        return problemSubDirectory;
+    }
+
+    public void setProblemSubDirectoryName(String name) {
+        this.problemSubDirectory = name;
+    }
+
+    public Boolean getAddToProject() {
+        return addToProject;
+    }
+
+    public void setAddToProject(Boolean addToProject) {
+        this.addToProject = addToProject;
+    }
 }
