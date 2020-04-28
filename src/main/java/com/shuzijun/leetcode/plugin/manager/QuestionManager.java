@@ -246,7 +246,7 @@ public class QuestionManager {
 
     private static void translation(List<Question> questions) {
 
-        if (URLUtils.isCn()) {
+        if (URLUtils.isCn() && !PersistentConfig.getInstance().getConfig().getEnglishContent()) {
 
             String filePathTranslation = PersistentConfig.getInstance().getTempFilePath() + TRANSLATIONNAME;
 
