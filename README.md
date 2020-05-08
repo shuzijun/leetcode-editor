@@ -10,7 +10,7 @@
 ## Introduction  
   Do Leetcode exercises in IDE, support `leetcode.com` and `leetcode-cn.com`, to meet the basic needs of doing exercises.
   Support theoretically: IntelliJ IDEA PhpStorm WebStorm PyCharm RubyMine AppCode CLion GoLand DataGrip Rider MPS Android Studio.  
-  <a href="https://leetcode-editor.herokuapp.com/hour.html" target="_blank">be with you!</a>
+  <a href="http://shuzijun.cn/leetcode-editor/monitor.html" target="_blank">be with you!</a>
   
   
 ## How to use  
