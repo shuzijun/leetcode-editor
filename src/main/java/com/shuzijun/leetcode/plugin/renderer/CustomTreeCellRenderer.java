@@ -65,13 +65,5 @@ public class CustomTreeCellRenderer extends NodeRenderer {
         } else if (question.getLevel() == 3) {
             setForeground(Level3);
         }
-       /* if(leaf){
-            setIcon(new ImageIcon(getResourceBufferedImage("image/33701.png")));
-        }
-        if("notac".equals(question.getStatus())){
-            setIcon(new ImageIcon(getResourceBufferedImage("image/18253.png")));
-        }else  if("ac".equals(question.getStatus())){
-            setIcon(new ImageIcon(getResourceBufferedImage("image/18271.png")));
-        }*/
     }
 }

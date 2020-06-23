@@ -1,13 +1,13 @@
 package com.shuzijun.leetcode.plugin.actions.toolbar;
 
 import com.google.common.collect.Lists;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Tag;
+import icons.LeetCodeEditorIcons;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class FindActionGroup extends ActionGroup {
         if (tags != null && !tags.isEmpty()) {
             for (Tag tag : tags) {
                 if(tag.isSelect()){
-                    e.getPresentation().setIcon(AllIcons.General.Filter);
+                    e.getPresentation().setIcon(LeetCodeEditorIcons.FILTER);
                     return;
                 }
             }

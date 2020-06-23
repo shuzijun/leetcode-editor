@@ -1,7 +1,6 @@
 package com.shuzijun.leetcode.plugin.window;
 
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DataProvider;
@@ -19,6 +18,7 @@ import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.renderer.CustomTreeCellRenderer;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import icons.LeetCodeEditorIcons;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -52,13 +52,13 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
                 String message = PropertiesUtils.getInfo("config.load", addIconText, refreshIconText,configIconText);
                 int addIconMarkerIndex = message.indexOf(addIconText);
                 myPane.replaceSelection(message.substring(0, addIconMarkerIndex));
-                myPane.insertIcon(AllIcons.General.Web);
+                myPane.insertIcon(LeetCodeEditorIcons.LOGIN);
                 int refreshIconMarkerIndex = message.indexOf(refreshIconText);
                 myPane.replaceSelection(message.substring(addIconMarkerIndex + addIconText.length(), refreshIconMarkerIndex));
-                myPane.insertIcon(AllIcons.Actions.Refresh);
+                myPane.insertIcon(LeetCodeEditorIcons.REFRESH);
                 int configIconMarkerIndex = message.indexOf(configIconText);
                 myPane.replaceSelection(message.substring(refreshIconMarkerIndex + refreshIconText.length(), configIconMarkerIndex));
-                myPane.insertIcon(AllIcons.General.GearPlain);
+                myPane.insertIcon(LeetCodeEditorIcons.CONFIG);
                 myPane.replaceSelection(message.substring(configIconMarkerIndex + configIconText.length()));
 
             }
