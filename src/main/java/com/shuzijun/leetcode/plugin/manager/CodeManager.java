@@ -308,7 +308,9 @@ public class CodeManager {
                 sb.append("</li>");
             }
             sb.append("</div></div>");
+            sb.append("\\n");
         }
+        sb.append("<div><li>\uD83D\uDC4D "+jsonObject.getInteger("likes")+"</li><li>\uD83D\uDC4E "+jsonObject.getInteger("dislikes")+"</li></div>");
         return sb.toString();
     }
 
