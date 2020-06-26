@@ -194,7 +194,7 @@ public class CodeManager {
 
                 String body = response.getBody();
                 JSONObject returnObj = JSONObject.parseObject(body);
-                ProgressManager.getInstance().run(new RunCodeCheckTask(returnObj, project));
+                ProgressManager.getInstance().run(new RunCodeCheckTask(returnObj, project, question.getTestCase()));
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
             } else {
                 LogUtils.LOG.error("RuncodeCode failure " + response.getBody());
@@ -366,8 +366,8 @@ public class CodeManager {
                                     }
                                 }
                             } else {
-                                String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"), "\n\t\t");
-                                MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", buildErrorMsg(jsonObject), outputs));
+                                String outputs = jsonObject.getString("std_output");
+                                MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", buildErrorMsg(jsonObject),jsonObject.getString("last_testcase"), outputs));
                                 if (!"ac".equals(question.getStatus())) {
                                     question.setStatus("notac");
                                     ViewManager.updateStatus();
@@ -408,11 +408,13 @@ public class CodeManager {
     private static class RunCodeCheckTask extends Task.Backgroundable  {
         private JSONObject returnObj;
         private Project project;
+        private String input;
 
-        public RunCodeCheckTask(JSONObject returnObj, Project project) {
+        public RunCodeCheckTask(JSONObject returnObj, Project project, String input) {
             super(project,"leetcode.editor.runCodeCheckTask",true);
             this.returnObj = returnObj;
             this.project = project;
+            this.input = input;
         }
 
         @Override
@@ -454,7 +456,7 @@ public class CodeManager {
                                     MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("test.success", input, output, expected, outputs));
                                 } else {
                                     String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"), "\n\t\t");
-                                    MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", buildErrorMsg(jsonObject), outputs));
+                                    MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", buildErrorMsg(jsonObject), input, outputs));
                                 }
                                 return;
                             }
