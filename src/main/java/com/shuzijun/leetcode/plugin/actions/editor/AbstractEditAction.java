@@ -1,8 +1,9 @@
 package com.shuzijun.leetcode.plugin.actions.editor;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.ArrayUtil;
 import com.shuzijun.leetcode.plugin.actions.AbstractAction;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Config;
@@ -19,7 +20,10 @@ abstract class AbstractEditAction extends AbstractAction {
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config) {
-        VirtualFile vf = anActionEvent.getData(PlatformDataKeys.VIRTUAL_FILE);
+        VirtualFile vf = ArrayUtil.getFirstElement(FileEditorManager.getInstance(anActionEvent.getProject()).getSelectedFiles());
+        if(vf == null){
+            return;
+        }
         LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(anActionEvent.getProject()).getEditor(vf.getPath());
         if (leetcodeEditor == null) {
             return;

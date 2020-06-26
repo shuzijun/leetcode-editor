@@ -25,6 +25,7 @@ public interface LeetCodeEditorIcons {
     Icon LOGIN = IconLoader.getIcon("/icons/login.png");
     Icon LOGOUT = IconLoader.getIcon("/icons/logout.png");
     Icon POPUP = IconLoader.getIcon("/icons/popup.png");
+    Icon POSITION = IconLoader.getIcon("/icons/position.png");
     Icon PROGRESS = IconLoader.getIcon("/icons/progress.png");
     Icon QUESTION = IconLoader.getIcon("/icons/question.png");
     Icon RANDOM = IconLoader.getIcon("/icons/random.png");

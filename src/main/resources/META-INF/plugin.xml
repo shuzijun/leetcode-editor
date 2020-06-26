@@ -347,7 +347,7 @@
         <!--    <postStartupActivity  implementation = "com.shuzijun.leetcode.plugin.listener.RegisterPluginInstallerStateListener"></postStartupActivity>-->
         <errorHandler implementation="com.shuzijun.leetcode.plugin.listener.ErrorReportHandler"/>
         <toolWindow id="leetcode" secondary="true" icon="LeetCodeEditorIcons.LEETCODE_TOOL_WINDOW" anchor="right"
-                    factoryClass="com.shuzijun.leetcode.plugin.window.WindowFactory"/>
+                    factoryClass="com.shuzijun.leetcode.plugin.window.WindowFactory" />
         <applicationService serviceInterface="com.shuzijun.leetcode.plugin.setting.PersistentConfig"
                             serviceImplementation="com.shuzijun.leetcode.plugin.setting.PersistentConfig"/>
         <projectService serviceInterface="com.shuzijun.leetcode.plugin.setting.ProjectConfig"
@@ -424,6 +424,8 @@
         <action id="leetcode.PickAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.PickAction"
                 text="Pick one" description="Pick one" icon="LeetCodeEditorIcons.RANDOM">
         </action>
+        <action id="leetcode.positionAction" class="com.shuzijun.leetcode.plugin.actions.editor.PositionAction"
+                text="position" description="position" icon="LeetCodeEditorIcons.POSITION"/>
 
         <group id="leetcode.NavigatorActionsToolbar">
             <reference id="leetcode.LoginAction"/>
@@ -432,6 +434,7 @@
             <reference id="leetcode.RefreshAction"/>
             <reference id="leetcode.PickAction"/>
             <reference id="leetcode.FindAction"/>
+            <reference id="leetcode.positionAction"/>
             <reference id="leetcode.CollapseAction"/>
             <reference id="leetcode.ProgressAction"/>
             <separator/>
@@ -526,6 +529,7 @@
                     text="open in web" description="open in web(editor)" icon="LeetCodeEditorIcons.POPUP">
             </action>
             <separator/>
+            <reference id="leetcode.positionAction"/>
             <group id="leetcode.editor.timer" popup="true" text="Timer" description="timer(editor)" icon="LeetCodeEditorIcons.TIME">
                 <action id="leetcode.editor.StartTimeAction"
                         class="com.shuzijun.leetcode.plugin.actions.editor.StartTimeAction"
