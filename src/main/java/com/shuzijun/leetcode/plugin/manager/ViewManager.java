@@ -194,7 +194,7 @@ public class ViewManager {
         return;
     }
 
-    public static Question getTreeQuestion(JTree tree,Project project) {
+    public static Question getTreeQuestion(JTree tree, Project project) {
         Question question = null;
         if (tree != null) {
             DefaultMutableTreeNode note = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
@@ -216,8 +216,8 @@ public class ViewManager {
         return question;
     }
 
-    public static Question getQuestionById(String id,Project project) {
-        if(question.isEmpty()){
+    public static Question getQuestionById(String id, Project project) {
+        if (question.isEmpty()) {
             MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("tree.load"));
             ApplicationManager.getApplication().invokeAndWait(new Runnable() {
                 @Override
@@ -243,6 +243,34 @@ public class ViewManager {
                     }
 
                 }
+            }
+
+        }
+    }
+
+    public static void position(JTree tree, JBScrollPane scrollPane, Question question) {
+
+        DefaultTreeModel treeMode = (DefaultTreeModel) tree.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeMode.getRoot();
+        if (root.isLeaf()) {
+            return;
+        }
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) root.getChildAt(0);
+        if (node.isLeaf()) {
+            return;
+        }
+
+        for (int i = 0, j = node.getChildCount(); i < j; i++) {
+            DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) node.getChildAt(i);
+            Question nodeData = (Question) childNode.getUserObject();
+            if(nodeData.getQuestionId().equals(question.getQuestionId())){
+                TreePath toShowPath = new TreePath(childNode.getPath());
+                tree.setSelectionPath(toShowPath);
+                Rectangle bounds = tree.getPathBounds(toShowPath);
+                Point point = new Point(0, (int) bounds.getY());
+                JViewport viewport = scrollPane.getViewport();
+                viewport.setViewPosition(point);
+                return;
             }
 
         }
