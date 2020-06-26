@@ -1,6 +1,9 @@
 package com.shuzijun.leetcode.plugin.utils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+
+import java.util.Date;
 
 /**
  * @author shuzijun
@@ -76,4 +79,13 @@ public class VelocityTool extends StringUtils {
             return underscoreName;
         }
     }
+
+    public static String date() {
+            return date("yyyy-MM-dd HH:mm:ss");
+    }
+
+    public static String date(String format) {
+        return DateFormatUtils.format(new Date(), format);
+    }
+
 }
