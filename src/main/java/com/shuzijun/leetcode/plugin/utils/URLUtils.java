@@ -24,6 +24,7 @@ public class URLUtils {
     private static String leetcodeVerify = "/problemset/all/";
     private static String leetcodeProgress = "/api/progress/all/";
     private static String leetcodeSession = "/session/";
+    private static String leetcodeCardInfo = "/problems/api/card-info/";
 
     public static String getLeetcodeHost() {
         String host = PersistentConfig.getInstance().getConfig().getUrl();
@@ -85,6 +86,9 @@ public class URLUtils {
         return getLeetcodeUrl() + leetcodeSession;
     }
 
+    public static String getLeetcodeCardInfo(){
+        return getLeetcodeUrl() + leetcodeCardInfo;
+    }
 
     public static String getDescContent() {
         if ("leetcode.com".equals(getLeetcodeHost()) || PersistentConfig.getInstance().getConfig().getEnglishContent()) {

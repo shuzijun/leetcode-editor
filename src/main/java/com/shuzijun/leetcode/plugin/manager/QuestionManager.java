@@ -32,10 +32,10 @@ public class QuestionManager {
     private final static String TRANSLATIONNAME = "translation.json";
 
 
-    public static List<Question> getQuestionService(Project project) {
+    public static List<Question> getQuestionService(Project project, String url) {
         List<Question> questionList = null;
 
-        HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeAll());
+        HttpRequest httpRequest = HttpRequest.get(url);
         HttpResponse response = HttpRequestUtils.executeGet(httpRequest);
         if (response != null && response.getStatusCode() == 200) {
             questionList = parseQuestion(response.getBody());
@@ -175,6 +175,24 @@ public class QuestionManager {
         return tags;
     }
 
+    public static List<Tag> getCategory(String url) {
+        List<Tag> tags = new ArrayList<>();
+
+        HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeCardInfo());
+        HttpResponse response = HttpRequestUtils.executeGet(httpRequest);
+        if (response != null && response.getStatusCode() == 200) {
+            try {
+                String body = response.getBody();
+                tags = parseCategory(body, url);
+            } catch (Exception e1) {
+                LogUtils.LOG.error("Request CardInfo exception", e1);
+            }
+        } else {
+            LogUtils.LOG.error("Request CardInfo failed, status:" + response.getStatusCode() + "body:" + response.getBody());
+        }
+        return tags;
+    }
+
 
     private static List<Question> parseQuestion(String str) {
 
@@ -202,7 +220,7 @@ public class QuestionManager {
                 question.setTitleSlug(object.getJSONObject("stat").getString("question__title_slug"));
                 question.setLevel(object.getJSONObject("difficulty").getInteger("level"));
                 try {
-                    if(object.getJSONObject("stat").containsKey("question__article__live")) {
+                    if (object.getJSONObject("stat").containsKey("question__article__live")) {
                         if (object.getJSONObject("stat").get("question__article__live") == null
                                 || !object.getJSONObject("stat").getBoolean("question__article__live")) {
                             question.setArticleLive(Constant.ARTICLE_LIVE_NONE);
@@ -210,10 +228,10 @@ public class QuestionManager {
                             question.setArticleLive(Constant.ARTICLE_LIVE_ONE);
                             question.setArticleSlug(object.getJSONObject("stat").getString("question__title_slug"));
                         }
-                    }else {
+                    } else {
                         question.setArticleLive(Constant.ARTICLE_LIVE_LIST);
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     LogUtils.LOG.error("Identify abnormal article", e);
                     question.setArticleLive(Constant.ARTICLE_LIVE_NONE);
                 }
@@ -251,7 +269,7 @@ public class QuestionManager {
             String filePathTranslation = PersistentConfig.getInstance().getTempFilePath() + TRANSLATIONNAME;
 
             try {
-                HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(),"application/json");
+                HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(), "application/json");
                 httpRequest.setBody("{\"operationName\":\"getQuestionTranslation\",\"variables\":{},\"query\":\"query getQuestionTranslation($lang: String) {\\n  translations: allAppliedQuestionTranslations(lang: $lang) {\\n    title\\n    questionId\\n    __typename\\n  }\\n}\\n\"}");
                 httpRequest.addHeader("Accept", "application/json");
                 HttpResponse response = HttpRequestUtils.executePost(httpRequest);
@@ -305,6 +323,27 @@ public class QuestionManager {
                 JSONArray questionArray = object.getJSONArray("questions");
                 for (int j = 0; j < questionArray.size(); j++) {
                     tag.addQuestion(questionArray.getInteger(j).toString());
+                }
+                tags.add(tag);
+            }
+        }
+        return tags;
+    }
+
+    private static List<Tag> parseCategory(String str, String url) {
+        List<Tag> tags = new ArrayList<Tag>();
+
+        if (StringUtils.isNotBlank(str)) {
+
+            JSONArray jsonArray = JSONArray.parseObject(str).getJSONObject("categories").getJSONArray("0");
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject object = jsonArray.getJSONObject(i);
+                Tag tag = new Tag();
+                tag.setSlug(object.getString("slug"));
+                tag.setType(URLUtils.getLeetcodeUrl() + "/api" + object.getString("url").replace("problemset","problems"));
+                tag.setName(object.getString("title"));
+                if(url.contains(tag.getType())){
+                    tag.setSelect(true);
                 }
                 tags.add(tag);
             }

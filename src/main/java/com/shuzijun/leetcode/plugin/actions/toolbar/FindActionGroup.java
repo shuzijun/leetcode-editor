@@ -34,9 +34,7 @@ public class FindActionGroup extends ActionGroup {
                 }
             }
         }
-
         e.getPresentation().setIcon(null);
-
     }
 
 
@@ -51,7 +49,11 @@ public class FindActionGroup extends ActionGroup {
 
         if (tags != null && !tags.isEmpty()) {
             for (Tag tag : tags) {
-                anActionList.add(new FindTagAction(tag.getName(), tag));
+                if ("leetcode.find.Category".equals(id)) {
+                    anActionList.add(new FindTagAction(tag.getName(), tag, true));
+                }else {
+                    anActionList.add(new FindTagAction(tag.getName(), tag));
+                }
             }
         }
         AnAction[] anActions = new AnAction[anActionList.size()];
@@ -69,6 +71,8 @@ public class FindActionGroup extends ActionGroup {
             tags = ViewManager.getFilter(Constant.FIND_TYPE_LISTS);
         } else if ("leetcode.find.Tags".equals(id)) {
             tags = ViewManager.getFilter(Constant.FIND_TYPE_TAGS);
+        } else if ("leetcode.find.Category".equals(id)) {
+            tags = ViewManager.getFilter(Constant.FIND_TYPE_CATEGORY);
         }
 
         return tags;

@@ -45,6 +45,7 @@ public class Constant {
     public static final String FIND_TYPE_STATUS = "Status";
     public static final String FIND_TYPE_LISTS = "Lists";
     public static final String FIND_TYPE_TAGS = "Tags";
+    public static final String FIND_TYPE_CATEGORY = "Category";
 
     /**
      * 状态类型
