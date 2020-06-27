@@ -172,6 +172,7 @@ public class ExploreManager {
                     JSONObject question = object.getJSONObject(q.getLangSlug());
                     if(Constant.ITEM_TYPE_QUESTION.equals(q.getLangSlug())){
                         q.setQuestionId(question.getString("questionId"));
+                        q.setFrontendQuestionId(question.getString("questionId"));
                         q.setTitleSlug(question.getString("titleSlug"));
                     }else {
                         q.setNodeType(Constant.NODETYPE_DEF);

@@ -73,6 +73,9 @@ public class ViewManager {
             node.add(new DefaultMutableTreeNode(q));
         }
         for (String key : filter.keySet()) {
+            if(Constant.FIND_TYPE_CATEGORY.equals(key)){
+                continue;
+            }
             DefaultMutableTreeNode filterNode = new DefaultMutableTreeNode(new Question(key));
             root.add(filterNode);
             addChild(filterNode, filter.get(key), question);
