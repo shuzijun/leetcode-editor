@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>6.4</version>
+    <version>6.5</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -113,6 +113,24 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v6.5<br>
+               1.更换图标.<br>
+               2.增加定位题目功能.<br>
+               3.增加运行失败打印测试用例.<br>
+               4.增加获取当前时间工具.<br>
+               5.增加展示赞同数.<br>
+               6.增加筛选选项.<br>
+               7.修复探索题目题目号.<br>
+            </li>
+            <li>v6.5<br>
+               1.Change the icon.<br>
+               2.Add positioning function.<br>
+               3.Add running errors increase the print test case.<br>
+               4.Add current time function.<br>
+               5.Add show likes dislikes.<br>
+               6.Add screening criteria.<br>
+               7.Fix explore question.<br>
+            </li>
             <li>v6.4<br>
                1.替换代理方式,与IDE保持一致.<br>
                2.增加转换蛇形命名.<br>
