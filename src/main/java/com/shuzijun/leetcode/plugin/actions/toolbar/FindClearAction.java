@@ -22,7 +22,11 @@ public class FindClearAction extends AbstractAction {
         if (tree == null) {
             return;
         }
-        ViewManager.clearFilter();
-        ViewManager.update(tree);
+        boolean isLoad = ViewManager.clearFilter();
+        if (isLoad) {
+            ViewManager.loadServiceData(tree,anActionEvent.getProject());
+        } else {
+            ViewManager.update(tree);
+        }
     }
 }

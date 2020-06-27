@@ -11,6 +11,7 @@ import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 
 import javax.swing.*;
@@ -35,7 +36,11 @@ public class ViewManager {
     private static boolean intersection = Boolean.FALSE;
 
     public static void loadServiceData(JTree tree, Project project) {
-        List<Question> questionList = QuestionManager.getQuestionService(project);
+        loadServiceData(tree, project, URLUtils.getLeetcodeAll());
+    }
+
+    public static void loadServiceData(JTree tree, Project project, String url) {
+        List<Question> questionList = QuestionManager.getQuestionService(project, url);
         if (questionList == null || questionList.isEmpty()) {
             MessageUtils.getInstance(project).showWarnMsg("warning", PropertiesUtils.getInfo("response.cache"));
             questionList = QuestionManager.getQuestionCache();
@@ -56,6 +61,8 @@ public class ViewManager {
         filter.put(Constant.FIND_TYPE_STATUS, QuestionManager.getStatus());
         filter.put(Constant.FIND_TYPE_LISTS, QuestionManager.getLists());
         filter.put(Constant.FIND_TYPE_TAGS, QuestionManager.getTags());
+        filter.put(Constant.FIND_TYPE_CATEGORY, QuestionManager.getCategory(url));
+
 
         DefaultTreeModel treeMode = (DefaultTreeModel) tree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeMode.getRoot();
@@ -83,12 +90,18 @@ public class ViewManager {
         return filter.get(key);
     }
 
-    public static void clearFilter() {
-        for (List<Tag> tagList : filter.values()) {
+    public static boolean clearFilter() {
+        boolean isLoad = false;
+        for (String key : filter.keySet()) {
+            List<Tag> tagList = filter.get(key);
             for (Tag tag : tagList) {
+                if (tag.isSelect() && Constant.FIND_TYPE_CATEGORY.equals(key)) {
+                    isLoad = true;
+                }
                 tag.setSelect(Boolean.FALSE);
             }
         }
+        return isLoad;
     }
 
     public static void updateStatus() {
@@ -105,7 +118,11 @@ public class ViewManager {
 
     public static void update(JTree tree) {
         TreeSet<String> selectQuestionList = null;
-        for (List<Tag> tagList : filter.values()) {
+        for (String key : filter.keySet()) {
+            if (Constant.FIND_TYPE_CATEGORY.equals(key)) {
+                continue;
+            }
+            List<Tag> tagList = filter.get(key);
             TreeSet<String> tagQuestionList = null;
             for (Tag tag : tagList) {
                 if (tag.isSelect()) {
@@ -263,7 +280,7 @@ public class ViewManager {
         for (int i = 0, j = node.getChildCount(); i < j; i++) {
             DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) node.getChildAt(i);
             Question nodeData = (Question) childNode.getUserObject();
-            if(nodeData.getQuestionId().equals(question.getQuestionId())){
+            if (nodeData.getQuestionId().equals(question.getQuestionId())) {
                 TreePath toShowPath = new TreePath(childNode.getPath());
                 tree.setSelectionPath(toShowPath);
                 Rectangle bounds = tree.getPathBounds(toShowPath);

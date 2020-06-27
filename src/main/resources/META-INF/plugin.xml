@@ -476,6 +476,9 @@
         </group>
 
         <group id="leetcode.find.Toolbar" popup="true" text="Status" description="Status">
+            <group id="leetcode.find.Category" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindActionGroup"
+                   popup="true" text="Category" description="Category">
+            </group>
             <group id="leetcode.find.Difficulty" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindActionGroup"
                    popup="true" text="Difficulty" description="Difficulty">
             </group>
