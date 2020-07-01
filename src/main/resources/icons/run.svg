@@ -1,1 +1,7 @@
-<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg class="icon" width="16" height="16" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"><path fill="#6E6E6E" d="M866.461538 512L196.923077 177.230769v669.538462z"  /></svg>
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+        "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg class="icon" width="16" height="16" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g transform="scale(0.015625)">
+        <path fill="#6E6E6E" d="M866.461538 512L196.923077 177.230769v669.538462z"/>
+    </g>
+</svg>
