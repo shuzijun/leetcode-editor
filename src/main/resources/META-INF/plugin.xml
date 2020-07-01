@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>6.5</version>
+    <version>6.6</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -113,6 +113,12 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v6.6<br>
+               1.修复图标兼容性
+            </li>
+            <li>v6.6<br>
+               1.Fix icon compatibility
+            </li>
             <li>v6.5<br>
                1.更换图标.<br>
                2.增加定位题目功能.<br>
