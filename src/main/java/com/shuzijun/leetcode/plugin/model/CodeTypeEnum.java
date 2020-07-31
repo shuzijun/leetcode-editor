@@ -25,6 +25,7 @@ public enum CodeTypeEnum {
     MYSQL("MySQL", "mysql", ".sql", "#"),
     ORACLE("Oracle", "oraclesql", ".sql", "#"),
     MSSQLSERVER("MS SQL Server", "mssql", ".sql", "#"),
+    TypeScript("TypeScript", "typescript", ".ts", "//"),
     ;
 
 
