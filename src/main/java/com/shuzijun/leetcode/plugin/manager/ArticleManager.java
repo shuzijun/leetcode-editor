@@ -29,7 +29,7 @@ public class ArticleManager {
     private static final Pattern imageListPattern = Pattern.compile("<(!\\[.*]\\(.*\\),*)+>?");
     private static final Pattern imagePattern = Pattern.compile("<img.*\\.\\..*>?");
     private static final Pattern linkPattern = Pattern.compile("]\\(\\.\\.[\\w|/]*?\\.\\w+\\)?");
-    private static final Pattern gifPattern = Pattern.compile("!\\[.*?](.*?\\.gif)?");
+    private static final Pattern gifPattern = Pattern.compile("!\\[.*?]\\(.*?\\.gif\\)?");
     private static final Pattern playgroundPattern = Pattern.compile("<iframe.*playground.*</iframe>?");
     private static final Pattern imageGroupPattern = Pattern.compile("!\\?!\\.\\..*\\?!?");
 
@@ -112,7 +112,7 @@ public class ArticleManager {
 
 
     public static String formatMarkdown(String content, Project project) {
-        String article = content.replaceAll("\\{:\\w+=\".*\"}?", "");
+        String article = content.replaceAll("\\{:\\w+=\"?.*\"?}?", "");
         Matcher latexMatcher = latexPattern.matcher(content);
         while (latexMatcher.find()) {
             String group = latexMatcher.group();
