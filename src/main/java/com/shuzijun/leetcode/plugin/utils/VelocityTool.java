@@ -1,5 +1,9 @@
 package com.shuzijun.leetcode.plugin.utils;
 
+import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
+import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.model.Constant;
+import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
@@ -88,4 +92,17 @@ public class VelocityTool extends StringUtils {
         return DateFormatUtils.format(new Date(), format);
     }
 
+    public static String SUBMIT_REGION_BEGIN(){
+        Config config = PersistentConfig.getInstance().getInitConfig();
+        String codeType = config.getCodeType();
+        CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
+        return codeTypeEnum.getComment() + Constant.SUBMIT_REGION_BEGIN;
+    }
+
+    public static String SUBMIT_REGION_END(){
+        Config config = PersistentConfig.getInstance().getInitConfig();
+        String codeType = config.getCodeType();
+        CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
+        return codeTypeEnum.getComment() + Constant.SUBMIT_REGION_END;
+    }
 }

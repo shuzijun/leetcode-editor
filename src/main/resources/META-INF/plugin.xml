@@ -381,6 +381,21 @@
         <applicationConfigurable groupId="tools" displayName="leetcode plugin" id="leetcode.id"
                                  instance="com.shuzijun.leetcode.plugin.setting.SettingConfigurable"/>
         <statusBarWidgetProvider implementation="com.shuzijun.leetcode.plugin.timer.TimerStatusBarWidgetProvider"/>
+        <lang.foldingBuilder language="JAVA" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="Python" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="ObjectiveC" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="CS" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="ECMAScript 6" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="ruby" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="Swift" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="go" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="Scala" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="kotlin" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="Renderscript" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="PHP" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="Shell Script" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="GenericSQL" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="TypeScript" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
     </extensions>
 
     <actions>

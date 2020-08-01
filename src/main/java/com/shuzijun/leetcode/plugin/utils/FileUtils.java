@@ -21,6 +21,7 @@ import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -123,23 +124,25 @@ public class FileUtils {
             if (StringUtils.isNotBlank(body)) {
 
                 List<String> codeList = new LinkedList<>();
-                int codeBegin = -1;
-                int codeEnd = -1;
-                int lineCount = 0;
+                List<Integer> codeBegins = new ArrayList<>();
+                List<Integer> codeEnds = new ArrayList<>();
+                Integer lineCount = 0;
 
                 String[] lines = body.split("\r\n|\r|\n");
                 for (String line : lines) {
                     if (StringUtils.isNotBlank(line) && trim(line).equals(trim(codeTypeEnum.getComment() + Constant.SUBMIT_REGION_BEGIN))) {
-                        codeBegin = lineCount;
+                        codeBegins.add(lineCount);
                     } else if (StringUtils.isNotBlank(line) && trim(line).equals(trim(codeTypeEnum.getComment() + Constant.SUBMIT_REGION_END))) {
-                        codeEnd = lineCount;
+                        codeEnds.add(lineCount);
                     }
                     codeList.add(line);
                     lineCount++;
                 }
-                if (codeBegin >= 0 && codeEnd > 0 && codeBegin < codeEnd) {
-                    for (int i = codeBegin + 1; i < codeEnd; i++) {
-                        code.append(codeList.get(i)).append("\n");
+                if (codeBegins.size() == codeBegins.size() && codeBegins.size() > 0) {
+                    for (int s = 0; s < codeBegins.size(); s++) {
+                        for (int i = codeBegins.get(s) + 1; i < codeEnds.get(s); i++) {
+                            code.append(codeList.get(i)).append("\n");
+                        }
                     }
                 } else {
                     Boolean isCode = Boolean.FALSE;
@@ -252,16 +255,16 @@ public class FileUtils {
         }
     }
 
-    public static void openFileEditor(File file, Project project){
-        ApplicationManager.getApplication().invokeAndWait(()->{
+    public static void openFileEditor(File file, Project project) {
+        ApplicationManager.getApplication().invokeAndWait(() -> {
             VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
             OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
             FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
         });
     }
 
-    public static void openFileEditorAndSaveState(File file, Project project, Question question){
-        ApplicationManager.getApplication().invokeAndWait(()->{
+    public static void openFileEditorAndSaveState(File file, Project project, Question question) {
+        ApplicationManager.getApplication().invokeAndWait(() -> {
             VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
             OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
             FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
