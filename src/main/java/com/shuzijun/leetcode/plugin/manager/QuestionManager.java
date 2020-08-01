@@ -240,12 +240,18 @@ public class QuestionManager {
 
             translation(questionList);
 
+            String dayQuestion = questionOfToday();
+
             Collections.sort(questionList, new Comparator<Question>() {
                 @Override
                 public int compare(Question arg0, Question arg1) {
                     String frontendId0 = arg0.getFrontendQuestionId();
                     String frontendId1 = arg1.getFrontendQuestionId();
-                    if (StringUtils.isNumeric(frontendId0) && StringUtils.isNumeric(frontendId1)) {
+                    if (frontendId0.equals(dayQuestion)) {
+                        return -1;
+                    } else if (frontendId1.equals(dayQuestion)) {
+                        return 1;
+                    } else if (StringUtils.isNumeric(frontendId0) && StringUtils.isNumeric(frontendId1)) {
                         return Integer.valueOf(frontendId0).compareTo(Integer.valueOf(frontendId1));
                     } else if (StringUtils.isNumeric(frontendId0)) {
                         return -1;
@@ -304,6 +310,24 @@ public class QuestionManager {
         }
     }
 
+    private static String questionOfToday() {
+        if (URLUtils.isCn()) {
+            try {
+                HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(), "application/json");
+                httpRequest.setBody("{\"operationName\":\"questionOfToday\",\"variables\":{},\"query\":\"query questionOfToday {\\n  todayRecord {\\n    question {\\n      questionFrontendId\\n      questionTitleSlug\\n      __typename\\n    }\\n    lastSubmission {\\n      id\\n      __typename\\n    }\\n    date\\n    userStatus\\n    __typename\\n  }\\n}\\n\"}");
+                httpRequest.addHeader("Accept", "application/json");
+                HttpResponse response = HttpRequestUtils.executePost(httpRequest);
+                if (response == null || response.getStatusCode() != 200) {
+                    return null;
+                } else {
+                    return JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONArray("todayRecord").getJSONObject(0).getJSONObject("question").getString("questionFrontendId");
+                }
+            } catch (Exception e1) {
+            }
+        }
+        return null;
+    }
+
 
     private static List<Tag> parseTag(String str) {
         List<Tag> tags = new ArrayList<Tag>();
@@ -340,9 +364,9 @@ public class QuestionManager {
                 JSONObject object = jsonArray.getJSONObject(i);
                 Tag tag = new Tag();
                 tag.setSlug(object.getString("slug"));
-                tag.setType(URLUtils.getLeetcodeUrl() + "/api" + object.getString("url").replace("problemset","problems"));
+                tag.setType(URLUtils.getLeetcodeUrl() + "/api" + object.getString("url").replace("problemset", "problems"));
                 tag.setName(object.getString("title"));
-                if(url.contains(tag.getType())){
+                if (url.contains(tag.getType())) {
                     tag.setSelect(true);
                 }
                 tags.add(tag);
