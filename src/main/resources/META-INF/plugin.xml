@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>6.6</version>
+    <version>6.7</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -113,11 +113,21 @@
 
     <change-notes><![CDATA[
          <ul>
-            <li>v6.6<br>
-               1.修复图标兼容性
+            <li>v6.7<br>
+               1.优化答案视图.<br>
+               2.增加支持多提交区域.<br>
+               3.固定每日一题.<br>
+            </li>
+            <li>v6.7<br>
+               1.optimize solution view.<br>
+               2.Added support for multiple submission ranges.<br>
+               3.pin day question.<br>
             </li>
             <li>v6.6<br>
-               1.Fix icon compatibility
+               1.修复图标兼容性.<br>
+            </li>
+            <li>v6.6<br>
+               1.Fix icon compatibility.<br>
             </li>
             <li>v6.5<br>
                1.更换图标.<br>

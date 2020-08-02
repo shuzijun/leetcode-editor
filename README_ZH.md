@@ -1,4 +1,4 @@
-# leetcode-editor   
+# leetcode-editor [![Release](https://github.com/shuzijun/leetcode-editor/workflows/Release/badge.svg)](https://github.com/shuzijun/leetcode-editor/releases) [![Snapshot](https://github.com/shuzijun/leetcode-editor/workflows/Snapshot/badge.svg)](https://github.com/shuzijun/leetcode-editor/actions?query=workflow%3ASnapshot)   
 
   - [English Document](https://github.com/shuzijun/leetcode-editor/blob/master/README.md)  
   - [中文文档](#简介)  
