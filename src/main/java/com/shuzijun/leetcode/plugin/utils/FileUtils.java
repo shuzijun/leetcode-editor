@@ -138,7 +138,7 @@ public class FileUtils {
                     codeList.add(line);
                     lineCount++;
                 }
-                if (codeBegins.size() == codeBegins.size() && codeBegins.size() > 0) {
+                if (codeBegins.size() == codeEnds.size() && codeBegins.size() > 0) {
                     for (int s = 0; s < codeBegins.size(); s++) {
                         for (int i = codeBegins.get(s) + 1; i < codeEnds.get(s); i++) {
                             code.append(codeList.get(i)).append("\n");
