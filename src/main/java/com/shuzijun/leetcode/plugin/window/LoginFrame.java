@@ -175,10 +175,14 @@ public class LoginFrame extends FrameWrapper {
                 for (String cookieString : cookies) {
                     String[] cookie = cookieString.trim().split("=");
                     if (cookie.length >= 2) {
-                        HttpCookie basicClientCookie = new HttpCookie(cookie[0], cookie[1]);
-                        basicClientCookie.setDomain("." + URLUtils.getLeetcodeHost());
-                        basicClientCookie.setPath("/");
-                        cookieList.add(basicClientCookie);
+                        try {
+                            HttpCookie basicClientCookie = new HttpCookie(cookie[0], cookie[1]);
+                            basicClientCookie.setDomain("." + URLUtils.getLeetcodeHost());
+                            basicClientCookie.setPath("/");
+                            cookieList.add(basicClientCookie);
+                        }catch (IllegalArgumentException ignore){
+
+                        }
                     }
                 }
                 HttpRequestUtils.setCookie(cookieList);

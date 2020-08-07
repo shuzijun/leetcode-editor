@@ -23,6 +23,9 @@ public class OpenSolutionAction extends AbstractEditAction {
     @Override
     public void update(@NotNull AnActionEvent anActionEvent) {
         VirtualFile vf = anActionEvent.getData(PlatformDataKeys.VIRTUAL_FILE);
+        if (vf == null) {
+            return;
+        }
         LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(anActionEvent.getProject()).getEditor(vf.getPath());
         if (leetcodeEditor == null) {
             return;

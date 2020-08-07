@@ -25,6 +25,9 @@ public class PositionAction extends AbstractEditAction {
 
     @Override
     public void update(@NotNull AnActionEvent e) {
+        if (e.getProject() == null) {
+            return;
+        }
         VirtualFile vf = ArrayUtil.getFirstElement(FileEditorManager.getInstance(e.getProject()).getSelectedFiles());
         if (vf == null) {
             e.getPresentation().setEnabled(false);
