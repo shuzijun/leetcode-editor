@@ -22,7 +22,7 @@ dependencies {
     }
     compile 'org.scilab.forge:jlatexmath:1.0.7'
     compile 'org.apache.commons:commons-lang3:3.9'
-    compile fileTree(dir: 'src/main/resources/lib', include: ['*.jar'])
+    //compile fileTree(dir: 'src/main/resources/lib', include: ['*.jar'])
 
 }
 

@@ -69,7 +69,6 @@ public class LoginAction extends AbstractAction {
                     public void run() {
                         LoginFrame loginFrame = new LoginFrame(anActionEvent.getProject(), tree);
                         loginFrame.loadComponent();
-                        loginFrame.show();
                     }
                 });
             }
@@ -79,7 +78,6 @@ public class LoginAction extends AbstractAction {
                 public void run() {
                     LoginFrame loginFrame = new LoginFrame(anActionEvent.getProject(), tree);
                     loginFrame.loadComponent();
-                    loginFrame.show();
                 }
             });
         }

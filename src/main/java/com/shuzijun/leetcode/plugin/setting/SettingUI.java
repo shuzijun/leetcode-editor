@@ -2,7 +2,6 @@ package com.shuzijun.leetcode.plugin.setting;
 
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
@@ -14,6 +13,7 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
+import com.intellij.ui.jcef.JBCefApp;
 import com.intellij.util.net.HttpConfigurable;
 import com.shuzijun.leetcode.plugin.listener.ColorListener;
 import com.shuzijun.leetcode.plugin.listener.DonateListener;
@@ -46,7 +46,6 @@ public class SettingUI {
     private JLabel mediumLabel;
     private JLabel hardLabel;
     private TextFieldWithBrowseButton fileFolderBtn;
-    private JTextField JCEFFileField;
     private JCheckBox customCodeBox;
     private JCheckBox updateCheckBox;
     private JCheckBox proxyCheckBox;
@@ -56,6 +55,7 @@ public class SettingUI {
     private JPanel codeFileName;
     private JPanel codeTemplate;
     private JPanel templateConstant;
+    private JCheckBox jcefCheckBox;
 
 
     private Editor fileNameEditor = null;
@@ -82,8 +82,6 @@ public class SettingUI {
         fileFolderBtn.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrFolderDescriptor()) {
         });
 
-        JCEFFileField.setText(PathManager.getPluginsPath() + File.separator + "leetcode-editor" + File.separator + "natives" + File.separator);
-
         customCodeBox.addActionListener(new DonateListener(customCodeBox));
         proxyCheckBox.setSelected(HttpConfigurable.getInstance().USE_HTTP_PROXY || HttpConfigurable.getInstance().USE_PROXY_PAC);
         proxyCheckBox.addMouseListener(new MouseAdapter(){
@@ -94,6 +92,15 @@ public class SettingUI {
                 }
             }
         });
+        Boolean jcefSupported;
+        try {
+            jcefSupported = JBCefApp.isSupported();
+        }catch (Exception e){
+            jcefSupported = false;
+        }
+        if(!jcefSupported){
+            proxyCheckBox.setEnabled(true);
+        }
 
         templateConfigHelp.addMouseListener(new MouseAdapter() {
             @Override
@@ -183,6 +190,7 @@ public class SettingUI {
             mediumLabel.setForeground(colors[1]);
             hardLabel.setForeground(colors[2]);
 
+            jcefCheckBox.setSelected(config.getJcef());
         } else {
             Color[] colors = new Config().getFormatLevelColour();
             easyLabel.setForeground(colors[0]);
@@ -249,6 +257,7 @@ public class SettingUI {
         config.setCustomTemplate(templateEditor.getDocument().getText());
         config.setFormatLevelColour(easyLabel.getForeground(), mediumLabel.getForeground(), hardLabel.getForeground());
         config.setEnglishContent(englishContentBox.isSelected());
+        config.setJcef(jcefCheckBox.isSelected());
     }
 
 
@@ -270,5 +279,4 @@ public class SettingUI {
             this.templateHelpEditor = null;
         }
     }
-
 }

@@ -2,24 +2,16 @@ package com.shuzijun.leetcode.plugin.window;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.codebrig.journey.JourneyBrowserView;
-import com.codebrig.journey.JourneyLoader;
-import com.codebrig.journey.proxy.CefBrowserProxy;
-import com.codebrig.journey.proxy.browser.CefFrameProxy;
-import com.codebrig.journey.proxy.callback.CefCookieVisitorProxy;
-import com.codebrig.journey.proxy.handler.CefLoadHandlerProxy;
-import com.codebrig.journey.proxy.misc.BoolRefProxy;
-import com.codebrig.journey.proxy.network.CefCookieManagerProxy;
-import com.codebrig.journey.proxy.network.CefCookieProxy;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.FrameWrapper;
-import com.intellij.ui.components.JBPanel;
+import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.wm.impl.IdeFrameImpl;
+import com.intellij.ui.jcef.JBCefApp;
+import com.intellij.ui.jcef.JBCefBrowser;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
@@ -27,8 +19,13 @@ import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.cef.browser.CefBrowser;
+import org.cef.browser.CefFrame;
+import org.cef.callback.CefCookieVisitor;
+import org.cef.handler.CefLoadHandlerAdapter;
+import org.cef.misc.BoolRef;
+import org.cef.network.CefCookie;
 import org.jetbrains.annotations.NotNull;
-import org.joor.Reflect;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,8 +33,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.lang.reflect.Proxy;
 import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,111 +40,110 @@ import java.util.List;
 /**
  * @author shuzijun
  */
-public class LoginFrame extends FrameWrapper {
+public class LoginFrame {
 
     private JTree tree;
     private Project project;
 
-    private boolean isComponent = false;
 
     public LoginFrame(Project project, JTree tree) {
-        super(project);
         this.tree = tree;
         this.project = project;
     }
 
     public void loadComponent() {
-        isComponent = true;
-        if (classLoader()) {
-            loadJCEFComponent();
-
-            setTitle("login");
-        } else {
-            loadCookieComponent();
-            setSize(new Dimension(400, 200));
-
-            setTitle("login cookie");
+        Window activeFrame = IdeFrameImpl.getActiveFrame();
+        if (activeFrame == null) {
+            return;
         }
+        Rectangle bounds = activeFrame.getGraphicsConfiguration().getBounds();
+        final JFrame frame = new IdeFrameImpl();
+        frame.setDefaultCloseOperation(2);
+        frame.setBounds(bounds.width / 4, bounds.height / 4, bounds.width / 2, bounds.height / 2);
+        frame.setLayout(new BorderLayout());
+
+        if (classLoader()) {
+            loadJCEFComponent(frame);
+        } else {
+            loadCookieComponent(frame);
+        }
+        frame.setVisible(true);
+
     }
 
-    private void loadJCEFComponent() {
+    private void loadJCEFComponent(JFrame frame) {
+        final JBCefBrowser jbCefBrowser = new JBCefBrowser(URLUtils.getLeetcodeLogin());
 
-        JourneyBrowserView browser = new JourneyBrowserView(URLUtils.getLeetcodeLogin());
-
-        this.getFrame().addWindowListener(new WindowAdapter() {
+        frame.addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(WindowEvent e) {
-                browser.getCefClient().dispose();
+            public void windowClosed(WindowEvent e) {
+                jbCefBrowser.getJBCefCookieManager().deleteCookies(URLUtils.leetcode, false);
+                jbCefBrowser.getJBCefCookieManager().deleteCookies(URLUtils.leetcodecn, false);
+                Disposer.dispose(jbCefBrowser);
             }
         });
-        browser.getCefClient().addLoadHandler(CefLoadHandlerProxy.createHandler(new CefLoadHandlerProxy() {
+
+
+        jbCefBrowser.getJBCefClient().addLoadHandler(new CefLoadHandlerAdapter() {
+
+            boolean successDispose = false;
 
             @Override
-            public void onLoadingStateChange(CefBrowserProxy cefBrowserProxy, boolean b, boolean b1, boolean b2) {
-                LogUtils.LOG.debug("onLoadEnd:" + cefBrowserProxy.getURL());
-                if (CefCookieManagerProxy.getGlobalManager() != null) {
-                    final List<HttpCookie> cookieList = new ArrayList<>();
-                    final Boolean[] isSession = {Boolean.FALSE};
-
-                    boolean v = CefCookieManagerProxy.getGlobalManager().visitAllCookies(CefCookieVisitorProxy.createVisitor(new CefCookieVisitorProxy() {
-
-                        @Override
-                        public boolean visit(CefCookieProxy cefCookieProxy, int count, int total, BoolRefProxy boolRefProxy) {
-                            Object cefCookie = ((Reflect.ProxyInvocationHandler) Proxy.getInvocationHandler(cefCookieProxy)).getUnderlyingObject();
-                            if (Reflect.on(cefCookie).field("domain").toString().contains("leetcode")) {
-                                HttpCookie cookie = new HttpCookie(Reflect.on(cefCookie).field("name").toString(), Reflect.on(cefCookie).field("value").toString());
-                                cookie.setDomain(Reflect.on(cefCookie).field("domain").toString());
-                                cookie.setPath(Reflect.on(cefCookie).field("path").toString());
-                                cookieList.add(cookie);
-                                if ("LEETCODE_SESSION".equals(Reflect.on(cefCookie).field("name").toString())) {
-                                    isSession[0] = Boolean.TRUE;
-                                }
-                            }
-                            if (count == total - 1 && isSession[0]) {
-                                HttpRequestUtils.setCookie(cookieList);
-                                if (HttpRequestUtils.isLogin()) {
-                                    Config config = PersistentConfig.getInstance().getInitConfig();
-                                    config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.httpCookieToJSONString(cookieList));
-                                    PersistentConfig.getInstance().setInitConfig(config);
-                                    ViewManager.loadServiceData(tree, project);
-                                    httpLogin.examineEmail(project);
-                                    cefBrowserProxy.executeJavaScript("alert('Login is successful. Please close the window')", "leetcode-editor", 0);
-                                } else {
-                                    LogUtils.LOG.info("login failure");
-                                }
-                            }
-                            return true;
-                        }
-                    }));
-
+            public void onLoadError(CefBrowser browser, CefFrame frame, ErrorCode errorCode, String errorText, String failedUrl) {
+                if(!successDispose) {
+                    browser.executeJavaScript("alert('The page failed to load, please check the network and open it again')", "leetcode-editor", 0);
                 }
             }
 
             @Override
-            public void onLoadEnd(CefBrowserProxy cefBrowserProxy, CefFrameProxy cefFrameProxy, int i) {
+            public void onLoadingStateChange(CefBrowser browser, boolean isLoading, boolean canGoBack, boolean canGoForward) {
 
+                jbCefBrowser.getJBCefCookieManager().getCefCookieManager().visitAllCookies(new CefCookieVisitor() {
+
+                    private List<HttpCookie> cookieList = new ArrayList<>();
+                    @Override
+                    public boolean visit(CefCookie cefCookie, int count, int total, BoolRef boolRef) {
+
+                        boolean isSession = Boolean.FALSE;
+                        if (cefCookie.domain.contains("leetcode")) {
+                            HttpCookie cookie = new HttpCookie(cefCookie.name, cefCookie.value);
+                            cookie.setDomain(cefCookie.domain);
+                            cookie.setPath(cefCookie.path);
+                            cookieList.add(cookie);
+                            if ("LEETCODE_SESSION".equals(cefCookie.name)) {
+                                isSession = Boolean.TRUE;
+                            }
+                        }
+                        if (count == total - 1 && isSession) {
+                            HttpRequestUtils.setCookie(cookieList);
+                            if (HttpRequestUtils.isLogin()) {
+                                loginSuccess(tree, project, cookieList);
+                                //browser.executeJavaScript("alert('Login is successful. close the window')", "leetcode-editor", 0);
+                                successDispose = true;
+                                frame.dispose();
+                            } else {
+                                cookieList.clear();
+                                LogUtils.LOG.info("login failure");
+                            }
+                        }
+                        return true;
+                    }
+                });
             }
+        }, jbCefBrowser.getCefBrowser());
 
-            @Override
-            public void onLoadError(CefBrowserProxy cefBrowserProxy, CefFrameProxy cefFrameProxy, CefLoadHandlerProxy.ErrorCode errorCode, String s, String s1) {
-                cefFrameProxy.executeJavaScript("alert('The page failed to load, please check the network and open it again')", "leetcode-editor", 0);
-            }
-        }));
+        frame.add(jbCefBrowser.getComponent(), BorderLayout.CENTER);
 
-        this.setComponent(browser);
     }
 
-    private void loadCookieComponent() {
-
-        JBPanel panel = new JBPanel();
-        panel.setLayout(new BorderLayout());
+    private void loadCookieComponent(JFrame frame) {
 
         JTextArea cookieText = new JTextArea();
         cookieText.setLineWrap(true);
         cookieText.setMinimumSize(new Dimension(400, 200));
         cookieText.setPreferredSize(new Dimension(400, 200));
 
-        panel.add(cookieText, BorderLayout.CENTER);
+        frame.add(cookieText, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
         JButton cookieHelp = new JButton("help");
@@ -180,7 +174,7 @@ public class LoginFrame extends FrameWrapper {
                             basicClientCookie.setDomain("." + URLUtils.getLeetcodeHost());
                             basicClientCookie.setPath("/");
                             cookieList.add(basicClientCookie);
-                        }catch (IllegalArgumentException ignore){
+                        } catch (IllegalArgumentException ignore) {
 
                         }
                     }
@@ -191,12 +185,7 @@ public class LoginFrame extends FrameWrapper {
                     @Override
                     public void run(@NotNull ProgressIndicator progressIndicator) {
                         if (HttpRequestUtils.isLogin()) {
-                            Config config = PersistentConfig.getInstance().getInitConfig();
-                            config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.httpCookieToJSONString(cookieList));
-                            PersistentConfig.getInstance().setInitConfig(config);
-                            MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                            ViewManager.loadServiceData(tree, project);
-                            httpLogin.examineEmail(project);
+                            loginSuccess(tree, project, cookieList);
                             return;
                         } else {
                             JOptionPane.showMessageDialog(null, PropertiesUtils.getInfo("login.failed"));
@@ -204,7 +193,7 @@ public class LoginFrame extends FrameWrapper {
                         }
                     }
                 });
-                close();
+                frame.dispose();
             }
         });
 
@@ -212,30 +201,41 @@ public class LoginFrame extends FrameWrapper {
         closeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                close();
+                frame.dispose();
             }
         });
 
         buttonPanel.add(loginButton);
         buttonPanel.add(cookieHelp);
         buttonPanel.add(closeButton);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-
-        this.setComponent(panel);
+        frame.add(buttonPanel, BorderLayout.SOUTH);
 
     }
 
     private boolean classLoader() {
         synchronized (this) {
-            String path = PathManager.getPluginsPath() + File.separator + "leetcode-editor" + File.separator + "natives" + File.separator;
-            if (!new File(path, "icudtl.dat").exists()
-                    && !new File(path, "jcef_app.app").exists()) {
+            try {
+                Config config = PersistentConfig.getInstance().getInitConfig();
+                return config.getJcef() && JBCefApp.isSupported();
+            } catch (Exception e) {
                 return Boolean.FALSE;
-            } else {
-                JourneyLoader.getJourneyClassLoader(path);
-                return Boolean.TRUE;
             }
+
         }
+    }
+
+    private void loginSuccess(JTree tree, Project project, List<HttpCookie> cookieList) {
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "leetcode.loginSuccess", false) {
+            @Override
+            public void run(@NotNull ProgressIndicator progressIndicator) {
+                Config config = PersistentConfig.getInstance().getInitConfig();
+                config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.httpCookieToJSONString(cookieList));
+                PersistentConfig.getInstance().setInitConfig(config);
+                MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
+                ViewManager.loadServiceData(tree, project);
+                httpLogin.examineEmail(project);
+            }
+        });
     }
 
     public static class httpLogin {
@@ -251,8 +251,8 @@ public class LoginFrame extends FrameWrapper {
                         .addTextBody("password", PersistentConfig.getInstance().getPassword())
                         .addTextBody("next", "/problems")
                         .build();
-                HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeLogin(),ent.getContentType().getValue());
-                httpRequest.setBody(IOUtils.toString(ent.getContent(),"UTF-8"));
+                HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeLogin(), ent.getContentType().getValue());
+                httpRequest.setBody(IOUtils.toString(ent.getContent(), "UTF-8"));
                 httpRequest.addHeader("x-requested-with", "XMLHttpRequest");
                 httpRequest.addHeader("accept", "*/*");
                 HttpResponse response = HttpRequestUtils.executePost(httpRequest);
@@ -302,14 +302,14 @@ public class LoginFrame extends FrameWrapper {
                 LogUtils.LOG.error("登陆错误", e);
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.failed"));
                 return Boolean.FALSE;
-            } 
+            }
         }
 
         public static void examineEmail(Project project) {
             ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
                 @Override
                 public void run() {
-                    HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(),"application/json");
+                    HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(), "application/json");
                     try {
                         httpRequest.setBody("{\"operationName\":\"user\",\"variables\":{},\"query\":\"query user {\\n  user {\\n    socialAccounts\\n    username\\n    emails {\\n      email\\n      primary\\n      verified\\n      __typename\\n    }\\n    phone\\n    profile {\\n      rewardStats\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}");
                         httpRequest.addHeader("Accept", "application/json");
