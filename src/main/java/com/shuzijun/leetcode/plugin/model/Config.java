@@ -85,6 +85,11 @@ public class Config {
      */
     private String levelColour = Constant.LEVEL_COLOUR;
 
+    /**
+     * 使用jcef渲染
+     */
+    private Boolean jcef = false;
+
     private List<String> favoriteList;
 
     public String getId() {
@@ -295,6 +300,13 @@ public class Config {
         this.englishContent = englishContent;
     }
 
+    public Boolean getJcef() {
+        return jcef;
+    }
+
+    public void setJcef(Boolean jcef) {
+        this.jcef = jcef;
+    }
 
     public boolean isModified(Config config){
         if(config ==null){
@@ -313,6 +325,8 @@ public class Config {
         if (customFileName != null ? !customFileName.equals(config.customFileName) : config.customFileName != null)
             return false;
         if (customTemplate != null ? !customTemplate.equals(config.customTemplate) : config.customTemplate != null)
+            return false;
+        if (jcef != null ? !jcef.equals(config.jcef) : config.jcef != null)
             return false;
         return levelColour != null ? levelColour.equals(config.levelColour) : config.levelColour == null;
     }
