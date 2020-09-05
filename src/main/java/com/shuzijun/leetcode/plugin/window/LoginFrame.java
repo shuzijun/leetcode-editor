@@ -217,7 +217,7 @@ public class LoginFrame {
             try {
                 Config config = PersistentConfig.getInstance().getInitConfig();
                 return config.getJcef() && JBCefApp.isSupported();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 return Boolean.FALSE;
             }
 
