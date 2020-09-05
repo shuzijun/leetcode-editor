@@ -95,7 +95,7 @@ public class SettingUI {
         Boolean jcefSupported;
         try {
             jcefSupported = JBCefApp.isSupported();
-        }catch (Exception e){
+        }catch (Throwable e){
             jcefSupported = false;
         }
         if(!jcefSupported){
