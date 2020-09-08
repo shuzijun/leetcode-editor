@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>6.7</version>
+    <version>6.8</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -113,6 +113,16 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v6.8<br>
+               1.优化登录提示.<br>
+               2.支持2020.2+提供的JCEF.<br>
+               3.修复查看提交.<br>
+            </li>
+            <li>v6.8<br>
+               1.Optimize login prompts.<br>
+               2.Support for 2020.2+ provided JCEF.<br>
+               3.fix submission.<br>
+            </li>
             <li>v6.7<br>
                1.优化答案视图.<br>
                2.增加支持多提交区域.<br>
@@ -395,7 +405,7 @@
         <lang.foldingBuilder language="Python" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
         <lang.foldingBuilder language="ObjectiveC" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
         <lang.foldingBuilder language="CS" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
-        <lang.foldingBuilder language="ECMAScript 6" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <!--<lang.foldingBuilder language="ECMAScript 6" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>-->
         <lang.foldingBuilder language="ruby" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
         <lang.foldingBuilder language="Swift" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
         <lang.foldingBuilder language="go" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
