@@ -93,7 +93,7 @@ public class SettingUI {
             }
         });
 
-        jcefCheckBox.setEnabled(!HttpLogin.isSupportedJcef());
+        jcefCheckBox.setEnabled(HttpLogin.isSupportedJcef());
 
         templateConfigHelp.addMouseListener(new MouseAdapter() {
             @Override
