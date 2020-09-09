@@ -14,5 +14,6 @@
   </p> 
     
 ## browser login   
-  This login requires additional download of dependent files. Download the compressed package with the version number ** jcef ** at the [releases](https://github.com/shuzijun/leetcode-editor/releases) address. After downloading, decompress it to the path of JCEFFilePath shown on the configuration page.  
-  If there is a resource file in the path, this login method will be used first, but this method is not compatible. If it cannot be loaded normally, you need to delete the contents of the folder and log in using other methods.  
+  ~~This login requires additional download of dependent files. Download the compressed package with the version number ** jcef ** at the [releases](https://github.com/shuzijun/leetcode-editor/releases) address. After downloading, decompress it to the path of JCEFFilePath shown on the configuration page.~~  
+  ~~If there is a resource file in the path, this login method will be used first, but this method is not compatible. If it cannot be loaded normally, you need to delete the contents of the folder and log in using other methods.~~  
+  Starting from version 6.8, external mounting of JCEF is no longer supported. Instead, JCEF provided by JetBrains is used. The supported version is 2020.2+. If you meet the conditions of use, you can check JCEF in the configuration item.

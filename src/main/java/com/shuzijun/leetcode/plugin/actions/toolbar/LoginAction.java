@@ -7,8 +7,7 @@ import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
-import com.shuzijun.leetcode.plugin.window.LoginFrame;
-import com.shuzijun.leetcode.plugin.window.WindowFactory;
+import com.shuzijun.leetcode.plugin.window.*;
 import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
@@ -20,8 +19,8 @@ import java.util.List;
  */
 public class LoginAction extends AbstractAction {
 
-        @Override
-        public void actionPerformed(AnActionEvent anActionEvent, Config config) {
+    @Override
+    public void actionPerformed(AnActionEvent anActionEvent, Config config) {
 
         JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
 
@@ -61,22 +60,16 @@ public class LoginAction extends AbstractAction {
             }
         }
 
-
-        if (URLUtils.leetcodecn.equals(URLUtils.getLeetcodeHost())) {
-            if (!LoginFrame.httpLogin.ajaxLogin(config, tree, anActionEvent.getProject())) {
-                ApplicationManager.getApplication().invokeAndWait(new Runnable() {
-                    @Override
-                    public void run() {
-                        LoginFrame loginFrame = new LoginFrame(anActionEvent.getProject(), tree);
-                        loginFrame.loadComponent();
-                    }
-                });
-            }
-        } else {
+        if (!HttpLogin.ajaxLogin(config, tree, anActionEvent.getProject())) {
             ApplicationManager.getApplication().invokeAndWait(new Runnable() {
                 @Override
                 public void run() {
-                    LoginFrame loginFrame = new LoginFrame(anActionEvent.getProject(), tree);
+                    LoginFrame loginFrame;
+                    if (HttpLogin.isSupportedJcef()) {
+                        loginFrame = new JcefLogin(anActionEvent.getProject(), tree);
+                    } else {
+                        loginFrame = new CookieLogin(anActionEvent.getProject(), tree);
+                    }
                     loginFrame.loadComponent();
                 }
             });

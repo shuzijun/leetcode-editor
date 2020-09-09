@@ -13,7 +13,6 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
-import com.intellij.ui.jcef.JBCefApp;
 import com.intellij.util.net.HttpConfigurable;
 import com.shuzijun.leetcode.plugin.listener.ColorListener;
 import com.shuzijun.leetcode.plugin.listener.DonateListener;
@@ -25,6 +24,7 @@ import com.shuzijun.leetcode.plugin.timer.TimerBarWidget;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
+import com.shuzijun.leetcode.plugin.window.HttpLogin;
 import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
@@ -92,15 +92,8 @@ public class SettingUI {
                 }
             }
         });
-        Boolean jcefSupported;
-        try {
-            jcefSupported = JBCefApp.isSupported();
-        }catch (Throwable e){
-            jcefSupported = false;
-        }
-        if(!jcefSupported){
-            proxyCheckBox.setEnabled(true);
-        }
+
+        jcefCheckBox.setEnabled(!HttpLogin.isSupportedJcef());
 
         templateConfigHelp.addMouseListener(new MouseAdapter() {
             @Override
