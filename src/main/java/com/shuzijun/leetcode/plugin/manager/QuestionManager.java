@@ -218,6 +218,7 @@ public class QuestionManager {
                     question.setStatus("");
                 }
                 question.setTitleSlug(object.getJSONObject("stat").getString("question__title_slug"));
+                question.setClassName("LeetCode"+getQuestionNum(question.getQuestionId())+VelocityTool.camelCaseName(question.getTitleSlug()));
                 question.setLevel(object.getJSONObject("difficulty").getInteger("level"));
                 try {
                     if (object.getJSONObject("stat").containsKey("question__article__live")) {
@@ -308,6 +309,12 @@ public class QuestionManager {
             }
 
         }
+    }
+
+    private static String getQuestionNum(String questionId) {
+        int zearoLen = 4 - questionId.length();
+        String zearos = StringUtils.repeat("0", zearoLen > 0 ? zearoLen : 0);
+        return zearos + questionId;
     }
 
     private static String questionOfToday() {

@@ -11,6 +11,7 @@ public class Question {
     private String questionId;
     private String questionTypename;
     private String typeName;
+    private String className;
     private Integer level;
     private String status;
     private String titleSlug;
@@ -58,6 +59,14 @@ public class Question {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
     }
 
     public String getFormTitle() {
