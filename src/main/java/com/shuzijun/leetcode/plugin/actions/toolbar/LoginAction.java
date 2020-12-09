@@ -65,7 +65,7 @@ public class LoginAction extends AbstractAction {
                 @Override
                 public void run() {
                     LoginFrame loginFrame;
-                    if (HttpLogin.isSupportedJcef()) {
+                    if (HttpLogin.isEnabledJcef()) {
                         loginFrame = new JcefLogin(anActionEvent.getProject(), tree);
                     } else {
                         loginFrame = new CookieLogin(anActionEvent.getProject(), tree);
