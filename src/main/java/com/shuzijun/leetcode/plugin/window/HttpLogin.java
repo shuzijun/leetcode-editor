@@ -17,6 +17,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.HttpCookie;
 import java.util.List;
@@ -142,15 +143,17 @@ public class HttpLogin {
         });
     }
 
+    public static boolean isEnabledJcef() {
+        Config config = PersistentConfig.getInstance().getInitConfig();
+        return config != null && config.getJcef() && isSupportedJcef();
+    }
+
     public static boolean isSupportedJcef() {
         try {
             Class<?> JBCefAppClass = Class.forName("com.intellij.ui.jcef.JBCefApp");
             Method method = JBCefAppClass.getMethod("isSupported");
-            boolean supported = (boolean) method.invoke(null);
-
-            Config config = PersistentConfig.getInstance().getInitConfig();
-            return config.getJcef() && supported;
-        } catch (Throwable e) {
+            return (boolean) method.invoke(null);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             return Boolean.FALSE;
         }
     }
