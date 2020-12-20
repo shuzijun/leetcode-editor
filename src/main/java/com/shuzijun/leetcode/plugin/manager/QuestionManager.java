@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -18,6 +19,7 @@ import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author shuzijun
@@ -401,4 +403,16 @@ public class QuestionManager {
         return tags;
     }
 
+    public static List<Tag> getCompany() {
+        Map<String, Set<String>> companyList = CompanyUtils.getCompanyQuestionMap();
+        List<Tag> tags = Lists.newArrayList();
+        companyList.forEach((company, questions) -> {
+            Tag tag = new Tag();
+            tag.setName(company);
+            tag.getQuestions().addAll(questions);
+            tags.add(tag);
+        });
+        tags.sort(Comparator.comparing(Tag::getName));
+        return tags;
+    }
 }

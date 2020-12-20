@@ -73,6 +73,8 @@ public class FindActionGroup extends ActionGroup {
             tags = ViewManager.getFilter(Constant.FIND_TYPE_TAGS);
         } else if ("leetcode.find.Category".equals(id)) {
             tags = ViewManager.getFilter(Constant.FIND_TYPE_CATEGORY);
+        } else if ("leetcode.find.Companies".equals(id)) {
+            tags = ViewManager.getFilter(Constant.FIND_TYPE_COMPANY);
         }
 
         return tags;

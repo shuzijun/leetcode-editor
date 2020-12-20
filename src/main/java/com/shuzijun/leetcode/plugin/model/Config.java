@@ -1,6 +1,7 @@
 package com.shuzijun.leetcode.plugin.model;
 
 import com.intellij.util.xmlb.annotations.Transient;
+import com.shuzijun.leetcode.plugin.utils.CompanyUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -89,6 +90,16 @@ public class Config {
      * 使用jcef渲染
      */
     private Boolean jcef = false;
+
+    /**
+     * 公司信息来源
+     */
+    private String companySourceType = CompanyUtils.COMPANY_SOURCE_TYPE_BUILD_IN;
+
+    /**
+     * 公司信息来源URL
+     */
+    private String companySourceUrl;
 
     private List<String> favoriteList;
 
@@ -308,6 +319,22 @@ public class Config {
         this.jcef = jcef;
     }
 
+    public String getCompanySourceType() {
+        return companySourceType;
+    }
+
+    public void setCompanySourceType(String companySourceType) {
+        this.companySourceType = companySourceType;
+    }
+
+    public String getCompanySourceUrl() {
+        return companySourceUrl;
+    }
+
+    public void setCompanySourceUrl(String companySourceUrl) {
+        this.companySourceUrl = companySourceUrl;
+    }
+
     public boolean isModified(Config config){
         if(config ==null){
             return false;
@@ -327,6 +354,10 @@ public class Config {
         if (customTemplate != null ? !customTemplate.equals(config.customTemplate) : config.customTemplate != null)
             return false;
         if (jcef != null ? !jcef.equals(config.jcef) : config.jcef != null)
+            return false;
+        if (companySourceType != null ? !companySourceType.equals(config.companySourceType) : config.companySourceType != null)
+            return false;
+        if (companySourceUrl != null ? !companySourceUrl.equals(config.companySourceUrl) : config.companySourceUrl != null)
             return false;
         return levelColour != null ? levelColour.equals(config.levelColour) : config.levelColour == null;
     }

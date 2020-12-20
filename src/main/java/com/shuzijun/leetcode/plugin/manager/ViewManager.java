@@ -62,6 +62,7 @@ public class ViewManager {
         filter.put(Constant.FIND_TYPE_LISTS, QuestionManager.getLists());
         filter.put(Constant.FIND_TYPE_TAGS, QuestionManager.getTags());
         filter.put(Constant.FIND_TYPE_CATEGORY, QuestionManager.getCategory(url));
+        filter.put(Constant.FIND_TYPE_COMPANY, QuestionManager.getCompany());
 
 
         DefaultTreeModel treeMode = (DefaultTreeModel) tree.getModel();

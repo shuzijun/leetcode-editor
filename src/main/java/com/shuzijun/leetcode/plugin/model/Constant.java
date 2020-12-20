@@ -31,6 +31,8 @@ public class Constant {
     public static final String NODETYPE_CARD = "card";
     public static final String NODETYPE_CHAPTER = "chapter";
     public static final String NODETYPE_ITEM = "item";
+    public static final String NODETYPE_COMPANY = "company";
+
     /**
      * 探索下列表内容
      */
@@ -46,6 +48,7 @@ public class Constant {
     public static final String FIND_TYPE_LISTS = "Lists";
     public static final String FIND_TYPE_TAGS = "Tags";
     public static final String FIND_TYPE_CATEGORY = "Category";
+    public static final String FIND_TYPE_COMPANY = "Company";
 
     /**
      * 状态类型

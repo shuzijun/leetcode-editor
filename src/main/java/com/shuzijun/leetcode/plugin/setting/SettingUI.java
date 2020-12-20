@@ -21,6 +21,7 @@ import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.renderer.CustomTreeCellRenderer;
 import com.shuzijun.leetcode.plugin.timer.TimerBarWidget;
+import com.shuzijun.leetcode.plugin.utils.CompanyUtils;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -29,9 +30,12 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.function.Consumer;
 
 /**
  * @author shuzijun
@@ -56,6 +60,8 @@ public class SettingUI {
     private JPanel codeTemplate;
     private JPanel templateConstant;
     private JCheckBox jcefCheckBox;
+    private JComboBox companySourceType;
+    private JTextField companySourceUrl;
 
 
     private Editor fileNameEditor = null;
@@ -81,6 +87,16 @@ public class SettingUI {
 
         fileFolderBtn.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrFolderDescriptor()) {
         });
+
+        companySourceType.addItem(CompanyUtils.COMPANY_SOURCE_TYPE_BUILD_IN);
+        companySourceType.addItem(CompanyUtils.COMPANY_SOURCE_TYPE_URL);
+        Consumer<Object> companySourceHandler = (item) -> {
+            companySourceUrl.setVisible(!CompanyUtils.COMPANY_SOURCE_TYPE_BUILD_IN.equals(item));
+        };
+        companySourceType.addItemListener(e -> {
+            companySourceHandler.accept(e.getItem());
+        });
+        companySourceHandler.accept(companySourceType.getSelectedItem());
 
         customCodeBox.addActionListener(new DonateListener(customCodeBox));
         proxyCheckBox.setSelected(HttpConfigurable.getInstance().USE_HTTP_PROXY || HttpConfigurable.getInstance().USE_PROXY_PAC);
@@ -184,6 +200,8 @@ public class SettingUI {
             hardLabel.setForeground(colors[2]);
 
             jcefCheckBox.setSelected(config.getJcef());
+            companySourceType.setSelectedItem(config.getCompanySourceType());
+            companySourceUrl.setText(config.getCompanySourceUrl());
         } else {
             Color[] colors = new Config().getFormatLevelColour();
             easyLabel.setForeground(colors[0]);
@@ -251,6 +269,8 @@ public class SettingUI {
         config.setFormatLevelColour(easyLabel.getForeground(), mediumLabel.getForeground(), hardLabel.getForeground());
         config.setEnglishContent(englishContentBox.isSelected());
         config.setJcef(jcefCheckBox.isSelected());
+        config.setCompanySourceType(companySourceType.getSelectedItem().toString());
+        config.setCompanySourceUrl(companySourceUrl.getText());
     }
 
 
