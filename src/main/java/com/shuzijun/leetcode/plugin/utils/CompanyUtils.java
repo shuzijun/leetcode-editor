@@ -33,9 +33,11 @@ public class CompanyUtils {
             return;
         }
         Config config = PersistentConfig.getInstance().getConfig();
+        String type = Optional.ofNullable(config).map(Config::getCompanySourceType).orElse(COMPANY_SOURCE_TYPE_BUILD_IN);
+        String url = Optional.ofNullable(config).map(Config::getCompanySourceUrl).orElse("");
         Map<String, Set<String>> tempMap = null;
         try {
-            if (COMPANY_SOURCE_TYPE_URL.equals(config.getCompanySourceType())) {
+            if (type.equals(COMPANY_SOURCE_TYPE_URL)) {
                 tempMap = loadUrlCompanies(config.getCompanySourceUrl());
             } else {
                 tempMap = loadBuildInCompanies();
@@ -43,7 +45,8 @@ public class CompanyUtils {
         } catch (Exception e) {
             tempMap = new TreeMap<>();
 
-            logger.error("Load companies error, type: {}, url: {}", config.getCompanySourceType(), config.getCompanySourceUrl(), e);
+            logger.error("Load companies error, type: {}, url: {}", type, url, e);
+            MessageUtils.showAllWarnMsg("Load companies error", String.format("type: %s, url: %s, exception: %s", type, url, e.getMessage()));
         } finally {
             COMPANY_QUESTION_MAP = Optional.ofNullable(tempMap).orElse(new HashMap<>());
 
