@@ -10,7 +10,7 @@ import org.jsoup.Jsoup;
 public class CommentUtils {
 
     public static String createComment(String html, CodeTypeEnum codeTypeEnum) {
-        String body = codeTypeEnum.getComment() + Jsoup.parse(html.replaceAll("(\\r\\n|\\r|\\n|\\n\\r)", "\\\\n")).text().replaceAll("\\\\n", "\n" + codeTypeEnum.getComment());
+        String body = codeTypeEnum.getComment() + Jsoup.parse(html.replaceAll("(\\n\\n|\\r\\n|\\r|\\n|\\n\\r)", "\\\\n")).text().replaceAll("\\\\n", "\n" + codeTypeEnum.getComment());
         String[] lines = body.split("\n");
         StringBuilder sb = new StringBuilder();
         for (String line : lines) {
