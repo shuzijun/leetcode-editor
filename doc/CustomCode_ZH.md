@@ -48,3 +48,27 @@
         ${question.code}
     }
   ```
+  
+或者可以选择这个TemplateConstant:
+```java
+${question.content}
+
+import java.util.logging.Logger;
+
+public class _$!{question.frontendQuestionId}_$!velocityTool.camelCaseName(${question.titleSlug}){
+
+    private static final Logger logger = Logger.getLogger(_$!{question.frontendQuestionId}_$!velocityTool.camelCaseName(${question.titleSlug}) .class.toString());
+
+    public static void main(String[] args) {
+        long startTimeMillis = System.currentTimeMillis();
+        Solution solution = new _$!{question.frontendQuestionId}_$!velocityTool.camelCaseName(${question.titleSlug})().new Solution();
+
+        // assert solution == ;
+        logger.warning(String.valueOf(solution));
+
+        logger.info("time cost: [" + (System.currentTimeMillis() - startTimeMillis) + "] ms");
+    }
+
+    ${question.code}
+}
+```
