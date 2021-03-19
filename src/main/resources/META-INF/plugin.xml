@@ -1,10 +1,14 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>leetcode editor</name>
-    <version>6.8</version>
+    <version>6.9</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
+        <div>
+           <p>Support for leetcode.com and leetcode-cn.com, can test and submit questions.
+			  More tutorial please visit： <a href="https://github.com/shuzijun/leetcode-editor">here</a></p>
+        </div>
         <div>
 			<h2>Introduction</h2>
 			<br>
@@ -14,7 +18,7 @@
 			</ul>
 			<ul>
 				<li>支持leetcode.com和leetcode-cn.com,可测试与提交问题</li>
-				<li>更多的插件使用截图： <a href="https://github.com/shuzijun/leetcode-editor">插件使用介绍</a></li>
+				<li>更多的插件使用教程： <a href="https://github.com/shuzijun/leetcode-editor">插件使用介绍</a></li>
 			</ul>
 		</div>
 		<div>
@@ -113,6 +117,12 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v6.9<br>
+               1.修复兼容性.<br>
+            </li>
+            <li>v6.9<br>
+               1.fix Compatibility.<br>
+            </li>
             <li>v6.8<br>
                1.优化登录提示.<br>
                2.支持2020.2+提供的JCEF.<br>
