@@ -43,7 +43,6 @@ jobs:
       uses: ChrisCarini/intellij-platform-plugin-verifier-action@latest
       with:
         failure-levels: |
-          MISSING_DEPENDENCIES
           INVALID_PLUGIN
         ide-versions: |
           ideaIC:2019.3
