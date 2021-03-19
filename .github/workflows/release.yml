@@ -40,7 +40,7 @@ jobs:
     
     - name: Verify plugin
       id: verify
-      uses: ChrisCarini/intellij-platform-plugin-verifier-action@latest
+      uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.0.5
       with:
         failure-levels: |
           INVALID_PLUGIN
