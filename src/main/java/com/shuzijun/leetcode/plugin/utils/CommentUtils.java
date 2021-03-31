@@ -4,13 +4,24 @@ import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author shuzijun
  */
 public class CommentUtils {
 
+    private static final Pattern subPattern = Pattern.compile("<sup>(<span.*>?)?([0-9abcdeghijklmnoprstuvwxyz\\+\\-\\*=\\(\\)\\.\\/]+)(</span>)?</sup>?");
+
     public static String createComment(String html, CodeTypeEnum codeTypeEnum) {
-        String body = codeTypeEnum.getComment() + Jsoup.parse(html.replaceAll("(\\r\\n|\\r|\\n|\\n\\r)", "\\\\n")).text().replaceAll("\\\\n", "\n" + codeTypeEnum.getComment());
+        Matcher subMatcher = subPattern.matcher(html);
+        while (subMatcher.find()) {
+            String subStr = SuperscriptUtils.getSup(subMatcher.group(2));
+            html = html.replace(subMatcher.group(), "<sup>" + subStr + "</sup>");
+        }
+        html = html.replaceAll("(\\r\\n|\\r|\\n|\\n\\r)", "\\\\n").replaceAll(" "," ");
+        String body = codeTypeEnum.getComment() + Jsoup.parse(html).text().replaceAll("\\\\n", "\n" + codeTypeEnum.getComment());
         String[] lines = body.split("\n");
         StringBuilder sb = new StringBuilder();
         for (String line : lines) {
