@@ -73,7 +73,7 @@ public class ViewManager {
             node.add(new DefaultMutableTreeNode(q));
         }
         for (String key : filter.keySet()) {
-            if(Constant.FIND_TYPE_CATEGORY.equals(key)){
+            if (Constant.FIND_TYPE_CATEGORY.equals(key)) {
                 continue;
             }
             DefaultMutableTreeNode filterNode = new DefaultMutableTreeNode(new Question(key));
@@ -254,8 +254,13 @@ public class ViewManager {
         if (!Lists.isEmpty()) {
             for (Tag tag : Lists) {
                 long qCnt = tag.getQuestions().stream().filter(q -> questionMap.get(q) != null).count();
-                DefaultMutableTreeNode tagNode = new DefaultMutableTreeNode(new Question(String.format("%s(%d)",
-                        tag.getName(), qCnt)));
+                Question item = new Question(String.format("%s(%d)",
+                        tag.getName(), qCnt));
+                Question parent = (Question) rootNode.getUserObject();
+                if (parent.getTitle().equals(Constant.FIND_TYPE_TAGS)){
+                    item.setNodeType(Constant.NODETYPE_TAG);
+                }
+                DefaultMutableTreeNode tagNode = new DefaultMutableTreeNode(item);
                 rootNode.add(tagNode);
                 for (String key : tag.getQuestions()) {
                     if (questionMap.get(key) != null) {

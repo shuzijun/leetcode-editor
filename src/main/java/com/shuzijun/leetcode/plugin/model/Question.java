@@ -42,6 +42,9 @@ public class Question {
      */
     private String articleSlug;
 
+    private Integer totalSolutionCount;
+
+    private Integer solutionSortTrend = 1;
 
     public Question() {
 
@@ -190,6 +193,22 @@ public class Question {
 
     public void setArticleSlug(String articleSlug) {
         this.articleSlug = articleSlug;
+    }
+
+    public Integer getTotalSolutionCount() {
+        return totalSolutionCount;
+    }
+
+    public void setTotalSolutionCount(Integer totalSolutionCount) {
+        this.totalSolutionCount = totalSolutionCount;
+    }
+
+    public Integer getSolutionSortTrend() {
+        return solutionSortTrend;
+    }
+
+    public void setSolutionSortTrend(Integer solutionSortTrend) {
+        this.solutionSortTrend = solutionSortTrend;
     }
 
     @Override

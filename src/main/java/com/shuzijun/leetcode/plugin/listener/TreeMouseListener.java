@@ -8,6 +8,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.shuzijun.leetcode.plugin.manager.CodeManager;
+import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,20 +45,27 @@ public class TreeMouseListener extends MouseAdapter {
                 if (e.getButton() == 3) { //鼠标右键
                     final ActionManager actionManager = ActionManager.getInstance();
                     final ActionGroup actionGroup = (ActionGroup) actionManager.getAction("leetcode.NavigatorActionsMenu");
+
                     if (actionGroup != null) {
                         actionManager.createActionPopupMenu("", actionGroup).getComponent().show(e.getComponent(), e.getX(), e.getY());
                     }
                 } else if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-                    ProgressManager.getInstance().run(new Task.Backgroundable(project,"leetcode.editor.openCode",false) {
+                    ProgressManager.getInstance().run(new Task.Backgroundable(project, "leetcode.editor.openCode", false) {
                         @Override
                         public void run(@NotNull ProgressIndicator progressIndicator) {
                             CodeManager.openCode(question, project);
                         }
                     });
                 }
+            } else if (Constant.NODETYPE_TAG.equals(question.getNodeType())) {
+                if (e.getButton() == 3) { //鼠标右键
+                    final ActionManager actionManager = ActionManager.getInstance();
+                    final ActionGroup actionGroup = (ActionGroup) actionManager.getAction("leetcode.editor.tree.menu");
+                    if (actionGroup != null) {
+                        actionManager.createActionPopupMenu("", actionGroup).getComponent().show(e.getComponent(), e.getX(), e.getY());
+                    }
+                }
             }
         }
-
-
     }
 }

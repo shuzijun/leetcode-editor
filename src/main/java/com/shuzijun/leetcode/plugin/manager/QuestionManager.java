@@ -214,6 +214,7 @@ public class QuestionManager {
                     } else {
                         question.setStatus(object.get("status") == null ? "" : object.getString("status"));
                     }
+                    question.setTotalSolutionCount(object.getJSONObject("stat").getInteger("total_column_articles"));
                 } catch (Exception ee) {
                     question.setStatus("");
                 }

@@ -31,6 +31,7 @@ public class Constant {
     public static final String NODETYPE_CARD = "card";
     public static final String NODETYPE_CHAPTER = "chapter";
     public static final String NODETYPE_ITEM = "item";
+    public static final String NODETYPE_TAG = "tag";
     /**
      * 探索下列表内容
      */

@@ -606,6 +606,13 @@
             </group>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </group>
+
+        <action id="leetcode.sortBySolutionAction" class="com.shuzijun.leetcode.plugin.actions.tree.SortBySolutionAction"
+                text="Sort By Solution" description="Sort by solution"/>
+
+        <group id="leetcode.editor.tree.menu">
+            <reference id="leetcode.sortBySolutionAction"/>
+        </group>
     </actions>
 
 
