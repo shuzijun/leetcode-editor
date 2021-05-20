@@ -67,7 +67,9 @@ public class ViewManager {
         DefaultTreeModel treeMode = (DefaultTreeModel) tree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeMode.getRoot();
         root.removeAllChildren();
-        DefaultMutableTreeNode node = new DefaultMutableTreeNode(new Question(String.format("Problems(%d)", questionList.size())));
+        Question problems = new Question(String.format("Problems(%d)", questionList.size()));
+        problems.setNodeType(Constant.NODETYPE_PROBLEMS);
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode(problems);
         root.add(node);
         for (Question q : questionList) {
             node.add(new DefaultMutableTreeNode(q));
@@ -257,7 +259,7 @@ public class ViewManager {
                 Question item = new Question(String.format("%s(%d)",
                         tag.getName(), qCnt));
                 Question parent = (Question) rootNode.getUserObject();
-                if (parent.getTitle().equals(Constant.FIND_TYPE_TAGS)){
+                if (parent.getTitle().equals(Constant.FIND_TYPE_TAGS)) {
                     item.setNodeType(Constant.NODETYPE_TAG);
                 }
                 DefaultMutableTreeNode tagNode = new DefaultMutableTreeNode(item);

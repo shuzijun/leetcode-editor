@@ -208,13 +208,15 @@ public class QuestionManager {
                 question.setLeaf(Boolean.TRUE);
                 question.setQuestionId(object.getJSONObject("stat").getString("question_id"));
                 question.setFrontendQuestionId(object.getJSONObject("stat").getString("frontend_question_id"));
+                question.setTotalSolutionCount(object.getJSONObject("stat").getInteger("total_column_articles"));
+                question.setPassingRate(object.getJSONObject("stat").getDouble("total_acs")/object.getJSONObject("stat").getInteger("total_submitted"));
                 try {
                     if (object.getBoolean("paid_only") && isPremium) {
                         question.setStatus(object.getBoolean("paid_only") ? "lock" : null);
                     } else {
                         question.setStatus(object.get("status") == null ? "" : object.getString("status"));
                     }
-                    question.setTotalSolutionCount(object.getJSONObject("stat").getInteger("total_column_articles"));
+                    question.setOccurrenceFrequency(object.getDouble("frequency"));
                 } catch (Exception ee) {
                     question.setStatus("");
                 }

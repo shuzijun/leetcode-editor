@@ -610,8 +610,29 @@
         <action id="leetcode.sortBySolutionAction" class="com.shuzijun.leetcode.plugin.actions.tree.SortBySolutionAction"
                 text="Sort By Solution" description="Sort by solution"/>
 
+        <action id="leetcode.sortByIdAction" class="com.shuzijun.leetcode.plugin.actions.tree.SortByIdAction"
+                text="Sort By Id" description="Sort by id"/>
+
+        <action id="leetcode.sortByNameAction" class="com.shuzijun.leetcode.plugin.actions.tree.SortByNameAction"
+                text="Sort By Name" description="Sort by name"/>
+
+        <action id="leetcode.sortByPassingRateAction" class="com.shuzijun.leetcode.plugin.actions.tree.SortByPassRateAction"
+                text="Sort By Passing Rate" description="Sort by passing rate"/>
+
+        <action id="leetcode.sortByOccurrenceFrequencyAction" class="com.shuzijun.leetcode.plugin.actions.tree.SortByOccurrenceFrequencyAction"
+                text="Sort By Frequency" description="Sort by frequency"/>
+
+        <action id="leetcode.sortByDifficultyAction" class="com.shuzijun.leetcode.plugin.actions.tree.SortByDifficultyAction"
+                text="Sort By Difficulty" description="Sort by difficulty"/>
+
+
         <group id="leetcode.editor.tree.menu">
+            <reference id="leetcode.sortByIdAction"/>
+            <reference id="leetcode.sortByNameAction"/>
             <reference id="leetcode.sortBySolutionAction"/>
+            <reference id="leetcode.sortByPassingRateAction"/>
+            <reference id="leetcode.sortByDifficultyAction"/>
+            <reference id="leetcode.sortByOccurrenceFrequencyAction"/>
         </group>
     </actions>
 

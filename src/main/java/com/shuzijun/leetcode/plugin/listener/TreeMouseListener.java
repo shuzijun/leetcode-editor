@@ -57,7 +57,7 @@ public class TreeMouseListener extends MouseAdapter {
                         }
                     });
                 }
-            } else if (Constant.NODETYPE_TAG.equals(question.getNodeType())) {
+            } else if (Constant.NODETYPE_TAG.equals(question.getNodeType()) || Constant.NODETYPE_PROBLEMS.equals(question.getNodeType())) {
                 if (e.getButton() == 3) { //鼠标右键
                     final ActionManager actionManager = ActionManager.getInstance();
                     final ActionGroup actionGroup = (ActionGroup) actionManager.getAction("leetcode.editor.tree.menu");

@@ -8,9 +8,9 @@ import java.util.List;
 
 /**
  * @author hongjinfeng
- * @date 2021/5/19 4:35 下午
+ * @date 2021/5/20 9:41 上午
  */
-public class SortBySolutionAction extends AbstractSortAction {
+public class SortByNameAction extends AbstractSortAction {
 
     @Override
     public void sortChildren(Question tag, List<MutableTreeNode> childrenForSort) {
@@ -19,8 +19,8 @@ public class SortBySolutionAction extends AbstractSortAction {
             Question question1 = (Question) item1.getUserObject();
             DefaultMutableTreeNode item2 = (DefaultMutableTreeNode) o2;
             Question question2 = (Question) item2.getUserObject();
-            return tag.getSolutionSortTrend() * (question1.getTotalSolutionCount() - question2.getTotalSolutionCount());
+            return tag.getNameSortTrend() * (question1.getTitle().compareTo(question2.getTitle()));
         });
-        tag.setSolutionSortTrend(-tag.getSolutionSortTrend());
+        tag.setNameSortTrend(-tag.getNameSortTrend());
     }
 }
