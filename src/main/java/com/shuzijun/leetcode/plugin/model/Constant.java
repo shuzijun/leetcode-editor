@@ -88,4 +88,22 @@ public class Constant {
     public static final Integer ARTICLE_LIVE_ONE = 1;
     public static final Integer ARTICLE_LIVE_LIST = 2;
 
+    /**
+     * 排序类型
+     */
+    public static final int SORT_NONE = 0;
+    public static final int SORT_ASC = 1;
+    public static final int SORT_DESC = 2;
+
+    /**
+     * 排序类别
+     */
+    public static final String SORT_TYPE_ID = "SortById";
+    public static final String SORT_TYPE_TITLE = "SortByTitle";
+    public static final String SORT_TYPE_SOLUTION = "SortBySolution";
+    public static final String SORT_TYPE_ACCEPTANCE = "SortByAcceptance";
+    public static final String SORT_TYPE_DIFFICULTY = "SortByDifficulty";
+    public static final String SORT_TYPE_FREQUENCY = "SortByFrequency";
+
+
 }
