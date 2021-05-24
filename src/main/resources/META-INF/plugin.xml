@@ -616,6 +616,34 @@
             </group>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </group>
+
+        <group id = "leetcode.editor.tree.menu" popup="true">
+            <group id="leetcode.editor.sort.menu" popup="true" text="Sort" class="com.shuzijun.leetcode.plugin.actions.tree.SortActionGroup">
+                <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+                <action id="leetcode.sortBySolutionAction"
+                        class="com.shuzijun.leetcode.plugin.actions.tree.SortBySolutionAction"
+                        text="Sort By Solution" description="Sort by solution"/>
+
+                <action id="leetcode.sortByIdAction" class="com.shuzijun.leetcode.plugin.actions.tree.SortByIdAction"
+                        text="Sort By Id" description="Sort by id"/>
+
+                <action id="leetcode.sortByNameAction" class="com.shuzijun.leetcode.plugin.actions.tree.SortByNameAction"
+                        text="Sort By Name" description="Sort by name"/>
+
+                <action id="leetcode.sortByPassingRateAction"
+                        class="com.shuzijun.leetcode.plugin.actions.tree.SortByPassRateAction"
+                        text="Sort By Passing Rate" description="Sort by passing rate"/>
+
+                <action id="leetcode.sortByOccurrenceFrequencyAction"
+                        class="com.shuzijun.leetcode.plugin.actions.tree.SortByOccurrenceFrequencyAction"
+                        text="Sort By Frequency" description="Sort by frequency"/>
+
+                <action id="leetcode.sortByDifficultyAction"
+                        class="com.shuzijun.leetcode.plugin.actions.tree.SortByDifficultyAction"
+                        text="Sort By Difficulty" description="Sort by difficulty"/>
+            </group>
+        </group>
+
     </actions>
 
 

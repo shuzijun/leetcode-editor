@@ -42,6 +42,23 @@ public class Question {
      */
     private String articleSlug;
 
+    private Double occurrenceFrequency = 0d;
+
+    private Double passingRate = 0d;
+
+    private Integer totalSolutionCount;
+
+    private Integer solutionSortTrend = 1;
+
+    private Integer idSortTrend = 1;
+
+    private Integer levelSortTrend = 1;
+
+    private Integer nameSortTrend = 1;
+
+    private Integer occurrenceFrequencySortTrend = 1;
+
+    private Integer passingRateSortTrend = 1;
 
     public Question() {
 
@@ -190,6 +207,78 @@ public class Question {
 
     public void setArticleSlug(String articleSlug) {
         this.articleSlug = articleSlug;
+    }
+
+    public Integer getTotalSolutionCount() {
+        return totalSolutionCount;
+    }
+
+    public void setTotalSolutionCount(Integer totalSolutionCount) {
+        this.totalSolutionCount = totalSolutionCount;
+    }
+
+    public Integer getSolutionSortTrend() {
+        return solutionSortTrend;
+    }
+
+    public void setSolutionSortTrend(Integer solutionSortTrend) {
+        this.solutionSortTrend = solutionSortTrend;
+    }
+
+    public Integer getIdSortTrend() {
+        return idSortTrend;
+    }
+
+    public void setIdSortTrend(Integer idSortTrend) {
+        this.idSortTrend = idSortTrend;
+    }
+
+    public Integer getLevelSortTrend() {
+        return levelSortTrend;
+    }
+
+    public void setLevelSortTrend(Integer levelSortTrend) {
+        this.levelSortTrend = levelSortTrend;
+    }
+
+    public Integer getOccurrenceFrequencySortTrend() {
+        return occurrenceFrequencySortTrend;
+    }
+
+    public void setOccurrenceFrequencySortTrend(Integer occurrenceFrequencySortTrend) {
+        this.occurrenceFrequencySortTrend = occurrenceFrequencySortTrend;
+    }
+
+    public Integer getPassingRateSortTrend() {
+        return passingRateSortTrend;
+    }
+
+    public void setPassingRateSortTrend(Integer passingRateSortTrend) {
+        this.passingRateSortTrend = passingRateSortTrend;
+    }
+
+    public Integer getNameSortTrend() {
+        return nameSortTrend;
+    }
+
+    public void setNameSortTrend(Integer nameSortTrend) {
+        this.nameSortTrend = nameSortTrend;
+    }
+
+    public Double getOccurrenceFrequency() {
+        return occurrenceFrequency;
+    }
+
+    public void setOccurrenceFrequency(Double occurrenceFrequency) {
+        this.occurrenceFrequency = occurrenceFrequency;
+    }
+
+    public Double getPassingRate() {
+        return passingRate;
+    }
+
+    public void setPassingRate(Double passingRate) {
+        this.passingRate = passingRate;
     }
 
     @Override
