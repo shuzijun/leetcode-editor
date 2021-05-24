@@ -34,5 +34,6 @@ public interface LeetCodeEditorIcons {
     Icon SOLUTION = IconLoader.getIcon("/icons/solution.png");
     Icon SUBMIT = IconLoader.getIcon("/icons/submit.png");
     Icon TIME = IconLoader.getIcon("/icons/time.png");
-
+    Icon SORT_ASC = IconLoader.getIcon("/icons/sortAsc.png");
+    Icon SORT_DESC = IconLoader.getIcon("/icons/sortDesc.png");
 }

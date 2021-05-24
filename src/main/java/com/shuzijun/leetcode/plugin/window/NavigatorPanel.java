@@ -35,6 +35,8 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
     private JPanel queryPanel;
     private JBScrollPane contentScrollPanel;
     private SimpleTree tree;
+    private ActionToolbar findToolbar;
+    private ActionToolbar actionSortToolbar;
 
     public NavigatorPanel(ToolWindow toolWindow, Project project) {
         super(Boolean.TRUE, Boolean.TRUE);
@@ -124,18 +126,22 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
         queryField.addKeyListener(new QueryKeyListener(queryField, contentScrollPanel, toolWindow));
         queryPanel.add(queryField);
 
-        ActionToolbar findToolbar = actionManager.createActionToolbar("",
+         findToolbar = actionManager.createActionToolbar("",
                 (DefaultActionGroup) actionManager.getAction("leetcode.find.Toolbar"),
                 true);
         findToolbar.setTargetComponent(tree);
+        actionSortToolbar = actionManager.createActionToolbar("",
+                (DefaultActionGroup) actionManager.getAction("leetcode.find.SortToolbar"),
+                true);
+        actionSortToolbar.setTargetComponent(tree);
         queryPanel.add(findToolbar.getComponent());
+        queryPanel.add(actionSortToolbar.getComponent());
 
         queryPanel.setVisible(false);
         treePanel.setToolbar(queryPanel);
         setContent(treePanel);
 
     }
-
 
     @Override
     public Object getData(String dataId) {
@@ -149,6 +155,12 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
 
         if (DataKeys.LEETCODE_PROJECTS_SCROLL.is(dataId)) {
             return contentScrollPanel;
+        }
+        if (DataKeys.LEETCODE_TOOLBAR_FIND.is(dataId)) {
+            return findToolbar;
+        }
+        if (DataKeys.LEETCODE_TOOLBAR_SORT.is(dataId)) {
+            return actionSortToolbar;
         }
         return super.getData(dataId);
     }

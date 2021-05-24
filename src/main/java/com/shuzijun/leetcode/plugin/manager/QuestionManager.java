@@ -11,6 +11,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.leetcode.plugin.model.Sort;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
@@ -31,6 +32,7 @@ public class QuestionManager {
 
     private final static String TRANSLATIONNAME = "translation.json";
 
+    private static String dayQuestion = null;
 
     public static List<Question> getQuestionService(Project project, String url) {
         List<Question> questionList = null;
@@ -208,15 +210,18 @@ public class QuestionManager {
                 question.setLeaf(Boolean.TRUE);
                 question.setQuestionId(object.getJSONObject("stat").getString("question_id"));
                 question.setFrontendQuestionId(object.getJSONObject("stat").getString("frontend_question_id"));
-                question.setTotalSolutionCount(object.getJSONObject("stat").getInteger("total_column_articles"));
-                question.setPassingRate(object.getJSONObject("stat").getDouble("total_acs")/object.getJSONObject("stat").getInteger("total_submitted"));
+                question.setAcs(object.getJSONObject("stat").getInteger("total_acs"));
+                question.setSubmitted(object.getJSONObject("stat").getInteger("total_submitted"));
+                question.setAcceptance();
                 try {
                     if (object.getBoolean("paid_only") && isPremium) {
                         question.setStatus(object.getBoolean("paid_only") ? "lock" : null);
                     } else {
                         question.setStatus(object.get("status") == null ? "" : object.getString("status"));
                     }
-                    question.setOccurrenceFrequency(object.getDouble("frequency"));
+                    if (object.containsKey("frequency")) {
+                        question.setFrequency(object.getDouble("frequency"));
+                    }
                 } catch (Exception ee) {
                     question.setStatus("");
                 }
@@ -230,9 +235,13 @@ public class QuestionManager {
                         } else {
                             question.setArticleLive(Constant.ARTICLE_LIVE_ONE);
                             question.setArticleSlug(object.getJSONObject("stat").getString("question__title_slug"));
+                            question.setColumnArticles(1);
                         }
                     } else {
                         question.setArticleLive(Constant.ARTICLE_LIVE_LIST);
+                        if (object.getJSONObject("stat").containsKey("total_column_articles")) {
+                            question.setColumnArticles(object.getJSONObject("stat").getInteger("total_column_articles"));
+                        }
                     }
                 } catch (Exception e) {
                     LogUtils.LOG.error("Identify abnormal article", e);
@@ -243,30 +252,10 @@ public class QuestionManager {
 
             translation(questionList);
 
-            String dayQuestion = questionOfToday();
-
-            Collections.sort(questionList, new Comparator<Question>() {
-                @Override
-                public int compare(Question arg0, Question arg1) {
-                    String frontendId0 = arg0.getFrontendQuestionId();
-                    String frontendId1 = arg1.getFrontendQuestionId();
-                    if (frontendId0.equals(dayQuestion)) {
-                        return -1;
-                    } else if (frontendId1.equals(dayQuestion)) {
-                        return 1;
-                    } else if (StringUtils.isNumeric(frontendId0) && StringUtils.isNumeric(frontendId1)) {
-                        return Integer.valueOf(frontendId0).compareTo(Integer.valueOf(frontendId1));
-                    } else if (StringUtils.isNumeric(frontendId0)) {
-                        return -1;
-                    } else if (StringUtils.isNumeric(frontendId1)) {
-                        return 1;
-                    } else {
-                        return frontendId0.compareTo(frontendId1);
-                    }
-
-                }
-            });
+            questionOfToday();
+            sortQuestionList(questionList,new Sort(Constant.SORT_TYPE_ID,1));
         }
+
         return questionList;
 
     }
@@ -313,7 +302,7 @@ public class QuestionManager {
         }
     }
 
-    private static String questionOfToday() {
+    private static void questionOfToday() {
         if (URLUtils.isCn()) {
             try {
                 HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(), "application/json");
@@ -321,14 +310,14 @@ public class QuestionManager {
                 httpRequest.addHeader("Accept", "application/json");
                 HttpResponse response = HttpRequestUtils.executePost(httpRequest);
                 if (response == null || response.getStatusCode() != 200) {
-                    return null;
+                    QuestionManager.dayQuestion = null;
                 } else {
-                    return JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONArray("todayRecord").getJSONObject(0).getJSONObject("question").getString("questionFrontendId");
+                    QuestionManager.dayQuestion = JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONArray("todayRecord").getJSONObject(0).getJSONObject("question").getString("questionFrontendId");
                 }
             } catch (Exception e1) {
             }
         }
-        return null;
+        QuestionManager.dayQuestion = null;
     }
 
 
@@ -402,6 +391,63 @@ public class QuestionManager {
             }
         }
         return tags;
+    }
+
+    public static void sortQuestionList(List<Question> list, Sort sort) {
+        if (list == null || list.isEmpty() || sort.getType() == Constant.SORT_NONE) {
+            return;
+        }
+        Collections.sort(list,new QuestionComparator(sort));
+
+    }
+
+    private static class QuestionComparator implements Comparator<Question>{
+
+        private Sort sort;
+
+        public QuestionComparator(Sort sort) {
+            this.sort = sort;
+        }
+
+        @Override
+        public int compare(Question o1, Question o2) {
+            if (o1.equals(dayQuestion)) {
+                return  -1;
+            }
+            int order = 0;
+            if (Constant.SORT_TYPE_ID.equals(sort.getSlug())) {
+                String frontendId0 = o1.getFrontendQuestionId();
+                String frontendId1 = o2.getFrontendQuestionId();
+                if (frontendId0.equals(dayQuestion)) {
+                    return  -1;
+                } else if (frontendId1.equals(dayQuestion)) {
+                    order = 1;
+                } else if (StringUtils.isNumeric(frontendId0) && StringUtils.isNumeric(frontendId1)) {
+                    order = Integer.valueOf(frontendId0).compareTo(Integer.valueOf(frontendId1));
+                } else if (StringUtils.isNumeric(frontendId0)) {
+                    order = -1;
+                } else if (StringUtils.isNumeric(frontendId1)) {
+                    order = 1;
+                } else {
+                    order = frontendId0.compareTo(frontendId1);
+                }
+            } else if (Constant.SORT_TYPE_TITLE.equals(sort.getSlug())) {
+                order = o1.getTitle().compareTo(o2.getTitle());
+            } else if (Constant.SORT_TYPE_SOLUTION.equals(sort.getSlug())) {
+                order = o1.getColumnArticles().compareTo(o2.getColumnArticles());
+            } else if (Constant.SORT_TYPE_ACCEPTANCE.equals(sort.getSlug())) {
+                order = o1.getAcceptance().compareTo(o2.getAcceptance());
+            } else if (Constant.SORT_TYPE_DIFFICULTY.equals(sort.getSlug())) {
+                order = o1.getLevel().compareTo(o2.getLevel());
+            } else if (Constant.SORT_TYPE_FREQUENCY.equals(sort.getSlug())) {
+                order = o1.getFrequency().compareTo(o2.getFrequency());
+            }
+
+            if (sort.getType() == Constant.SORT_DESC) {
+                return 0 - order;
+            }
+            return order;
+        }
     }
 
 }

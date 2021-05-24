@@ -42,23 +42,28 @@ public class Question {
      */
     private String articleSlug;
 
-    private Double occurrenceFrequency = 0d;
+    /**
+     * 专栏文章
+     */
+    private Integer columnArticles = 0;
+    /**
+     * 解题成功
+     */
+    private Integer acs = 0;
+    /**
+     * 提交数
+     */
+    private Integer submitted = 0;
 
-    private Double passingRate = 0d;
+    /**
+     * 通过率 %
+     */
+    private Double acceptance = 0D;
 
-    private Integer totalSolutionCount;
-
-    private Integer solutionSortTrend = 1;
-
-    private Integer idSortTrend = 1;
-
-    private Integer levelSortTrend = 1;
-
-    private Integer nameSortTrend = 1;
-
-    private Integer occurrenceFrequencySortTrend = 1;
-
-    private Integer passingRateSortTrend = 1;
+    /**
+     * 频率
+     */
+    private Double frequency = 0d;
 
     public Question() {
 
@@ -209,76 +214,48 @@ public class Question {
         this.articleSlug = articleSlug;
     }
 
-    public Integer getTotalSolutionCount() {
-        return totalSolutionCount;
+    public Integer getColumnArticles() {
+        return columnArticles;
     }
 
-    public void setTotalSolutionCount(Integer totalSolutionCount) {
-        this.totalSolutionCount = totalSolutionCount;
+    public void setColumnArticles(Integer columnArticles) {
+        this.columnArticles = columnArticles;
     }
 
-    public Integer getSolutionSortTrend() {
-        return solutionSortTrend;
+    public Integer getAcs() {
+        return acs;
     }
 
-    public void setSolutionSortTrend(Integer solutionSortTrend) {
-        this.solutionSortTrend = solutionSortTrend;
+    public void setAcs(Integer acs) {
+        this.acs = acs;
     }
 
-    public Integer getIdSortTrend() {
-        return idSortTrend;
+    public Integer getSubmitted() {
+        return submitted;
     }
 
-    public void setIdSortTrend(Integer idSortTrend) {
-        this.idSortTrend = idSortTrend;
+    public void setSubmitted(Integer submitted) {
+        this.submitted = submitted;
     }
 
-    public Integer getLevelSortTrend() {
-        return levelSortTrend;
+    public Double getAcceptance() {
+        return acceptance;
     }
 
-    public void setLevelSortTrend(Integer levelSortTrend) {
-        this.levelSortTrend = levelSortTrend;
+    public void setAcceptance() {
+        if (this.submitted == 0) {
+            this.acceptance = 0D;
+        } else {
+            this.acceptance = Double.parseDouble(this.acs + "") / Double.parseDouble(this.submitted + "");
+        }
     }
 
-    public Integer getOccurrenceFrequencySortTrend() {
-        return occurrenceFrequencySortTrend;
+    public Double getFrequency() {
+        return frequency;
     }
 
-    public void setOccurrenceFrequencySortTrend(Integer occurrenceFrequencySortTrend) {
-        this.occurrenceFrequencySortTrend = occurrenceFrequencySortTrend;
-    }
-
-    public Integer getPassingRateSortTrend() {
-        return passingRateSortTrend;
-    }
-
-    public void setPassingRateSortTrend(Integer passingRateSortTrend) {
-        this.passingRateSortTrend = passingRateSortTrend;
-    }
-
-    public Integer getNameSortTrend() {
-        return nameSortTrend;
-    }
-
-    public void setNameSortTrend(Integer nameSortTrend) {
-        this.nameSortTrend = nameSortTrend;
-    }
-
-    public Double getOccurrenceFrequency() {
-        return occurrenceFrequency;
-    }
-
-    public void setOccurrenceFrequency(Double occurrenceFrequency) {
-        this.occurrenceFrequency = occurrenceFrequency;
-    }
-
-    public Double getPassingRate() {
-        return passingRate;
-    }
-
-    public void setPassingRate(Double passingRate) {
-        this.passingRate = passingRate;
+    public void setFrequency(Double frequency) {
+        this.frequency = frequency;
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.components.JBScrollPane;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.leetcode.plugin.model.Sort;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
@@ -19,10 +20,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
 
 /**
  * @author shuzijun
@@ -32,6 +31,17 @@ public class ViewManager {
     private static Map<String, Question> question = Maps.newLinkedHashMap();
 
     private static Map<String, List<Tag>> filter = Maps.newLinkedHashMap();
+
+    private static Map<String, Sort> sortMap = Maps.newLinkedHashMap();
+
+    static {
+        sortMap.put(Constant.SORT_TYPE_ID, new Sort(Constant.SORT_TYPE_ID, 1));
+        sortMap.put(Constant.SORT_TYPE_TITLE, new Sort(Constant.SORT_TYPE_TITLE));
+        sortMap.put(Constant.SORT_TYPE_SOLUTION, new Sort(Constant.SORT_TYPE_SOLUTION));
+        sortMap.put(Constant.SORT_TYPE_ACCEPTANCE, new Sort(Constant.SORT_TYPE_ACCEPTANCE));
+        sortMap.put(Constant.SORT_TYPE_DIFFICULTY, new Sort(Constant.SORT_TYPE_DIFFICULTY));
+        sortMap.put(Constant.SORT_TYPE_FREQUENCY, new Sort(Constant.SORT_TYPE_FREQUENCY));
+    }
 
     private static boolean intersection = Boolean.FALSE;
 
@@ -172,21 +182,30 @@ public class ViewManager {
         }
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) root.getChildAt(0);
         node.removeAllChildren();
-
-        if (selectQuestionList == null) {
-            for (Question q : question.values()) {
-                node.add(new DefaultMutableTreeNode(q));
+        Sort sort = null;
+        for (Sort value : sortMap.values()) {
+            if(Constant.SORT_NONE != value.getType()){
+                sort = value;
+                break;
             }
-            ((Question) node.getUserObject()).setTitle(String.format("Problems(%d)", node.getChildCount()));
+        }
+        List<Question> all = new ArrayList<>();
+        if (selectQuestionList == null) {
+             all = new ArrayList<>(question.values());
+
         } else {
             for (String key : selectQuestionList) {
                 Question q = question.get(key);
                 if (q != null) {
-                    node.add(new DefaultMutableTreeNode(q));
+                    all.add(q);
                 }
             }
-            ((Question) node.getUserObject()).setTitle(String.format("Problems(%d)", node.getChildCount()));
         }
+        QuestionManager.sortQuestionList(all,sort);
+        for (Question q : all) {
+            node.add(new DefaultMutableTreeNode(q));
+        }
+        ((Question) node.getUserObject()).setTitle(String.format("Problems(%d)", node.getChildCount()));
         treeMode.reload();
         tree.expandPath(new TreePath(node.getPath()));
 
@@ -256,13 +275,8 @@ public class ViewManager {
         if (!Lists.isEmpty()) {
             for (Tag tag : Lists) {
                 long qCnt = tag.getQuestions().stream().filter(q -> questionMap.get(q) != null).count();
-                Question item = new Question(String.format("%s(%d)",
-                        tag.getName(), qCnt));
-                Question parent = (Question) rootNode.getUserObject();
-                if (parent.getTitle().equals(Constant.FIND_TYPE_TAGS)) {
-                    item.setNodeType(Constant.NODETYPE_TAG);
-                }
-                DefaultMutableTreeNode tagNode = new DefaultMutableTreeNode(item);
+                DefaultMutableTreeNode tagNode = new DefaultMutableTreeNode(new Question(String.format("%s(%d)",
+                        tag.getName(), qCnt)));
                 rootNode.add(tagNode);
                 for (String key : tag.getQuestions()) {
                     if (questionMap.get(key) != null) {
@@ -303,4 +317,19 @@ public class ViewManager {
         }
     }
 
+    public static Sort getSort(String key) {
+        return sortMap.get(key);
+    }
+
+    public static void operationType(String key) {
+        int type = sortMap.get(key).operationType();
+        sortMap.forEach((s, sort) -> {
+            if (!s.equals(key)) {
+                sort.resetType();
+            }
+            if(Constant.SORT_NONE == type && s.equals(Constant.SORT_TYPE_ID)){
+                sort.operationType();
+            }
+        });
+    }
 }
