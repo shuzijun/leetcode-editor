@@ -6,6 +6,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
@@ -47,7 +48,7 @@ public class FindTagAction extends ToggleAction {
             return;
         }
         if (againLoad) {
-            ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), "leetcode.editor." + tag.getName(), false) {
+            ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), PluginConstant.PLUGIN_NAME+ "." + tag.getName(), false) {
                 @Override
                 public void run(@NotNull ProgressIndicator progressIndicator) {
                     if (b) {

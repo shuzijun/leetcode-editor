@@ -10,6 +10,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.shuzijun.leetcode.plugin.listener.UpdatePluginListener;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,7 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class WindowFactory implements ToolWindowFactory {
 
-    public static String ID = "leetcode";
+    public static String ID = PluginConstant.TOOL_WINDOW_ID;
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {

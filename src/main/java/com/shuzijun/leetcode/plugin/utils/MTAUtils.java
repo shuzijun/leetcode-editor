@@ -4,7 +4,7 @@ import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.util.SystemInfo;
 import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.Constant;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.utils.io.HttpRequests;
 import org.apache.http.client.utils.URIBuilder;
 
@@ -61,7 +61,7 @@ public class MTAUtils {
         public void run() {
             try {
                 if (version == null) {
-                    version = PluginManager.getPlugin(PluginId.getId(Constant.PLUGIN_ID)).getVersion()
+                    version = PluginManager.getPlugin(PluginId.getId(PluginConstant.PLUGIN_ID)).getVersion()
                             .replace("v", "").replaceAll("-|_", ".");
                 }
                 if (userAgent == null) {

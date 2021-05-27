@@ -2,6 +2,7 @@ package com.shuzijun.leetcode.plugin.setting;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,20 +14,20 @@ import javax.swing.*;
  */
 public class SettingConfigurable implements SearchableConfigurable {
 
-    public static final String DISPLAY_NAME = "leetcode plugin";
+    public static final String DISPLAY_NAME = PluginConstant.APPLICATION_CONFIGURABLE_DISPLAY_NAME;
 
     private SettingUI mainPanel;
 
     @NotNull
     @Override
     public String getId() {
-        return "leetcode.id";
+        return PluginConstant.APPLICATION_CONFIGURABLE_ID;
     }
 
     @Nls
     @Override
     public String getDisplayName() {
-        return DISPLAY_NAME;
+        return PluginConstant.APPLICATION_CONFIGURABLE_DISPLAY_NAME;
     }
 
     @Nullable

@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.utils.HttpRequestUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -61,7 +62,7 @@ public class CookieLogin implements LoginFrame {
             }
             HttpRequestUtils.setCookie(cookieList);
 
-            ProgressManager.getInstance().run(new Task.Backgroundable(project, "leetcode.loginSuccess", false) {
+            ProgressManager.getInstance().run(new Task.Backgroundable(project, PluginConstant.ACTION_PREFIX+".loginSuccess", false) {
                 @Override
                 public void run(@NotNull ProgressIndicator progressIndicator) {
                     if (HttpRequestUtils.isLogin()) {

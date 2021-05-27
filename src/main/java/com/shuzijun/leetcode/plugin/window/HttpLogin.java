@@ -9,6 +9,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
@@ -130,7 +131,7 @@ public class HttpLogin {
     }
 
     public static void loginSuccess(JTree tree, Project project, List<HttpCookie> cookieList) {
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "leetcode.loginSuccess", false) {
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, PluginConstant.ACTION_PREFIX+".loginSuccess", false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 Config config = PersistentConfig.getInstance().getInitConfig();

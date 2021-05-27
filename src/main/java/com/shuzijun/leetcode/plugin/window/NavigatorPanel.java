@@ -14,6 +14,7 @@ import com.intellij.ui.treeStructure.SimpleTree;
 import com.shuzijun.leetcode.plugin.listener.QueryKeyListener;
 import com.shuzijun.leetcode.plugin.listener.TreeMouseListener;
 import com.shuzijun.leetcode.plugin.listener.TreeWillListener;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.renderer.CustomTreeCellRenderer;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
@@ -103,8 +104,8 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
         tree.addTreeWillExpandListener(new TreeWillListener(tree, toolWindow, project));
 
 
-        ActionToolbar actionToolbar = actionManager.createActionToolbar("leetcode Toolbar",
-                (DefaultActionGroup) actionManager.getAction("leetcode.NavigatorActionsToolbar"),
+        ActionToolbar actionToolbar = actionManager.createActionToolbar(PluginConstant.ACTION_PREFIX + " Toolbar",
+                (DefaultActionGroup) actionManager.getAction(PluginConstant.LEETCODE_NAVIGATOR_ACTIONS_TOOLBAR),
                 true);
 
         actionToolbar.setTargetComponent(tree);
@@ -127,11 +128,11 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
         queryPanel.add(queryField);
 
          findToolbar = actionManager.createActionToolbar("",
-                (DefaultActionGroup) actionManager.getAction("leetcode.find.Toolbar"),
+                (DefaultActionGroup) actionManager.getAction(PluginConstant.LEETCODE_FIND_TOOLBAR),
                 true);
         findToolbar.setTargetComponent(tree);
         actionSortToolbar = actionManager.createActionToolbar("",
-                (DefaultActionGroup) actionManager.getAction("leetcode.find.SortToolbar"),
+                (DefaultActionGroup) actionManager.getAction(PluginConstant.LEETCODE_FIND_SORT_TOOLBAR),
                 true);
         actionSortToolbar.setTargetComponent(tree);
         queryPanel.add(findToolbar.getComponent());

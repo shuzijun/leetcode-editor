@@ -5,6 +5,7 @@ import com.intellij.ide.passwordSafe.PasswordSafeException;
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +18,7 @@ import java.util.Map;
 /**
  * @author shuzijun
  */
-@State(name = "PersistentConfig", storages = {@Storage(value = "leetcode-config.xml", roamingType = RoamingType.DISABLED)})
+@State(name = "PersistentConfig" + PluginConstant.ACTION_SUFFIX, storages = {@Storage(value = PluginConstant.ACTION_PREFIX+"-config.xml", roamingType = RoamingType.DISABLED)})
 public class PersistentConfig implements PersistentStateComponent<PersistentConfig> {
 
     public static String PATH = "leetcode" + File.separator + "editor";
@@ -69,7 +70,7 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
     public void savePassword(String password) {
         try {
             PasswordSafe.getInstance().storePassword
-                    (null, this.getClass(), "leetcode-editor", password != null ? password : "");
+                    (null, this.getClass(), PluginConstant.PLUGIN_ID, password != null ? password : "");
         } catch (PasswordSafeException exception) {
             MessageUtils.showAllWarnMsg("warning", "Failed to save password");
         }
@@ -78,7 +79,7 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
     public String getPassword() {
         if (getConfig().getVersion() != null) {
             try {
-                return PasswordSafe.getInstance().getPassword(null, this.getClass(), "leetcode-editor");
+                return PasswordSafe.getInstance().getPassword(null, this.getClass(), PluginConstant.PLUGIN_ID);
             } catch (PasswordSafeException exception) {
                 MessageUtils.showAllWarnMsg("warning", "Password acquisition failed");
                 return null;
