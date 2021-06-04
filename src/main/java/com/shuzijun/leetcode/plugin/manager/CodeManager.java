@@ -7,10 +7,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
-import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.Constant;
-import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
@@ -322,7 +319,7 @@ public class CodeManager {
         private Project project;
 
         public SubmitCheckTask(JSONObject returnObj, CodeTypeEnum codeTypeEnum, Question question, Project project) {
-            super(project,"leetcode.editor.submitCheckTask",true);
+            super(project,PluginConstant.PLUGIN_NAME + ".submitCheckTask",true);
             this.returnObj = returnObj;
             this.codeTypeEnum = codeTypeEnum;
             this.question = question;
@@ -413,7 +410,7 @@ public class CodeManager {
         private String input;
 
         public RunCodeCheckTask(JSONObject returnObj, Project project, String input) {
-            super(project,"leetcode.editor.runCodeCheckTask",true);
+            super(project, PluginConstant.PLUGIN_NAME+".runCodeCheckTask",true);
             this.returnObj = returnObj;
             this.project = project;
             this.input = input;

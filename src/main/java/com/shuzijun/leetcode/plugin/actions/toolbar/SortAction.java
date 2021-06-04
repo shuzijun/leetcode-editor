@@ -6,6 +6,7 @@ import com.shuzijun.leetcode.plugin.actions.AbstractAction;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Sort;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
@@ -62,6 +63,6 @@ public class SortAction extends AbstractAction {
     }
 
     private String getKey(AnActionEvent anActionEvent){
-        return anActionEvent.getActionManager().getId(this).replace("leetcode.sort.","");
+        return anActionEvent.getActionManager().getId(this).replace(PluginConstant.LEETCODE_SORT_PREFIX,"");
     }
 }

@@ -6,6 +6,7 @@ import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +23,7 @@ import java.awt.event.MouseEvent;
  */
 public class TimerBarWidget implements CustomStatusBarWidget {
 
-    public final static String ID = "leetcode.TimerBarWidget";
+    public final static String ID = PluginConstant.LEETCODE_TIMER_BAR_WIDGET;
 
     private Long second = 0L;
     private String name = "";

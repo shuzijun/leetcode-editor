@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.shuzijun.leetcode.plugin.manager.FavoriteManager;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
@@ -47,7 +48,7 @@ public class FavoriteAction extends ToggleAction {
             return;
         }
 
-        ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(),"leetcode.editor.favorite",false) {
+        ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), PluginConstant.PLUGIN_NAME + ".favorite",false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 if (b) {

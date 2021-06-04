@@ -7,12 +7,6 @@ package com.shuzijun.leetcode.plugin.model;
  */
 public class Constant {
 
-    public static final String PLUGIN_ID = "leetcode-editor";
-    /**
-     * 通知分组
-     */
-    public static final String NOTIFICATION_GROUP = "leetcode editor";
-
     /**
      * 题目难度
      */

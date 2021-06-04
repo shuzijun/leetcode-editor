@@ -7,6 +7,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -32,8 +33,8 @@ public class UpdateUtils {
                     CloseableHttpClient httpClient = HttpClients.custom().build();
                     HttpGet httpget = null;
                     try {
-                        String[] version = PluginManager.getPlugin(PluginId.getId("leetcode-editor")).getVersion().replace("v", "").split("\\.|-");
-                        httpget = new HttpGet("https://plugins.jetbrains.com/api/plugins/12132/updates");
+                        String[] version = PluginManager.getPlugin(PluginId.getId(PluginConstant.PLUGIN_ID)).getVersion().replace("v", "").split("\\.|-");
+                        httpget = new HttpGet("https://plugins.jetbrains.com/api/plugins/"+PluginConstant.WEB_ID+"/updates");
                         CloseableHttpResponse response = httpClient.execute(httpget);
                         String body = EntityUtils.toString(response.getEntity(), "UTF-8");
                         JSONArray jsonArray = JSONObject.parseArray(body);

@@ -4,6 +4,7 @@ import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.annotations.MapAnnotation;
 import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +14,7 @@ import java.util.Map;
 /**
  * @author shuzijun
  */
-@State(name = "LeetcodeEditor", storages = {@Storage(value = "leetcode/editor.xml")})
+@State(name = "LeetcodeEditor" + PluginConstant.ACTION_SUFFIX, storages = {@Storage(value = PluginConstant.ACTION_PREFIX+"/editor.xml")})
 public class ProjectConfig implements ProjectComponent, PersistentStateComponent<ProjectConfig.InnerState> {
 
     public ProjectConfig(Project project) {

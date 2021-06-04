@@ -9,6 +9,7 @@ import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.wm.ToolWindow;
 import com.shuzijun.leetcode.plugin.manager.ExploreManager;
 import com.shuzijun.leetcode.plugin.model.Constant;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
@@ -50,7 +51,7 @@ public class TreeWillListener implements TreeWillExpandListener {
             MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", "no permissions");
             throw new ExpandVetoException(event);
         }
-        ProgressManager.getInstance().run(new Task.Backgroundable(project,"leetcode.editor.tree",false) {
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, PluginConstant.LEETCODE_EDITOR_TREE,false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 loadData(question,node,selPath,tree,toolWindow);

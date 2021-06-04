@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.impl.IdeFrameImpl;
 import com.intellij.ui.jcef.JBCefBrowser;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.utils.HttpRequestUtils;
 import com.shuzijun.leetcode.plugin.utils.LogUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -77,7 +78,7 @@ public class JcefLogin implements LoginFrame {
             @Override
             public void onLoadError(CefBrowser browser, CefFrame frame, CefLoadHandler.ErrorCode errorCode, String errorText, String failedUrl) {
                 if (!successDispose) {
-                    browser.executeJavaScript("alert('The page failed to load, please check the network and open it again')", "leetcode-editor", 0);
+                    browser.executeJavaScript("alert('The page failed to load, please check the network and open it again')", PluginConstant.PLUGIN_ID, 0);
                 }
             }
 
