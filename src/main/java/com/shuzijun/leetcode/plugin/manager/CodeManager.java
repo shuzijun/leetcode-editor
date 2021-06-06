@@ -63,7 +63,7 @@ public class CodeManager {
             return;
         }
 
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + VelocityUtils.convert(config.getCustomFileName(), question) + ".md";
+        String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_CONTENT  + VelocityUtils.convert(config.getCustomFileName(), question) + ".md";
 
         File file = new File(filePath);
         if (file.exists()) {
