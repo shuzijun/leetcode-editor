@@ -313,6 +313,7 @@ public class QuestionManager {
                     QuestionManager.dayQuestion = null;
                 } else {
                     QuestionManager.dayQuestion = JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONArray("todayRecord").getJSONObject(0).getJSONObject("question").getString("questionFrontendId");
+                    return;
                 }
             } catch (Exception e1) {
             }
@@ -411,18 +412,16 @@ public class QuestionManager {
 
         @Override
         public int compare(Question o1, Question o2) {
-            if (o1.equals(dayQuestion)) {
+            if (o1.getFrontendQuestionId().equals(dayQuestion)) {
                 return  -1;
+            } else if (o2.getFrontendQuestionId().equals(dayQuestion)) {
+                return  1;
             }
             int order = 0;
             if (Constant.SORT_TYPE_ID.equals(sort.getSlug())) {
                 String frontendId0 = o1.getFrontendQuestionId();
                 String frontendId1 = o2.getFrontendQuestionId();
-                if (frontendId0.equals(dayQuestion)) {
-                    return  -1;
-                } else if (frontendId1.equals(dayQuestion)) {
-                    order = 1;
-                } else if (StringUtils.isNumeric(frontendId0) && StringUtils.isNumeric(frontendId1)) {
+                if (StringUtils.isNumeric(frontendId0) && StringUtils.isNumeric(frontendId1)) {
                     order = Integer.valueOf(frontendId0).compareTo(Integer.valueOf(frontendId1));
                 } else if (StringUtils.isNumeric(frontendId0)) {
                     order = -1;
