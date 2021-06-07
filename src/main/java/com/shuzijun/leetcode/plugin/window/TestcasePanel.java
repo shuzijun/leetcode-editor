@@ -24,9 +24,10 @@ public class TestcasePanel extends DialogWrapper {
         jpanel = new JBPanel();
         jpanel.setLayout(new BorderLayout());
         caseText = new JTextArea();
-        caseText.setMinimumSize(new Dimension(400, 200));
-        caseText.setPreferredSize(new Dimension(400, 200));
-        jpanel.add(new JBScrollPane(caseText, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+        JBScrollPane caseTextScroll =  new JBScrollPane(caseText, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        caseTextScroll.setMinimumSize(new Dimension(400, 200));
+        caseTextScroll.setPreferredSize(new Dimension(400, 200));
+        jpanel.add(caseTextScroll, BorderLayout.CENTER);
         setModal(true);
         init();
     }
