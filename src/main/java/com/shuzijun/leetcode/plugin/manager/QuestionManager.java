@@ -50,7 +50,7 @@ public class QuestionManager {
         }
 
         if (questionList != null && !questionList.isEmpty()) {
-            String filePath = PersistentConfig.getInstance().getTempFilePath() + ALLNAME;
+            String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_PATH + ALLNAME;
             FileUtils.saveFile(filePath, JSON.toJSONString(questionList));
             QUESTIONLIST = questionList;
         }
@@ -63,7 +63,7 @@ public class QuestionManager {
             return QUESTIONLIST;
         }
 
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + ALLNAME;
+        String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_PATH + ALLNAME;
         String body = FileUtils.getFileBody(filePath);
 
         if (StringUtils.isBlank(body)) {
@@ -264,7 +264,7 @@ public class QuestionManager {
 
         if (URLUtils.isCn() && !PersistentConfig.getInstance().getConfig().getEnglishContent()) {
 
-            String filePathTranslation = PersistentConfig.getInstance().getTempFilePath() + TRANSLATIONNAME;
+            String filePathTranslation = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_PATH + TRANSLATIONNAME;
 
             try {
                 HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(), "application/json");

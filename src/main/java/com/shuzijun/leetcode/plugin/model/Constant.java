@@ -1,5 +1,7 @@
 package com.shuzijun.leetcode.plugin.model;
 
+import java.io.File;
+
 /**
  * 常量
  *
@@ -98,6 +100,14 @@ public class Constant {
     public static final String SORT_TYPE_ACCEPTANCE = "SortByAcceptance";
     public static final String SORT_TYPE_DIFFICULTY = "SortByDifficulty";
     public static final String SORT_TYPE_FREQUENCY = "SortByFrequency";
+
+    /**
+     * path
+     */
+    public static final String DOC_PATH = "doc"+ File.separator;
+    public static final String DOC_SOLUTION = "doc"+ File.separator + "solution" +  File.separator;
+    public static final String DOC_CONTENT = "doc"+ File.separator + "content" +  File.separator;
+    public static final String DOC_SUBMISSION = "doc"+ File.separator + "submission" +  File.separator;
 
 
 }

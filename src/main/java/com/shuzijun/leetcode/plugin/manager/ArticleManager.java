@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
+import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Solution;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
@@ -35,7 +36,7 @@ public class ArticleManager {
 
     public static void openArticle(Question question, Project project) {
 
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + "doc" + File.separator + question.getArticleSlug() + ".md";
+        String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_SOLUTION + question.getArticleSlug() + ".md";
 
         File file = new File(filePath);
         if (!file.exists()) {
@@ -118,7 +119,7 @@ public class ArticleManager {
             String group = latexMatcher.group();
             if (group.contains("\\")) {
                 String fileName = "p_" + group.replaceAll("\\$+| |/|>|<|\\(|\\)|\\s|\\[|]", "_").replace("\\", "") + ".png";
-                String filePath = PersistentConfig.getInstance().getTempFilePath() + "doc" + File.separator + fileName;
+                String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_SOLUTION  + fileName;
                 File file = new File(filePath);
                 if (!file.exists()) {
                     if (!file.getParentFile().exists()) {
