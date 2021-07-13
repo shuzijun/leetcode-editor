@@ -20,6 +20,8 @@ import com.intellij.util.io.CountingGZIPInputStream;
 import com.intellij.util.net.HttpConfigurable;
 import com.intellij.util.net.NetUtils;
 import com.intellij.util.net.ssl.CertificateManager;
+import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,7 +72,8 @@ public final class HttpRequests {
             HttpURLConnection.HTTP_MOVED_PERM, HttpURLConnection.HTTP_SEE_OTHER, 308 /* permanent redirect */
     };
 
-    private HttpRequests() { }
+    private HttpRequests() {
+    }
 
     public interface Request {
         @NotNull
@@ -88,7 +91,9 @@ public final class HttpRequests {
         @NotNull
         BufferedReader getReader(@Nullable ProgressIndicator indicator) throws IOException;
 
-        /** @deprecated Called automatically on open connection. Use {@link RequestBuilder#tryConnect()} to get response code */
+        /**
+         * @deprecated Called automatically on open connection. Use {@link RequestBuilder#tryConnect()} to get response code
+         */
         @Deprecated
         boolean isSuccessful() throws IOException;
 
@@ -113,7 +118,7 @@ public final class HttpRequests {
         }
 
         default void write(byte[] data) throws IOException {
-            HttpURLConnection connection = (HttpURLConnection)getConnection();
+            HttpURLConnection connection = (HttpURLConnection) getConnection();
             connection.setFixedLengthStreamingMode(data.length);
             try (OutputStream stream = connection.getOutputStream()) {
                 stream.write(data);
@@ -166,12 +171,12 @@ public final class HttpRequests {
 
     @NotNull
     public static RequestBuilder head(@NotNull String url) {
-        return new RequestBuilderImpl(url, connection -> ((HttpURLConnection)connection).setRequestMethod("HEAD"));
+        return new RequestBuilderImpl(url, connection -> ((HttpURLConnection) connection).setRequestMethod("HEAD"));
     }
 
     @NotNull
     public static RequestBuilder delete(@NotNull String url) {
-        return new RequestBuilderImpl(url, connection -> ((HttpURLConnection)connection).setRequestMethod("DELETE"));
+        return new RequestBuilderImpl(url, connection -> ((HttpURLConnection) connection).setRequestMethod("DELETE"));
     }
 
     @NotNull
@@ -207,7 +212,7 @@ public final class HttpRequests {
                                                   @Nullable String contentType,
                                                   @Nullable ConnectionTuner tuner) {
         return new RequestBuilderImpl(url, rawConnection -> {
-            HttpURLConnection connection = (HttpURLConnection)rawConnection;
+            HttpURLConnection connection = (HttpURLConnection) rawConnection;
             connection.setRequestMethod(requestMethod);
             connection.setDoOutput(true);
             if (contentType != null) {
@@ -231,11 +236,11 @@ public final class HttpRequests {
                 builder.append("\n, headers: ").append(connection.getHeaderFields());
             }
             if (connection instanceof HttpURLConnection) {
-                HttpURLConnection httpConnection = (HttpURLConnection)connection;
+                HttpURLConnection httpConnection = (HttpURLConnection) connection;
                 builder.append("\n, response: ").append(httpConnection.getResponseCode()).append(' ').append(httpConnection.getResponseMessage());
             }
+        } catch (Throwable ignored) {
         }
-        catch (Throwable ignored) { }
 
         return builder.toString();
     }
@@ -259,6 +264,16 @@ public final class HttpRequests {
         private RequestBuilderImpl(@NotNull String url, @Nullable ConnectionTuner internalTuner) {
             myUrl = url;
             myInternalTuner = internalTuner;
+            Config config = PersistentConfig.getInstance().getInitConfig();
+            if (config != null && config.getHttpConnectionTimeout() != null) {
+                myConnectTimeout = config.getHttpConnectionTimeout();
+            }
+            if (config != null && config.getHttpReadTimeout() != null) {
+                myTimeout = config.getHttpReadTimeout();
+            }
+            if (config != null && config.getHttpRedirectLimit() != null) {
+                myRedirectLimit = config.getHttpRedirectLimit();
+            }
         }
 
         @Override
@@ -322,8 +337,7 @@ public final class HttpRequests {
                 String productName = ApplicationNamesInfo.getInstance().getFullProductName();
                 String version = ApplicationInfo.getInstance().getBuild().asStringWithoutProductCode();
                 return userAgent(productName + '/' + version);
-            }
-            else {
+            } else {
                 return userAgent("IntelliJ");
             }
         }
@@ -384,9 +398,9 @@ public final class HttpRequests {
         @Override
         public InputStream getInputStream() throws IOException {
             if (myInputStream == null) {
-                if(((HttpURLConnection)getConnection()).getResponseCode()>=400){
-                    myInputStream = ((HttpURLConnection)getConnection()).getErrorStream();
-                }else {
+                if (((HttpURLConnection) getConnection()).getResponseCode() >= 400) {
+                    myInputStream = ((HttpURLConnection) getConnection()).getErrorStream();
+                } else {
                     myInputStream = getConnection().getInputStream();
                 }
                 if (myBuilder.myGzip && "gzip".equalsIgnoreCase(getConnection().getContentEncoding())) {
@@ -426,7 +440,7 @@ public final class HttpRequests {
         @Override
         public boolean isSuccessful() throws IOException {
             URLConnection connection = getConnection();
-            return !(connection instanceof HttpURLConnection) || ((HttpURLConnection)connection).getResponseCode() == 200;
+            return !(connection instanceof HttpURLConnection) || ((HttpURLConnection) connection).getResponseCode() == 200;
         }
 
         @Override
@@ -451,8 +465,7 @@ public final class HttpRequests {
             BufferExposingByteArrayOutputStream byteStream = doReadBytes(indicator);
             if (byteStream.size() == 0) {
                 return ArrayUtil.EMPTY_CHAR_SEQUENCE;
-            }
-            else {
+            } else {
                 return getCharset().decode(ByteBuffer.wrap(byteStream.getInternalBuffer(), 0, byteStream.size()));
             }
         }
@@ -466,14 +479,11 @@ public final class HttpRequests {
             try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
                 NetUtils.copyStreamContent(indicator, getInputStream(), out, getConnection().getContentLength());
                 deleteFile = false;
-            }
-            catch (HttpStatusException e) {
+            } catch (HttpStatusException e) {
                 throw e;
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 throw new IOException(createErrorMessage(e, this, false), e);
-            }
-            finally {
+            } finally {
                 if (deleteFile) {
                     FileUtilRt.delete(file);
                 }
@@ -487,7 +497,7 @@ public final class HttpRequests {
             StreamUtil.closeStream(myInputStream);
             StreamUtil.closeStream(myReader);
             if (myConnection instanceof HttpURLConnection) {
-                ((HttpURLConnection)myConnection).disconnect();
+                ((HttpURLConnection) myConnection).disconnect();
             }
         }
     }
@@ -503,12 +513,10 @@ public final class HttpRequests {
             try (URLClassLoader cl = new URLClassLoader(new URL[0], contextLoader)) {
                 Thread.currentThread().setContextClassLoader(cl);
                 return doProcess(builder, processor);
-            }
-            finally {
+            } finally {
                 Thread.currentThread().setContextClassLoader(contextLoader);
             }
-        }
-        else {
+        } else {
             return doProcess(builder, processor);
         }
     }
@@ -526,7 +534,7 @@ public final class HttpRequests {
                 URLConnection connection = request.myConnection;
                 if (connection != null && connection.getDoOutput()) {
                     // getResponseCode is not checked on connect, because write must be performed before read
-                    HttpURLConnection urlConnection = (HttpURLConnection)connection;
+                    HttpURLConnection urlConnection = (HttpURLConnection) connection;
                     int responseCode = urlConnection.getResponseCode();
                     if (responseCode >= 400) {
                         throwHttpStatusError(urlConnection, request, builder, responseCode);
@@ -549,16 +557,14 @@ public final class HttpRequests {
             final URLConnection connection;
             if (!builder.myUseProxy) {
                 connection = new URL(url).openConnection(Proxy.NO_PROXY);
-            }
-            else if (ApplicationManager.getApplication() == null) {
+            } else if (ApplicationManager.getApplication() == null) {
                 connection = new URL(url).openConnection();
-            }
-            else {
+            } else {
                 connection = HttpConfigurable.getInstance().openConnection(url);
             }
 
             if (connection instanceof HttpsURLConnection) {
-                configureSslConnection(url, (HttpsURLConnection)connection);
+                configureSslConnection(url, (HttpsURLConnection) connection);
             }
 
             connection.setConnectTimeout(builder.myConnectTimeout);
@@ -569,7 +575,7 @@ public final class HttpRequests {
             }
 
             if (builder.myHostnameVerifier != null && connection instanceof HttpsURLConnection) {
-                ((HttpsURLConnection)connection).setHostnameVerifier(builder.myHostnameVerifier);
+                ((HttpsURLConnection) connection).setHostnameVerifier(builder.myHostnameVerifier);
             }
 
             if (builder.myGzip) {
@@ -600,7 +606,7 @@ public final class HttpRequests {
                 return connection;
             }
 
-            HttpURLConnection httpURLConnection = (HttpURLConnection)connection;
+            HttpURLConnection httpURLConnection = (HttpURLConnection) connection;
             String method = httpURLConnection.getRequestMethod();
 
             LOG.assertTrue(method.equals("GET") || method.equals("HEAD") || method.equals("DELETE"),
@@ -612,8 +618,7 @@ public final class HttpRequests {
             int responseCode;
             try {
                 responseCode = httpURLConnection.getResponseCode();
-            }
-            catch (SSLHandshakeException e) {
+            } catch (SSLHandshakeException e) {
                 throw !NetUtils.isSniEnabled() ? new SSLException("SSL error probably caused by disabled SNI", e) : e;
             }
             if (LOG.isDebugEnabled()) {
@@ -633,7 +638,7 @@ public final class HttpRequests {
                     }
                 }
 
-                if(builder.myThrowStatusCodeException) {
+                if (builder.myThrowStatusCodeException) {
                     throwHttpStatusError(httpURLConnection, request, builder, responseCode);
                 }
             }
@@ -666,12 +671,10 @@ public final class HttpRequests {
             SSLSocketFactory factory = CertificateManager.getInstance().getSslContext().getSocketFactory();
             if (factory == null) {
                 LOG.info("SSLSocketFactory is not defined by the IDE Certificate Manager; Using default SSL configuration to connect to " + url);
-            }
-            else {
+            } else {
                 connection.setSSLSocketFactory(factory);
             }
-        }
-        catch (Throwable e) {
+        } catch (Throwable e) {
             LOG.info("Problems configuring SSL connection to " + url, e);
         }
     }

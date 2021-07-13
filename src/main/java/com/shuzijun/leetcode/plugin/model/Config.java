@@ -92,6 +92,45 @@ public class Config {
 
     private List<String> favoriteList;
 
+    /**
+     * 连接超时时间
+     */
+    private Integer httpConnectionTimeout;
+
+    /**
+     * 读取超时时间
+     */
+    private Integer httpReadTimeout;
+
+    /**
+     * 重定向个数
+     */
+    private Integer httpRedirectLimit;
+
+    public Integer getHttpConnectionTimeout() {
+        return httpConnectionTimeout;
+    }
+
+    public void setHttpConnectionTimeout(Integer httpConnectionTimeout) {
+        this.httpConnectionTimeout = httpConnectionTimeout;
+    }
+
+    public Integer getHttpReadTimeout() {
+        return httpReadTimeout;
+    }
+
+    public void setHttpReadTimeout(Integer httpReadTimeout) {
+        this.httpReadTimeout = httpReadTimeout;
+    }
+
+    public Integer getHttpRedirectLimit() {
+        return httpRedirectLimit;
+    }
+
+    public void setHttpRedirectLimit(Integer httpRedirectLimit) {
+        this.httpRedirectLimit = httpRedirectLimit;
+    }
+
     public String getId() {
         return id;
     }
@@ -238,6 +277,7 @@ public class Config {
     public String getLevelColour() {
         return levelColour;
     }
+
     @Transient
     public Color[] getFormatLevelColour() {
         Color[] formatColors = new Color[3];
@@ -267,9 +307,9 @@ public class Config {
     }
 
     public void setLevelColour(String levelColour) {
-        if(levelColour ==null || levelColour.isEmpty()){
+        if (levelColour == null || levelColour.isEmpty()) {
             this.levelColour = Constant.LEVEL_COLOUR;
-        }else {
+        } else {
             this.levelColour = levelColour;
         }
     }
@@ -308,8 +348,8 @@ public class Config {
         this.jcef = jcef;
     }
 
-    public boolean isModified(Config config){
-        if(config ==null){
+    public boolean isModified(Config config) {
+        if (config == null) {
             return false;
         }
         if (version != null ? !version.equals(config.version) : config.version != null) return false;
@@ -327,6 +367,12 @@ public class Config {
         if (customTemplate != null ? !customTemplate.equals(config.customTemplate) : config.customTemplate != null)
             return false;
         if (jcef != null ? !jcef.equals(config.jcef) : config.jcef != null)
+            return false;
+        if (httpConnectionTimeout != null ? !httpConnectionTimeout.equals(config.httpConnectionTimeout) : config.httpConnectionTimeout != null)
+            return false;
+        if (httpReadTimeout != null ? !httpReadTimeout.equals(config.httpReadTimeout) : config.httpReadTimeout != null)
+            return false;
+        if (httpRedirectLimit != null ? !httpRedirectLimit.equals(config.httpRedirectLimit) : config.httpRedirectLimit != null)
             return false;
         return levelColour != null ? levelColour.equals(config.levelColour) : config.levelColour == null;
     }

@@ -24,14 +24,18 @@ import com.shuzijun.leetcode.plugin.timer.TimerBarWidget;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
+import com.shuzijun.leetcode.plugin.utils.io.HttpRequests;
 import com.shuzijun.leetcode.plugin.window.HttpLogin;
 import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
+import javax.swing.text.DefaultFormatterFactory;
+import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.text.DecimalFormat;
 
 /**
  * @author shuzijun
@@ -56,6 +60,9 @@ public class SettingUI {
     private JPanel codeTemplate;
     private JPanel templateConstant;
     private JCheckBox jcefCheckBox;
+    private JFormattedTextField httpConnectionTimeout;
+    private JFormattedTextField httpReadTimeout;
+    private JFormattedTextField httpRedirectLimit;
 
 
     private Editor fileNameEditor = null;
@@ -84,10 +91,10 @@ public class SettingUI {
 
         customCodeBox.addActionListener(new DonateListener(customCodeBox));
         proxyCheckBox.setSelected(HttpConfigurable.getInstance().USE_HTTP_PROXY || HttpConfigurable.getInstance().USE_PROXY_PAC);
-        proxyCheckBox.addMouseListener(new MouseAdapter(){
+        proxyCheckBox.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(HttpConfigurable.editConfigurable(mainPanel)){
+                if (HttpConfigurable.editConfigurable(mainPanel)) {
                     proxyCheckBox.setSelected(HttpConfigurable.getInstance().USE_HTTP_PROXY || HttpConfigurable.getInstance().USE_PROXY_PAC);
                 }
             }
@@ -148,7 +155,11 @@ public class SettingUI {
         templateHelpEditorSettings.setLineNumbersShown(false);
         templateHelpEditorSettings.setVirtualSpace(false);
         templateConstant.add(templateHelpEditor.getComponent(), BorderLayout.CENTER);
-
+        NumberFormatter numberFormatter = new NumberFormatter(new DecimalFormat("0"));
+        DefaultFormatterFactory numberFormatterFactory = new DefaultFormatterFactory(numberFormatter);
+        httpConnectionTimeout.setFormatterFactory(numberFormatterFactory);
+        httpReadTimeout.setFormatterFactory(numberFormatterFactory);
+        httpRedirectLimit.setFormatterFactory(numberFormatterFactory);
         loadSetting();
     }
 
@@ -184,6 +195,21 @@ public class SettingUI {
             hardLabel.setForeground(colors[2]);
 
             jcefCheckBox.setSelected(config.getJcef());
+            if (config.getHttpConnectionTimeout() == null) {
+                httpConnectionTimeout.setText(String.valueOf(HttpRequests.CONNECTION_TIMEOUT));
+            } else {
+                httpConnectionTimeout.setText(String.valueOf(config.getHttpConnectionTimeout()));
+            }
+            if (config.getHttpReadTimeout() == null) {
+                httpReadTimeout.setText(String.valueOf(HttpRequests.READ_TIMEOUT));
+            } else {
+                httpReadTimeout.setText(String.valueOf(config.getHttpReadTimeout()));
+            }
+            if (config.getHttpRedirectLimit() == null) {
+                httpRedirectLimit.setText(String.valueOf(HttpRequests.REDIRECT_LIMIT));
+            } else {
+                httpRedirectLimit.setText(String.valueOf(config.getHttpRedirectLimit()));
+            }
         } else {
             Color[] colors = new Config().getFormatLevelColour();
             easyLabel.setForeground(colors[0]);
@@ -193,6 +219,9 @@ public class SettingUI {
                 fileNameEditor.getDocument().setText(Constant.CUSTOM_FILE_NAME);
                 templateEditor.getDocument().setText(Constant.CUSTOM_TEMPLATE);
             });
+            httpConnectionTimeout.setText(String.valueOf(HttpRequests.CONNECTION_TIMEOUT));
+            httpReadTimeout.setText(String.valueOf(HttpRequests.READ_TIMEOUT));
+            httpRedirectLimit.setText(String.valueOf(HttpRequests.REDIRECT_LIMIT));
         }
 
 
@@ -251,6 +280,12 @@ public class SettingUI {
         config.setFormatLevelColour(easyLabel.getForeground(), mediumLabel.getForeground(), hardLabel.getForeground());
         config.setEnglishContent(englishContentBox.isSelected());
         config.setJcef(jcefCheckBox.isSelected());
+        try {
+            config.setHttpConnectionTimeout(Integer.valueOf(httpConnectionTimeout.getText()));
+            config.setHttpReadTimeout(Integer.valueOf(httpReadTimeout.getText()));
+            config.setHttpRedirectLimit(Integer.valueOf(httpRedirectLimit.getText()));
+        } catch (NumberFormatException ignore) {
+        }
     }
 
 
