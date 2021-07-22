@@ -48,7 +48,7 @@ public class CodeManager {
         } else {
 
             if (getQuestion(question, codeTypeEnum, project)) {
-                question.setContent(CommentUtils.createComment(question.getContent(), codeTypeEnum));
+                question.setContent(CommentUtils.createComment(question.getContent(), codeTypeEnum,config));
                 FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
                 FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,true);
             }
@@ -312,7 +312,7 @@ public class CodeManager {
                 sb.append("</li>");
             }
             sb.append("</div></div>");
-            sb.append("\\n");
+            sb.append("<br>");
         }
         sb.append("<div><li>\uD83D\uDC4D "+jsonObject.getInteger("likes")+"</li><li>\uD83D\uDC4E "+jsonObject.getInteger("dislikes")+"</li></div>");
         return sb.toString();

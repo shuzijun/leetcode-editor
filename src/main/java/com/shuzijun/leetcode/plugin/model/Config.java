@@ -95,6 +95,16 @@ public class Config {
      */
     private Boolean questionEditor = true;
 
+    /**
+     * Content  Multiline Comment
+     */
+    private Boolean multilineComment = false;
+
+    /**
+     * html Content
+     */
+    private Boolean htmlContent = false;
+
     private List<String> favoriteList;
 
     public String getId() {
@@ -321,6 +331,22 @@ public class Config {
         this.questionEditor = questionEditor;
     }
 
+    public Boolean getMultilineComment() {
+        return multilineComment;
+    }
+
+    public void setMultilineComment(Boolean multilineComment) {
+        this.multilineComment = multilineComment;
+    }
+
+    public Boolean getHtmlContent() {
+        return htmlContent;
+    }
+
+    public void setHtmlContent(Boolean htmlContent) {
+        this.htmlContent = htmlContent;
+    }
+
     public boolean isModified(Config config){
         if(config ==null){
             return false;
@@ -342,6 +368,10 @@ public class Config {
         if (jcef != null ? !jcef.equals(config.jcef) : config.jcef != null)
             return false;
         if (questionEditor != null ? !questionEditor.equals(config.questionEditor) : config.questionEditor != null)
+            return false;
+        if (multilineComment != null ? !multilineComment.equals(config.multilineComment) : config.multilineComment != null)
+            return false;
+        if (htmlContent != null ? !htmlContent.equals(config.htmlContent) : config.htmlContent != null)
             return false;
         return levelColour != null ? levelColour.equals(config.levelColour) : config.levelColour == null;
     }

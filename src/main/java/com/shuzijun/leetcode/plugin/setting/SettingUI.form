@@ -136,6 +136,27 @@
               <text value="QuestionEditor"/>
             </properties>
           </component>
+          <component id="4fb71" class="javax.swing.JCheckBox" binding="multilineCheckBox" default-binding="true">
+            <constraints>
+              <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <maximum-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <text value="Multiline"/>
+              <toolTipText value="Content  Multiline Comment"/>
+            </properties>
+          </component>
+          <component id="33e74" class="javax.swing.JCheckBox" binding="htmlContentCheckBox" default-binding="true">
+            <constraints>
+              <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <maximum-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <text value="HtmlContent"/>
+            </properties>
+          </component>
         </children>
       </grid>
       <grid id="14d81" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
