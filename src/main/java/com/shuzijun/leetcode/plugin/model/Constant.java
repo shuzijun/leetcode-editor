@@ -108,6 +108,7 @@ public class Constant {
     public static final String DOC_SOLUTION = "doc"+ File.separator + "solution" +  File.separator;
     public static final String DOC_CONTENT = "doc"+ File.separator + "content" +  File.separator;
     public static final String DOC_SUBMISSION = "doc"+ File.separator + "submission" +  File.separator;
+    public static final String DOC_NOTE = "doc"+ File.separator + "note" +  File.separator;
 
 
 }
