@@ -336,7 +336,7 @@ public class CodeManager {
         @Override
         public void run(@NotNull ProgressIndicator progressIndicator) {
             String key = returnObj.getString("submission_id");
-            for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < 100; i++) {
                 if(progressIndicator.isCanceled()){
                     MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.cancel"));
                     return;
@@ -429,7 +429,7 @@ public class CodeManager {
             if (StringUtils.isBlank(key)) {
                 key = returnObj.getString("interpret_id");
             }
-            for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < 100; i++) {
                 if(progressIndicator.isCanceled()){
                     MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.cancel"));
                     return;
