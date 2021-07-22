@@ -90,6 +90,11 @@ public class Config {
      */
     private Boolean jcef = false;
 
+    /**
+     * question Split Editor
+     */
+    private Boolean questionEditor = true;
+
     private List<String> favoriteList;
 
     public String getId() {
@@ -308,6 +313,14 @@ public class Config {
         this.jcef = jcef;
     }
 
+    public Boolean getQuestionEditor() {
+        return questionEditor;
+    }
+
+    public void setQuestionEditor(Boolean questionEditor) {
+        this.questionEditor = questionEditor;
+    }
+
     public boolean isModified(Config config){
         if(config ==null){
             return false;
@@ -327,6 +340,8 @@ public class Config {
         if (customTemplate != null ? !customTemplate.equals(config.customTemplate) : config.customTemplate != null)
             return false;
         if (jcef != null ? !jcef.equals(config.jcef) : config.jcef != null)
+            return false;
+        if (questionEditor != null ? !questionEditor.equals(config.questionEditor) : config.questionEditor != null)
             return false;
         return levelColour != null ? levelColour.equals(config.levelColour) : config.levelColour == null;
     }

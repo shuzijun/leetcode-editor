@@ -14,7 +14,7 @@ public class OpenContentAction extends AbstractEditAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
         Project project = anActionEvent.getProject();
-        CodeManager.openContent(question, project);
+        CodeManager.openContent(question, project, true);
 
     }
 }

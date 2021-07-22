@@ -17,6 +17,12 @@ public class LeetcodeEditor {
      */
     private String questionId;
 
+
+    /**
+     * content file path
+     */
+    private String contentPath;
+
     public Integer getVersion() {
         return version;
     }
@@ -40,4 +46,13 @@ public class LeetcodeEditor {
     public void setQuestionId(String questionId) {
         this.questionId = questionId;
     }
+
+    public String getContentPath() {
+        return contentPath;
+    }
+
+    public void setContentPath(String contentPath) {
+        this.contentPath = contentPath;
+    }
+
 }

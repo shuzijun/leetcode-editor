@@ -392,6 +392,7 @@
          on how to target different products -->
     <!-- uncomment to enable plugin in all products -->
     <depends>com.intellij.modules.lang</depends>
+    <depends>org.intellij.plugins.markdown</depends>
       
     <application-components>
             <!-- Add your application components here -->
@@ -426,6 +427,7 @@
         <lang.foldingBuilder language="Shell Script" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
         <lang.foldingBuilder language="GenericSQL" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
         <lang.foldingBuilder language="TypeScript" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <fileEditorProvider implementation="com.shuzijun.leetcode.plugin.editor.QuestionEditorProvider"/>
     </extensions>
 
     <actions>
@@ -569,10 +571,7 @@
             </action>
         </group>
 
-
-        <group id="leetcode.editor.menu" class="com.shuzijun.leetcode.plugin.actions.editor.EditorMenuActionGroup"
-               text="leetcode editor menu" popup="true" icon="LeetCodeEditorIcons.LEETCODE_TOOL_WINDOW">
-
+        <group id="leetcode.editor.group">
             <action id="leetcode.editor.RunCodeAction" class="com.shuzijun.leetcode.plugin.actions.editor.RunCodeAction"
                     text="Run Code" description="Run Code(editor)" icon="LeetCodeEditorIcons.RUN">
             </action>
@@ -614,6 +613,11 @@
                         text="Reset" description="Reset Time(editor)">
                 </action>
             </group>
+        </group>
+
+        <group id="leetcode.editor.menu" class="com.shuzijun.leetcode.plugin.actions.editor.EditorMenuActionGroup"
+               text="leetcode editor menu" popup="true" icon="LeetCodeEditorIcons.LEETCODE_TOOL_WINDOW">
+            <reference id="leetcode.editor.group"/>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </group>
 
@@ -644,7 +648,6 @@
                     class="com.shuzijun.leetcode.plugin.actions.toolbar.SortAction"
                     text="Frequency" description="Sort By Frequency" icon="LeetCodeEditorIcons.SORT_ASC"/>
         </group>
-
     </actions>
 
 

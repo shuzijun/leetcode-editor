@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.util.function.BiConsumer;
 
 /**
  * @author shuzijun
@@ -34,23 +35,28 @@ public class CodeManager {
             return;
         }
 
+        if(config.getQuestionEditor()) {
+            openContent(question, project, false);
+        }
+
         String filePath = PersistentConfig.getInstance().getTempFilePath() + VelocityUtils.convert(config.getCustomFileName(), question) + codeTypeEnum.getSuffix();
 
         File file = new File(filePath);
+        BiConsumer<LeetcodeEditor, String> fillPath = (e, s) -> e.setPath(s);
         if (file.exists()) {
-            FileUtils.openFileEditorAndSaveState(file,project,question);
+            FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,true);
         } else {
 
             if (getQuestion(question, codeTypeEnum, project)) {
                 question.setContent(CommentUtils.createComment(question.getContent(), codeTypeEnum));
                 FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
-                FileUtils.openFileEditorAndSaveState(file,project,question);
+                FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,true);
             }
         }
     }
 
 
-    public static void openContent(Question question, Project project) {
+    public static void openContent(Question question, Project project,boolean isOpen) {
         Config config = PersistentConfig.getInstance().getInitConfig();
         String codeType = config.getCodeType();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
@@ -66,12 +72,13 @@ public class CodeManager {
         String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_CONTENT  + VelocityUtils.convert(config.getCustomFileName(), question) + ".md";
 
         File file = new File(filePath);
+        BiConsumer<LeetcodeEditor, String> fillPath = (e, s) -> e.setContentPath(s);
         if (file.exists()) {
-            FileUtils.openFileEditor(file,project);
+            FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,isOpen);
         } else {
             if (getQuestion(question, codeTypeEnum, project)) {
                 FileUtils.saveFile(file, question.getContent());
-                FileUtils.openFileEditor(file,project);
+                FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,isOpen);
             }
 
         }

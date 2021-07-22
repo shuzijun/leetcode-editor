@@ -1,46 +1,46 @@
 plugins {
-    id 'java'
-    id 'org.jetbrains.intellij' version '0.4.16'
+    id 'java-library'
+    id 'org.jetbrains.intellij' version '1.0'
     id "de.undercouch.download" version "4.0.2"
 }
 
 group 'com.shuzijun.leetcode'
-version (System.getenv('LD_VERSION')==null ? "6.9":System.getenv('LD_VERSION')) + (project.build_env.isEmpty() ? "" : "-") + project.build_env
+version (System.getenv('LD_VERSION')==null ? project.plugin_version :System.getenv('LD_VERSION')) + (project.build_env.isEmpty() ? "" : "-") + project.build_env
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile 'com.alibaba:fastjson:1.2.47'
-    compile 'org.jsoup:jsoup:1.11.3'
-    compile('io.sentry:sentry:1.7.9') {
+    api 'com.alibaba:fastjson:1.2.47'
+    api 'org.jsoup:jsoup:1.11.3'
+    api('io.sentry:sentry:1.7.9') {
         exclude module: 'slf4j-api'
     }
-    compile 'org.scilab.forge:jlatexmath:1.0.7'
-    compile 'org.apache.commons:commons-lang3:3.9'
-    //compile fileTree(dir: 'src/main/resources/lib', include: ['*.jar'])
+    api 'org.scilab.forge:jlatexmath:1.0.7'
+    api 'org.apache.commons:commons-lang3:3.9'
+    //api fileTree(dir: 'src/main/resources/lib', include: ['*.jar'])
 
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    pluginName 'leetcode-editor'
-    version '2020.2'
-    type 'IU'
-    downloadSources false
-    updateSinceUntilBuild false
-    buildSearchableOptions.enabled(false)
-    /*   updateSinceUntilBuild false
-     localPath project.idea_local_path
+    pluginName = 'leetcode-editor'
+    version = project.intellij_version
+    type = 'IU'
+    downloadSources = true
+    updateSinceUntilBuild = false
+    buildSearchableOptions.enabled = false
+    ideaDependencyCachePath = "$gradle.gradleUserHomeDir/caches/modules-2/files-2.1/com.jetbrains.intellij.idea"
+    /* localPath project.idea_local_path
      alternativeIdePath project.idea_local_path*/
-
-    prepareSandbox {
+    plugins = project.intellij_plugins.split(",").toList()
+/*    prepareSandbox  {
         from("src/main/natives" + (project.build_env.isEmpty() ? "" : "-") + project.build_env) { into(getPluginName() + '/natives') }
-    }
+    }*/
 
 }
 

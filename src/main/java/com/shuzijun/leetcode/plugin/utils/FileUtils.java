@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 
 /**
  * @author shuzijun
@@ -263,13 +264,18 @@ public class FileUtils {
         });
     }
 
-    public static void openFileEditorAndSaveState(File file, Project project, Question question) {
+
+    public static void openFileEditorAndSaveState(File file, Project project, Question question, BiConsumer<LeetcodeEditor,String> consumer,boolean isOpen) {
         ApplicationManager.getApplication().invokeAndWait(() -> {
             VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-            OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
-            FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
-            LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(vf.getPath());
+            LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(question.getQuestionId());
             leetcodeEditor.setQuestionId(question.getQuestionId());
+            consumer.accept(leetcodeEditor,vf.getPath());
+            ProjectConfig.getInstance(project).addLeetcodeEditor(leetcodeEditor);
+            if(isOpen) {
+                OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
+                FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+            }
         });
     }
 

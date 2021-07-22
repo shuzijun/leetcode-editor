@@ -38,6 +38,7 @@ import java.io.File;
  */
 public class SettingUI {
     private JPanel mainPanel;
+    private JCheckBox questionEditorCheckBox;
     private JComboBox webComboBox;
     private JComboBox codeComboBox;
     private JBTextField userNameField;
@@ -123,7 +124,7 @@ public class SettingUI {
         //允许单逻辑行折叠
         settings.setAllowSingleLogicalLineFolding(false);
         //滚动
-        settings.setAnimatedScrolling(false);
+        settings.setAnimatedScrolling(true);
         //底部附加
         settings.setAdditionalPageAtBottom(false);
         //代码自动折叠
@@ -184,6 +185,7 @@ public class SettingUI {
             hardLabel.setForeground(colors[2]);
 
             jcefCheckBox.setSelected(config.getJcef());
+            questionEditorCheckBox.setSelected(config.getQuestionEditor());
         } else {
             Color[] colors = new Config().getFormatLevelColour();
             easyLabel.setForeground(colors[0]);
@@ -251,6 +253,7 @@ public class SettingUI {
         config.setFormatLevelColour(easyLabel.getForeground(), mediumLabel.getForeground(), hardLabel.getForeground());
         config.setEnglishContent(englishContentBox.isSelected());
         config.setJcef(jcefCheckBox.isSelected());
+        config.setQuestionEditor(questionEditorCheckBox.isSelected());
     }
 
 

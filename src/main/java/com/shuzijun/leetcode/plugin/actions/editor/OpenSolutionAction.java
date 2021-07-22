@@ -30,7 +30,7 @@ public class OpenSolutionAction extends AbstractEditAction {
         if (leetcodeEditor == null) {
             return;
         }
-        Question question = ViewManager.getQuestionById(leetcodeEditor.getQuestionId(), anActionEvent.getProject());
+        Question question = ViewManager.getDumbQuestionById(leetcodeEditor.getQuestionId(), anActionEvent.getProject());
         if (question == null) {
             anActionEvent.getPresentation().setEnabled(false);
             return;

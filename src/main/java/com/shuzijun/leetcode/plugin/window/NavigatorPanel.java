@@ -127,11 +127,11 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements DataProvide
         queryField.addKeyListener(new QueryKeyListener(queryField, contentScrollPanel, toolWindow));
         queryPanel.add(queryField);
 
-         findToolbar = actionManager.createActionToolbar("",
+         findToolbar = actionManager.createActionToolbar(PluginConstant.LEETCODE_FIND_TOOLBAR,
                 (DefaultActionGroup) actionManager.getAction(PluginConstant.LEETCODE_FIND_TOOLBAR),
                 true);
         findToolbar.setTargetComponent(tree);
-        actionSortToolbar = actionManager.createActionToolbar("",
+        actionSortToolbar = actionManager.createActionToolbar(PluginConstant.LEETCODE_FIND_SORT_TOOLBAR,
                 (DefaultActionGroup) actionManager.getAction(PluginConstant.LEETCODE_FIND_SORT_TOOLBAR),
                 true);
         actionSortToolbar.setTargetComponent(tree);
