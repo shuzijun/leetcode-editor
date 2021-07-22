@@ -53,4 +53,7 @@ public class PluginConstant {
 
     public static final String LEETCODE_FIND_SORT_TOOLBAR = ACTION_PREFIX + ".find.SortToolbar";
 
+    public static final String LEETCODE_EDITOR_GROUP = ACTION_PREFIX + ".editor.group";
+
+
 }

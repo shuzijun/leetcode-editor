@@ -270,6 +270,12 @@ public class ViewManager {
         }
         return question.get(id);
     }
+    public static Question getDumbQuestionById(String id, Project project) {
+        if (question.isEmpty()) {
+            return null;
+        }
+        return question.get(id);
+    }
 
     private static void addChild(DefaultMutableTreeNode rootNode, List<Tag> Lists, Map<String, Question> questionMap) {
         if (!Lists.isEmpty()) {

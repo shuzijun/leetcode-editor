@@ -1,342 +1,323 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.shuzijun.leetcode.plugin.setting.SettingUI">
-  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="11" column-count="11" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-    <margin top="10" left="10" bottom="10" right="10"/>
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="5" left="5" bottom="5" right="5"/>
     <constraints>
-      <xy x="20" y="20" width="972" height="750"/>
+      <xy x="20" y="20" width="608" height="366"/>
     </constraints>
     <properties>
+      <maximumSize width="2147483647" height="2147483647"/>
+      <minimumSize width="400" height="319"/>
+      <preferredSize width="500" height="500"/>
       <toolTipText value="Click change settings"/>
     </properties>
     <border type="none"/>
     <children>
-      <component id="6d569" class="javax.swing.JLabel">
+      <grid id="84cea" layout-manager="GridLayoutManager" row-count="3" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="5" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="URL:"/>
-        </properties>
-      </component>
-      <vspacer id="75cf7">
-        <constraints>
-          <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </vspacer>
-      <component id="d0e55" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="1" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Code Type:"/>
-          <toolTipText value=""/>
-        </properties>
-      </component>
-      <component id="68824" class="javax.swing.JComboBox" binding="codeComboBox">
-        <constraints>
-          <grid row="1" column="7" row-span="1" col-span="4" vsize-policy="3" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="6fd77" class="javax.swing.JComboBox" binding="webComboBox">
-        <constraints>
-          <grid row="1" column="1" row-span="1" col-span="4" vsize-policy="3" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="95bbd" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="LoginName:"/>
-        </properties>
-      </component>
-      <component id="cee88" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="2" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Password:"/>
-        </properties>
-      </component>
-      <component id="f4989" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="TempFilePath:"/>
-        </properties>
-      </component>
-      <component id="ead03" class="javax.swing.JCheckBox" binding="customCodeBox">
-        <constraints>
-          <grid row="5" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Custom Template"/>
-        </properties>
-      </component>
-      <component id="d8719" class="javax.swing.JCheckBox" binding="updateCheckBox">
-        <constraints>
-          <grid row="5" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <selected value="true"/>
-          <text value="Plugin Update"/>
-        </properties>
-      </component>
-      <component id="1b718" class="javax.swing.JLabel" binding="templateConfigHelp">
-        <constraints>
-          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <background color="-12828863"/>
-          <foreground color="-10969610"/>
-          <text value="CustomConfig(help)"/>
-        </properties>
-      </component>
-      <component id="8672f" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="CodeFileName:"/>
-          <toolTipText value=""/>
-        </properties>
-      </component>
-      <component id="8aeca" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="CodeTemplate:"/>
-        </properties>
-      </component>
-      <component id="c84c8" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="TemplateConstant:"/>
-        </properties>
-      </component>
-      <component id="c1109" class="com.intellij.ui.components.JBTextField" binding="userNameField">
-        <constraints>
-          <grid row="2" column="1" row-span="1" col-span="4" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="da299" class="com.intellij.ui.components.JBPasswordField" binding="passwordField">
-        <constraints>
-          <grid row="2" column="7" row-span="1" col-span="4" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="26f4c" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="fileFolderBtn">
-        <constraints>
-          <grid row="4" column="1" row-span="1" col-span="10" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="b6d67" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="LevelColour:"/>
-        </properties>
-      </component>
-      <component id="6b731" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Label"/>
-          <visible value="false"/>
-        </properties>
-      </component>
-      <component id="20d2b" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Label"/>
-          <visible value="false"/>
-        </properties>
-      </component>
-      <component id="56259" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Label"/>
-          <visible value="false"/>
-        </properties>
-      </component>
-      <component id="7bc0f" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Label"/>
-          <visible value="false"/>
-        </properties>
-      </component>
-      <component id="a0912" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Label"/>
-          <visible value="false"/>
-        </properties>
-      </component>
-      <component id="21bf1" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Label"/>
-          <visible value="false"/>
-        </properties>
-      </component>
-      <component id="bff94" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="0" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Label"/>
-          <visible value="false"/>
-        </properties>
-      </component>
-      <component id="c72bd" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="0" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Label"/>
-          <visible value="false"/>
-        </properties>
-      </component>
-      <component id="371df" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="0" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Label"/>
-          <visible value="false"/>
-        </properties>
-      </component>
-      <component id="1c041" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="0" column="9" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Label"/>
-          <visible value="false"/>
-        </properties>
-      </component>
-      <component id="87daa" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="0" column="10" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Label"/>
-          <visible value="false"/>
-        </properties>
-      </component>
-      <component id="cb2ec" class="javax.swing.JCheckBox" binding="proxyCheckBox">
-        <constraints>
-          <grid row="5" column="7" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <enabled value="false"/>
-          <text value="HTTP Proxy"/>
-          <toolTipText value="Employ File | Settings | Appearance &amp; Behavior | System Settings | HTTP Proxy"/>
-        </properties>
-      </component>
-      <component id="396f1" class="javax.swing.JCheckBox" binding="englishContentBox">
-        <constraints>
-          <grid row="5" column="9" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="English Content"/>
-        </properties>
-      </component>
-      <component id="eace7" class="javax.swing.JSeparator">
-        <constraints>
-          <grid row="6" column="1" row-span="1" col-span="10" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
-            <minimum-size width="-1" height="2"/>
-          </grid>
-        </constraints>
-        <properties/>
-      </component>
-      <grid id="d2885" binding="codeFileName" layout-manager="BorderLayout" hgap="0" vgap="0">
-        <constraints>
-          <grid row="7" column="1" row-span="1" col-span="10" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-        <border type="none"/>
-        <children/>
-      </grid>
-      <grid id="3dd05" binding="codeTemplate" layout-manager="BorderLayout" hgap="0" vgap="0">
-        <constraints>
-          <grid row="8" column="1" row-span="1" col-span="10" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="-1" height="200"/>
-            <maximum-size width="-1" height="200"/>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <maximum-size width="800" height="-1"/>
           </grid>
         </constraints>
         <properties/>
         <border type="none"/>
-        <children/>
+        <children>
+          <component id="4c4ad" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="LevelColour:"/>
+            </properties>
+          </component>
+          <component id="24208" class="javax.swing.JCheckBox" binding="customCodeBox">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <maximum-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <text value="Custom Template"/>
+            </properties>
+          </component>
+          <component id="ec641" class="javax.swing.JCheckBox" binding="updateCheckBox">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <maximum-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <selected value="true"/>
+              <text value="Plugin Update"/>
+            </properties>
+          </component>
+          <component id="56608" class="javax.swing.JCheckBox" binding="jcefCheckBox">
+            <constraints>
+              <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <maximum-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <text value="JCEF"/>
+              <toolTipText value="Version 2020.2+ is supported"/>
+            </properties>
+          </component>
+          <component id="5ac6d" class="javax.swing.JCheckBox" binding="proxyCheckBox">
+            <constraints>
+              <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <maximum-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <enabled value="false"/>
+              <text value="HTTP Proxy"/>
+              <toolTipText value="Employ File | Settings | Appearance &amp; Behavior | System Settings | HTTP Proxy"/>
+            </properties>
+          </component>
+          <component id="d82fd" class="javax.swing.JCheckBox" binding="englishContentBox">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <maximum-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <text value="English Content"/>
+            </properties>
+          </component>
+          <grid id="6778d" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="db954" class="javax.swing.JLabel" binding="easyLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <foreground color="-10700708"/>
+                  <text value="Easy"/>
+                  <toolTipText value="Click change settings"/>
+                </properties>
+              </component>
+              <component id="db5f2" class="javax.swing.JLabel" binding="mediumLabel">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <foreground color="-1004210"/>
+                  <text value="Medium"/>
+                  <toolTipText value="Click change settings"/>
+                </properties>
+              </component>
+              <component id="a3ce0" class="javax.swing.JLabel" binding="hardLabel">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <foreground color="-2534577"/>
+                  <text value="Hard"/>
+                  <toolTipText value="Click change settings"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <component id="1aff0" class="javax.swing.JCheckBox" binding="questionEditorCheckBox" default-binding="true">
+            <constraints>
+              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <maximum-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <selected value="true"/>
+              <text value="QuestionEditor"/>
+            </properties>
+          </component>
+        </children>
       </grid>
-      <grid id="df455" binding="templateConstant" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <grid id="14d81" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="5" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="9" column="1" row-span="1" col-span="10" vsize-policy="0" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <maximum-size width="800" height="-1"/>
+          </grid>
         </constraints>
         <properties/>
         <border type="none"/>
-        <children/>
+        <children>
+          <component id="bd695" class="javax.swing.JLabel" binding="templateConfigHelp">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false">
+                <maximum-size width="500" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <foreground color="-10969610"/>
+              <text value="CustomConfig(help)"/>
+            </properties>
+          </component>
+          <component id="46282" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&lt;html&gt;&lt;body&gt;Code&lt;br&gt;FileName:&lt;body&gt;&lt;/html&gt;"/>
+            </properties>
+          </component>
+          <grid id="57b1b" binding="codeFileName" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false">
+                <minimum-size width="500" height="-1"/>
+                <maximum-size width="500" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children/>
+          </grid>
+          <component id="266bb" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&lt;html&gt;&lt;body&gt;Code&lt;br&gt;Template:&lt;body&gt;&lt;/html&gt;"/>
+            </properties>
+          </component>
+          <component id="731ab" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&lt;html&gt;&lt;body&gt;Template&lt;br&gt;Constant:&lt;body&gt;&lt;/html&gt;"/>
+            </properties>
+          </component>
+          <grid id="d0bef" binding="codeTemplate" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints>
+              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false">
+                <minimum-size width="500" height="-1"/>
+                <preferred-size width="-1" height="200"/>
+                <maximum-size width="500" height="200"/>
+              </grid>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children/>
+          </grid>
+          <grid id="1c92e" binding="templateConstant" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints>
+              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false">
+                <minimum-size width="500" height="-1"/>
+                <maximum-size width="500" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children/>
+          </grid>
+        </children>
       </grid>
-      <component id="7a6e1" class="javax.swing.JLabel" binding="mediumLabel">
+      <grid id="3213b" layout-manager="GridLayoutManager" row-count="3" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <maximum-size width="800" height="-1"/>
+          </grid>
         </constraints>
-        <properties>
-          <foreground color="-1004210"/>
-          <text value="Medium"/>
-          <toolTipText value="Click change settings"/>
-        </properties>
-      </component>
-      <component id="bf345" class="javax.swing.JLabel" binding="hardLabel">
-        <constraints>
-          <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <foreground color="-2534577"/>
-          <text value="Hard"/>
-          <toolTipText value="Click change settings"/>
-        </properties>
-      </component>
-      <component id="333de" class="javax.swing.JLabel" binding="easyLabel">
-        <constraints>
-          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <foreground color="-10700708"/>
-          <text value="Easy"/>
-          <toolTipText value="Click change settings"/>
-        </properties>
-      </component>
-      <component id="b4dc2" class="javax.swing.JCheckBox" binding="jcefCheckBox">
-        <constraints>
-          <grid row="5" column="5" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="JCEF"/>
-          <toolTipText value="Version 2020.2+ is supported"/>
-        </properties>
-      </component>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="f5df0" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="URL:"/>
+            </properties>
+          </component>
+          <component id="16c15" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="CodeType:"/>
+            </properties>
+          </component>
+          <component id="f1e9b" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="LoginName:"/>
+            </properties>
+          </component>
+          <component id="f0e55" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="TempFilePath:"/>
+            </properties>
+          </component>
+          <component id="313ac" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Password:"/>
+            </properties>
+          </component>
+          <component id="bf817" class="javax.swing.JComboBox" binding="webComboBox">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <minimum-size width="150" height="-1"/>
+                <maximum-size width="200" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="c5d38" class="javax.swing.JComboBox" binding="codeComboBox">
+            <constraints>
+              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <minimum-size width="150" height="-1"/>
+                <maximum-size width="200" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <model/>
+            </properties>
+          </component>
+          <component id="5c754" class="com.intellij.ui.components.JBTextField" binding="userNameField">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <minimum-size width="150" height="-1"/>
+                <maximum-size width="200" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="4e54a" class="com.intellij.ui.components.JBPasswordField" binding="passwordField">
+            <constraints>
+              <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <minimum-size width="150" height="-1"/>
+                <maximum-size width="200" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="9c6d9" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="fileFolderBtn">
+            <constraints>
+              <grid row="2" column="1" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <minimum-size width="400" height="-1"/>
+                <maximum-size width="550" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+          </component>
+        </children>
+      </grid>
     </children>
   </grid>
 </form>
