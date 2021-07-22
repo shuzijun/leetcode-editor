@@ -7,25 +7,25 @@ import java.util.Map;
  * @author shuzijun
  */
 public enum CodeTypeEnum {
-    JAVA("Java", "java", ".java", "//"),
-    PYTHON("Python", "python", ".py", "# "),
-    CPP("C++", "cpp", ".cpp", "//"),
-    PYTHON3("Python3", "python3", ".py", "# "),
-    C("C", "c", ".c", "//"),
-    CSHARP("C#", "csharp", ".cs", "//"),
-    JAVASCRIPT("JavaScript", "javascript", ".js", "//"),
-    RUBY("Ruby", "ruby", ".rb", "#"),
-    SWIFT("Swift", "swift", ".swift", "///"),
-    GO("Go", "golang", ".go", "//"),
-    SCALA("Scala", "scala", ".scala", "//"),
-    KOTLIN("Kotlin", "kotlin", ".kt", "//"),
-    RUST("Rust", "rust", ".rs", "//"),
-    PHP("PHP", "php", ".php", "//"),
-    BASH("Bash", "bash", ".sh", "#"),
-    MYSQL("MySQL", "mysql", ".sql", "#"),
-    ORACLE("Oracle", "oraclesql", ".sql", "#"),
-    MSSQLSERVER("MS SQL Server", "mssql", ".sql", "#"),
-    TypeScript("TypeScript", "typescript", ".ts", "//"),
+    JAVA("Java", "java", ".java", "//", "/**\n%s\n*/"),
+    PYTHON("Python", "python", ".py", "# ","\"\"\"\n%s\n\"\"\""),
+    CPP("C++", "cpp", ".cpp", "//", "/**\n%s\n*/"),
+    PYTHON3("Python3", "python3", ".py", "# ","\"\"\"\n%s\n\"\"\""),
+    C("C", "c", ".c", "//", "/**\n%s\n*/"),
+    CSHARP("C#", "csharp", ".cs", "//", "/**\n%s\n*/"),
+    JAVASCRIPT("JavaScript", "javascript", ".js", "//", "/**\n%s\n*/"),
+    RUBY("Ruby", "ruby", ".rb", "#","=begin\n%s\n=end"),
+    SWIFT("Swift", "swift", ".swift", "///", "/**\n%s\n*/"),
+    GO("Go", "golang", ".go", "//", "/**\n%s\n*/"),
+    SCALA("Scala", "scala", ".scala", "//", "/**\n%s\n*/"),
+    KOTLIN("Kotlin", "kotlin", ".kt", "//", "/**\n%s\n*/"),
+    RUST("Rust", "rust", ".rs", "//", "/**\n%s\n*/"),
+    PHP("PHP", "php", ".php", "//", "/**\n%s\n*/"),
+    BASH("Bash", "bash", ".sh", "#",": '\n%s\n'"),
+    MYSQL("MySQL", "mysql", ".sql", "#", "/**\n%s\n*/"),
+    ORACLE("Oracle", "oraclesql", ".sql", "#", "/**\n%s\n*/"),
+    MSSQLSERVER("MS SQL Server", "mssql", ".sql", "#", "/**\n%s\n*/"),
+    TypeScript("TypeScript", "typescript", ".ts", "//", "/**\n%s\n*/"),
     ;
 
 
@@ -33,12 +33,14 @@ public enum CodeTypeEnum {
     private String langSlug;
     private String suffix;
     private String comment;
+    private String multiLineComment;
 
-    CodeTypeEnum(String type, String langSlug, String suffix, String comment) {
+    CodeTypeEnum(String type, String langSlug, String suffix, String comment, String multiLineComment) {
         this.type = type;
         this.langSlug = langSlug;
         this.suffix = suffix;
         this.comment = comment;
+        this.multiLineComment = multiLineComment;
     }
 
     private static Map<String, CodeTypeEnum> MAP = new HashMap<String, CodeTypeEnum>();
@@ -69,5 +71,9 @@ public enum CodeTypeEnum {
 
     public String getComment() {
         return comment;
+    }
+
+    public String getMultiLineComment() {
+        return multiLineComment;
     }
 }
