@@ -529,6 +529,18 @@
             <group id="leetcode.FavoriteGroup" class="com.shuzijun.leetcode.plugin.actions.tree.FavoriteActionGroup"
                    popup="true" text="Favorite" description="Favorite" icon="LeetCodeEditorIcons.FAVORITE">
             </group>
+            <group id="leetcode.note" popup="true" text="note" description="note" icon="LeetCodeEditorIcons.NOTE">
+                <action id="leetcode.ShowNote"
+                        class="com.shuzijun.leetcode.plugin.actions.tree.ShowNoteAction"
+                        text="ShowNote" description="Show Note">
+                </action>
+                <action id="leetcode.PullNote" class="com.shuzijun.leetcode.plugin.actions.tree.PullNoteAction"
+                        text="PullNote" description="Pull Note">
+                </action>
+                <action id="leetcode.PushNote" class="com.shuzijun.leetcode.plugin.actions.tree.PushNoteAction"
+                        text="PushNote" description="Push Note">
+                </action>
+            </group>
             <separator/>
             <group id="leetcode.timer" popup="true" text="Timer" description="timer" icon="LeetCodeEditorIcons.TIME">
                 <action id="leetcode.StartTimeAction"
@@ -601,6 +613,21 @@
             </action>
             <separator/>
             <reference id="leetcode.positionAction"/>
+            <group id="leetcode.editor.note" popup="true" text="note" description="note"
+                   icon="LeetCodeEditorIcons.NOTE">
+                <action id="leetcode.editor.ShowNote"
+                        class="com.shuzijun.leetcode.plugin.actions.editor.ShowNoteAction"
+                        text="ShowNote" description="Show Note">
+                </action>
+                <action id="leetcode.editor.PullNote"
+                        class="com.shuzijun.leetcode.plugin.actions.editor.PullNoteAction"
+                        text="PullNote" description="Pull Note">
+                </action>
+                <action id="leetcode.editor.PushNote"
+                        class="com.shuzijun.leetcode.plugin.actions.editor.PushNoteAction"
+                        text="PushNote" description="Push Note">
+                </action>
+            </group>
             <group id="leetcode.editor.timer" popup="true" text="Timer" description="timer(editor)" icon="LeetCodeEditorIcons.TIME">
                 <action id="leetcode.editor.StartTimeAction"
                         class="com.shuzijun.leetcode.plugin.actions.editor.StartTimeAction"
