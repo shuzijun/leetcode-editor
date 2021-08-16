@@ -43,17 +43,17 @@ public class JcefLogin implements LoginFrame {
 
     @Override
     public void loadComponent() {
-        CookiePanel cookiePanel = new CookiePanel(project);
+        JCEFPanel cookiePanel = new JCEFPanel(project);
         cookiePanel.show();
     }
 
 
-   private class CookiePanel extends DialogWrapper {
+   private class JCEFPanel extends DialogWrapper {
 
         private JPanel jpanel;
         private LoginJCEFPanel loginJCEFPanel;
 
-        public CookiePanel(Project project) {
+        public JCEFPanel(Project project) {
             super(project, Boolean.TRUE);
 
             jpanel = new JBPanel();
@@ -115,7 +115,7 @@ public class JcefLogin implements LoginFrame {
                 @Override
                 public void onLoadingStateChange(CefBrowser browser, boolean isLoading, boolean canGoBack, boolean canGoForward) {
 
-                    getJBCefBrowser(getCefBrowser()).getJBCefCookieManager().getCefCookieManager().visitAllCookies(new CefCookieVisitor() {
+                    getJBCefCookieManager().getCefCookieManager().visitAllCookies(new CefCookieVisitor() {
 
                         private List<HttpCookie> cookieList = new ArrayList<>();
 
