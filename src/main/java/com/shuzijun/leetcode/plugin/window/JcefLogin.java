@@ -9,6 +9,7 @@ import com.intellij.ui.jcef.JCEFHtmlPanel;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.utils.HttpRequestUtils;
 import com.shuzijun.leetcode.plugin.utils.LogUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
@@ -135,7 +136,7 @@ public class JcefLogin implements LoginFrame {
                                 HttpRequestUtils.setCookie(cookieList);
                                 if (HttpRequestUtils.isLogin()) {
                                     HttpLogin.loginSuccess(tree, project, cookieList);
-                                    browser.executeJavaScript("alert('Login is successful. close the window')", "leetcode-editor", 0);
+                                    browser.executeJavaScript("alert('"+ PropertiesUtils.getInfo("browser.login.success") +"')", "leetcode-editor", 0);
                                     successDispose = true;
                                 } else {
                                     cookieList.clear();

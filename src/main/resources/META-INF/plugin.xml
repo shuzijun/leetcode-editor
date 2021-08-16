@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
-    <name>leetcode editor</name>
-    <version>6.9</version>
+    <name>LeetCode Editor</name>
+    <version>7.0</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -129,7 +129,6 @@
          on how to target different products -->
     <!-- uncomment to enable plugin in all products -->
     <depends>com.intellij.modules.lang</depends>
-    <depends>org.intellij.plugins.markdown</depends>
       
     <application-components>
             <!-- Add your application components here -->
@@ -144,7 +143,7 @@
                             serviceImplementation="com.shuzijun.leetcode.plugin.setting.PersistentConfig"/>
         <projectService serviceInterface="com.shuzijun.leetcode.plugin.setting.ProjectConfig"
                         serviceImplementation="com.shuzijun.leetcode.plugin.setting.ProjectConfig"/>
-        <applicationConfigurable groupId="tools" displayName="leetcode plugin" id="leetcode.id"
+        <applicationConfigurable groupId="tools" displayName="LeetCode Plugin" id="leetcode.id"
                                  instance="com.shuzijun.leetcode.plugin.setting.SettingConfigurable"/>
         <statusBarWidgetFactory implementation="com.shuzijun.leetcode.plugin.timer.TimerStatusBarWidgetProvider"/>
         <lang.foldingBuilder language="JAVA" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
@@ -163,6 +162,10 @@
         <lang.foldingBuilder language="GenericSQL" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
         <lang.foldingBuilder language="TypeScript" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
         <fileEditorProvider implementation="com.shuzijun.leetcode.plugin.editor.QuestionEditorProvider"/>
+        <fileType name="lcvDoc" extensions="lcv;" fileNames=".lcv" language="lcvDoc"
+                  implementationClass="com.shuzijun.leetcode.plugin.editor.LCVFileType" fieldName="INSTANCE"/>
+        <fileEditorProvider implementation="com.shuzijun.leetcode.plugin.editor.LCVProvider"/>
+        <httpRequestHandler implementation="com.shuzijun.leetcode.plugin.editor.PreviewStaticServer"/>
     </extensions>
 
     <actions>
@@ -247,6 +250,9 @@
             <reference id="leetcode.ConfigAction"/>
             <reference id="leetcode.ClearAllAction"/>
             <reference id="leetcode.HelpAction"/>
+            <action id="leetcode.DonateAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.DonateAction"
+                    text="Donate" description="Donate" icon="LeetCodeEditorIcons.DONATE">
+            </action>
         </group>
 
         <group id="leetcode.NavigatorActionsMenu">

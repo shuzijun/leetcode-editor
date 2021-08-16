@@ -59,6 +59,8 @@ public class SettingUI {
     private JCheckBox jcefCheckBox;
     private JCheckBox multilineCheckBox;
     private JCheckBox htmlContentCheckBox;
+    private JCheckBox showTopicsCheckBox;
+    private JCheckBox showToolIconCheckBox;
 
 
     private Editor fileNameEditor = null;
@@ -190,6 +192,8 @@ public class SettingUI {
             questionEditorCheckBox.setSelected(config.getQuestionEditor());
             multilineCheckBox.setSelected(config.getMultilineComment());
             htmlContentCheckBox.setSelected(config.getHtmlContent());
+            showTopicsCheckBox.setSelected(config.getShowTopics());
+            showToolIconCheckBox.setSelected(config.getShowToolIcon());
         } else {
             Color[] colors = new Config().getFormatLevelColour();
             easyLabel.setForeground(colors[0]);
@@ -260,6 +264,8 @@ public class SettingUI {
         config.setQuestionEditor(questionEditorCheckBox.isSelected());
         config.setMultilineComment(multilineCheckBox.isSelected());
         config.setHtmlContent(htmlContentCheckBox.isSelected());
+        config.setShowTopics(showTopicsCheckBox.isSelected());
+        config.setShowToolIcon(showToolIconCheckBox.isSelected());
     }
 
 

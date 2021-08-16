@@ -24,8 +24,9 @@
 </p>  
 
 ### Installation([help](https://www.jetbrains.com/help/idea/2019.2/managing-plugins.html))  
-- **Install via plug-in library** https://plugins.jetbrains.com/plugin/12132-leetcode-editor  
-- **Install by downloading the file** https://github.com/shuzijun/leetcode-editor/releases  
+- **Install via plug-in library** [leetcode-editor](https://plugins.jetbrains.com/plugin/12132-leetcode-editor)  
+- **Install by downloading the file** [releases](https://github.com/shuzijun/leetcode-editor/releases)  
+- **If you are willing to donate to this project, you can choose the pro version** [leetcode-editor-pro](https://plugins.jetbrains.com/plugin/17166-leetcode-editor-pro)  
 
 ### Configuration (configuration for first installation)  
 

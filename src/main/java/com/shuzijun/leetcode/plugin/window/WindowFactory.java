@@ -11,6 +11,8 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.shuzijun.leetcode.plugin.listener.UpdatePluginListener;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
+import icons.LeetCodeEditorIcons;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +34,9 @@ public class WindowFactory implements ToolWindowFactory {
         navigatorPanel.addAncestorListener(new UpdatePluginListener());
         Content content = contentFactory.createContent(navigatorPanel, "", false);
         toolWindow.getContentManager().addContent(content);
-
+        if(PersistentConfig.getInstance().getInitConfig()!=null && !PersistentConfig.getInstance().getInitConfig().getShowToolIcon()){
+            toolWindow.setIcon(LeetCodeEditorIcons.EMPEROR_NEW_CLOTHES);
+        }
     }
 
     public static DataContext getDataContext(@NotNull Project project) {

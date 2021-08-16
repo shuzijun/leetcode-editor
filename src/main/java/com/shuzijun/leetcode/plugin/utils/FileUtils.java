@@ -250,4 +250,12 @@ public class FileUtils {
         }
     }
 
+    public static String separator() {
+        if (File.separator.equals("\\")) {
+            return "/";
+        } else {
+            return "";
+        }
+    }
+
 }

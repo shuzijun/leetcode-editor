@@ -22,6 +22,8 @@ dependencies {
     }
     api 'org.scilab.forge:jlatexmath:1.0.7'
     api 'org.apache.commons:commons-lang3:3.9'
+    api 'com.vladsch.flexmark:flexmark:0.62.2'
+    api 'com.vladsch.flexmark:flexmark-ext-attributes:0.62.2'
     //api fileTree(dir: 'src/main/resources/lib', include: ['*.jar'])
 
 }
@@ -37,7 +39,10 @@ intellij {
     ideaDependencyCachePath = "$gradle.gradleUserHomeDir/caches/modules-2/files-2.1/com.jetbrains.intellij.idea"
     /* localPath project.idea_local_path
      alternativeIdePath project.idea_local_path*/
-    plugins = project.intellij_plugins.split(",").toList()
+    /*plugins = project.intellij_plugins.split(",").toList()*/
+    runIde {
+        jvmArgs = ["-Dfile.encoding=utf-8"]
+    }
 /*    prepareSandbox  {
         from("src/main/natives" + (project.build_env.isEmpty() ? "" : "-") + project.build_env) { into(getPluginName() + '/natives') }
     }*/

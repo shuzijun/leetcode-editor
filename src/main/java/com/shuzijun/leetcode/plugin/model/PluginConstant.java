@@ -56,4 +56,7 @@ public class PluginConstant {
     public static final String LEETCODE_EDITOR_GROUP = ACTION_PREFIX + ".editor.group";
 
     public static final String  LEETCODE_EDITOR_TIMER_STATUS_BAR_ID = PLUGIN_ID + "-TimerStatusBar";
+
+    public static final String  LEETCODE_EDITOR_VIEW = "lcv";
+
 }
