@@ -24,7 +24,7 @@ public class PluginConstant {
     /**
      * 配置名称
      */
-    public static final String APPLICATION_CONFIGURABLE_DISPLAY_NAME = "leetcode plugin";
+    public static final String APPLICATION_CONFIGURABLE_DISPLAY_NAME = "LeetCode Plugin";
 
 
     public static final String ACTION_PREFIX = "leetcode";
