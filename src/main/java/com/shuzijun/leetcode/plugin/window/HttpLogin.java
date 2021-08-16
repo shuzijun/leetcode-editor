@@ -33,7 +33,7 @@ public class HttpLogin {
             return Boolean.FALSE;
         }
 
-        if (StringUtils.isBlank(PersistentConfig.getInstance().getPassword())) {
+        if (StringUtils.isBlank(PersistentConfig.getInstance().getPassword(config.getLoginName()))) {
             return Boolean.FALSE;
         }
 
@@ -41,7 +41,7 @@ public class HttpLogin {
             HttpEntity ent = MultipartEntityBuilder.create()
                     .addTextBody("csrfmiddlewaretoken", HttpRequestUtils.getToken())
                     .addTextBody("login", config.getLoginName())
-                    .addTextBody("password", PersistentConfig.getInstance().getPassword())
+                    .addTextBody("password", PersistentConfig.getInstance().getPassword(config.getLoginName()))
                     .addTextBody("next", "/problems")
                     .build();
             HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeLogin(), ent.getContentType().getValue());

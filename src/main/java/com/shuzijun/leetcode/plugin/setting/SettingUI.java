@@ -163,7 +163,7 @@ public class SettingUI {
         Config config = PersistentConfig.getInstance().getInitConfig();
         if (config != null) {
             userNameField.setText(config.getLoginName());
-            passwordField.setText(PersistentConfig.getInstance().getPassword());
+            passwordField.setText(PersistentConfig.getInstance().getPassword(config.getLoginName()));
             if (StringUtils.isNotBlank(config.getFilePath())) {
                 fileFolderBtn.setText(config.getFilePath());
             }
@@ -216,7 +216,7 @@ public class SettingUI {
             Config currentState = new Config();
             process(currentState);
             if (currentState.isModified(config)) {
-                if (passwordField.getText() != null && passwordField.getText().equals(PersistentConfig.getInstance().getPassword())) {
+                if (passwordField.getText() != null && passwordField.getText().equals(PersistentConfig.getInstance().getPassword(config.getLoginName()))) {
                     return false;
                 } else {
                     return true;
@@ -239,7 +239,7 @@ public class SettingUI {
             file.mkdirs();
         }
         PersistentConfig.getInstance().setInitConfig(config);
-        PersistentConfig.getInstance().savePassword(passwordField.getText());
+        PersistentConfig.getInstance().savePassword(passwordField.getText(),config.getLoginName());
         CustomTreeCellRenderer.loaColor();
         TimerBarWidget.loaColor();
     }

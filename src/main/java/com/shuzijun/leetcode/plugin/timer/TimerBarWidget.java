@@ -1,16 +1,13 @@
 package com.shuzijun.leetcode.plugin.timer;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
-import com.intellij.openapi.wm.StatusBarWidget;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -145,16 +142,6 @@ public class TimerBarWidget implements CustomStatusBarWidget {
         this.second = 0L;
         timer.stop();
         label.setVisible(false);
-    }
-
-    @Nullable
-    public StatusBarWidget.WidgetPresentation getPresentation() {
-        return this.getPresentation(SystemInfo.isMac ? StatusBarWidget.PlatformType.MAC : StatusBarWidget.PlatformType.DEFAULT);
-    }
-
-    @Nullable
-    public StatusBarWidget.WidgetPresentation getPresentation(@NotNull StatusBarWidget.PlatformType type) {
-        return null;
     }
 
 

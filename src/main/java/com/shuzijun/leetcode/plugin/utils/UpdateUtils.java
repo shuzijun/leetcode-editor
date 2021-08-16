@@ -2,7 +2,7 @@ package com.shuzijun.leetcode.plugin.utils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
@@ -33,7 +33,7 @@ public class UpdateUtils {
                     CloseableHttpClient httpClient = HttpClients.custom().build();
                     HttpGet httpget = null;
                     try {
-                        String[] version = PluginManager.getPlugin(PluginId.getId(PluginConstant.PLUGIN_ID)).getVersion().replace("v", "").split("\\.|-");
+                        String[] version = PluginManagerCore.getPlugin(PluginId.getId(PluginConstant.PLUGIN_ID)).getVersion().replace("v", "").split("\\.|-");
                         httpget = new HttpGet("https://plugins.jetbrains.com/api/plugins/"+PluginConstant.WEB_ID+"/updates");
                         CloseableHttpResponse response = httpClient.execute(httpget);
                         String body = EntityUtils.toString(response.getEntity(), "UTF-8");

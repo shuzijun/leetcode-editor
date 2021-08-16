@@ -1,6 +1,6 @@
 package com.shuzijun.leetcode.plugin.utils;
 
-import com.shuzijun.leetcode.plugin.utils.io.HttpRequests;
+import com.intellij.util.io.HttpRequests;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.jetbrains.annotations.NotNull;
