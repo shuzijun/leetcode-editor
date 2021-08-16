@@ -24,8 +24,9 @@
 </p>  
 
 ### 安装  
-- **通过插件库安装** https://plugins.jetbrains.com/plugin/12132-leetcode-editor  
-- **下载文件安装** https://github.com/shuzijun/leetcode-editor/releases
+- **通过插件库安装** [leetcode-editor](https://plugins.jetbrains.com/plugin/12132-leetcode-editor)  
+- **下载文件安装** [releases](https://github.com/shuzijun/leetcode-editor/releases)  
+- **如果您想捐助此项目,可以选择pro版本** [leetcode-editor-pro](https://plugins.jetbrains.com/plugin/17166-leetcode-editor-pro)
 
 ### 配置(第一次安装需要先配置)  
 

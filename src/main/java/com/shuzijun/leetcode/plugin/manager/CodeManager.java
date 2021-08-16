@@ -46,8 +46,7 @@ public class CodeManager {
         if (file.exists()) {
             FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,true);
         } else {
-
-            if (getQuestion(question, codeTypeEnum, project)) {
+            if (config.getQuestionEditor() || getQuestion(question, codeTypeEnum, project)) {
                 question.setContent(CommentUtils.createComment(question.getContent(), codeTypeEnum,config));
                 FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
                 FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,true);
@@ -298,21 +297,24 @@ public class CodeManager {
     private static String getContent(JSONObject jsonObject) {
         StringBuffer sb = new StringBuffer();
         sb.append(jsonObject.getString(URLUtils.getDescContent()));
-        JSONArray topicTagsArray = jsonObject.getJSONArray("topicTags");
-        if (topicTagsArray != null && !topicTagsArray.isEmpty()) {
-            sb.append("<div><div>Related Topics</div><div>");
-            for (int i = 0; i < topicTagsArray.size(); i++) {
-                JSONObject tag = topicTagsArray.getJSONObject(i);
-                sb.append("<li>");
-                if (StringUtils.isBlank(tag.getString("translatedName"))) {
-                    sb.append(tag.getString("name"));
-                } else {
-                    sb.append(tag.getString("translatedName"));
+        Config config = PersistentConfig.getInstance().getConfig();
+        if(config.getShowTopics()) {
+            JSONArray topicTagsArray = jsonObject.getJSONArray("topicTags");
+            if (topicTagsArray != null && !topicTagsArray.isEmpty()) {
+                sb.append("<div><div>Related Topics</div><div>");
+                for (int i = 0; i < topicTagsArray.size(); i++) {
+                    JSONObject tag = topicTagsArray.getJSONObject(i);
+                    sb.append("<li>");
+                    if (StringUtils.isBlank(tag.getString("translatedName"))) {
+                        sb.append(tag.getString("name"));
+                    } else {
+                        sb.append(tag.getString("translatedName"));
+                    }
+                    sb.append("</li>");
                 }
-                sb.append("</li>");
+                sb.append("</div></div>");
+                sb.append("<br>");
             }
-            sb.append("</div></div>");
-            sb.append("<br>");
         }
         sb.append("<div><li>\uD83D\uDC4D "+jsonObject.getInteger("likes")+"</li><li>\uD83D\uDC4E "+jsonObject.getInteger("dislikes")+"</li></div>");
         return sb.toString();

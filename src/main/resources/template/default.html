@@ -1,0 +1,58 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{service}}resources/vditor/dist/index.css?{{serverToken}}"/>
+    <link rel="stylesheet" href="{{service}}resources/vditor/style.css?{{serverToken}}"/>
+    <script src="{{service}}resources/vditor/dist/index.min.js?{{serverToken}}"></script>
+    <script src="{{service}}resources/vditor/jquery-3.6.0.min.js?{{serverToken}}"></script>
+</head>
+<body className="body" style="margin: 0px;">
+<div id="vditor" className="vditor vditor--fullscreen" style="height: 100%"></div>
+<textarea id="fileValue" style="display:none;">
+{{fileValue}}
+</textarea>
+</body>
+<script>
+    const vditorCDN = "{{service}}resources/vditor";
+    const vditorThemeCDN = "{{service}}resources/vditor/dist/css/content-theme";
+    const darcula = "{{darcula}}" == "true";
+
+    window.onload = function () {
+        $(".vditor-toolbar")[0].remove();
+        $(".vditor-sv")[0].remove();
+        $(".vditor-preview").find(".vditor-reset").css("max-width","90%" )
+    }
+    const vditor = new Vditor('vditor', {
+        "mode": "sv",
+        "theme": darcula ? "dark" : "light",
+        "lang": "{{Lang}}",
+        "cache": {
+            "enable": false
+        },
+        "toolbarConfig": {"hide": true},
+        "cdn": vditorCDN,
+        "preview": {
+            "theme": {
+                "current": darcula ? "idea-dark" : "idea-light",
+                "path": vditorThemeCDN
+            },
+            "maxWidth": $(window).width() - 100,
+            "actions": [],
+            "hljs": {"style": darcula ? "dracula" : "github"},
+            "math": {
+                "inlineDigit": true
+            }
+        },
+        "value": document.getElementById("fileValue").innerText
+    });
+    function updateStyle(style,darcula){
+        let newStyle = document.createElement('style');
+        newStyle.id = 'ideaStyle';
+        newStyle.innerHTML = style;
+        let oldStyle = document.getElementById('ideaStyle');
+        oldStyle.parentNode.replaceChild(newStyle,oldStyle);
+        vditor.setTheme(darcula? "dark" : "light",darcula ? "idea-dark" : "idea-light",darcula ? "dracula" : "github",vditorThemeCDN)
+    }
+</script>
+{{ideStyle}}
+</html>

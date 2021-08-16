@@ -1,55 +1,45 @@
 package com.shuzijun.leetcode.plugin.manager;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.JBColor;
 import com.shuzijun.leetcode.plugin.model.Constant;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Solution;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
+import com.shuzijun.leetcode.plugin.utils.doc.CleanMarkdown;
 import org.apache.commons.lang.StringUtils;
-import org.jsoup.Jsoup;
-import org.scilab.forge.jlatexmath.TeXConstants;
-import org.scilab.forge.jlatexmath.TeXFormula;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author shuzijun
  */
 public class ArticleManager {
 
-    private static final Pattern latexPattern = Pattern.compile("\\$+[\\s|\\S]*?\\$+");
-    private static final Pattern imageListPattern = Pattern.compile("<(!\\[.*]\\(.*\\),*)+>?");
-    private static final Pattern imagePattern = Pattern.compile("<img.*\\.\\..*>?");
-    private static final Pattern linkPattern = Pattern.compile("]\\(\\.\\.[\\w|/]*?\\.\\w+\\)?");
-    private static final Pattern gifPattern = Pattern.compile("!\\[.*?]\\(.*?\\.gif\\)?");
-    private static final Pattern playgroundPattern = Pattern.compile("<iframe.*playground.*</iframe>?");
-    private static final Pattern imageGroupPattern = Pattern.compile("!\\?!\\.\\..*\\?!?");
-
     public static void openArticle(Question question, Project project) {
 
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_SOLUTION + question.getArticleSlug() + ".md";
+        String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_SOLUTION + question.getArticleSlug() + "." + PluginConstant.LEETCODE_EDITOR_VIEW;
 
         File file = new File(filePath);
+        String host  = "";
         if (!file.exists()) {
             String article;
             if (URLUtils.isCn()) {
                 article = getCnArticle(question, project);
+                host = URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/solution/" + question.getArticleSlug() + "/";
             } else {
                 article = getEnArticle(question, project);
+                host = URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/solution/";
             }
             if (StringUtils.isBlank(article)) {
                 return;
             }
-            article = formatMarkdown(article, project);
+            article = formatMarkdown(article, project,host);
 
             FileUtils.saveFile(file, article);
         }
@@ -112,84 +102,8 @@ public class ArticleManager {
     }
 
 
-    public static String formatMarkdown(String content, Project project) {
-        String article = content.replaceAll("\\{:\\w+=\"?.*\"?}?", "");
-        Matcher latexMatcher = latexPattern.matcher(content);
-        while (latexMatcher.find()) {
-            String group = latexMatcher.group();
-            if (group.contains("\\")) {
-                String fileName = "p_" + group.replaceAll("\\$+| |/|>|<|\\(|\\)|\\s|\\[|]", "_").replace("\\", "") + ".png";
-                String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_SOLUTION  + fileName;
-                File file = new File(filePath);
-                if (!file.exists()) {
-                    if (!file.getParentFile().exists()) {
-                        file.getParentFile().mkdirs();
-                    }
-                    try {
-                        TeXFormula formula = new TeXFormula(group.replaceAll("\\$+|\\s", " "));
-                        formula.createPNG(TeXConstants.STYLE_DISPLAY, 14, filePath, null, JBColor.BLACK);
-                    } catch (Exception e) {
-                        LogUtils.LOG.error("TeXFormula error", e);
-                    }
-                }
-                article = article.replace(group, "![" + group.replaceAll("\\$+|\\s", "").replaceAll("([\\[\\]])", "\\\\$1") + " ](./" + fileName + ") ");
-            } else {
-                article = article.replace(group, group.replaceAll("\\$+", "*"));
-            }
-        }
-        Matcher imageListMatcher = imageListPattern.matcher(content);
-        while (imageListMatcher.find()) {
-            article = article.replace(imageListMatcher.group(), imageListMatcher.group().replaceAll("[<>,]"," "));
-        }
-
-        Matcher linkMatcher = linkPattern.matcher(content);
-        while (linkMatcher.find()) {
-            article = article.replace(linkMatcher.group(), linkMatcher.group().replace("..", URLUtils.getLeetcodeProblems()));
-        }
-        Matcher imageMatcher = imagePattern.matcher(content);
-        while (imageMatcher.find()) {
-            article = article.replace(imageMatcher.group(), imageMatcher.group().replace("..", URLUtils.getLeetcodeProblems()));
-        }
-        Matcher gifMatcher = gifPattern.matcher(content);
-        while (gifMatcher.find()) {
-            article = article.replace(gifMatcher.group(), gifMatcher.group().replace("!", " "));
-        }
-
-        Matcher playgroundMatcher = playgroundPattern.matcher(content);
-        while (playgroundMatcher.find()) {
-            String group = playgroundMatcher.group();
-            String name = Jsoup.parse(group).select("iframe").attr("name");
-            HttpRequest playgroundHttpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(), "application/json");
-            playgroundHttpRequest.setBody("{\"operationName\":\"fetchPlayground\",\"variables\":{},\"query\":\"query fetchPlayground {\\n  playground(uuid: \\\"" + name + "\\\") {\\n    testcaseInput\\n    name\\n    isUserOwner\\n" +
-                    "    isLive\\n    showRunCode\\n    showOpenInPlayground\\n    selectedLangSlug\\n    isShared\\n    __typename\\n  }\\n  allPlaygroundCodes(uuid: \\\"" + name + "\\\") {\\n    code\\n    langSlug\\n    __typename\\n  }\\n}\\n\"}");
-            playgroundHttpRequest.addHeader("Accept", "application/json");
-            HttpResponse playgroundResponse = HttpRequestUtils.executePost(playgroundHttpRequest);
-            if (playgroundResponse.getStatusCode() == 200) {
-                String playgroundCode = JSONObject.parseObject(playgroundResponse.getBody()).getJSONObject("data").getJSONArray("allPlaygroundCodes").getJSONObject(0).getString("code");
-                article = article.replace(group, "```\n" + playgroundCode + "\n```");
-            }
-        }
-
-        Matcher imageGroupMatcher = imageGroupPattern.matcher(content);
-        while (imageGroupMatcher.find()) {
-            String group = imageGroupMatcher.group();
-            HttpRequest imageGroupHttpRequest = HttpRequest.get(URLUtils.getLeetcodeProblems()+group.replace("!?!..","").replaceAll(":\\d+,\\d+!\\?!",""));
-            HttpResponse imageGroupResponse = HttpRequestUtils.executeGet(imageGroupHttpRequest);
-            if (imageGroupResponse.getStatusCode() == 200) {
-                JSONArray jsonArray = JSON.parseObject(imageGroupResponse.getBody()).getJSONArray("timeline");
-                StringBuffer imgs = new StringBuffer();
-                for (int i = 0; i < jsonArray.size(); i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    imgs.append("![").append(i).append(" ](").append(URLUtils.getLeetcodeProblems()).append(jsonObject.getString("image").replace("..","")).append(" )  ");
-                }
-                article = article.replace(group, imgs.toString());
-            }
-
-        }
-
-
-
-        return article;
+    public static String formatMarkdown(String content, Project project,String host) {
+        return CleanMarkdown.cleanMarkdown(content, host);
     }
 
     public static List<Solution> getSolutionList(Question question, Project project) {

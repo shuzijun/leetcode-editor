@@ -11,8 +11,6 @@ import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import org.apache.commons.lang3.StringUtils;
-import org.intellij.plugins.markdown.ui.preview.MarkdownPreviewFileEditorProvider;
-import org.intellij.plugins.markdown.ui.split.SplitTextEditorProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -22,10 +20,8 @@ import java.io.File;
  */
 public class QuestionEditorProvider extends SplitTextEditorProvider {
 
-
-
     public QuestionEditorProvider() {
-        super(new PsiAwareTextEditorProvider(), new MarkdownPreviewFileEditorProvider());
+        super(new PsiAwareTextEditorProvider(), new ContentProvider());
     }
 
     @Override
