@@ -1,6 +1,6 @@
 package com.shuzijun.leetcode.plugin.utils;
 
-import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.application.impl.ApplicationInfoImpl;
 import com.intellij.openapi.extensions.PluginId;
@@ -79,7 +79,7 @@ public class SentryUtils {
 
         }
         context.addTag("javaVersion", SystemInfo.JAVA_RUNTIME_VERSION);
-        context.addTag("pluginVersion", PluginManager.getPlugin(PluginId.getId(PluginConstant.PLUGIN_ID)).getVersion());
+        context.addTag("pluginVersion", PluginManagerCore.getPlugin(PluginId.getId(PluginConstant.PLUGIN_ID)).getVersion());
         if(error == null){
             sentry.sendMessage(description);
         }else {

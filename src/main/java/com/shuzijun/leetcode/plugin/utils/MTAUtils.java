@@ -1,17 +1,7 @@
 package com.shuzijun.leetcode.plugin.utils;
 
-import com.intellij.ide.plugins.PluginManager;
-import com.intellij.openapi.extensions.PluginId;
-import com.intellij.openapi.util.SystemInfo;
 import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.PluginConstant;
-import com.shuzijun.leetcode.plugin.utils.io.HttpRequests;
-import org.apache.http.client.utils.URIBuilder;
 
-import java.awt.*;
-import java.net.URI;
-import java.util.Calendar;
-import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -59,7 +49,7 @@ public class MTAUtils {
 
         @Override
         public void run() {
-            try {
+           /* try {
                 if (version == null) {
                     version = PluginManager.getPlugin(PluginId.getId(PluginConstant.PLUGIN_ID)).getVersion()
                             .replace("v", "").replaceAll("-|_", ".");
@@ -98,7 +88,7 @@ public class MTAUtils {
                 HttpRequests.request(uri.toURL().toString()).userAgent(userAgent).tryConnect();
 
             } catch (Exception e) {
-            }
+            }*/
         }
     }
 }

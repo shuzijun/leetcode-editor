@@ -3,8 +3,7 @@ package com.shuzijun.leetcode.plugin.utils;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
-import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.popup.Balloon;
@@ -12,7 +11,6 @@ import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.awt.RelativePoint;
-import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +20,8 @@ import java.awt.*;
 /**
  * @author shuzijun
  */
-public class MessageUtils implements ProjectComponent {
+@Service
+public final  class MessageUtils  {
 
     private Project project;
 
@@ -32,7 +31,7 @@ public class MessageUtils implements ProjectComponent {
 
     @Nullable
     public static MessageUtils getInstance(Project project) {
-        return ServiceManager.getService(project, MessageUtils.class);
+        return project.getService(MessageUtils.class);
     }
 
 
@@ -67,15 +66,5 @@ public class MessageUtils implements ProjectComponent {
         return this.getClass().getName();
     }
 
-    public void initComponent() {
-    }
 
-    public void disposeComponent() {
-    }
-
-    public void projectOpened() {
-    }
-
-    public void projectClosed() {
-    }
 }

@@ -1,7 +1,8 @@
 package com.shuzijun.leetcode.plugin.setting;
 
+import com.intellij.credentialStore.CredentialAttributes;
+import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
-import com.intellij.ide.passwordSafe.PasswordSafeException;
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.shuzijun.leetcode.plugin.model.Config;
@@ -18,7 +19,7 @@ import java.util.Map;
 /**
  * @author shuzijun
  */
-@State(name = "PersistentConfig" + PluginConstant.ACTION_SUFFIX, storages = {@Storage(value = PluginConstant.ACTION_PREFIX+"-config.xml", roamingType = RoamingType.DISABLED)})
+@State(name = "PersistentConfig" + PluginConstant.ACTION_SUFFIX, storages = {@Storage(value = PluginConstant.ACTION_PREFIX + "-config.xml", roamingType = RoamingType.DISABLED)})
 public class PersistentConfig implements PersistentStateComponent<PersistentConfig> {
 
     public static String PATH = "leetcode" + File.separator + "editor";
@@ -67,24 +68,16 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
         return getConfig().getFilePath() + File.separator + PATH + File.separator + initConfig.get(INITNAME).getAlias() + File.separator;
     }
 
-    public void savePassword(String password) {
-        try {
-            PasswordSafe.getInstance().storePassword
-                    (null, this.getClass(), PluginConstant.PLUGIN_ID, password != null ? password : "");
-        } catch (PasswordSafeException exception) {
-            MessageUtils.showAllWarnMsg("warning", "Failed to save password");
+    public void savePassword(String password, String username) {
+        if(username == null || password == null){
+            return;
         }
+        PasswordSafe.getInstance().set(new CredentialAttributes(PluginConstant.PLUGIN_ID, username, this.getClass()), new Credentials(username, password==null?"":password));
     }
 
-    public String getPassword() {
-        if (getConfig().getVersion() != null) {
-            try {
-                return PasswordSafe.getInstance().getPassword(null, this.getClass(), PluginConstant.PLUGIN_ID);
-            } catch (PasswordSafeException exception) {
-                MessageUtils.showAllWarnMsg("warning", "Password acquisition failed");
-                return null;
-            }
-
+    public String getPassword(String username) {
+        if (getConfig().getVersion() != null && username != null) {
+            return PasswordSafe.getInstance().getPassword(new CredentialAttributes(PluginConstant.PLUGIN_ID, username, this.getClass()));
         }
         return null;
 

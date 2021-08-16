@@ -16,17 +16,13 @@ import java.util.Map;
  * @author shuzijun
  */
 @State(name = "LeetcodeEditor" + PluginConstant.ACTION_SUFFIX, storages = {@Storage(value = PluginConstant.ACTION_PREFIX+"/editor.xml")})
-public class ProjectConfig implements ProjectComponent, PersistentStateComponent<ProjectConfig.InnerState> {
+public class ProjectConfig implements  PersistentStateComponent<ProjectConfig.InnerState> {
 
     public Map<String, LeetcodeEditor> idProjectConfig = new HashMap<>();
 
-    public ProjectConfig(Project project) {
-
-    }
-
     @Nullable
     public static ProjectConfig getInstance(Project project) {
-        return ServiceManager.getService(project, ProjectConfig.class);
+        return project.getService(ProjectConfig.class);
     }
 
     private InnerState innerState = new InnerState();
@@ -81,15 +77,4 @@ public class ProjectConfig implements ProjectComponent, PersistentStateComponent
         return this.getClass().getName();
     }
 
-    public void initComponent() {
-    }
-
-    public void disposeComponent() {
-    }
-
-    public void projectOpened() {
-    }
-
-    public void projectClosed() {
-    }
 }
