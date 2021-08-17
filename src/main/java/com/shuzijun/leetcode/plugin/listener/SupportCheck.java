@@ -24,7 +24,7 @@ public class SupportCheck implements StartupActivity, DumbAware {
             return;
         }
         if(!JBCefApp.isSupported()){
-            Notifications.Bus.notify(new Notification(PluginConstant.NOTIFICATION_GROUP, "Not Support JCEF", "Your environment does not support JCEF, cannot use LeetCode Editor", NotificationType.ERROR));
+            Notifications.Bus.notify(new Notification(PluginConstant.NOTIFICATION_GROUP, "Not Support JCEF", "Your environment does not support JCEF, cannot use LeetCode Editor.Check the Registry 'ide.browser.jcef.enabled'.", NotificationType.ERROR));
         }
     }
 }
