@@ -171,6 +171,7 @@
                   implementationClass="com.shuzijun.leetcode.plugin.editor.LCVFileType" fieldName="INSTANCE"/>
         <fileEditorProvider implementation="com.shuzijun.leetcode.plugin.editor.LCVProvider"/>
         <httpRequestHandler implementation="com.shuzijun.leetcode.plugin.editor.PreviewStaticServer"/>
+        <postStartupActivity implementation="com.shuzijun.leetcode.plugin.listener.SupportCheck"/>
     </extensions>
 
     <actions>
