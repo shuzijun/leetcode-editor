@@ -82,6 +82,7 @@ public class HttpLogin {
                     return Boolean.FALSE;
                 }
             } else if (response.getStatusCode() == 400) {
+                LogUtils.LOG.error("login 400:" + body);
                 JSONObject jsonObject = JSONObject.parseObject(body);
                 MessageUtils.getInstance(project).showInfoMsg("info", StringUtils.join(jsonObject.getJSONObject("form").getJSONArray("errors"), ","));
                 return Boolean.FALSE;

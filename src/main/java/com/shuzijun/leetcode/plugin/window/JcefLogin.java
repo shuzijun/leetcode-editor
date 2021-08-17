@@ -70,13 +70,6 @@ public class JcefLogin implements LoginFrame {
 
         @NotNull
         @Override
-        protected Action getOKAction() {
-
-            return null;
-        }
-
-        @NotNull
-        @Override
         protected Action[] createActions() {
             return new Action[]{};
         }

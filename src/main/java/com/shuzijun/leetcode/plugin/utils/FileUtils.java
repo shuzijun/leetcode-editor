@@ -34,6 +34,9 @@ public class FileUtils {
 
     public static void saveFile(File file, String body) {
         try {
+            if (body == null) {
+                return;
+            }
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }

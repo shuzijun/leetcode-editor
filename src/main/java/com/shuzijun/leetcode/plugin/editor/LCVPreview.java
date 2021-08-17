@@ -68,8 +68,8 @@ public class LCVPreview extends UserDataHolderBase implements FileEditor {
             tempPanel = new LCVPanel(url, project);
             tempPanel.loadHTML(createHtml(isPresentableUrl), url);
             myHtmlPanelWrapper.add(tempPanel.getComponent(), BorderLayout.CENTER);
-        } catch (IllegalStateException e) {
-            myHtmlPanelWrapper.add(new JBLabel(e.getMessage()), BorderLayout.CENTER);
+        } catch (Throwable e) {
+            myHtmlPanelWrapper.add(new JBLabel("<html><body>Your environment does not support JCEF.<br>Check the Registry 'ide.browser.jcef.enabled'.<br>"+e.getMessage()+"<body></html>"), BorderLayout.CENTER);
         }
         myPanel = tempPanel;
         myHtmlPanelWrapper.repaint();
