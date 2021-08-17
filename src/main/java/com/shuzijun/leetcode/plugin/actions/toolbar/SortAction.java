@@ -39,7 +39,9 @@ public class SortAction extends AbstractAction {
         } else {
             e.getPresentation().setIcon(null);
         }
-        sortToolbar.getComponent().updateUI();
+        if (sortToolbar != null && sortToolbar.getComponent() != null) {
+            sortToolbar.getComponent().updateUI();
+        }
         super.update(e);
 
     }

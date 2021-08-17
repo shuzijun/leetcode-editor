@@ -68,7 +68,7 @@ public class LCVPreview extends UserDataHolderBase implements FileEditor {
             tempPanel = new LCVPanel(url, project);
             tempPanel.loadHTML(createHtml(isPresentableUrl), url);
             myHtmlPanelWrapper.add(tempPanel.getComponent(), BorderLayout.CENTER);
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
             myHtmlPanelWrapper.add(new JBLabel(e.getMessage()), BorderLayout.CENTER);
         }
         myPanel = tempPanel;

@@ -40,7 +40,9 @@ public class FindActionGroup extends ActionGroup {
             }
         }
         e.getPresentation().setIcon(null);
-        findToolbar.getComponent().updateUI();
+        if (findToolbar != null && findToolbar.getComponent() != null) {
+            findToolbar.getComponent().updateUI();
+        }
     }
 
 
