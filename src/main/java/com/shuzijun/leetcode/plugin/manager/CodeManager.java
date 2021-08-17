@@ -46,7 +46,7 @@ public class CodeManager {
         if (file.exists()) {
             FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,true);
         } else {
-            if (config.getQuestionEditor() || getQuestion(question, codeTypeEnum, project)) {
+            if (getQuestion(question, codeTypeEnum, project)) {
                 question.setContent(CommentUtils.createComment(question.getContent(), codeTypeEnum,config));
                 FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
                 FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,true);
