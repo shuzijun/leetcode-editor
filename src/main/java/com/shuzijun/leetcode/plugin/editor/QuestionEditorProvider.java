@@ -34,6 +34,10 @@ public class QuestionEditorProvider extends SplitTextEditorProvider {
         if(leetcodeEditor == null || StringUtils.isBlank(leetcodeEditor.getContentPath())){
             return false;
         }
+        VirtualFile contentVf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(leetcodeEditor.getContentPath()));
+        if(contentVf == null){
+            return false;
+        }
 
         return this.myFirstProvider.accept(project, file);
     }

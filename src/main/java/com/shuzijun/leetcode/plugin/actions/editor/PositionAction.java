@@ -49,6 +49,7 @@ public class PositionAction extends AbstractEditAction {
         }
         JBScrollPane scrollPane = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_SCROLL);
         ApplicationManager.getApplication().invokeAndWait(() -> {
+            WindowFactory.activateToolWindow(anActionEvent.getProject());
             ViewManager.position(tree, scrollPane, question);
         });
     }

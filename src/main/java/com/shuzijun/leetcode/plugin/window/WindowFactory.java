@@ -58,4 +58,9 @@ public class WindowFactory implements ToolWindowFactory {
         }
     }
 
+    public static void activateToolWindow(@NotNull Project project) {
+        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
+        leetcodeToolWindows.activate(null);
+    }
+
 }

@@ -6,7 +6,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
@@ -79,7 +78,7 @@ public class FileUtils {
         saveEditDocument(vf);
         StringBuffer code = new StringBuffer();
         try {
-            String body = VfsUtil.loadText(vf);
+            String body = FileDocumentManager.getInstance().getDocument(vf).getText();
             if (StringUtils.isNotBlank(body)) {
 
                 List<String> codeList = new LinkedList<>();
@@ -120,8 +119,8 @@ public class FileUtils {
                     }
                 }
             }
-        } catch (IOException id) {
-
+        } catch (Exception e) {
+            LogUtils.LOG.error("getClearCommentFileBody error",e);
         }
         return code.toString();
     }
