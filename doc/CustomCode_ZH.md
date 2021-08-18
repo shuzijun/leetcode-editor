@@ -21,6 +21,7 @@
     - **${question.content}**：题目描述内容  
     - **${question.code}**：题目代码部分  
     - **$!velocityTool.camelCaseName(str)**：一个函数，用来将字符串转化为驼峰样式  
+  - 更多工具参考[VelocityTool.java](https://github.com/shuzijun/leetcode-editor/blob/master/src/main/java/com/shuzijun/leetcode/plugin/utils/VelocityTool.java)
 
 ## 注意  
   在生成的自定义代码中包含两行关键信息:  

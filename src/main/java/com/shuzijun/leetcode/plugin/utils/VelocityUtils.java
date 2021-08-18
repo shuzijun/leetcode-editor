@@ -37,6 +37,7 @@ public class VelocityUtils {
         VelocityContext velocityContext = new VelocityContext();
         velocityContext.put(VM_CONTEXT, data);
         velocityContext.put("velocityTool", new VelocityTool());
+        velocityContext.put("vt", new VelocityTool());
         boolean isSuccess = engine.evaluate(velocityContext, writer, VM_LOG_TAG, template);
         if (!isSuccess) {
 
