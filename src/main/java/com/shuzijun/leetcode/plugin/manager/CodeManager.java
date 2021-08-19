@@ -200,7 +200,7 @@ public class CodeManager {
                 ProgressManager.getInstance().run(new RunCodeCheckTask(returnObj, project, question.getTestCase()));
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
             } else {
-                LogUtils.LOG.error("RuncodeCode failure " + response.getBody());
+                LogUtils.LOG.error("RuncodeCode failure " + response == null ? "" : response.getBody());
                 MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
             }
         } catch (Exception i) {
