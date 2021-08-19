@@ -5,6 +5,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.RefreshQueue;
@@ -78,7 +79,7 @@ public class FileUtils {
         saveEditDocument(vf);
         StringBuffer code = new StringBuffer();
         try {
-            String body = FileDocumentManager.getInstance().getDocument(vf).getText();
+            String body = ApplicationManager.getApplication().runReadAction((Computable<String>) () -> FileDocumentManager.getInstance().getDocument(vf).getText());
             if (StringUtils.isNotBlank(body)) {
 
                 List<String> codeList = new LinkedList<>();

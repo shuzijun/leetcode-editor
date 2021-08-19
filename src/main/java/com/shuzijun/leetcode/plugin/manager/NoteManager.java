@@ -1,8 +1,10 @@
 package com.shuzijun.leetcode.plugin.manager;
 
 import com.alibaba.fastjson.JSONObject;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.shuzijun.leetcode.plugin.model.Config;
@@ -79,7 +81,7 @@ public class NoteManager {
             }
             VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
             FileUtils.saveEditDocument(vf);
-            String note = FileDocumentManager.getInstance().getDocument(vf).getText();
+            String note = ApplicationManager.getApplication().runReadAction((Computable<String>) () -> FileDocumentManager.getInstance().getDocument(vf).getText());
             HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(),"application/json");
             JSONObject variables = new JSONObject();
             variables.put("titleSlug",question.getTitleSlug());
