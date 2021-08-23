@@ -104,6 +104,20 @@ public class Question {
         this.level = level;
     }
 
+    public void setLevel(String difficulty) {
+        if(difficulty == null){
+            this.level = 0;
+        }else if("easy".equalsIgnoreCase(difficulty)){
+            this.level = 1;
+        }else if("medium".equalsIgnoreCase(difficulty)){
+            this.level = 2;
+        }else if("hard".equalsIgnoreCase(difficulty)){
+            this.level = 3;
+        }else {
+            this.level = 0;
+        }
+    }
+
     public String getStatus() {
         return status;
     }
@@ -197,11 +211,11 @@ public class Question {
         StringBuffer sb = new StringBuffer();
 
 
-        if ("notac".equals(status)) {
+        if ("notac".equalsIgnoreCase(status)) {
             sb.append("❓");
-        } else if ("ac".equals(status)) {
+        } else if ("ac".equalsIgnoreCase(status)) {
             sb.append("✔");
-        } else if ("lock".equals(status)) {
+        } else if ("lock".equalsIgnoreCase(status)) {
             sb.append(" $ ");
         } else if (leaf && level != null) {
             sb.append("   ");
