@@ -39,7 +39,7 @@ public class HttpLogin {
 
         try {
             HttpEntity ent = MultipartEntityBuilder.create()
-                    .addTextBody("csrfmiddlewaretoken", HttpRequestUtils.getToken())
+                    .addTextBody("csrfmiddlewaretoken", HttpRequestUtils.getToken() == null ? "": HttpRequestUtils.getToken())
                     .addTextBody("login", config.getLoginName())
                     .addTextBody("password", PersistentConfig.getInstance().getPassword(config.getLoginName()))
                     .addTextBody("next", "/problems")
