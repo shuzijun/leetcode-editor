@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'com.shuzijun.leetcode'
-version (System.getenv('LD_VERSION')==null ? "6.9":System.getenv('LD_VERSION')) + (project.build_env.isEmpty() ? "" : "-") + project.build_env
+version (System.getenv('LD_VERSION')==null ? "6.10":System.getenv('LD_VERSION')) + (project.build_env.isEmpty() ? "" : "-") + project.build_env
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -29,7 +29,7 @@ dependencies {
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     pluginName 'leetcode-editor'
-    version '2021.1'
+    version '2020.2'
     type 'IU'
     downloadSources false
     updateSinceUntilBuild false
