@@ -7,8 +7,8 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import com.shuzijun.leetcode.plugin.setting.SettingConfigurable;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
@@ -25,7 +25,7 @@ public abstract class AbstractAction extends AnAction {
         Config config = PersistentConfig.getInstance().getInitConfig();
         if (config == null) {
             MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("warning", PropertiesUtils.getInfo("config.first"));
-            ShowSettingsUtil.getInstance().showSettingsDialog(anActionEvent.getProject(), SettingConfigurable.DISPLAY_NAME);
+            ShowSettingsUtil.getInstance().showSettingsDialog(anActionEvent.getProject(), PluginConstant.APPLICATION_CONFIGURABLE_DISPLAY_NAME);
             return;
         } else if (StringUtils.isBlank(config.getId())) {
             config.setId(MTAUtils.getI(""));

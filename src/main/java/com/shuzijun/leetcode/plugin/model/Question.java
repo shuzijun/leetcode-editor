@@ -49,10 +49,12 @@ public class Question {
     /**
      * 解题成功
      */
+    @Deprecated
     private Integer acs = 0;
     /**
      * 提交数
      */
+    @Deprecated
     private Integer submitted = 0;
 
     /**
@@ -124,6 +126,20 @@ public class Question {
 
     public void setLevel(Integer level) {
         this.level = level;
+    }
+
+    public void setLevel(String difficulty) {
+        if(difficulty == null){
+            this.level = 0;
+        }else if("easy".equalsIgnoreCase(difficulty)){
+            this.level = 1;
+        }else if("medium".equalsIgnoreCase(difficulty)){
+            this.level = 2;
+        }else if("hard".equalsIgnoreCase(difficulty)){
+            this.level = 3;
+        }else {
+            this.level = 0;
+        }
     }
 
     public String getStatus() {
@@ -222,18 +238,22 @@ public class Question {
         this.columnArticles = columnArticles;
     }
 
+    @Deprecated
     public Integer getAcs() {
         return acs;
     }
 
+    @Deprecated
     public void setAcs(Integer acs) {
         this.acs = acs;
     }
 
+    @Deprecated
     public Integer getSubmitted() {
         return submitted;
     }
 
+    @Deprecated
     public void setSubmitted(Integer submitted) {
         this.submitted = submitted;
     }
@@ -250,6 +270,10 @@ public class Question {
         }
     }
 
+    public void setAcceptance(Double acceptance) {
+        this.acceptance = acceptance;
+    }
+
     public Double getFrequency() {
         return frequency;
     }
@@ -263,11 +287,11 @@ public class Question {
         StringBuffer sb = new StringBuffer();
 
 
-        if ("notac".equals(status)) {
+        if ("notac".equalsIgnoreCase(status)) {
             sb.append("❓");
-        } else if ("ac".equals(status)) {
+        } else if ("ac".equalsIgnoreCase(status)) {
             sb.append("✔");
-        } else if ("lock".equals(status)) {
+        } else if ("lock".equalsIgnoreCase(status)) {
             sb.append(" $ ");
         } else if (leaf && level != null) {
             sb.append("   ");

@@ -10,6 +10,7 @@ import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
+import com.shuzijun.leetcode.plugin.utils.LogUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,21 +27,26 @@ public class QuestionEditorProvider extends SplitTextEditorProvider {
 
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile file) {
-        Config config = PersistentConfig.getInstance().getInitConfig();
-        if(config == null || !config.getQuestionEditor()){
+        try {
+            Config config = PersistentConfig.getInstance().getInitConfig();
+            if (config == null || !config.getQuestionEditor()) {
+                return false;
+            }
+            LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getEditor(file.getPath());
+            if (leetcodeEditor == null || StringUtils.isBlank(leetcodeEditor.getContentPath())) {
+                return false;
+            }
+            File contentFile = new File(leetcodeEditor.getContentPath());
+            if (!contentFile.exists()) {
+                return false;
+            }
+        } catch (Throwable e) {
+            LogUtils.LOG.error("QuestionEditorProvider -> accept", e);
             return false;
         }
-        LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getEditor(file.getPath());
-        if(leetcodeEditor == null || StringUtils.isBlank(leetcodeEditor.getContentPath())){
-            return false;
-        }
-        VirtualFile contentVf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(leetcodeEditor.getContentPath()));
-        if(contentVf == null){
-            return false;
-        }
-
         return this.myFirstProvider.accept(project, file);
     }
+
     @Override
     public Builder createEditorAsync(@NotNull Project project, @NotNull VirtualFile file) {
         LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getEditor(file.getPath());
@@ -60,7 +66,7 @@ public class QuestionEditorProvider extends SplitTextEditorProvider {
     protected FileEditor createSplitEditor(@NotNull FileEditor firstEditor, @NotNull FileEditor secondEditor) {
 
         //if (firstEditor instanceof TextEditor && secondEditor instanceof MarkdownSplitEditor) {
-            return new QuestionEditorWithPreview((TextEditor)firstEditor, secondEditor);
+        return new QuestionEditorWithPreview((TextEditor) firstEditor, secondEditor);
         //} else {
         //    throw new IllegalArgumentException("Main editor should be TextEditor");
         //}
