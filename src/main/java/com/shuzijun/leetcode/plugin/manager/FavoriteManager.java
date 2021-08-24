@@ -2,8 +2,10 @@ package com.shuzijun.leetcode.plugin.manager;
 
 import com.alibaba.fastjson.JSONObject;
 import com.intellij.openapi.project.Project;
+import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Tag;
+import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 
 /**
@@ -16,6 +18,15 @@ public class FavoriteManager {
             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return ;
         }
+        CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(PersistentConfig.getInstance().getInitConfig().getCodeType());
+        if (codeTypeEnum == null) {
+            MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("config.code"));
+            return;
+        }
+
+        if(!CodeManager.fillQuestion(question,codeTypeEnum,project)){
+            return;
+        }
 
         try {
             HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(),"application/json");
@@ -27,7 +38,7 @@ public class FavoriteManager {
                 String body = response.getBody();
                 JSONObject object = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("addQuestionToFavorite");
                 if (object.getBoolean("ok")) {
-                    tag.getQuestions().add(question.getQuestionId());
+                    tag.getFrontendQuestionId().add(question.getFrontendQuestionId());
                 } else {
                     MessageUtils.getInstance(project).showWarnMsg("info", object.getString("error"));
                 }
@@ -44,6 +55,15 @@ public class FavoriteManager {
             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return ;
         }
+        CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(PersistentConfig.getInstance().getInitConfig().getCodeType());
+        if (codeTypeEnum == null) {
+            MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("config.code"));
+            return;
+        }
+
+        if(!CodeManager.fillQuestion(question,codeTypeEnum,project)){
+            return;
+        }
 
         try {
             HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(),"application/json");
@@ -55,7 +75,7 @@ public class FavoriteManager {
                 String body = response.getBody();
                 JSONObject object = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("removeQuestionFromFavorite");
                 if (object.getBoolean("ok")) {
-                    tag.getQuestions().remove(question.getQuestionId());
+                    tag.getFrontendQuestionId().remove(question.getFrontendQuestionId());
                 } else {
                     MessageUtils.getInstance(project).showWarnMsg("info", object.getString("error"));
                 }

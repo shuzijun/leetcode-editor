@@ -38,7 +38,7 @@ public class ProjectConfig implements  PersistentStateComponent<ProjectConfig.In
         this.innerState = innerState;
         idProjectConfig.clear();
         this.innerState.projectConfig.forEach((s, leetcodeEditor) -> {
-            idProjectConfig.put(leetcodeEditor.getQuestionId(),leetcodeEditor);
+            idProjectConfig.put(leetcodeEditor.getFrontendQuestionId(),leetcodeEditor);
         });
     }
 
@@ -53,7 +53,7 @@ public class ProjectConfig implements  PersistentStateComponent<ProjectConfig.In
     }
 
     public void addLeetcodeEditor(LeetcodeEditor leetcodeEditor) {
-        idProjectConfig.put(leetcodeEditor.getQuestionId(), leetcodeEditor);
+        idProjectConfig.put(leetcodeEditor.getFrontendQuestionId(), leetcodeEditor);
         if(StringUtils.isNotBlank(leetcodeEditor.getPath())) {
             innerState.projectConfig.put(leetcodeEditor.getPath(), leetcodeEditor);
         }

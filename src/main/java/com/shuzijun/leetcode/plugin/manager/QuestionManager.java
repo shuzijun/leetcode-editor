@@ -148,7 +148,7 @@ public class QuestionManager {
             Tag tag = new Tag();
             tag.setName(key);
             for (Question question : questionImmutableMap.get(key)) {
-                tag.addQuestion(question.getQuestionId());
+                tag.addFrontendQuestionId(question.getFrontendQuestionId());
             }
             difficultyList.add(tag);
         }
@@ -179,7 +179,7 @@ public class QuestionManager {
             Tag tag = new Tag();
             tag.setName(key);
             for (Question question : questionImmutableMap.get(key)) {
-                tag.addQuestion(question.getQuestionId());
+                tag.addFrontendQuestionId(question.getFrontendQuestionId());
             }
             statusList.add(tag);
         }
@@ -256,7 +256,7 @@ public class QuestionManager {
                     question.setTitle(object.getString("titleCn"));
                 }
                 question.setLeaf(Boolean.TRUE);
-                question.setQuestionId(object.getString("frontendQuestionId"));
+                //question.setQuestionId(object.getString("frontendQuestionId"));
                 question.setFrontendQuestionId(object.getString("frontendQuestionId"));
                 question.setAcceptance(object.getDouble("acRate"));
                 try {
@@ -298,7 +298,7 @@ public class QuestionManager {
         return questionList;
     }
 
-    private static void translation(List<Question> questions) {
+   /* private static void translation(List<Question> questions) {
 
         if (URLUtils.isCn() && !PersistentConfig.getInstance().getConfig().getEnglishContent()) {
 
@@ -338,7 +338,7 @@ public class QuestionManager {
             }
 
         }
-    }
+    }*/
 
     private static void questionOfToday() {
         if (URLUtils.isCn()) {
@@ -377,7 +377,7 @@ public class QuestionManager {
                 tag.setName(name);
                 JSONArray questionArray = object.getJSONArray("questions");
                 for (int j = 0; j < questionArray.size(); j++) {
-                    tag.addQuestion(questionArray.getInteger(j).toString());
+                    tag.addFrontendQuestionId(questionArray.getInteger(j).toString());
                 }
                 tags.add(tag);
             }
@@ -424,7 +424,7 @@ public class QuestionManager {
                 tag.setName(name);
                 JSONArray questionArray = object.getJSONArray("questions");
                 for (int j = 0; j < questionArray.size(); j++) {
-                    tag.addQuestion(questionArray.getInteger(j).toString());
+                    tag.addFrontendQuestionId(questionArray.getInteger(j).toString());
                 }
                 tags.add(tag);
             }

@@ -54,7 +54,8 @@ public class TreeWillListener implements TreeWillExpandListener {
         ProgressManager.getInstance().run(new Task.Backgroundable(project, PluginConstant.LEETCODE_EDITOR_TREE,false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
-                loadData(question,node,selPath,tree,toolWindow);
+                //loadData(question,node,selPath,tree,toolWindow);
+                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", "Temporarily disabled");
             }
         });
         throw new ExpandVetoException(event);
