@@ -45,11 +45,11 @@ public class Tag {
         this.name = name;
     }
 
-    public TreeSet<String> getQuestions() {
+    public TreeSet<String> getFrontendQuestionId() {
         return questions;
     }
-    public void addQuestion(String questionId) {
-        questions.add(questionId);
+    public void addFrontendQuestionId(String frontendQuestionId) {
+        questions.add(frontendQuestionId);
     }
 
     public String getType() {

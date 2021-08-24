@@ -28,7 +28,7 @@ abstract class AbstractEditAction extends AbstractAction {
         if (leetcodeEditor == null) {
             return;
         }
-        Question question = ViewManager.getQuestionById(leetcodeEditor.getQuestionId(), anActionEvent.getProject());
+        Question question = ViewManager.getQuestionById(leetcodeEditor.getFrontendQuestionId(), anActionEvent.getProject());
         if (question == null) {
             MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("info", PropertiesUtils.getInfo("tree.null"));
             return;

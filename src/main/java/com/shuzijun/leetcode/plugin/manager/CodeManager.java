@@ -31,7 +31,7 @@ public class CodeManager {
             return;
         }
 
-        if (!fillQuestion(question, project)) {
+        if (!fillQuestion(question, codeTypeEnum, project)) {
             return;
         }
 
@@ -46,11 +46,9 @@ public class CodeManager {
         if (file.exists()) {
             FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,true);
         } else {
-            if (getQuestion(question, codeTypeEnum, project)) {
-                question.setContent(CommentUtils.createComment(question.getContent(), codeTypeEnum,config));
-                FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
-                FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,true);
-            }
+            question.setContent(CommentUtils.createComment(question.getContent(), codeTypeEnum, config));
+            FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
+            FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, true);
         }
     }
 
@@ -64,7 +62,7 @@ public class CodeManager {
             return;
         }
 
-        if (!fillQuestion(question, project)) {
+        if (!fillQuestion(question,codeTypeEnum, project)) {
             return;
         }
 
@@ -75,11 +73,8 @@ public class CodeManager {
         if (file.exists()) {
             FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,isOpen);
         } else {
-            if (getQuestion(question, codeTypeEnum, project)) {
-                FileUtils.saveFile(file, question.getContent());
-                FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,isOpen);
-            }
-
+            FileUtils.saveFile(file, question.getContent());
+            FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, isOpen);
         }
     }
 
@@ -95,8 +90,8 @@ public class CodeManager {
 
                 JSONObject jsonObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("question");
 
+                question.setQuestionId(jsonObject.getString("questionId"));
                 question.setContent(getContent(jsonObject));
-
                 question.setTestCase(jsonObject.getString("sampleTestCase"));
 
                 JSONArray jsonArray = jsonObject.getJSONArray("codeSnippets");
@@ -136,7 +131,7 @@ public class CodeManager {
             return;
         }
 
-        if (!fillQuestion(question, project)) {
+        if (!fillQuestion(question,codeTypeEnum, project)) {
             return;
         }
 
@@ -178,7 +173,7 @@ public class CodeManager {
             return;
         }
 
-        if (!fillQuestion(question, project)) {
+        if (!fillQuestion(question,codeTypeEnum, project)) {
             return;
         }
 
@@ -199,7 +194,9 @@ public class CodeManager {
                 JSONObject returnObj = JSONObject.parseObject(body);
                 ProgressManager.getInstance().run(new RunCodeCheckTask(returnObj, project, question.getTestCase()));
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
-            } else {
+            }else if (response != null && response.getStatusCode() == 429) {
+                MessageUtils.getInstance(project).showWarnMsg("error", "Please wait for the result.");
+            }else {
                 LogUtils.LOG.error("RuncodeCode failure " + response == null ? "" : response.getBody());
                 MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
             }
@@ -244,7 +241,7 @@ public class CodeManager {
             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("config.code"));
             return;
         }
-        if (!fillQuestion(question, project)) {
+        if (!fillQuestion(question,codeTypeEnum, project)) {
             return;
         }
 
@@ -279,7 +276,7 @@ public class CodeManager {
 
     }
 
-    private static boolean fillQuestion(Question question, Project project) {
+    public static boolean fillQuestion(Question question,CodeTypeEnum codeTypeEnum, Project project) {
 
         if (Constant.NODETYPE_ITEM.equals(question.getNodeType())) {
             ExploreManager.getItem(question);
@@ -288,8 +285,10 @@ public class CodeManager {
                 return false;
             } else {
                 question.setNodeType(Constant.NODETYPE_DEF);
-                return true;
             }
+        }
+        if (StringUtils.isBlank(question.getQuestionId())){
+            return getQuestion(question,codeTypeEnum,project);
         }
         return true;
     }

@@ -37,7 +37,7 @@ public class FavoriteAction extends ToggleAction {
         if (question == null) {
             return false;
         }
-        return tag.getQuestions().contains(question.getQuestionId());
+        return tag.getFrontendQuestionId().contains(question.getFrontendQuestionId());
     }
 
     @Override

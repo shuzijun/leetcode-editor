@@ -13,6 +13,7 @@ import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
+import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -62,14 +63,14 @@ public class ViewManager {
         question = Maps.uniqueIndex(questionList.iterator(), new Function<Question, String>() {
             @Override
             public String apply(Question question) {
-                return question.getQuestionId();
+                return question.getFrontendQuestionId();
             }
         });
 
         filter.put(Constant.FIND_TYPE_DIFFICULTY, QuestionManager.getDifficulty());
-        filter.put(Constant.FIND_TYPE_STATUS, QuestionManager.getStatus());
-        filter.put(Constant.FIND_TYPE_LISTS, QuestionManager.getLists());
-        filter.put(Constant.FIND_TYPE_TAGS, QuestionManager.getTags());
+        //filter.put(Constant.FIND_TYPE_STATUS, QuestionManager.getStatus());
+        // filter.put(Constant.FIND_TYPE_LISTS, QuestionManager.getLists());
+       // filter.put(Constant.FIND_TYPE_TAGS, QuestionManager.getTags());  Temporarily disabled
         filter.put(Constant.FIND_TYPE_CATEGORY, QuestionManager.getCategory(categorySlug));
 
 
@@ -140,12 +141,20 @@ public class ViewManager {
             TreeSet<String> tagQuestionList = null;
             for (Tag tag : tagList) {
                 if (tag.isSelect()) {
-                    TreeSet<String> temp = tag.getQuestions();
+                    TreeSet<String> temp = tag.getFrontendQuestionId();
                     if (tagQuestionList == null) {
                         tagQuestionList = new TreeSet(new Comparator<String>() {
                             @Override
                             public int compare(String arg0, String arg1) {
-                                return Integer.valueOf(arg0).compareTo(Integer.valueOf(arg1));
+                                if (StringUtils.isNumeric(arg0) && StringUtils.isNumeric(arg1)) {
+                                    return Integer.valueOf(arg0).compareTo(Integer.valueOf(arg1));
+                                } else if (StringUtils.isNumeric(arg0)) {
+                                    return  -1;
+                                } else if (StringUtils.isNumeric(arg1)) {
+                                    return 1;
+                                } else {
+                                    return arg0.compareTo(arg1);
+                                }
                             }
                         });
                         tagQuestionList.addAll(temp);
@@ -279,11 +288,11 @@ public class ViewManager {
     private static void addChild(DefaultMutableTreeNode rootNode, List<Tag> Lists, Map<String, Question> questionMap) {
         if (!Lists.isEmpty()) {
             for (Tag tag : Lists) {
-                long qCnt = tag.getQuestions().stream().filter(q -> questionMap.get(q) != null).count();
+                long qCnt = tag.getFrontendQuestionId().stream().filter(q -> questionMap.get(q) != null).count();
                 DefaultMutableTreeNode tagNode = new DefaultMutableTreeNode(new Question(String.format("%s(%d)",
                         tag.getName(), qCnt)));
                 rootNode.add(tagNode);
-                for (String key : tag.getQuestions()) {
+                for (String key : tag.getFrontendQuestionId()) {
                     if (questionMap.get(key) != null) {
                         tagNode.add(new DefaultMutableTreeNode(questionMap.get(key)));
                     }
@@ -309,7 +318,7 @@ public class ViewManager {
         for (int i = 0, j = node.getChildCount(); i < j; i++) {
             DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) node.getChildAt(i);
             Question nodeData = (Question) childNode.getUserObject();
-            if (nodeData.getQuestionId().equals(question.getQuestionId())) {
+            if (nodeData.getFrontendQuestionId().equals(question.getFrontendQuestionId())) {
                 TreePath toShowPath = new TreePath(childNode.getPath());
                 tree.setSelectionPath(toShowPath);
                 Rectangle bounds = tree.getPathBounds(toShowPath);

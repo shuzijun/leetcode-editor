@@ -13,9 +13,9 @@ public class LeetcodeEditor {
     private String path;
 
     /**
-     * questionId
+     * frontendQuestionId
      */
-    private String questionId;
+    private String frontendQuestionId;
 
 
     /**
@@ -39,12 +39,12 @@ public class LeetcodeEditor {
         this.path = path;
     }
 
-    public String getQuestionId() {
-        return questionId;
+    public String getFrontendQuestionId() {
+        return frontendQuestionId;
     }
 
-    public void setQuestionId(String questionId) {
-        this.questionId = questionId;
+    public void setFrontendQuestionId(String frontendQuestionId) {
+        this.frontendQuestionId = frontendQuestionId;
     }
 
     public String getContentPath() {
