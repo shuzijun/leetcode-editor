@@ -113,6 +113,11 @@ public class Config {
      */
     private Boolean showToolIcon = true;
 
+    /**
+     * show only algorithm problems
+     */
+    private Boolean showOnlyAlgo = false;
+
     private List<String> favoriteList;
 
     public String getId() {
@@ -371,6 +376,14 @@ public class Config {
         this.showToolIcon = showToolIcon;
     }
 
+    public Boolean getShowOnlyAlgo() {
+        return showOnlyAlgo;
+    }
+
+    public void setShowOnlyAlgo(Boolean showOnlyAlgo) {
+        this.showOnlyAlgo = showOnlyAlgo;
+    }
+
     public boolean isModified(Config config){
         if(config ==null){
             return false;
@@ -400,6 +413,8 @@ public class Config {
         if (!Objects.equals(showTopics, config.showTopics))
             return false;
         if (!Objects.equals(showToolIcon, config.showToolIcon))
+            return false;
+        if (!Objects.equals(showOnlyAlgo, config.showOnlyAlgo))
             return false;
         return Objects.equals(levelColour, config.levelColour);
     }

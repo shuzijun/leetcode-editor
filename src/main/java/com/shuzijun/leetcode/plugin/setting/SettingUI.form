@@ -173,6 +173,14 @@
               <text value="Show Tool Icon"/>
             </properties>
           </component>
+          <component id="8a559" class="javax.swing.JCheckBox" binding="showOnlyAlgoCheckBox">
+            <constraints>
+              <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Show Only Algo"/>
+            </properties>
+          </component>
         </children>
       </grid>
       <grid id="14d81" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

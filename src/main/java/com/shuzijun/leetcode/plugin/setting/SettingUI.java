@@ -61,6 +61,7 @@ public class SettingUI {
     private JCheckBox htmlContentCheckBox;
     private JCheckBox showTopicsCheckBox;
     private JCheckBox showToolIconCheckBox;
+    private JCheckBox showOnlyAlgoCheckBox;
 
 
     private Editor fileNameEditor = null;
@@ -194,6 +195,7 @@ public class SettingUI {
             htmlContentCheckBox.setSelected(config.getHtmlContent());
             showTopicsCheckBox.setSelected(config.getShowTopics());
             showToolIconCheckBox.setSelected(config.getShowToolIcon());
+            showOnlyAlgoCheckBox.setSelected(config.getShowOnlyAlgo());
         } else {
             Color[] colors = new Config().getFormatLevelColour();
             easyLabel.setForeground(colors[0]);
@@ -266,6 +268,7 @@ public class SettingUI {
         config.setHtmlContent(htmlContentCheckBox.isSelected());
         config.setShowTopics(showTopicsCheckBox.isSelected());
         config.setShowToolIcon(showToolIconCheckBox.isSelected());
+        config.setShowOnlyAlgo(showOnlyAlgoCheckBox.isSelected());
     }
 
 
