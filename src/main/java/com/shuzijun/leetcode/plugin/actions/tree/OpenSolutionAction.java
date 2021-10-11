@@ -4,17 +4,16 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.plugin.manager.ArticleManager;
-import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Solution;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
+import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 import com.shuzijun.leetcode.plugin.window.SolutionPanel;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -25,12 +24,12 @@ public class OpenSolutionAction extends AbstractTreeAction {
 
     @Override
     public void update(@NotNull AnActionEvent anActionEvent) {
-        JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
-        if (tree == null) {
+        NavigatorTable navigatorTable = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
+        if (navigatorTable == null) {
             anActionEvent.getPresentation().setEnabled(false);
             return;
         }
-        Question question = ViewManager.getTreeQuestion(tree, anActionEvent.getProject());
+        Question question = navigatorTable.getSelectedRowData();
         if (question == null) {
             anActionEvent.getPresentation().setEnabled(false);
             return;
@@ -43,7 +42,7 @@ public class OpenSolutionAction extends AbstractTreeAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config, JTree tree, Question question) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, NavigatorTable navigatorTable, Question question) {
         Project project = anActionEvent.getProject();
         if (Constant.ARTICLE_LIVE_ONE.equals(question.getArticleLive())) {
             ArticleManager.openArticle(question, project);

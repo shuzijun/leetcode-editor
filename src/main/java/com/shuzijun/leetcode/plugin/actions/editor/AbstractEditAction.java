@@ -12,6 +12,8 @@ import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author shuzijun
@@ -21,20 +23,29 @@ abstract class AbstractEditAction extends AbstractAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config) {
         VirtualFile vf = ArrayUtil.getFirstElement(FileEditorManager.getInstance(anActionEvent.getProject()).getSelectedFiles());
-        if(vf == null){
+        if (vf == null) {
             return;
         }
         LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(anActionEvent.getProject()).getEditor(vf.getPath());
         if (leetcodeEditor == null) {
             return;
         }
-        Question question = ViewManager.getQuestionById(leetcodeEditor.getFrontendQuestionId(), anActionEvent.getProject());
+        if (StringUtils.isBlank(leetcodeEditor.getTitleSlug())) {
+            MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("info", PropertiesUtils.getInfo("tree.null"));
+            return;
+        }
+        if(!URLUtils.getLeetcodeHost().equals(leetcodeEditor.getHost())){
+            MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("info", PropertiesUtils.getInfo("tree.host"));
+            return;
+        }
+        Question question = ViewManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), null, anActionEvent.getProject());
         if (question == null) {
             MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("info", PropertiesUtils.getInfo("tree.null"));
             return;
         }
 
         actionPerformed(anActionEvent, config, question);
+
 
     }
 

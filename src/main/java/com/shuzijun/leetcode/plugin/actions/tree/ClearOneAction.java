@@ -12,8 +12,8 @@ import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.VelocityUtils;
+import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 
-import javax.swing.*;
 import java.io.File;
 
 /**
@@ -21,7 +21,7 @@ import java.io.File;
  */
 public class ClearOneAction extends AbstractTreeAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config, JTree tree, Question question) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, NavigatorTable navigatorTable, Question question) {
 
         String codeType = config.getCodeType();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);

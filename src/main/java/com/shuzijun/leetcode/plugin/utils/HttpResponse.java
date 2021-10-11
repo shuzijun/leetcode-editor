@@ -8,6 +8,8 @@ public class HttpResponse {
 
     private String body;
 
+    private String url;
+
     public int getStatusCode() {
         return statusCode;
     }
@@ -22,5 +24,13 @@ public class HttpResponse {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

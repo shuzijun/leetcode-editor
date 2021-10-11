@@ -6,9 +6,9 @@ import com.shuzijun.leetcode.plugin.manager.SubmissionManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Submission;
+import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 import com.shuzijun.leetcode.plugin.window.SubmissionsPanel;
 
-import javax.swing.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class SubmissionsAction extends AbstractTreeAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config, JTree tree, Question question) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, NavigatorTable navigatorTable, Question question) {
 
         List<Submission> submissionList = SubmissionManager.getSubmissionService(question, anActionEvent.getProject());
         if (submissionList == null || submissionList.isEmpty()) {

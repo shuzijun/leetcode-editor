@@ -227,8 +227,10 @@ public class FileUtils {
     public static void openFileEditorAndSaveState(File file, Project project, Question question, BiConsumer<LeetcodeEditor,String> consumer,boolean isOpen) {
         ApplicationManager.getApplication().invokeAndWait(() -> {
             VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-            LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(question.getFrontendQuestionId());
-            leetcodeEditor.setFrontendQuestionId(question.getFrontendQuestionId());
+            LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(URLUtils.getLeetcodeHost()+question.getFrontendQuestionId());
+            leetcodeEditor.setFrontendQuestionId(URLUtils.getLeetcodeHost()+question.getFrontendQuestionId());
+            leetcodeEditor.setTitleSlug(question.getTitleSlug());
+            leetcodeEditor.setHost(URLUtils.getLeetcodeHost());
             consumer.accept(leetcodeEditor,vf.getPath());
             ProjectConfig.getInstance(project).addLeetcodeEditor(leetcodeEditor);
             if(isOpen) {

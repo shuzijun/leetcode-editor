@@ -24,7 +24,7 @@ public class FavoriteManager {
             return;
         }
 
-        if(!CodeManager.fillQuestion(question,codeTypeEnum,project)){
+        if(!QuestionManager.fillQuestion(question,codeTypeEnum,project)){
             return;
         }
 
@@ -38,7 +38,7 @@ public class FavoriteManager {
                 String body = response.getBody();
                 JSONObject object = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("addQuestionToFavorite");
                 if (object.getBoolean("ok")) {
-                    tag.getFrontendQuestionId().add(question.getFrontendQuestionId());
+                    tag.getQuestions().add(question.getFrontendQuestionId());
                 } else {
                     MessageUtils.getInstance(project).showWarnMsg("info", object.getString("error"));
                 }
@@ -61,7 +61,7 @@ public class FavoriteManager {
             return;
         }
 
-        if(!CodeManager.fillQuestion(question,codeTypeEnum,project)){
+        if(!QuestionManager.fillQuestion(question,codeTypeEnum,project)){
             return;
         }
 
@@ -75,7 +75,7 @@ public class FavoriteManager {
                 String body = response.getBody();
                 JSONObject object = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("removeQuestionFromFavorite");
                 if (object.getBoolean("ok")) {
-                    tag.getFrontendQuestionId().remove(question.getFrontendQuestionId());
+                    tag.getQuestions().remove(question.getFrontendQuestionId());
                 } else {
                     MessageUtils.getInstance(project).showWarnMsg("info", object.getString("error"));
                 }

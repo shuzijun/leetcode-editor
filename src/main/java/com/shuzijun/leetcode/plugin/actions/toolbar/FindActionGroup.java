@@ -32,7 +32,7 @@ public class FindActionGroup extends ActionGroup {
 
         if (tags != null && !tags.isEmpty()) {
             for (Tag tag : tags) {
-                if(tag.isSelect()){
+                if (tag.isSelect()) {
                     e.getPresentation().setIcon(LeetCodeEditorIcons.FILTER);
                     findToolbar.getComponent().updateUI();
                     return;
@@ -57,11 +57,7 @@ public class FindActionGroup extends ActionGroup {
 
         if (tags != null && !tags.isEmpty()) {
             for (Tag tag : tags) {
-                if (PluginConstant.LEETCODE_FIND_CATEGORY.equals(id)) {
-                    anActionList.add(new FindTagAction(tag.getName(), tag, true));
-                }else {
-                    anActionList.add(new FindTagAction(tag.getName(), tag));
-                }
+                anActionList.add(new FindTagAction(tag.getName(), tag, tags, onlyOne(id), getFilterKey(id)));
             }
         }
         AnAction[] anActions = new AnAction[anActionList.size()];
@@ -86,4 +82,26 @@ public class FindActionGroup extends ActionGroup {
         return tags;
     }
 
+    private boolean onlyOne(String id) {
+        if (PluginConstant.LEETCODE_FIND_TAGS.equals(id)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private String getFilterKey(String id) {
+        if (PluginConstant.LEETCODE_FIND_DIFFICULTY.equals(id)) {
+            return "difficulty";
+        } else if (PluginConstant.LEETCODE_FIND_STATUS.equals(id)) {
+            return "status";
+        } else if (PluginConstant.LEETCODE_FIND_LISTS.equals(id)) {
+            return "listId";
+        } else if (PluginConstant.LEETCODE_FIND_TAGS.equals(id)) {
+            return "tags";
+        } else if (PluginConstant.LEETCODE_FIND_CATEGORY.equals(id)) {
+            return "categorySlug";
+        }
+        return "";
+    }
 }

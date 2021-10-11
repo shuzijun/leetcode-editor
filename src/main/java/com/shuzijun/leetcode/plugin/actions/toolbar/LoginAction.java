@@ -10,7 +10,6 @@ import com.shuzijun.leetcode.plugin.utils.*;
 import com.shuzijun.leetcode.plugin.window.*;
 import org.apache.commons.lang.StringUtils;
 
-import javax.swing.*;
 import java.net.HttpCookie;
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class LoginAction extends AbstractAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config) {
 
-        JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
+        NavigatorTable navigatorTable = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
 
         if (StringUtils.isBlank(HttpRequestUtils.getToken())) {
             HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeVerify());
@@ -52,7 +51,7 @@ public class LoginAction extends AbstractAction {
             HttpRequestUtils.setCookie(cookieList);
             if (HttpRequestUtils.isLogin()) {
                 MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("login", PropertiesUtils.getInfo("login.success"));
-                ViewManager.loadServiceData(tree, anActionEvent.getProject());
+                ViewManager.loadServiceData(navigatorTable, anActionEvent.getProject());
                 return;
             } else {
                 config.addCookie(config.getUrl() + config.getLoginName(), null);
@@ -60,15 +59,15 @@ public class LoginAction extends AbstractAction {
             }
         }
 
-        if (!HttpLogin.ajaxLogin(config, tree, anActionEvent.getProject())) {
+        if (!HttpLogin.ajaxLogin(config, navigatorTable, anActionEvent.getProject())) {
             ApplicationManager.getApplication().invokeAndWait(new Runnable() {
                 @Override
                 public void run() {
                     LoginFrame loginFrame;
                     if (HttpLogin.isEnabledJcef()) {
-                        loginFrame = new JcefLogin(anActionEvent.getProject(), tree);
+                        loginFrame = new JcefLogin(anActionEvent.getProject(), navigatorTable);
                     } else {
-                        loginFrame = new CookieLogin(anActionEvent.getProject(), tree);
+                        loginFrame = new CookieLogin(anActionEvent.getProject(), navigatorTable);
                     }
                     loginFrame.loadComponent();
                 }

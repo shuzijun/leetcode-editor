@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>leetcode-editor</id>
     <name>LeetCode Editor</name>
-    <version>7.0</version>
+    <version>8.0</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/idea-leetcode-plugin">shuzijun</vendor>
 
     <description><![CDATA[
@@ -197,9 +197,6 @@
         <action id="leetcode.ClearAllAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.ClearAllAction"
                 text="Clear cache" description="Clear cache" icon="LeetCodeEditorIcons.CLEAR">
         </action>
-        <action id="leetcode.CollapseAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.CollapseAction"
-                text="Collapse All" description="Collapse All" icon="LeetCodeEditorIcons.COLLAPSE">
-        </action>
 
         <action id="leetcode.HelpAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.HelpAction"
                 text="Help" description="Help" icon="LeetCodeEditorIcons.HELP">
@@ -239,8 +236,6 @@
         <action id="leetcode.PickAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.PickAction"
                 text="Pick one" description="Pick one" icon="LeetCodeEditorIcons.RANDOM">
         </action>
-        <action id="leetcode.positionAction" class="com.shuzijun.leetcode.plugin.actions.editor.PositionAction"
-                text="position" description="position" icon="LeetCodeEditorIcons.POSITION"/>
 
         <group id="leetcode.NavigatorActionsToolbar">
             <reference id="leetcode.LoginAction"/>
@@ -249,8 +244,6 @@
             <reference id="leetcode.RefreshAction"/>
             <reference id="leetcode.PickAction"/>
             <reference id="leetcode.FindAction"/>
-            <reference id="leetcode.positionAction"/>
-            <reference id="leetcode.CollapseAction"/>
             <reference id="leetcode.ProgressAction"/>
             <separator/>
             <reference id="leetcode.ConfigAction"/>
@@ -309,24 +302,22 @@
             <group id="leetcode.find.Category" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindActionGroup"
                    popup="true" text="Category" description="Category">
             </group>
+            <group id="leetcode.find.Lists" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindActionGroup" popup="true"
+                   text="Lists" description="Lists">
+            </group>
             <group id="leetcode.find.Difficulty" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindActionGroup"
                    popup="true" text="Difficulty" description="Difficulty">
             </group>
             <group id="leetcode.find.Status" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindActionGroup" popup="true"
                    text="Status" description="Status">
             </group>
-            <group id="leetcode.find.Lists" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindActionGroup" popup="true"
-                   text="Lists" description="Lists">
-            </group>
+
             <group id="leetcode.find.Tags" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindActionGroup" popup="true"
                    text="Tags" description="Tags">
             </group>
             <separator/>
             <action id="leetcode.find.Clear" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindClearAction"
                     text="Clear find" description="Clear find " icon="LeetCodeEditorIcons.CLEAN">
-            </action>
-            <action id="leetcode.find.Config" class="com.shuzijun.leetcode.plugin.actions.toolbar.FindConfigAction"
-                    text="∩" description="find intersection">
             </action>
         </group>
 
@@ -359,7 +350,6 @@
                     text="open in web" description="open in web(editor)" icon="LeetCodeEditorIcons.POPUP">
             </action>
             <separator/>
-            <reference id="leetcode.positionAction"/>
             <group id="leetcode.editor.note" popup="true" text="note" description="note"
                    icon="LeetCodeEditorIcons.NOTE">
                 <action id="leetcode.editor.ShowNote"
@@ -400,10 +390,6 @@
                     class="com.shuzijun.leetcode.plugin.actions.toolbar.SortAction"
                     text="Sort:" description="label"/>
             <separator/>
-            <action id="leetcode.sort.SortById"
-                    class="com.shuzijun.leetcode.plugin.actions.toolbar.SortAction"
-                    text="Id" description="Sort By Id" icon="LeetCodeEditorIcons.SORT_ASC"/>
-
             <action id="leetcode.sort.SortByTitle" class="com.shuzijun.leetcode.plugin.actions.toolbar.SortAction"
                     text="Title" description="Sort By Title" icon="LeetCodeEditorIcons.SORT_ASC"/>
 

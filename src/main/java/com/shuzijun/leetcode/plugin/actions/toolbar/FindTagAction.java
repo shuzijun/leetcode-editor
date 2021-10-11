@@ -9,11 +9,12 @@ import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
+import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import java.util.List;
 
 /**
  * @author shuzijun
@@ -22,17 +23,18 @@ public class FindTagAction extends ToggleAction {
 
     private Tag tag;
 
-    private boolean againLoad = false;
+    private String filterKey;
 
-    public FindTagAction(@Nullable String text, Tag tag) {
+    private boolean onlyOne;
+
+    private List<Tag> typeTags;
+
+    public FindTagAction(@Nullable String text, Tag tag, List<Tag> typeTags, boolean onlyOne, String filterKey) {
         super(text);
         this.tag = tag;
-    }
-
-    public FindTagAction(@Nullable String text, Tag tag, boolean againLoad) {
-        super(text);
-        this.tag = tag;
-        this.againLoad = againLoad;
+        this.typeTags = typeTags;
+        this.onlyOne = onlyOne;
+        this.filterKey = filterKey;
     }
 
     @Override
@@ -42,27 +44,30 @@ public class FindTagAction extends ToggleAction {
 
     @Override
     public void setSelected(AnActionEvent anActionEvent, boolean b) {
+        if (onlyOne && b) {
+            typeTags.forEach(tag -> tag.setSelect(false));
+        }
         tag.setSelect(b);
-        JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
-        if (tree == null) {
+        NavigatorTable navigatorTable = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
+        if (navigatorTable == null) {
             return;
         }
-        if (againLoad) {
-            ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), PluginConstant.PLUGIN_NAME+ "." + tag.getName(), false) {
-                @Override
-                public void run(@NotNull ProgressIndicator progressIndicator) {
+        ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), PluginConstant.PLUGIN_NAME + "." + tag.getName(), false) {
+            @Override
+            public void run(@NotNull ProgressIndicator progressIndicator) {
+                if ("categorySlug".equals(filterKey)) {
                     if (b) {
-                        ViewManager.loadServiceData(tree, anActionEvent.getProject(), tag.getSlug());
+                        navigatorTable.getPageInfo().setCategorySlug(tag.getSlug());
                     } else {
-                        ViewManager.loadServiceData(tree, anActionEvent.getProject());
+                        navigatorTable.getPageInfo().setCategorySlug("");
                     }
-
+                } else {
+                    navigatorTable.getPageInfo().disposeFilters(filterKey, tag.getSlug(), b);
                 }
-            });
-
-        } else {
-            ViewManager.update(tree);
-        }
+                navigatorTable.getPageInfo().setPageIndex(1);
+                ViewManager.loadServiceData(navigatorTable, anActionEvent.getProject());
+            }
+        });
     }
 
 

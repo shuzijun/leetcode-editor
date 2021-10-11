@@ -5,15 +5,14 @@ import com.intellij.openapi.wm.WindowManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.timer.TimerBarWidget;
-
-import javax.swing.*;
+import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 
 /**
  * @author shuzijun
  */
 public class StopTimeAction extends  AbstractTreeAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config, JTree tree, Question question) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, NavigatorTable navigatorTable, Question question) {
         TimerBarWidget timerBarWidget = (TimerBarWidget) WindowManager.getInstance().getStatusBar(anActionEvent.getProject()).getWidget(TimerBarWidget.ID);
         if (timerBarWidget != null) {
             timerBarWidget.stopTimer();

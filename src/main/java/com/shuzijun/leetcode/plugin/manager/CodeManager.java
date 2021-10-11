@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.shuzijun.leetcode.plugin.listener.QuestionStatusListener;
 import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
@@ -31,11 +32,11 @@ public class CodeManager {
             return;
         }
 
-        if (!fillQuestion(question, codeTypeEnum, project)) {
+        if (!QuestionManager.fillQuestion(question, codeTypeEnum, project)) {
             return;
         }
 
-        if(config.getQuestionEditor()) {
+        if (config.getQuestionEditor()) {
             openContent(question, project, false);
         }
 
@@ -44,7 +45,7 @@ public class CodeManager {
         File file = new File(filePath);
         BiConsumer<LeetcodeEditor, String> fillPath = (e, s) -> e.setPath(s);
         if (file.exists()) {
-            FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,true);
+            FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, true);
         } else {
             question.setContent(CommentUtils.createComment(question.getContent(), codeTypeEnum, config));
             FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
@@ -53,7 +54,7 @@ public class CodeManager {
     }
 
 
-    public static void openContent(Question question, Project project,boolean isOpen) {
+    public static void openContent(Question question, Project project, boolean isOpen) {
         Config config = PersistentConfig.getInstance().getInitConfig();
         String codeType = config.getCodeType();
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
@@ -62,65 +63,22 @@ public class CodeManager {
             return;
         }
 
-        if (!fillQuestion(question,codeTypeEnum, project)) {
+        if (!QuestionManager.fillQuestion(question, codeTypeEnum, project)) {
             return;
         }
 
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_CONTENT  + VelocityUtils.convert(config.getCustomFileName(), question) + ".md";
+        String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_CONTENT + VelocityUtils.convert(config.getCustomFileName(), question) + ".md";
 
         File file = new File(filePath);
         BiConsumer<LeetcodeEditor, String> fillPath = (e, s) -> e.setContentPath(s);
         if (file.exists()) {
-            FileUtils.openFileEditorAndSaveState(file,project,question,fillPath,isOpen);
+            FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, isOpen);
         } else {
             FileUtils.saveFile(file, question.getContent());
             FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, isOpen);
         }
     }
 
-    private static boolean getQuestion(Question question, CodeTypeEnum codeTypeEnum, Project project) {
-        try {
-            HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(),"application/json");
-            httpRequest.setBody("{\"operationName\":\"questionData\",\"variables\":{\"titleSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query questionData($titleSlug: String!) {\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    questionFrontendId\\n    boundTopicId\\n    title\\n    titleSlug\\n    content\\n    translatedTitle\\n    translatedContent\\n    isPaidOnly\\n    difficulty\\n    likes\\n    dislikes\\n    isLiked\\n    similarQuestions\\n    contributors {\\n      username\\n      profileUrl\\n      avatarUrl\\n      __typename\\n    }\\n    langToValidPlayground\\n    topicTags {\\n      name\\n      slug\\n      translatedName\\n      __typename\\n    }\\n    companyTagStats\\n    codeSnippets {\\n      lang\\n      langSlug\\n      code\\n      __typename\\n    }\\n    stats\\n    hints\\n    solution {\\n      id\\n      canSeeDetail\\n      __typename\\n    }\\n    status\\n    sampleTestCase\\n    metaData\\n    judgerAvailable\\n    judgeType\\n    mysqlSchemas\\n    enableRunCode\\n    enableTestMode\\n    envInfo\\n    __typename\\n  }\\n}\\n\"}");
-            httpRequest.addHeader("Accept", "application/json");
-            HttpResponse response = HttpRequestUtils.executePost(httpRequest);
-            if (response != null && response.getStatusCode() == 200) {
-
-                String body = response.getBody();
-
-                JSONObject jsonObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("question");
-
-                question.setQuestionId(jsonObject.getString("questionId"));
-                question.setContent(getContent(jsonObject));
-                question.setTestCase(jsonObject.getString("sampleTestCase"));
-
-                JSONArray jsonArray = jsonObject.getJSONArray("codeSnippets");
-                for (int i = 0; i < jsonArray.size(); i++) {
-                    JSONObject object = jsonArray.getJSONObject(i);
-                    if (codeTypeEnum.getType().equals(object.getString("lang"))) {
-                        question.setLangSlug(object.getString("langSlug"));
-                        StringBuffer sb = new StringBuffer();
-                        sb.append(codeTypeEnum.getComment()).append(Constant.SUBMIT_REGION_BEGIN).append("\n");
-                        sb.append(object.getString("code").replaceAll("\\n", "\n")).append("\n");
-                        sb.append(codeTypeEnum.getComment()).append(Constant.SUBMIT_REGION_END).append("\n");
-                        question.setCode(sb.toString());
-                        break;
-                    }
-                    if (i == jsonArray.size() - 1) {
-                        question.setCode(codeTypeEnum.getComment() + "There is no code of " + codeTypeEnum.getType() + " type for this problem");
-                    }
-                }
-                return Boolean.TRUE;
-            } else {
-                MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
-            }
-
-        } catch (Exception e) {
-            LogUtils.LOG.error("获取代码失败", e);
-            MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
-        }
-        return Boolean.FALSE;
-    }
 
     public static void SubmitCode(Question question, Project project) {
         Config config = PersistentConfig.getInstance().getInitConfig();
@@ -131,12 +89,12 @@ public class CodeManager {
             return;
         }
 
-        if (!fillQuestion(question,codeTypeEnum, project)) {
+        if (!QuestionManager.fillQuestion(question, codeTypeEnum, project)) {
             return;
         }
 
         try {
-            HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/submit/","application/json");
+            HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/submit/", "application/json");
             JSONObject arg = new JSONObject();
             arg.put("question_id", question.getQuestionId());
             arg.put("lang", question.getLangSlug());
@@ -173,12 +131,12 @@ public class CodeManager {
             return;
         }
 
-        if (!fillQuestion(question,codeTypeEnum, project)) {
+        if (!QuestionManager.fillQuestion(question, codeTypeEnum, project)) {
             return;
         }
 
         try {
-            HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/interpret_solution/","application/json");
+            HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/interpret_solution/", "application/json");
             JSONObject arg = new JSONObject();
             arg.put("question_id", question.getQuestionId());
             arg.put("data_input", question.getTestCase());
@@ -194,9 +152,9 @@ public class CodeManager {
                 JSONObject returnObj = JSONObject.parseObject(body);
                 ProgressManager.getInstance().run(new RunCodeCheckTask(returnObj, project, question.getTestCase()));
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("request.pending"));
-            }else if (response != null && response.getStatusCode() == 429) {
+            } else if (response != null && response.getStatusCode() == 429) {
                 MessageUtils.getInstance(project).showWarnMsg("error", "Please wait for the result.");
-            }else {
+            } else {
                 LogUtils.LOG.error("RuncodeCode failure " + response == null ? "" : response.getBody());
                 MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
             }
@@ -241,12 +199,12 @@ public class CodeManager {
             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("config.code"));
             return;
         }
-        if (!fillQuestion(question,codeTypeEnum, project)) {
+        if (!QuestionManager.fillQuestion(question, codeTypeEnum, project)) {
             return;
         }
 
         try {
-            HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(),"application/json");
+            HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(), "application/json");
             httpRequest.setBody("{\"operationName\":\"questionData\",\"variables\":{\"titleSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query questionData($titleSlug: String!) {\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    questionFrontendId\\n    boundTopicId\\n    title\\n    titleSlug\\n    content\\n    translatedTitle\\n    translatedContent\\n    isPaidOnly\\n    difficulty\\n    likes\\n    dislikes\\n    isLiked\\n    similarQuestions\\n    contributors {\\n      username\\n      profileUrl\\n      avatarUrl\\n      __typename\\n    }\\n    langToValidPlayground\\n    topicTags {\\n      name\\n      slug\\n      translatedName\\n      __typename\\n    }\\n    companyTagStats\\n    codeSnippets {\\n      lang\\n      langSlug\\n      code\\n      __typename\\n    }\\n    stats\\n    hints\\n    solution {\\n      id\\n      canSeeDetail\\n      __typename\\n    }\\n    status\\n    sampleTestCase\\n    metaData\\n    judgerAvailable\\n    judgeType\\n    mysqlSchemas\\n    enableRunCode\\n    enableTestMode\\n    envInfo\\n    __typename\\n  }\\n}\\n\"}");
             httpRequest.addHeader("Accept", "application/json");
             HttpResponse response = HttpRequestUtils.executePost(httpRequest);
@@ -276,48 +234,6 @@ public class CodeManager {
 
     }
 
-    public static boolean fillQuestion(Question question,CodeTypeEnum codeTypeEnum, Project project) {
-
-        if (Constant.NODETYPE_ITEM.equals(question.getNodeType())) {
-            ExploreManager.getItem(question);
-            if (StringUtils.isBlank(question.getTitleSlug())) {
-                MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("response.restrict"));
-                return false;
-            } else {
-                question.setNodeType(Constant.NODETYPE_DEF);
-            }
-        }
-        if (StringUtils.isBlank(question.getQuestionId())){
-            return getQuestion(question,codeTypeEnum,project);
-        }
-        return true;
-    }
-
-    private static String getContent(JSONObject jsonObject) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(jsonObject.getString(URLUtils.getDescContent()));
-        Config config = PersistentConfig.getInstance().getConfig();
-        if(config.getShowTopics()) {
-            JSONArray topicTagsArray = jsonObject.getJSONArray("topicTags");
-            if (topicTagsArray != null && !topicTagsArray.isEmpty()) {
-                sb.append("<div><div>Related Topics</div><div>");
-                for (int i = 0; i < topicTagsArray.size(); i++) {
-                    JSONObject tag = topicTagsArray.getJSONObject(i);
-                    sb.append("<li>");
-                    if (StringUtils.isBlank(tag.getString("translatedName"))) {
-                        sb.append(tag.getString("name"));
-                    } else {
-                        sb.append(tag.getString("translatedName"));
-                    }
-                    sb.append("</li>");
-                }
-                sb.append("</div></div>");
-                sb.append("<br>");
-            }
-        }
-        sb.append("<div><li>\uD83D\uDC4D "+jsonObject.getInteger("likes")+"</li><li>\uD83D\uDC4E "+jsonObject.getInteger("dislikes")+"</li></div>");
-        return sb.toString();
-    }
 
     private static class SubmitCheckTask extends Task.Backgroundable {
 
@@ -327,7 +243,7 @@ public class CodeManager {
         private Project project;
 
         public SubmitCheckTask(JSONObject returnObj, CodeTypeEnum codeTypeEnum, Question question, Project project) {
-            super(project,PluginConstant.PLUGIN_NAME + ".submitCheckTask",true);
+            super(project, PluginConstant.PLUGIN_NAME + ".submitCheckTask", true);
             this.returnObj = returnObj;
             this.codeTypeEnum = codeTypeEnum;
             this.question = question;
@@ -338,7 +254,7 @@ public class CodeManager {
         public void run(@NotNull ProgressIndicator progressIndicator) {
             String key = returnObj.getString("submission_id");
             for (int i = 0; i < 100; i++) {
-                if(progressIndicator.isCanceled()){
+                if (progressIndicator.isCanceled()) {
                     MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.cancel"));
                     return;
                 }
@@ -358,7 +274,7 @@ public class CodeManager {
 
                                     MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("submit.success", runtime, runtimePercentile, codeTypeEnum.getType(), memory, memoryPercentile, codeTypeEnum.getType()));
                                     question.setStatus("ac");
-                                    ViewManager.updateStatus();
+                                    project.getMessageBus().syncPublisher(QuestionStatusListener.QUESTION_STATUS_TOPIC).updateTable(question);
                                 } else {
 
                                     String input = jsonObject.getString("input");
@@ -369,15 +285,15 @@ public class CodeManager {
 
                                     if (!"ac".equals(question.getStatus())) {
                                         question.setStatus("notac");
-                                        ViewManager.updateStatus();
+                                        project.getMessageBus().syncPublisher(QuestionStatusListener.QUESTION_STATUS_TOPIC).updateTable(question);
                                     }
                                 }
                             } else {
                                 String outputs = jsonObject.getString("std_output");
-                                MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", buildErrorMsg(jsonObject),jsonObject.getString("last_testcase"), outputs));
+                                MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("submit.run.failed", buildErrorMsg(jsonObject), jsonObject.getString("last_testcase"), outputs));
                                 if (!"ac".equals(question.getStatus())) {
                                     question.setStatus("notac");
-                                    ViewManager.updateStatus();
+                                    project.getMessageBus().syncPublisher(QuestionStatusListener.QUESTION_STATUS_TOPIC).updateTable(question);
                                 }
                             }
                             return;
@@ -412,13 +328,13 @@ public class CodeManager {
     }
 
 
-    private static class RunCodeCheckTask extends Task.Backgroundable  {
+    private static class RunCodeCheckTask extends Task.Backgroundable {
         private JSONObject returnObj;
         private Project project;
         private String input;
 
         public RunCodeCheckTask(JSONObject returnObj, Project project, String input) {
-            super(project, PluginConstant.PLUGIN_NAME+".runCodeCheckTask",true);
+            super(project, PluginConstant.PLUGIN_NAME + ".runCodeCheckTask", true);
             this.returnObj = returnObj;
             this.project = project;
             this.input = input;
@@ -431,7 +347,7 @@ public class CodeManager {
                 key = returnObj.getString("interpret_id");
             }
             for (int i = 0; i < 100; i++) {
-                if(progressIndicator.isCanceled()){
+                if (progressIndicator.isCanceled()) {
                     MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.cancel"));
                     return;
                 }
