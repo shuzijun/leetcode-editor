@@ -1,0 +1,8 @@
+---
+version: 0.2.0
+
+trigger: default
+
+keywords:
+  - name: blocked-words
+    value: [leetcode-assistant|LeetCode Assistant]

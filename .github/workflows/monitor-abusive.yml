@@ -1,0 +1,43 @@
+name: Monitor Abusive Comments
+on:
+  issue_comment:
+    # This shouldn't be called for comment deletion
+    types:
+      - created
+      - edited
+
+jobs:
+  abuse-monitor:
+    name: With latest code base
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Handle with Comvent
+        uses: rytswd/comvent@v0.3
+        id: comvent
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-path: .github/config/comvent-ad.yaml
+
+      # The below only runs when comvent finds matching comment.
+      # This assumes that comvent config holding 'some-abusive-content' as a keyword.
+      - if: steps.comvent.outputs.blocked-words != ''
+        name: Handle some abusive content
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # An example of removing the abusive comment, and leaving a comment about the deletion.
+          script: |
+            github.issues.deleteComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: ${{ github.event.comment.id }}
+            })
+            const comment = `Found blocked words! 😰
+            The comment was thus removed.`;
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            })
