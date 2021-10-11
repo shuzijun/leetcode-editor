@@ -25,6 +25,7 @@ import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.HttpLogin;
+import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
@@ -246,6 +247,7 @@ public class SettingUI {
         PersistentConfig.getInstance().savePassword(passwordField.getText(),config.getLoginName());
         CustomTreeCellRenderer.loaColor();
         TimerBarWidget.loaColor();
+        NavigatorTable.loaColor();
     }
 
     public void process(Config config) {

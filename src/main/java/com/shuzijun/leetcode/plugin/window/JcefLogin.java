@@ -32,12 +32,12 @@ import java.util.List;
  */
 public class JcefLogin implements LoginFrame {
 
-    private JTree tree;
+    private NavigatorTable navigatorTable;
     private Project project;
 
 
-    public JcefLogin(Project project, JTree tree) {
-        this.tree = tree;
+    public JcefLogin(Project project, NavigatorTable navigatorTable) {
+        this.navigatorTable = navigatorTable;
         this.project = project;
     }
 
@@ -128,7 +128,7 @@ public class JcefLogin implements LoginFrame {
                             if (count == total - 1 && isSession) {
                                 HttpRequestUtils.setCookie(cookieList);
                                 if (HttpRequestUtils.isLogin()) {
-                                    HttpLogin.loginSuccess(tree, project, cookieList);
+                                    HttpLogin.loginSuccess(navigatorTable, project, cookieList);
                                     browser.executeJavaScript("alert('"+ PropertiesUtils.getInfo("browser.login.success") +"')", "leetcode-editor", 0);
                                     successDispose = true;
                                 } else {

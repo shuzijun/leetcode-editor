@@ -43,11 +43,11 @@ public class ProjectConfig implements  PersistentStateComponent<ProjectConfig.In
     }
 
 
-    public LeetcodeEditor getDefEditor(String questionId) {
-        LeetcodeEditor leetcodeEditor = idProjectConfig.get(questionId);
+    public LeetcodeEditor getDefEditor(String frontendQuestionId) {
+        LeetcodeEditor leetcodeEditor = idProjectConfig.get(frontendQuestionId);
         if (leetcodeEditor == null) {
             leetcodeEditor = new LeetcodeEditor();
-            idProjectConfig.put(questionId,leetcodeEditor);
+            idProjectConfig.put(frontendQuestionId,leetcodeEditor);
         }
         return leetcodeEditor;
     }

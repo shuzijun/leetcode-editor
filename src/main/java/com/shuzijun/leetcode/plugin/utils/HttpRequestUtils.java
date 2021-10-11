@@ -159,7 +159,7 @@ public class HttpRequestUtils {
             } else {
                 httpResponse.setStatusCode(((HttpURLConnection) urlConnection).getResponseCode());
             }
-
+            httpResponse.setUrl(urlConnection.getURL().toString());
             try {
                 httpResponse.setBody(request.readString());
             } catch (IOException ignore) {

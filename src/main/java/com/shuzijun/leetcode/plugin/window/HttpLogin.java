@@ -17,7 +17,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.HttpCookie;
@@ -27,7 +26,7 @@ import java.util.List;
  * @author shuzijun
  */
 public class HttpLogin {
-    public static boolean ajaxLogin(Config config, JTree tree, Project project) {
+    public static boolean ajaxLogin(Config config, NavigatorTable navigatorTable, Project project) {
 
         if (URLUtils.leetcode.equals(URLUtils.getLeetcodeHost())) {
             return Boolean.FALSE;
@@ -64,7 +63,7 @@ public class HttpLogin {
                     if (jsonArray.isEmpty()) {
                         MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
                         examineEmail(project);
-                        ViewManager.loadServiceData(tree, project);
+                        ViewManager.loadServiceData(navigatorTable, project);
                         return Boolean.TRUE;
                     } else {
                         MessageUtils.getInstance(project).showInfoMsg("info", StringUtils.join(jsonArray, ","));
@@ -73,7 +72,7 @@ public class HttpLogin {
                 } else if (StringUtils.isBlank(body)) {
                     MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
                     examineEmail(project);
-                    ViewManager.loadServiceData(tree, project);
+                    ViewManager.loadServiceData(navigatorTable, project);
                     return Boolean.TRUE;
                 } else {
                     HttpRequestUtils.resetHttpclient();
@@ -131,7 +130,7 @@ public class HttpLogin {
         });
     }
 
-    public static void loginSuccess(JTree tree, Project project, List<HttpCookie> cookieList) {
+    public static void loginSuccess(NavigatorTable navigatorTable, Project project, List<HttpCookie> cookieList) {
         ProgressManager.getInstance().run(new Task.Backgroundable(project, PluginConstant.ACTION_PREFIX+".loginSuccess", false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
@@ -139,7 +138,7 @@ public class HttpLogin {
                 config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.httpCookieToJSONString(cookieList));
                 PersistentConfig.getInstance().setInitConfig(config);
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                ViewManager.loadServiceData(tree, project);
+                ViewManager.loadServiceData(navigatorTable, project);
                 examineEmail(project);
             }
         });

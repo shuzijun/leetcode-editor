@@ -26,7 +26,7 @@ public class ArticleManager {
         String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_SOLUTION + question.getArticleSlug() + "." + PluginConstant.LEETCODE_EDITOR_VIEW;
 
         File file = new File(filePath);
-        String host  = "";
+        String host = "";
         if (!file.exists()) {
             String article;
             if (URLUtils.isCn()) {
@@ -39,7 +39,7 @@ public class ArticleManager {
             if (StringUtils.isBlank(article)) {
                 return;
             }
-            article = formatMarkdown(article, project,host);
+            article = formatMarkdown(article, project, host);
 
             FileUtils.saveFile(file, article);
         }
@@ -49,9 +49,10 @@ public class ArticleManager {
     private static String getEnArticle(Question question, Project project) {
         try {
             HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(), "application/json");
-            httpRequest.setBody("{\"operationName\":\"QuestionNote\",\"variables\":{\"titleSlug\":\"" + question.getArticleSlug() + "\"},\"query\":\"query QuestionNote($titleSlug: String!) " +
-                    "{\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    article\\n    solution {\\n      id\\n      url\\n      content\\n      contentTypeId\\n      canSeeDetail\\n      paidOnly\\n      " +
-                    "rating {\\n        id\\n        count\\n        average\\n        userRating {\\n          score\\n          __typename\\n        }\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}");
+            httpRequest.setBody("{\"operationName\":\"QuestionNote\",\"variables\":{\"titleSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query QuestionNote($titleSlug: String!) " +
+                    "{\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    article\\n    solution {\\n      id\\n      content\\n      contentTypeId\\n      canSeeDetail\\n   " +
+                    "   paidOnly\\n      hasVideoSolution\\n      paidOnlyVideo\\n      rating {\\n        id\\n        count\\n        average\\n        userRating {\\n          score\\n  " +
+                    "        __typename\\n        }\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}");
             httpRequest.addHeader("Accept", "application/json");
             HttpResponse response = HttpRequestUtils.executePost(httpRequest);
             if (response.getStatusCode() == 200) {
@@ -59,7 +60,7 @@ public class ArticleManager {
                 if (StringUtils.isBlank(content)) {
                     MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.auth"));
                     return null;
-                }else {
+                } else {
                     return content;
                 }
             }
@@ -88,7 +89,7 @@ public class ArticleManager {
                 if (StringUtils.isBlank(content)) {
                     MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.auth"));
                     return null;
-                }else {
+                } else {
                     return content;
                 }
             } else {
@@ -102,7 +103,7 @@ public class ArticleManager {
     }
 
 
-    public static String formatMarkdown(String content, Project project,String host) {
+    public static String formatMarkdown(String content, Project project, String host) {
         return CleanMarkdown.cleanMarkdown(content, host);
     }
 

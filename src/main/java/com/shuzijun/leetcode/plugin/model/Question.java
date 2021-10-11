@@ -282,26 +282,31 @@ public class Question {
         this.frequency = frequency;
     }
 
+    public String getStatusSign(){
+
+        if ("notac".equalsIgnoreCase(status) || "TRIED".equalsIgnoreCase(status)) {
+            return  "❓";
+        } else if ("ac".equalsIgnoreCase(status)) {
+            return  "✔";
+        } else if ("lock".equalsIgnoreCase(status)) {
+            return  "$";
+        } else if ("day".equalsIgnoreCase(status)) {
+            return  "day";
+        } else if (leaf && level != null) {
+            return  "   ";
+        }
+        return  "   ";
+    }
+
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
 
-
-        if ("notac".equalsIgnoreCase(status)) {
-            sb.append("❓");
-        } else if ("ac".equalsIgnoreCase(status)) {
-            sb.append("✔");
-        } else if ("lock".equalsIgnoreCase(status)) {
-            sb.append(" $ ");
-        } else if (leaf && level != null) {
-            sb.append("   ");
-        }
-
+        sb.append(getStatusSign());
         if (StringUtils.isNotBlank(frontendQuestionId) && leaf) {
             sb.append("[").append(frontendQuestionId).append("]");
         }
         return sb.append(title).toString();
-
 
     }
 }

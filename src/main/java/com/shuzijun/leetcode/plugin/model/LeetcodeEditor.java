@@ -23,6 +23,13 @@ public class LeetcodeEditor {
      */
     private String contentPath;
 
+    /**
+     * titleSlug
+     */
+    private String titleSlug;
+
+    private String host;
+
     public Integer getVersion() {
         return version;
     }
@@ -55,4 +62,19 @@ public class LeetcodeEditor {
         this.contentPath = contentPath;
     }
 
+    public String getTitleSlug() {
+        return titleSlug;
+    }
+
+    public void setTitleSlug(String titleSlug) {
+        this.titleSlug = titleSlug;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
 }

@@ -9,7 +9,6 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.shuzijun.leetcode.plugin.listener.UpdatePluginListener;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import icons.LeetCodeEditorIcons;
@@ -31,7 +30,6 @@ public class WindowFactory implements ToolWindowFactory {
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         JComponent navigatorPanel=  new NavigatorPanel(toolWindow,project);
-        navigatorPanel.addAncestorListener(new UpdatePluginListener());
         Content content = contentFactory.createContent(navigatorPanel, "", false);
         toolWindow.getContentManager().addContent(content);
         if(PersistentConfig.getInstance().getInitConfig()!=null && !PersistentConfig.getInstance().getInitConfig().getShowToolIcon()){
@@ -42,7 +40,6 @@ public class WindowFactory implements ToolWindowFactory {
     public static DataContext getDataContext(@NotNull Project project) {
         AtomicReference<DataContext> dataContext = new AtomicReference<>();
         ApplicationManager.getApplication().invokeAndWait(() -> {
-
             ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
             dataContext.set(DataManager.getInstance().getDataContext(leetcodeToolWindows.getContentManager().getContent(0).getComponent()));
         });

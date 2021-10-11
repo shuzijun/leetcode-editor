@@ -9,10 +9,10 @@ import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 import com.shuzijun.leetcode.plugin.window.TestcasePanel;
 import org.apache.commons.lang.StringUtils;
 
-import javax.swing.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class TestcaseAction extends AbstractTreeAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config, JTree tree, Question question) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, NavigatorTable navigatorTable, Question question) {
         if (StringUtils.isBlank(question.getTestCase())) {
             String codeType = PersistentConfig.getInstance().getInitConfig().getCodeType();
             CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);

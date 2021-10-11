@@ -13,6 +13,7 @@ import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.utils.HttpRequestUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 import com.shuzijun.leetcode.plugin.window.ProgressPanel;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.jetbrains.annotations.Nullable;
@@ -51,8 +52,9 @@ public class ProgressAction extends AbstractAction {
                 return;
             } else {
                 if (SessionManager.switchSession(anActionEvent.getProject(), session.getId())) {
-                    JTree tree = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
-                    ViewManager.loadServiceData(tree, anActionEvent.getProject());
+                    NavigatorTable navigatorTable = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
+                    navigatorTable.getPageInfo().clear();
+                    ViewManager.loadServiceData(navigatorTable, anActionEvent.getProject());
                     actionPerformed(anActionEvent, config);
                 }
             }

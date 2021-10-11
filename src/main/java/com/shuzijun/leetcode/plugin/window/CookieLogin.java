@@ -27,12 +27,12 @@ import java.util.List;
  * @author shuzijun
  */
 public class CookieLogin implements LoginFrame {
-    private JTree tree;
+    private NavigatorTable navigatorTable;
     private Project project;
 
 
-    public CookieLogin(Project project, JTree tree) {
-        this.tree = tree;
+    public CookieLogin(Project project, NavigatorTable navigatorTable) {
+        this.navigatorTable = navigatorTable;
         this.project = project;
     }
 
@@ -66,7 +66,7 @@ public class CookieLogin implements LoginFrame {
                 @Override
                 public void run(@NotNull ProgressIndicator progressIndicator) {
                     if (HttpRequestUtils.isLogin()) {
-                        HttpLogin.loginSuccess(tree, project, cookieList);
+                        HttpLogin.loginSuccess(navigatorTable, project, cookieList);
                     } else {
                         JOptionPane.showMessageDialog(null, PropertiesUtils.getInfo("login.failed"));
                     }

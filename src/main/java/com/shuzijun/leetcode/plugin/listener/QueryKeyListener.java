@@ -1,18 +1,17 @@
 package com.shuzijun.leetcode.plugin.listener;
 
-import com.intellij.openapi.ui.MessageType;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.ui.components.JBScrollPane;
-import com.shuzijun.leetcode.plugin.utils.MessageUtils;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
+import com.shuzijun.leetcode.plugin.manager.ViewManager;
+import com.shuzijun.leetcode.plugin.window.NavigatorTable;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -24,13 +23,13 @@ public class QueryKeyListener implements KeyListener {
     private final static Logger logger = LoggerFactory.getLogger(QueryKeyListener.class);
 
     private JTextField jTextField;
-    private JBScrollPane contentScrollPanel;
-    private ToolWindow toolWindow;
+    private NavigatorTable navigatorTable;
+    private Project project;
 
-    public QueryKeyListener(JTextField jTextField, JBScrollPane contentScrollPanel, ToolWindow toolWindow) {
+    public QueryKeyListener(JTextField jTextField, NavigatorTable navigatorTable, Project project) {
         this.jTextField = jTextField;
-        this.contentScrollPanel = contentScrollPanel;
-        this.toolWindow = toolWindow;
+        this.navigatorTable = navigatorTable;
+        this.project = project;
     }
 
     @Override
@@ -41,54 +40,15 @@ public class QueryKeyListener implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyChar() == KeyEvent.VK_ENTER) {
-
-            String selectText = jTextField.getText();
-            if (StringUtils.isBlank(selectText)) {
-                return;
-            }
-
-            JViewport viewport = contentScrollPanel.getViewport();
-            JTree tree = (JTree) viewport.getView();
-
-            DefaultTreeModel treeMode = (DefaultTreeModel) tree.getModel();
-            DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeMode.getRoot();
-            if (root.isLeaf() || root.getChildAt(0).isLeaf()) {
-                MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", "not question");
-                return;
-            }
-
-            DefaultMutableTreeNode all = (DefaultMutableTreeNode) root.getChildAt(0);
-            DefaultMutableTreeNode selectNode = null;
-            TreePath selectionPathPath = tree.getSelectionPath();
-            Boolean isSelectOne = Boolean.FALSE;
-            if (selectionPathPath != null && all.isNodeChild((DefaultMutableTreeNode) selectionPathPath.getLastPathComponent())) {
-                selectNode = (DefaultMutableTreeNode) selectionPathPath.getLastPathComponent();
-            } else {
-                selectNode = (DefaultMutableTreeNode) all.getChildAt(0);
-                isSelectOne = Boolean.TRUE;
-            }
-            int index = all.getIndex(selectNode);
-
-            for (int i = index + 1; i != index; i++) {
-                if (isSelectOne) {
-                    i = i - 1;
-                    isSelectOne = Boolean.FALSE;
+            ProgressManager.getInstance().run(new Task.Backgroundable(project, "Search", false) {
+                @Override
+                public void run(@NotNull ProgressIndicator progressIndicator) {
+                    String selectText = jTextField.getText();
+                    navigatorTable.getPageInfo().disposeFilters("searchKeywords", selectText, StringUtils.isNotBlank(selectText));
+                    navigatorTable.getPageInfo().setPageIndex(1);
+                    ViewManager.loadServiceData(navigatorTable, project);
                 }
-                if (i >= all.getChildCount()) {
-                    i = -1;
-                    continue;
-                }
-                DefaultMutableTreeNode temp = (DefaultMutableTreeNode) all.getChildAt(i);
-                if (temp.getUserObject().toString().toUpperCase().replace(" ","").contains(selectText.toUpperCase().replace(" ",""))) {
-                    TreePath toShowPath = new TreePath(temp.getPath());
-                    tree.setSelectionPath(toShowPath);
-                    Rectangle bounds = tree.getPathBounds(toShowPath);
-                    Point point = new Point(0, (int) bounds.getY());
-                    viewport.setViewPosition(point);
-                    return;
-                }
-            }
-            MessageUtils.showMsg(toolWindow.getContentManager().getComponent(), MessageType.INFO, "info", "not find next");
+            });
         }
     }
 

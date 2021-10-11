@@ -1,333 +1,95 @@
 package com.shuzijun.leetcode.plugin.manager;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.ui.components.JBScrollPane;
-import com.shuzijun.leetcode.plugin.model.Constant;
-import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.model.Sort;
-import com.shuzijun.leetcode.plugin.model.Tag;
+import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
-import com.shuzijun.leetcode.plugin.window.WindowFactory;
-import org.apache.commons.lang.StringUtils;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
+import com.shuzijun.leetcode.plugin.window.NavigatorTable;
+import org.apache.commons.lang3.StringUtils;
 
-import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
-import java.awt.*;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 /**
  * @author shuzijun
  */
 public class ViewManager {
 
-    private static Map<String, Question> question = Maps.newLinkedHashMap();
+    private static Map<String, Question> questions = Maps.newLinkedHashMap();
 
     private static Map<String, List<Tag>> filter = Maps.newLinkedHashMap();
 
     private static Map<String, Sort> sortMap = Maps.newLinkedHashMap();
 
     static {
-        sortMap.put(Constant.SORT_TYPE_ID, new Sort(Constant.SORT_TYPE_ID, 1));
-        sortMap.put(Constant.SORT_TYPE_TITLE, new Sort(Constant.SORT_TYPE_TITLE));
-        sortMap.put(Constant.SORT_TYPE_SOLUTION, new Sort(Constant.SORT_TYPE_SOLUTION));
-        sortMap.put(Constant.SORT_TYPE_ACCEPTANCE, new Sort(Constant.SORT_TYPE_ACCEPTANCE));
-        sortMap.put(Constant.SORT_TYPE_DIFFICULTY, new Sort(Constant.SORT_TYPE_DIFFICULTY));
-        sortMap.put(Constant.SORT_TYPE_FREQUENCY, new Sort(Constant.SORT_TYPE_FREQUENCY));
+        sortMap.put(Constant.SORT_TYPE_TITLE, new Sort(Constant.SORT_TYPE_TITLE, "FRONTEND_ID"));
+        sortMap.put(Constant.SORT_TYPE_SOLUTION, new Sort(Constant.SORT_TYPE_SOLUTION, "SOLUTION_NUM"));
+        sortMap.put(Constant.SORT_TYPE_ACCEPTANCE, new Sort(Constant.SORT_TYPE_ACCEPTANCE, "AC_RATE"));
+        sortMap.put(Constant.SORT_TYPE_DIFFICULTY, new Sort(Constant.SORT_TYPE_DIFFICULTY, "DIFFICULTY"));
+        sortMap.put(Constant.SORT_TYPE_FREQUENCY, new Sort(Constant.SORT_TYPE_FREQUENCY, "FREQUENCY"));
     }
 
-    private static boolean intersection = Boolean.FALSE;
 
-    public static void loadServiceData(JTree tree, Project project) {
-        loadServiceData(tree, project, "");
-    }
-
-    public static void loadServiceData(JTree tree, Project project, String categorySlug) {
-        List<Question> questionList = QuestionManager.getQuestionService(project, categorySlug);
-        if (questionList == null || questionList.isEmpty()) {
-            MessageUtils.getInstance(project).showWarnMsg("warning", PropertiesUtils.getInfo("response.cache"));
-            questionList = QuestionManager.getQuestionCache();
-            if (questionList == null || questionList.isEmpty()) {
-                MessageUtils.getInstance(project).showErrorMsg("error", PropertiesUtils.getInfo("response.question"));
-                return;
-            }
+    public static void loadServiceData(NavigatorTable navigatorTable, Project project) {
+        PageInfo pageInfo = QuestionManager.getQuestionService(project, navigatorTable.getPageInfo());
+        if ((pageInfo.getRows() == null || pageInfo.getRows().isEmpty()) && pageInfo.getRowTotal() != 0) {
+            MessageUtils.getInstance(project).showErrorMsg("error", PropertiesUtils.getInfo("response.question"));
+            return;
         }
 
-        question = Maps.uniqueIndex(questionList.iterator(), new Function<Question, String>() {
-            @Override
-            public String apply(Question question) {
-                return question.getFrontendQuestionId();
-            }
-        });
-
-        filter.put(Constant.FIND_TYPE_DIFFICULTY, QuestionManager.getDifficulty());
-        //filter.put(Constant.FIND_TYPE_STATUS, QuestionManager.getStatus());
-        // filter.put(Constant.FIND_TYPE_LISTS, QuestionManager.getLists());
-       // filter.put(Constant.FIND_TYPE_TAGS, QuestionManager.getTags());  Temporarily disabled
-        filter.put(Constant.FIND_TYPE_CATEGORY, QuestionManager.getCategory(categorySlug));
-
-
-        DefaultTreeModel treeMode = (DefaultTreeModel) tree.getModel();
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeMode.getRoot();
-        root.removeAllChildren();
-        Question problems = new Question(String.format("Problems(%d)", questionList.size()));
-        problems.setNodeType(Constant.NODETYPE_PROBLEMS);
-        DefaultMutableTreeNode node = new DefaultMutableTreeNode(problems);
-        root.add(node);
-        for (Question q : questionList) {
-            node.add(new DefaultMutableTreeNode(q));
+        if (filter.isEmpty()) {
+            filter.put(Constant.FIND_TYPE_CATEGORY, QuestionManager.getCategory());
+            filter.put(Constant.FIND_TYPE_DIFFICULTY, QuestionManager.getDifficulty());
+            filter.put(Constant.FIND_TYPE_STATUS, QuestionManager.getStatus());
+            filter.put(Constant.FIND_TYPE_TAGS, QuestionManager.getTags());
         }
-        for (String key : filter.keySet()) {
-            if (Constant.FIND_TYPE_CATEGORY.equals(key)) {
-                continue;
-            }
-            DefaultMutableTreeNode filterNode = new DefaultMutableTreeNode(new Question(key));
-            root.add(filterNode);
-            addChild(filterNode, filter.get(key), question);
-        }
+        filter.put(Constant.FIND_TYPE_LISTS, QuestionManager.getLists());
 
-        DefaultMutableTreeNode explore = new DefaultMutableTreeNode(new Question("Explore", Constant.NODETYPE_EXPLORE));
-        explore.add(new DefaultMutableTreeNode(new Question(Constant.NODETYPE_LOAD, Constant.NODETYPE_LOAD)));
-        root.add(explore);
-
-        tree.updateUI();
-        treeMode.reload();
+        navigatorTable.loadData(pageInfo);
     }
 
     public static List<Tag> getFilter(String key) {
         return filter.get(key);
     }
 
-    public static boolean clearFilter() {
-        boolean isLoad = false;
+    public static void clearFilter() {
         for (String key : filter.keySet()) {
             List<Tag> tagList = filter.get(key);
             for (Tag tag : tagList) {
-                if (tag.isSelect() && Constant.FIND_TYPE_CATEGORY.equals(key)) {
-                    isLoad = true;
-                }
                 tag.setSelect(Boolean.FALSE);
             }
         }
-        return isLoad;
     }
 
-    public static void updateStatus() {
-        filter.put(Constant.FIND_TYPE_STATUS, QuestionManager.getStatus());
-    }
-
-    public static boolean isIntersection() {
-        return intersection;
-    }
-
-    public static void setIntersection(boolean intersection) {
-        ViewManager.intersection = intersection;
-    }
-
-    public static void update(JTree tree) {
-        TreeSet<String> selectQuestionList = null;
-        for (String key : filter.keySet()) {
-            if (Constant.FIND_TYPE_CATEGORY.equals(key)) {
-                continue;
-            }
-            List<Tag> tagList = filter.get(key);
-            TreeSet<String> tagQuestionList = null;
-            for (Tag tag : tagList) {
-                if (tag.isSelect()) {
-                    TreeSet<String> temp = tag.getFrontendQuestionId();
-                    if (tagQuestionList == null) {
-                        tagQuestionList = new TreeSet(new Comparator<String>() {
-                            @Override
-                            public int compare(String arg0, String arg1) {
-                                if (StringUtils.isNumeric(arg0) && StringUtils.isNumeric(arg1)) {
-                                    return Integer.valueOf(arg0).compareTo(Integer.valueOf(arg1));
-                                } else if (StringUtils.isNumeric(arg0)) {
-                                    return  -1;
-                                } else if (StringUtils.isNumeric(arg1)) {
-                                    return 1;
-                                } else {
-                                    return arg0.compareTo(arg1);
-                                }
-                            }
-                        });
-                        tagQuestionList.addAll(temp);
-                    } else {
-                        if (intersection) {
-                            tagQuestionList.retainAll(temp);
-                        } else {
-                            tagQuestionList.addAll(temp);
-                        }
-                    }
-                }
-            }
-
-            if (tagQuestionList != null) {
-                if (selectQuestionList == null) {
-                    selectQuestionList = new TreeSet(new Comparator<String>() {
-                        @Override
-                        public int compare(String arg0, String arg1) {
-                            return Integer.valueOf(arg0).compareTo(Integer.valueOf(arg1));
-                        }
-                    });
-                    selectQuestionList.addAll(tagQuestionList);
-                } else {
-                    selectQuestionList.retainAll(tagQuestionList);
-                }
-            }
-        }
-
-        DefaultTreeModel treeMode = (DefaultTreeModel) tree.getModel();
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeMode.getRoot();
-        if (root.isLeaf()) {
-            return;
-        }
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) root.getChildAt(0);
-        node.removeAllChildren();
-        Sort sort = null;
-        for (Sort value : sortMap.values()) {
-            if(Constant.SORT_NONE != value.getType()){
-                sort = value;
-                break;
-            }
-        }
-        List<Question> all = new ArrayList<>();
-        if (selectQuestionList == null) {
-             all = new ArrayList<>(question.values());
-
-        } else {
-            for (String key : selectQuestionList) {
-                Question q = question.get(key);
-                if (q != null) {
-                    all.add(q);
-                }
-            }
-        }
-        QuestionManager.sortQuestionList(all,sort);
-        for (Question q : all) {
-            node.add(new DefaultMutableTreeNode(q));
-        }
-        ((Question) node.getUserObject()).setTitle(String.format("Problems(%d)", node.getChildCount()));
-        treeMode.reload();
-        tree.expandPath(new TreePath(node.getPath()));
-
-
-    }
-
-    public static void pick(JTree tree, JBScrollPane scrollPane) {
-
-        DefaultTreeModel treeMode = (DefaultTreeModel) tree.getModel();
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeMode.getRoot();
-        if (root.isLeaf()) {
-            return;
-        }
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) root.getChildAt(0);
-        if (node.isLeaf()) {
-            return;
-        }
-        int i = (int) (Math.random() * node.getChildCount());
-        DefaultMutableTreeNode select = (DefaultMutableTreeNode) node.getChildAt(i);
-
-        TreePath toShowPath = new TreePath(select.getPath());
-        tree.setSelectionPath(toShowPath);
-        Rectangle bounds = tree.getPathBounds(toShowPath);
-        Point point = new Point(0, (int) bounds.getY());
-        JViewport viewport = scrollPane.getViewport();
-        viewport.setViewPosition(point);
-        return;
-    }
-
-    public static Question getTreeQuestion(JTree tree, Project project) {
-        Question question = null;
-        if (tree != null) {
-            DefaultMutableTreeNode note = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-            if (note != null) {
-                question = (Question) note.getUserObject();
-                if (question != null) {
-                    if ("lock".equals(question.getStatus())) {
-                        question = null;
-                    }
-                    if (!question.isLeaf()) {
-                        question = null;
-                    }
-                }
-            }
-        }
-        if (question == null) {
-            MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("tree.select"));
-        }
-        return question;
-    }
-
-    public static Question getQuestionById(String id, Project project) {
-        if (question.isEmpty()) {
-            MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("tree.load"));
-            ApplicationManager.getApplication().invokeAndWait(new Runnable() {
-                @Override
-                public void run() {
-                    ToolWindowManager.getInstance(project).getToolWindow(WindowFactory.ID).show(null);
-                }
-            });
+    public static Question getQuestionByTitleSlug(String titleSlug, CodeTypeEnum codeTypeEnum, Project project) {
+        if (StringUtils.isBlank(titleSlug)) {
             return null;
         }
-        return question.get(id);
-    }
-    public static Question getDumbQuestionById(String id, Project project) {
-        if (question.isEmpty()) {
-            return null;
-        }
-        return question.get(id);
-    }
-
-    private static void addChild(DefaultMutableTreeNode rootNode, List<Tag> Lists, Map<String, Question> questionMap) {
-        if (!Lists.isEmpty()) {
-            for (Tag tag : Lists) {
-                long qCnt = tag.getFrontendQuestionId().stream().filter(q -> questionMap.get(q) != null).count();
-                DefaultMutableTreeNode tagNode = new DefaultMutableTreeNode(new Question(String.format("%s(%d)",
-                        tag.getName(), qCnt)));
-                rootNode.add(tagNode);
-                for (String key : tag.getFrontendQuestionId()) {
-                    if (questionMap.get(key) != null) {
-                        tagNode.add(new DefaultMutableTreeNode(questionMap.get(key)));
-                    }
-
-                }
+        String key = URLUtils.getLeetcodeHost() + titleSlug;
+        if (!questions.containsKey(key)) {
+            Question question = new Question();
+            question.setTitleSlug(titleSlug);
+            if (QuestionManager.fillQuestion(question, codeTypeEnum, project)) {
+                questions.put(key, question);
+            } else {
+                return null;
             }
-
         }
+        return questions.get(key);
     }
 
-    public static void position(JTree tree, JBScrollPane scrollPane, Question question) {
+    public static Question getCaCheQuestionByTitleSlug(String titleSlug, CodeTypeEnum codeTypeEnum, Project project) {
+        String key = URLUtils.getLeetcodeHost() + titleSlug;
+        return questions.get(key);
+    }
 
-        DefaultTreeModel treeMode = (DefaultTreeModel) tree.getModel();
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeMode.getRoot();
-        if (root.isLeaf()) {
-            return;
-        }
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) root.getChildAt(0);
-        if (node.isLeaf()) {
-            return;
-        }
-
-        for (int i = 0, j = node.getChildCount(); i < j; i++) {
-            DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) node.getChildAt(i);
-            Question nodeData = (Question) childNode.getUserObject();
-            if (nodeData.getFrontendQuestionId().equals(question.getFrontendQuestionId())) {
-                TreePath toShowPath = new TreePath(childNode.getPath());
-                tree.setSelectionPath(toShowPath);
-                Rectangle bounds = tree.getPathBounds(toShowPath);
-                Point point = new Point(0, (int) bounds.getY());
-                JViewport viewport = scrollPane.getViewport();
-                viewport.setViewPosition(point);
-                return;
-            }
-
+    public static void pick(CodeTypeEnum codeTypeEnum, Project project) {
+        String titleSlug = QuestionManager.pick();
+        Question question = getQuestionByTitleSlug(titleSlug, codeTypeEnum, project);
+        if (question != null) {
+            CodeManager.openCode(question, project);
         }
     }
 
@@ -336,12 +98,10 @@ public class ViewManager {
     }
 
     public static void operationType(String key) {
-        int type = sortMap.get(key).operationType();
         sortMap.forEach((s, sort) -> {
             if (!s.equals(key)) {
                 sort.resetType();
-            }
-            if(Constant.SORT_NONE == type && s.equals(Constant.SORT_TYPE_ID)){
+            } else {
                 sort.operationType();
             }
         });

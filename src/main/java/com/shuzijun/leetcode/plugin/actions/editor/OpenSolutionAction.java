@@ -3,13 +3,18 @@ package com.shuzijun.leetcode.plugin.actions.editor;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.shuzijun.leetcode.plugin.manager.ArticleManager;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.SolutionPanel;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -27,15 +32,26 @@ public class OpenSolutionAction extends AbstractEditAction {
             return;
         }
         LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(anActionEvent.getProject()).getEditor(vf.getPath());
-        if (leetcodeEditor == null) {
-            return;
-        }
-        Question question = ViewManager.getDumbQuestionById(leetcodeEditor.getFrontendQuestionId(), anActionEvent.getProject());
-        if (question == null) {
+        if (leetcodeEditor == null || StringUtils.isBlank(leetcodeEditor.getTitleSlug()) || !URLUtils.getLeetcodeHost().equals(leetcodeEditor.getHost())) {
             anActionEvent.getPresentation().setEnabled(false);
             return;
         }
-        anActionEvent.getPresentation().setEnabled(!Constant.ARTICLE_LIVE_NONE.equals(question.getArticleLive()));
+        Question question = ViewManager.getCaCheQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), null, anActionEvent.getProject());
+        if (question != null) {
+            anActionEvent.getPresentation().setEnabled(!Constant.ARTICLE_LIVE_NONE.equals(question.getArticleLive()));
+        } else {
+            ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), "Get Question", false) {
+                @Override
+                public void run(@NotNull ProgressIndicator progressIndicator) {
+                    Question question = ViewManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), null, anActionEvent.getProject());
+                    if (question == null) {
+                        anActionEvent.getPresentation().setEnabled(false);
+                        return;
+                    }
+                    anActionEvent.getPresentation().setEnabled(!Constant.ARTICLE_LIVE_NONE.equals(question.getArticleLive()));
+                }
+            });
+        }
     }
 
     @Override
@@ -58,7 +74,7 @@ public class OpenSolutionAction extends AbstractEditAction {
                     solution.set(solutionList.get(dialog.getSelectedRow()));
                 }
             });
-            if(solution.get() !=null){
+            if (solution.get() != null) {
                 question.setArticleSlug(solution.get().getSlug());
                 ArticleManager.openArticle(question, project);
             }
