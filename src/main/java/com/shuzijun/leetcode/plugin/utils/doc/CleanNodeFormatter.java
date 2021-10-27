@@ -66,6 +66,12 @@ public class CleanNodeFormatter implements NodeFormatter {
     }
 
     private void render(@NotNull AttributesNode attributesNode, @NotNull NodeFormatterContext nodeFormatterContext, @NotNull MarkdownWriter lineInfos) {
+        if(attributesNode.getText().startsWith(":align") ||attributesNode.getText().startsWith(":width") ){
+            return;
+        } else {
+            lineInfos.append(attributesNode.getChars());
+            nodeFormatterContext.delegateRender();
+        }
     }
 
     private void render(FencedCodeBlock node, NodeFormatterContext context, MarkdownWriter markdown) {
