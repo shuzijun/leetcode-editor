@@ -1,7 +1,6 @@
 package com.shuzijun.leetcode.plugin.timer;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.StatusBarWidgetFactory;
@@ -16,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public class TimerStatusBarWidgetProvider implements StatusBarWidgetFactory {
 
-    private TimerBarWidget timerBarWidget;
 
     @Override
     public @NonNls @NotNull String getId() {
@@ -35,21 +33,15 @@ public class TimerStatusBarWidgetProvider implements StatusBarWidgetFactory {
 
     @Override
     public @NotNull StatusBarWidget createWidget(@NotNull Project project) {
-        if (timerBarWidget == null) {
-            timerBarWidget = new TimerBarWidget(project);
-        }
-        return timerBarWidget;
+        return new TimerBarWidget(project);
     }
 
     @Override
     public void disposeWidget(@NotNull StatusBarWidget widget) {
-        if (timerBarWidget != null) {
-            Disposer.dispose(timerBarWidget);
-        }
     }
 
     @Override
     public boolean canBeEnabledOn(@NotNull StatusBar statusBar) {
-        return false;
+        return true;
     }
 }

@@ -39,6 +39,7 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 /**
  * @author shuzijun
@@ -191,7 +192,7 @@ public class LCVPreview extends UserDataHolderBase implements FileEditor {
             sb.append("}");
             sb.append("::-webkit-scrollbar-track {background-color:").append(toHexColor(defaultBackground)).append(";}");
             sb.append("::-webkit-scrollbar-thumb {background-color:").append(toHexColor(scrollbarThumbColor)).append(";}");
-            sb.append(".vditor-reset {font-size:").append(editorColorsScheme.getEditorFontSize()).append(";");
+            sb.append(".vditor-reset {font-size:").append(editorColorsScheme.getEditorFontSize()).append("px;");
             sb.append(fontFamily);
             if (text != null) {
                 sb.append("color:").append(toHexColor(text)).append(";");
@@ -207,6 +208,9 @@ public class LCVPreview extends UserDataHolderBase implements FileEditor {
 
     private String toHexColor(Color color) {
         DecimalFormat df = new DecimalFormat("0.00");
+        DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+        dfs.setDecimalSeparator('.');
+        df.setDecimalFormatSymbols(dfs);
         return String.format("rgba(%s,%s,%s,%s)", color.getRed(), color.getGreen(), color.getBlue(), df.format(color.getAlpha() / (float) 255));
     }
 
