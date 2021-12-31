@@ -1,5 +1,6 @@
 package com.shuzijun.leetcode.plugin.window;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -132,7 +133,7 @@ public class NavigatorTable extends JPanel {
             public void updateTable(Question question) {
                 if (questionList != null) {
                     for (Question q : questionList) {
-                        if(q.getTitleSlug().equals(question.getTitleSlug())){
+                        if (q.getTitleSlug().equals(question.getTitleSlug())) {
                             q.setStatus(question.getStatus());
                             refreshData();
                             break;
@@ -247,19 +248,23 @@ public class NavigatorTable extends JPanel {
     }
 
     public void refreshData() {
-        this.tableModel.updateData(questionList);
-        setColumnWidth();
+        ApplicationManager.getApplication().invokeLater(() -> {
+            this.tableModel.updateData(questionList);
+            setColumnWidth();
+        });
     }
 
     public void loadData(PageInfo<Question> pageInfo) {
-        if (this.first) {
-            this.tableModel.setRowCount(0);
-            this.tableModel.setColumnCount(5);
-            this.first = false;
-        }
-        this.questionList = pageInfo.getRows();
-        this.tableModel.updateData(questionList);
-        setColumnWidth();
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (this.first) {
+                this.tableModel.setRowCount(0);
+                this.tableModel.setColumnCount(5);
+                this.first = false;
+            }
+            this.questionList = pageInfo.getRows();
+            this.tableModel.updateData(questionList);
+            setColumnWidth();
+        });
         if (pageInfo.getPageTotal() != this.page.getItemCount()) {
             this.page.removeAllItems();
             for (int i = 1; i <= pageInfo.getPageTotal(); i++) {
@@ -365,7 +370,7 @@ public class NavigatorTable extends JPanel {
                 }
                 dataVector[i] = line;
             }
-            setDataVector(dataVector, MyTableModel.columnNameShort.clone());
+            setDataVector(dataVector, MyTableModel.columnNameShort);
         }
     }
 }
