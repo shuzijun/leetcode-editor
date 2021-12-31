@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
+import com.shuzijun.leetcode.plugin.listener.JTableKeyAdapter;
 import com.shuzijun.leetcode.plugin.listener.QuestionStatusListener;
 import com.shuzijun.leetcode.plugin.listener.TreeMouseListener;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
@@ -123,6 +124,7 @@ public class NavigatorTable extends JPanel {
         table.setRowSelectionAllowed(true);
         table.setFillsViewportHeight(true);
         table.addMouseListener(new TreeMouseListener(this, project));
+        table.addKeyListener(new JTableKeyAdapter(this, project));
         table.setRowHeight(0, 200);
 
         this.add(new JBScrollPane(table, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
