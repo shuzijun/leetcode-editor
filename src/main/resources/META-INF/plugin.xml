@@ -117,11 +117,15 @@
 
     <change-notes><![CDATA[
          <ul>
-            <li>v7.0<br>
-               1.全新的阅读体验.<br>
+            <li>v8.0<br>
+               1.更新题目列表展示方式.<br>
+			   2.修复bugs<br>
+			   3.新年快乐<br>
             </li>
-            <li>v7.0<br>
-               1.New reading experience.<br>
+            <li>v8.0<br>
+               1.Update the display method of the question list.<br>
+			   2.Fix bugs.<br>
+			   3.Happy new year<br>
             </li>
         </ul>
     ]]>
