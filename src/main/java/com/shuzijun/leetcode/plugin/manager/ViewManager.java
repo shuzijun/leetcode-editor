@@ -7,6 +7,7 @@ import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.NavigatorTable;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -45,7 +46,20 @@ public class ViewManager {
             filter.put(Constant.FIND_TYPE_STATUS, QuestionManager.getStatus());
             filter.put(Constant.FIND_TYPE_TAGS, QuestionManager.getTags());
         }
-        filter.put(Constant.FIND_TYPE_LISTS, QuestionManager.getLists());
+        if (CollectionUtils.isNotEmpty(filter.get(Constant.FIND_TYPE_LISTS))) {
+            Map<String, Tag> oldListsMap = Maps.uniqueIndex(filter.get(Constant.FIND_TYPE_LISTS), tag -> tag.getSlug());
+            List<Tag> newLists = QuestionManager.getLists();
+            Map<String, Tag> newListsMap = Maps.uniqueIndex(newLists, tag -> tag.getSlug());
+            newListsMap.forEach((s, tag) -> {
+                if (oldListsMap.containsKey(s)) {
+                    tag.setSelect(oldListsMap.get(s).isSelect());
+                }
+            });
+            filter.put(Constant.FIND_TYPE_LISTS, newLists);
+        } else {
+            filter.put(Constant.FIND_TYPE_LISTS, QuestionManager.getLists());
+        }
+
 
         navigatorTable.loadData(pageInfo);
     }
