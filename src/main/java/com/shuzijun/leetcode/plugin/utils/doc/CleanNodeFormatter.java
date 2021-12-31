@@ -69,7 +69,6 @@ public class CleanNodeFormatter implements NodeFormatter {
         if(attributesNode.getText().startsWith(":align") ||attributesNode.getText().startsWith(":width") ){
             return;
         } else {
-            lineInfos.append(attributesNode.getChars());
             nodeFormatterContext.delegateRender();
         }
     }
