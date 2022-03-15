@@ -23,7 +23,8 @@ public class ArticleManager {
 
     public static void openArticle(Question question, Project project) {
 
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_SOLUTION + question.getArticleSlug() + "." + PluginConstant.LEETCODE_EDITOR_VIEW;
+        String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_SOLUTION +
+                question.getCnSlug() + "." + PluginConstant.LEETCODE_EDITOR_VIEW;
 
         File file = new File(filePath);
         String host = "";

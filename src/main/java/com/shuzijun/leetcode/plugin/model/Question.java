@@ -43,6 +43,11 @@ public class Question {
     private String articleSlug;
 
     /**
+     * 文章中文标识
+     */
+    private String cnSlug;
+
+    /**
      * 专栏文章
      */
     private Integer columnArticles = 0;
@@ -228,6 +233,14 @@ public class Question {
 
     public void setArticleSlug(String articleSlug) {
         this.articleSlug = articleSlug;
+    }
+
+    public String getCnSlug() {
+        return cnSlug;
+    }
+
+    public void setCnSlug(String cnSlug) {
+        this.cnSlug = cnSlug;
     }
 
     public Integer getColumnArticles() {

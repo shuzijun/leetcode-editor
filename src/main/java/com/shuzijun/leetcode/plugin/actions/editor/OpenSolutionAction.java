@@ -76,6 +76,7 @@ public class OpenSolutionAction extends AbstractEditAction {
             });
             if (solution.get() != null) {
                 question.setArticleSlug(solution.get().getSlug());
+                question.setCnSlug(solution.get().getTitle());
                 ArticleManager.openArticle(question, project);
             }
 
