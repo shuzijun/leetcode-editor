@@ -32,12 +32,7 @@ dependencies {
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     pluginName = 'leetcode-editor'
-    version = project.intellij_version
-    type = 'IU'
-    downloadSources = true
-    updateSinceUntilBuild = false
-    buildSearchableOptions.enabled = false
-    ideaDependencyCachePath = "$gradle.gradleUserHomeDir/caches/modules-2/files-2.1/com.jetbrains.intellij.idea"
+    localPath = project.idea_local_path
     /* localPath project.idea_local_path
      alternativeIdePath project.idea_local_path*/
     /*plugins = project.intellij_plugins.split(",").toList()*/
