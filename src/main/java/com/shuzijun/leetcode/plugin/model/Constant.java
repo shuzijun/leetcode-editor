@@ -71,6 +71,8 @@ public class Constant {
     public static final Integer PLUGIN_CONFIG_VERSION_1 = 1;
     //第二版本，不兼容之前的临时目录，从此版本开始更换新临时目录
     public static final Integer PLUGIN_CONFIG_VERSION_2 = 2;
+    //第三版本，域名更新，需要将cookie更改一下域名
+    public static final Integer PLUGIN_CONFIG_VERSION_3 = 3;
 
     /**
      * 默认题目颜色

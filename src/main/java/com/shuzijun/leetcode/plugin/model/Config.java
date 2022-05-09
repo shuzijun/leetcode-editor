@@ -375,7 +375,6 @@ public class Config {
         if(config ==null){
             return false;
         }
-        if (!Objects.equals(version, config.version)) return false;
         if (!Objects.equals(loginName, config.loginName)) return false;
         if (!Objects.equals(filePath, config.filePath)) return false;
         if (!Objects.equals(codeType, config.codeType)) return false;
