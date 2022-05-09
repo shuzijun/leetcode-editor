@@ -3,7 +3,7 @@
   - [中文文档](#登录配置)   
   登录方式:配置用户名密码登录,cookie登录,浏览器登录  
 ## 用户名密码登录  
-  在leetcode插件配置页配置用户名密码,如登录失败将加载下面两种登录方式,此方式仅支持leetcode-cn.com  
+  在leetcode插件配置页配置用户名密码,如登录失败将加载下面两种登录方式,此方式仅支持leetcode.cn  
 ## cookie登录  
   首先在浏览器中登录leetcode,打开浏览器控制台,复制cookie到登录弹出框,点击login.[参考](https://developers.google.com/web/tools/chrome-devtools/network?hl=zh_cn)  
   <p align="center">

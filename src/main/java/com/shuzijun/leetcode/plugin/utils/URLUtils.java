@@ -9,7 +9,8 @@ import org.apache.commons.lang.StringUtils;
 public class URLUtils {
 
     public static final String leetcode = "leetcode.com";
-    public static final String leetcodecn = "leetcode-cn.com";
+    public static final String leetcodecn = "leetcode.cn";
+    public static final String leetcodecnOld = "leetcode-cn.com";
 
     private static String leetcodeUrl = "https://";
     private static String leetcodeLogin = "/accounts/login/";
@@ -33,6 +34,17 @@ public class URLUtils {
             return leetcode;
         }
         return host;
+    }
+
+    public static boolean equalsHost(String host) {
+        String thisHost = getLeetcodeHost();
+        if(thisHost.equals(host)){
+            return true;
+        }else if(thisHost.equals(leetcodecn) && leetcodecnOld.equals(host)){
+            return true;
+        }else {
+            return false;
+        }
     }
 
     public static String getLeetcodeUrl() {

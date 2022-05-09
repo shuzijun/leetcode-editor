@@ -28,7 +28,7 @@ import java.util.List;
 public class HttpLogin {
     public static boolean ajaxLogin(Config config, NavigatorTable navigatorTable, Project project) {
 
-        if (URLUtils.leetcode.equals(URLUtils.getLeetcodeHost())) {
+        if (!URLUtils.isCn()) {
             return Boolean.FALSE;
         }
 

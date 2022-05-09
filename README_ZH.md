@@ -8,7 +8,7 @@
     - [自定义代码生成](https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode_ZH.md) ([示例](https://github.com/shuzijun/leetcode-question))    
     
 ## 简介  
-  在IDE中解决LeetCode问题,支持`leetcode.com`与`leetcode-cn.com`,满足基本的做题需求。  
+  在IDE中解决LeetCode问题,支持`leetcode.com`与`leetcode.cn`,满足基本的做题需求。  
   理论上支持: IntelliJ IDEA  PhpStorm  WebStorm  PyCharm  RubyMine  AppCode  CLion  GoLand  DataGrip  Rider MPS  Android Studio。  
   [be with you!](http://shuzijun.cn/leetcode-editor/monitor.html)  
 
@@ -35,7 +35,7 @@
 </p>  
  
 - **配置路径**: `File` -> `settings`->`tools`->`leetcode plugin`  
-  - **`URL可选项`**: `leetcode.com`与`leetcode-cn.com`  
+  - **`URL可选项`**: `leetcode.com`与`leetcode.cn`  
   - **`Code Type`**: `Java`,`Python`,`C++`,`Python3`,`C`,`C#`,`JavaScript`,`Ruby`,`Swift`,`Go` ,`Scala`,`Kotlin`,`Rust`,`PHP`,`Bash`,`SQL`   
   - **`LoginName`**: 登录用户名
   - **`Password`**: 登录密码  
