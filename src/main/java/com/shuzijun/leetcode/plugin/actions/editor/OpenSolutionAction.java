@@ -32,7 +32,7 @@ public class OpenSolutionAction extends AbstractEditAction {
             return;
         }
         LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(anActionEvent.getProject()).getEditor(vf.getPath());
-        if (leetcodeEditor == null || StringUtils.isBlank(leetcodeEditor.getTitleSlug()) || !URLUtils.getLeetcodeHost().equals(leetcodeEditor.getHost())) {
+        if (leetcodeEditor == null || StringUtils.isBlank(leetcodeEditor.getTitleSlug()) || !URLUtils.equalsHost(leetcodeEditor.getHost())) {
             anActionEvent.getPresentation().setEnabled(false);
             return;
         }

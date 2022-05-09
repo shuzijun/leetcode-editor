@@ -8,7 +8,7 @@
     - [Custom Code](https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md) ([demo](https://github.com/shuzijun/leetcode-question))    
   
 ## Introduction  
-  Do Leetcode exercises in IDE, support `leetcode.com` and `leetcode-cn.com`, to meet the basic needs of doing exercises.
+  Do Leetcode exercises in IDE, support `leetcode.com` and `leetcode.cn`, to meet the basic needs of doing exercises.
   Support theoretically: IntelliJ IDEA PhpStorm WebStorm PyCharm RubyMine AppCode CLion GoLand DataGrip Rider MPS Android Studio.  
   <a href="http://shuzijun.cn/leetcode-editor/monitor.html" target="_blank">be with you!</a>
   
@@ -35,7 +35,7 @@
 </p>  
  
 - **Configuration path**: `File` -> `settings`->`tools`->`leetcode plugin`  
-  - **`URL options`**: `leetcode.com`OR`leetcode-cn.com`  
+  - **`URL options`**: `leetcode.com`OR`leetcode.cn`  
   - **`Code Type`**: `Java`,`Python`,`C++`,`Python3`,`C`,`C#`,`JavaScript`,`Ruby`,`Swift`,`Go` ,`Scala`,`Kotlin`,`Rust`,`PHP`,`Bash`,`SQL`   
   - **`LoginName`**: Login Username
   - **`Password`**: Login password  

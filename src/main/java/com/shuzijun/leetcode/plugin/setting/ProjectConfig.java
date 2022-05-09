@@ -1,22 +1,26 @@
 package com.shuzijun.leetcode.plugin.setting;
 
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.annotations.MapAnnotation;
 import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
  * @author shuzijun
  */
-@State(name = "LeetcodeEditor" + PluginConstant.ACTION_SUFFIX, storages = {@Storage(value = PluginConstant.ACTION_PREFIX+"/editor.xml")})
-public class ProjectConfig implements  PersistentStateComponent<ProjectConfig.InnerState> {
+@State(name = "LeetcodeEditor" + PluginConstant.ACTION_SUFFIX, storages = {@Storage(value = PluginConstant.ACTION_PREFIX + "/editor.xml")})
+public class ProjectConfig implements PersistentStateComponent<ProjectConfig.InnerState> {
 
     public Map<String, LeetcodeEditor> idProjectConfig = new HashMap<>();
 
@@ -37,9 +41,19 @@ public class ProjectConfig implements  PersistentStateComponent<ProjectConfig.In
     public void loadState(@NotNull ProjectConfig.InnerState innerState) {
         this.innerState = innerState;
         idProjectConfig.clear();
-        this.innerState.projectConfig.forEach((s, leetcodeEditor) -> {
-            idProjectConfig.put(leetcodeEditor.getFrontendQuestionId(),leetcodeEditor);
-        });
+        Iterator<String> iter = this.innerState.projectConfig.keySet().iterator();
+        while (iter.hasNext()) {
+            String key = iter.next();
+            LeetcodeEditor leetcodeEditor = this.innerState.projectConfig.get(key);
+            if (StringUtils.isBlank(leetcodeEditor.getFrontendQuestionId())) {
+                iter.remove();
+                continue;
+            } else if (leetcodeEditor.getFrontendQuestionId().startsWith(URLUtils.leetcodecnOld)) {
+                leetcodeEditor.setHost(URLUtils.leetcodecn);
+                leetcodeEditor.setFrontendQuestionId(leetcodeEditor.getFrontendQuestionId().replace(URLUtils.leetcodecnOld, URLUtils.leetcodecn));
+            }
+            idProjectConfig.put(leetcodeEditor.getFrontendQuestionId(), leetcodeEditor);
+        }
     }
 
 
@@ -47,14 +61,14 @@ public class ProjectConfig implements  PersistentStateComponent<ProjectConfig.In
         LeetcodeEditor leetcodeEditor = idProjectConfig.get(frontendQuestionId);
         if (leetcodeEditor == null) {
             leetcodeEditor = new LeetcodeEditor();
-            idProjectConfig.put(frontendQuestionId,leetcodeEditor);
+            idProjectConfig.put(frontendQuestionId, leetcodeEditor);
         }
         return leetcodeEditor;
     }
 
     public void addLeetcodeEditor(LeetcodeEditor leetcodeEditor) {
         idProjectConfig.put(leetcodeEditor.getFrontendQuestionId(), leetcodeEditor);
-        if(StringUtils.isNotBlank(leetcodeEditor.getPath())) {
+        if (StringUtils.isNotBlank(leetcodeEditor.getPath())) {
             innerState.projectConfig.put(leetcodeEditor.getPath(), leetcodeEditor);
         }
     }

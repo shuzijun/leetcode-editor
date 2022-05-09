@@ -251,7 +251,9 @@ public class SettingUI {
     }
 
     public void process(Config config) {
-        config.setVersion(Constant.PLUGIN_CONFIG_VERSION_2);
+        if(config.getVersion() == null) {
+            config.setVersion(Constant.PLUGIN_CONFIG_VERSION_3);
+        }
         config.setLoginName(userNameField.getText());
         config.setFilePath(fileFolderBtn.getText());
         config.setCodeType(codeComboBox.getSelectedItem().toString());

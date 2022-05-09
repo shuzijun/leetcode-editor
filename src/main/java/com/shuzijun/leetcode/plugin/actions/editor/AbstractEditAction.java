@@ -34,7 +34,7 @@ abstract class AbstractEditAction extends AbstractAction {
             MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("info", PropertiesUtils.getInfo("tree.null"));
             return;
         }
-        if(!URLUtils.getLeetcodeHost().equals(leetcodeEditor.getHost())){
+        if(!URLUtils.equalsHost(leetcodeEditor.getHost())){
             MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("info", PropertiesUtils.getInfo("tree.host"));
             return;
         }

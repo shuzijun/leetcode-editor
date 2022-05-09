@@ -6,18 +6,18 @@
 
     <description><![CDATA[
         <div>
-           <p>Support for leetcode.com and leetcode-cn.com, can test and submit questions.
+           <p>Support for leetcode.com and leetcode.cn, can test and submit questions.
 			  More tutorial please visit： <a href="https://github.com/shuzijun/leetcode-editor">here</a></p>
         </div>
         <div>
 			<h2>Introduction</h2>
 			<br>
 			<ul>
-				<li>Support for leetcode.com and leetcode-cn.com, can test and submit questions</li>
+				<li>Support for leetcode.com and leetcode.cn, can test and submit questions</li>
 				<li>More tutorial please visit： <a href="https://github.com/shuzijun/leetcode-editor">here</a></li>
 			</ul>
 			<ul>
-				<li>支持leetcode.com和leetcode-cn.com,可测试与提交问题</li>
+				<li>支持leetcode.com和leetcode.cn,可测试与提交问题</li>
 				<li>更多的插件使用教程： <a href="https://github.com/shuzijun/leetcode-editor">插件使用介绍</a></li>
 			</ul>
 		</div>
@@ -47,7 +47,7 @@
 			<h3>Configuration path: File -> settings->tools->leetcode plugin</h3>
 			<br>
 			<ul>
-				<li>URL options: leetcode.com and leetcode-cn.com</li>
+				<li>URL options: leetcode.com and leetcode.cn</li>
 				<li>Code Type: Java, Python, C++, Python3, C, C#, JavaScript, Ruby, Swift, Go, Scala, Kotlin, Rust, PHP</li>
 				<li> Login Name: Login Username</li>
 				<li> Password: Login password</li>
