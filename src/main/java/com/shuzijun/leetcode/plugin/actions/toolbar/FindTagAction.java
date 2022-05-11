@@ -51,7 +51,7 @@ public class FindTagAction extends ToggleAction {
                 @Override
                 public void run(@NotNull ProgressIndicator progressIndicator) {
                     if (b) {
-                        ViewManager.loadServiceData(tree, anActionEvent.getProject(), tag.getSlug());
+                        ViewManager.loadServiceData(tree, anActionEvent.getProject(), tag.getType());
                     } else {
                         ViewManager.loadServiceData(tree, anActionEvent.getProject());
                     }

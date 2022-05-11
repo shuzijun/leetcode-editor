@@ -117,6 +117,12 @@
 
     <change-notes><![CDATA[
          <ul>
+            <li>v6.11<br>
+               1.修改域名.<br>
+            </li>
+            <li>v6.11<br>
+               1.domain name change.<br>
+            </li>
             <li>v6.9<br>
                1.修复兼容性.<br>
             </li>
@@ -510,6 +516,9 @@
             <reference id="leetcode.ConfigAction"/>
             <reference id="leetcode.ClearAllAction"/>
             <reference id="leetcode.HelpAction"/>
+            <action id="leetcode.DonateAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.DonateAction"
+                    text="Donate" description="Donate" icon="LeetCodeEditorIcons.DONATE">
+            </action>
         </group>
 
         <group id="leetcode.NavigatorActionsMenu">

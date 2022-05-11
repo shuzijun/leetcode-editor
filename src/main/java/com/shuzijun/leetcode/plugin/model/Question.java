@@ -104,20 +104,6 @@ public class Question {
         this.level = level;
     }
 
-    public void setLevel(String difficulty) {
-        if(difficulty == null){
-            this.level = 0;
-        }else if("easy".equalsIgnoreCase(difficulty)){
-            this.level = 1;
-        }else if("medium".equalsIgnoreCase(difficulty)){
-            this.level = 2;
-        }else if("hard".equalsIgnoreCase(difficulty)){
-            this.level = 3;
-        }else {
-            this.level = 0;
-        }
-    }
-
     public String getStatus() {
         return status;
     }

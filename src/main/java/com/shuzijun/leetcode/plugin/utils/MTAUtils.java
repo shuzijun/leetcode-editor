@@ -1,11 +1,11 @@
 package com.shuzijun.leetcode.plugin.utils;
 
-import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.util.SystemInfo;
+import com.intellij.util.io.HttpRequests;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
-import com.shuzijun.leetcode.plugin.utils.io.HttpRequests;
 import org.apache.http.client.utils.URIBuilder;
 
 import java.awt.*;
@@ -20,9 +20,9 @@ import java.util.concurrent.Executors;
  */
 public class MTAUtils {
 
-    private static String URL = "http://pingtcss.qq.com/pingd";
-    private static String SID = "500676642";
-    private static String SI = getI("s");
+    private static String URL = "https://hm.baidu.com/hm.gif";
+    private static String SID = "153b08575197a6f136f1fe02dd507c1e";
+    private static String SI = String.valueOf(System.currentTimeMillis() / 1000);
     private static String version = null;
     private static String userAgent = null;
 
@@ -61,8 +61,7 @@ public class MTAUtils {
         public void run() {
             try {
                 if (version == null) {
-                    version = PluginManager.getPlugin(PluginId.getId(Constant.PLUGIN_ID)).getVersion()
-                            .replace("v", "").replaceAll("-|_", ".");
+                    version = PluginManagerCore.getPlugin(PluginId.getId(Constant.PLUGIN_ID)).getVersion();
                 }
                 if (userAgent == null) {
                     if (SystemInfo.OS_NAME.toUpperCase().contains("MAC")) {
@@ -76,26 +75,31 @@ public class MTAUtils {
                 Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
                 Calendar calendar = Calendar.getInstance();
                 URI uri = new URIBuilder(URL)
-                        .setParameter("dm", "127.0.0.1")
-                        .setParameter("pvi", config.getId())
-                        .setParameter("si", SI)
-                        .setParameter("url", "/" + actionsId)
-                        .setParameter("arg", "")
-                        .setParameter("ty", "0")
-                        .setParameter("rdm", "")
-                        .setParameter("rurl", "")
-                        .setParameter("rarg", "")
-                        .setParameter("adt", version)
-                        .setParameter("r2", SID)
-                        .setParameter("scr", (int)screensize.getWidth() + "x" + (int)screensize.getHeight())
-                        .setParameter("scl", Toolkit.getDefaultToolkit().getScreenResolution() + "-bit")
-                        .setParameter("lg", Locale.getDefault().toString().replace("_", "-").toLowerCase())
-                        .setParameter("tz", -(calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET)) / 60000 / 60 + "")
-                        .setParameter("ext", "version=2.0.14")
-                        .setParameter("random", System.currentTimeMillis() + "")
+                        .setParameter("hca", config.getId())
+                        .setParameter("cc", "1")
+                        .setParameter("cf", version)
+                        .setParameter("ck", "0")
+                        .setParameter("cl", Toolkit.getDefaultToolkit().getScreenResolution() + "-bit")
+                        .setParameter("ds", (int)screensize.getWidth() + "x" + (int)screensize.getHeight())
+                        .setParameter("vl", "")
+                        .setParameter("ep", "3392,2371")
+                        .setParameter("ep", "3")
+                        .setParameter("ja", "0")
+                        .setParameter("ln", Locale.getDefault().toString().replace("_", "-").toLowerCase())
+                        .setParameter("lo", "0")
+                        .setParameter("lt", SI)
+                        .setParameter("rnd", String.valueOf(System.currentTimeMillis() / 1000))
+                        .setParameter("si", SID)
+                        .setParameter("v", "1.2.92")
+                        .setParameter("lv", "2")
+                        .setParameter("sn", "44949")
+                        .setParameter("r", "0")
+                        .setParameter("ww", String.valueOf((int)screensize.getWidth()))
+                        .setParameter("u", "http://leetcode-editor.shuzijun.cn/" + actionsId )
                         .build();
-
-                HttpRequests.request(uri.toURL().toString()).userAgent(userAgent).tryConnect();
+                HttpRequests.request(uri.toURL().toString()).userAgent(userAgent).tuner(connection -> {
+                    connection.addRequestProperty("Cookie", "HMACCOUNT=" + config.getId() + ";" + "HMACCOUNT_BFESS" + config.getId());
+                }).tryConnect();
 
             } catch (Exception e) {
             }

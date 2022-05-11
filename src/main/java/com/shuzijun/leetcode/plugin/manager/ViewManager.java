@@ -11,6 +11,7 @@ import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 
 import javax.swing.*;
@@ -35,11 +36,11 @@ public class ViewManager {
     private static boolean intersection = Boolean.FALSE;
 
     public static void loadServiceData(JTree tree, Project project) {
-        loadServiceData(tree, project, "");
+        loadServiceData(tree, project, URLUtils.getLeetcodeAll());
     }
 
-    public static void loadServiceData(JTree tree, Project project, String categorySlug) {
-        List<Question> questionList = QuestionManager.getQuestionService(project, categorySlug);
+    public static void loadServiceData(JTree tree, Project project, String url) {
+        List<Question> questionList = QuestionManager.getQuestionService(project, url);
         if (questionList == null || questionList.isEmpty()) {
             MessageUtils.getInstance(project).showWarnMsg("warning", PropertiesUtils.getInfo("response.cache"));
             questionList = QuestionManager.getQuestionCache();
@@ -60,7 +61,7 @@ public class ViewManager {
         filter.put(Constant.FIND_TYPE_STATUS, QuestionManager.getStatus());
         filter.put(Constant.FIND_TYPE_LISTS, QuestionManager.getLists());
         filter.put(Constant.FIND_TYPE_TAGS, QuestionManager.getTags());
-        filter.put(Constant.FIND_TYPE_CATEGORY, QuestionManager.getCategory(categorySlug));
+        filter.put(Constant.FIND_TYPE_CATEGORY, QuestionManager.getCategory(url));
 
 
         DefaultTreeModel treeMode = (DefaultTreeModel) tree.getModel();

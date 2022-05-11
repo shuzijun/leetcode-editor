@@ -9,7 +9,7 @@ import org.apache.commons.lang.StringUtils;
 public class URLUtils {
 
     public static final String leetcode = "leetcode.com";
-    public static final String leetcodecn = "leetcode-cn.com";
+    public static final String leetcodecn = "leetcode.cn";
 
     private static String leetcodeUrl = "https://";
     private static String leetcodeLogin = "/accounts/login/";
