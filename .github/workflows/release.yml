@@ -7,6 +7,8 @@ on:
         description: 'Release version'
         required: true
   push:
+    branches:
+      - master
     tags:
       - 'v*.*'
 
