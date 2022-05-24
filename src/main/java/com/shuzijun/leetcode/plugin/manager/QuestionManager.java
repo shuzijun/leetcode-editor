@@ -424,7 +424,7 @@ public class QuestionManager {
 
     private static String getContent(JSONObject jsonObject) {
         StringBuffer sb = new StringBuffer();
-        sb.append(jsonObject.getString(URLUtils.getDescContent()));
+        sb.append(jsonObject.getString(URLUtils.getDescContent()).replace("&nbsp;"," "));
         Config config = PersistentConfig.getInstance().getConfig();
         if (config.getShowTopics()) {
             JSONArray topicTagsArray = jsonObject.getJSONArray("topicTags");
