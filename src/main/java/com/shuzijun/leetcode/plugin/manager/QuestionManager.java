@@ -403,6 +403,7 @@ public class QuestionManager {
                             sb.append(object.getString("code").replaceAll("\\n", "\n")).append("\n");
                             sb.append(codeTypeEnum.getComment()).append(Constant.SUBMIT_REGION_END).append("\n");
                             question.setCode(sb.toString());
+                            question.setCodes(object.getString("code").replaceAll("\\n", "\n")+"\n");
                             break;
                         }
                         if (i == jsonArray.size() - 1) {

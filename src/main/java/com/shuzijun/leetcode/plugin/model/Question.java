@@ -32,6 +32,12 @@ public class Question {
      */
     private String code;
 
+
+    /**
+     * 代码
+     */
+    private String codes;
+
     /**
      * 文章类型
      */
@@ -140,6 +146,14 @@ public class Question {
         }else {
             this.level = 0;
         }
+    }
+
+    public String getCodes() {
+        return codes;
+    }
+
+    public void setCodes(String codes) {
+        this.codes = codes;
     }
 
     public String getStatus() {
