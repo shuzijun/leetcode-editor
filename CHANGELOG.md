@@ -2,6 +2,19 @@
 
 # Leetcode Editor Pro Changelog
 
+## 2022.2.2
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+- fix bugs
+
+### Removed
+
 ## 2022.2.1
 
 ### Added
