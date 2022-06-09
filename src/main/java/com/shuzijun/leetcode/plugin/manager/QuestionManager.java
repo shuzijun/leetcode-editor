@@ -251,6 +251,10 @@ public class QuestionManager {
                         return -1;
                     } else if (frontendId1.equals(dayQuestion)) {
                         return 1;
+                    } else if (StringUtils.isBlank(frontendId0)) {
+                        return 1;
+                    } else if (StringUtils.isBlank(frontendId1)) {
+                        return -1;
                     } else if (StringUtils.isNumeric(frontendId0) && StringUtils.isNumeric(frontendId1)) {
                         return Integer.valueOf(frontendId0).compareTo(Integer.valueOf(frontendId1));
                     } else if (StringUtils.isNumeric(frontendId0)) {
