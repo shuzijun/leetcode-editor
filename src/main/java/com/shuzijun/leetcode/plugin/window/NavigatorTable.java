@@ -130,16 +130,13 @@ public class NavigatorTable extends JPanel {
         this.add(new JBScrollPane(table, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
         this.add(paging(), BorderLayout.SOUTH);
 
-        project.getMessageBus().connect().subscribe(QuestionStatusListener.QUESTION_STATUS_TOPIC, new QuestionStatusListener() {
-            @Override
-            public void updateTable(Question question) {
-                if (questionList != null) {
-                    for (Question q : questionList) {
-                        if (q.getTitleSlug().equals(question.getTitleSlug())) {
-                            q.setStatus(question.getStatus());
-                            refreshData();
-                            break;
-                        }
+        project.getMessageBus().connect().subscribe(QuestionStatusListener.QUESTION_STATUS_TOPIC, question -> {
+            if (questionList != null) {
+                for (Question q : questionList) {
+                    if (q.getTitleSlug().equals(question.getTitleSlug())) {
+                        q.setStatus(question.getStatus());
+                        refreshData();
+                        break;
                     }
                 }
             }

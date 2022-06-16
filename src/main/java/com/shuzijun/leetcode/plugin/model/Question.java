@@ -289,6 +289,8 @@ public class Question {
         } else if ("ac".equalsIgnoreCase(status)) {
             return  "✔";
         } else if ("lock".equalsIgnoreCase(status)) {
+            // todo lock为会员题
+            // 为什么会员题无法打开
             return  "$";
         } else if ("day".equalsIgnoreCase(status)) {
             return  "day";

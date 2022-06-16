@@ -24,7 +24,7 @@ public class ArticleManager {
     public static void openArticle(Question question, Project project) {
 
         String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_SOLUTION + question.getArticleSlug() + "." + PluginConstant.LEETCODE_EDITOR_VIEW;
-
+        // TODO 创建的文件后面加上日期
         File file = new File(filePath);
         String host = "";
         if (!file.exists()) {
