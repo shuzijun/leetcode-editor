@@ -1,6 +1,8 @@
 package com.shuzijun.leetcode.plugin.setting;
 
 import com.intellij.ide.BrowserUtil;
+import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -8,6 +10,10 @@ import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBPasswordField;
@@ -16,23 +22,28 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.util.net.HttpConfigurable;
 import com.shuzijun.leetcode.plugin.listener.ColorListener;
 import com.shuzijun.leetcode.plugin.listener.DonateListener;
+import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.renderer.CustomTreeCellRenderer;
 import com.shuzijun.leetcode.plugin.timer.TimerBarWidget;
+import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.HttpLogin;
 import com.shuzijun.leetcode.plugin.window.NavigatorTable;
+import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.Objects;
 
 /**
  * @author shuzijun
@@ -67,6 +78,8 @@ public class SettingUI {
     private Editor fileNameEditor = null;
     private Editor templateEditor = null;
     private Editor templateHelpEditor = null;
+
+    private boolean codeTypeChanged = false;
 
 
     public SettingUI() {
@@ -220,6 +233,11 @@ public class SettingUI {
         } else {
             Config currentState = new Config();
             process(currentState);
+
+            if (!Objects.equals(currentState.getCodeType(), config.getCodeType())) {
+                codeTypeChanged = true;
+            }
+
             if (currentState.isModified(config)) {
                 if (passwordField.getText() != null && passwordField.getText().equals(PersistentConfig.getInstance().getPassword(config.getLoginName()))) {
                     return false;
@@ -248,6 +266,8 @@ public class SettingUI {
         CustomTreeCellRenderer.loaColor();
         TimerBarWidget.loaColor();
         NavigatorTable.loaColor();
+
+        reLoadServiceData();
     }
 
     public void process(Config config) {
@@ -290,5 +310,27 @@ public class SettingUI {
             EditorFactory.getInstance().releaseEditor(this.templateHelpEditor);
             this.templateHelpEditor = null;
         }
+    }
+
+    private void reLoadServiceData() {
+        if (!codeTypeChanged) {
+            return;
+        }
+
+        DataManager.getInstance().getDataContextFromFocusAsync().onSuccess(
+                dataContext -> {
+                    Project project = dataContext != null ? dataContext.getData(CommonDataKeys.PROJECT) : null;
+                    if (project != null) {
+                        ProgressManager.getInstance().run(new Task.Backgroundable(project,Constant.REFRESH_TITLE,true) {
+                            @Override
+                            public void run(@NotNull ProgressIndicator progressIndicator) {
+                                NavigatorTable navigatorTable = WindowFactory.getDataContext(project).getData(DataKeys.LEETCODE_PROJECTS_TREE);
+                                navigatorTable.getPageInfo().clear();
+                                ViewManager.loadServiceData(navigatorTable, project);
+                            }
+                        });
+                    }
+                }
+        );
     }
 }
