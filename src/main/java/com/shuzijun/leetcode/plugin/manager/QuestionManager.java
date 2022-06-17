@@ -1,10 +1,8 @@
 package com.shuzijun.leetcode.plugin.manager;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
@@ -12,7 +10,6 @@ import org.apache.http.HttpStatus;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.plugin.model.*;
@@ -25,7 +22,7 @@ import com.shuzijun.leetcode.plugin.window.WindowFactory;
  */
 public class QuestionManager {
 
-  private static Map<String, Question> dayMap = Maps.newLinkedHashMap();
+  private static Map<String, Question> dayMap = new LinkedHashMap<>();
 
   public static PageInfo<Question> getQuestionService(Project project, PageInfo pageInfo) {
     Boolean isPremium = false;
@@ -371,14 +368,14 @@ public class QuestionManager {
   }
 
   /**
-   * queryQuestionData
+   * queryQuestionData 获取题目数据
    *
    * @param question
    * @param codeTypeEnum
    * @param project
    * @return
    */
-  private static boolean getQuestion(Question question, CodeTypeEnum codeTypeEnum, Project project) {
+  public static boolean getQuestion(Question question, CodeTypeEnum codeTypeEnum, Project project) {
     try {
       HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(), "application/json");
       httpRequest.setBody("{\"operationName\":\"questionData\",\"variables\":{\"titleSlug\":\""
@@ -392,6 +389,12 @@ public class QuestionManager {
         question.setQuestionId(jsonObject.getString("questionId"));
         question.setContent(getContent(jsonObject));
         question.setTestCase(jsonObject.getString("sampleTestCase"));
+        question.setExampleTestcases(jsonObject.getString("exampleTestcases"));
+        JSONObject metaData = jsonObject.getJSONObject("metaData");
+        question.setFunctionName(metaData.getString("name"));
+        question.setParamTypes(metaData.getJSONArray("params").stream().map(t -> ((JSONObject)t).getString("type"))
+          .collect(Collectors.toList()));
+        question.setReturnType(metaData.getJSONObject("return").getString("type"));
         question.setTitle(jsonObject.getString("title"));
         if (URLUtils.isCn() && !PersistentConfig.getInstance().getConfig().getEnglishContent()) {
           if (StringUtils.isNotBlank(jsonObject.getString("translatedTitle"))) {
