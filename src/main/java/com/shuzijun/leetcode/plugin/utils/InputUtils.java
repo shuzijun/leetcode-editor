@@ -20,6 +20,9 @@ public class InputUtils {
       if ("int[].class".equals(type)) {
         return stringToArray(testcase);
       }
+      if ("string.class".equals(type)) {
+        return testcase;
+      }
     }
     return null;
   }

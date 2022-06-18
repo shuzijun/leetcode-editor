@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.NotNull;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -367,6 +368,14 @@ public class QuestionManager {
     return true;
   }
 
+  private static Map<String, String> map = new HashMap<>() {
+    {
+      put("string", "String");
+      put("integer", "int");
+      put("character", "char");
+    }
+  };
+
   /**
    * queryQuestionData 获取题目数据
    *
@@ -380,7 +389,7 @@ public class QuestionManager {
       HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(), "application/json");
       httpRequest.setBody("{\"operationName\":\"questionData\",\"variables\":{\"titleSlug\":\""
         + question.getTitleSlug()
-        + "\"},\"query\":\"query questionData($titleSlug: String!) {\\n  question(titleSlug: $titleSlug) {\\n    questionId\\n    questionFrontendId\\n    boundTopicId\\n    title\\n    titleSlug\\n    content\\n    translatedTitle\\n    translatedContent\\n    isPaidOnly\\n    difficulty\\n    likes\\n    dislikes\\n    isLiked\\n    similarQuestions\\n    contributors {\\n      username\\n      profileUrl\\n      avatarUrl\\n      __typename\\n    }\\n    langToValidPlayground\\n    topicTags {\\n      name\\n      slug\\n      translatedName\\n      __typename\\n    }\\n    companyTagStats\\n    codeSnippets {\\n      lang\\n      langSlug\\n      code\\n      __typename\\n    }\\n    stats\\n    hints\\n    solution {\\n      id\\n      canSeeDetail\\n      __typename\\n    }\\n    status\\n    sampleTestCase\\n    metaData\\n    judgerAvailable\\n    judgeType\\n    mysqlSchemas\\n    enableRunCode\\n    enableTestMode\\n    envInfo\\n    __typename\\n  }\\n}\\n\"}");
+        + "\"},\"query\":\"query questionData($titleSlug: String!) {\\n  question(titleSlug: $titleSlug) {\\n exampleTestcases\\n   questionId\\n    questionFrontendId\\n    boundTopicId\\n    title\\n    titleSlug\\n    content\\n    translatedTitle\\n    translatedContent\\n    isPaidOnly\\n    difficulty\\n    likes\\n    dislikes\\n    isLiked\\n    similarQuestions\\n    contributors {\\n      username\\n      profileUrl\\n      avatarUrl\\n      __typename\\n    }\\n    langToValidPlayground\\n    topicTags {\\n      name\\n      slug\\n      translatedName\\n      __typename\\n    }\\n    companyTagStats\\n    codeSnippets {\\n      lang\\n      langSlug\\n      code\\n      __typename\\n    }\\n    stats\\n    hints\\n    solution {\\n      id\\n      canSeeDetail\\n      __typename\\n    }\\n    status\\n    sampleTestCase\\n    metaData\\n    judgerAvailable\\n    judgeType\\n    mysqlSchemas\\n    enableRunCode\\n    enableTestMode\\n    envInfo\\n    __typename\\n  }\\n}\\n\"}");
       httpRequest.addHeader("Accept", "application/json");
       HttpResponse response = HttpRequestUtils.executePost(httpRequest);
       if (response.getStatusCode() == HttpStatus.SC_OK) {
@@ -389,12 +398,17 @@ public class QuestionManager {
         question.setQuestionId(jsonObject.getString("questionId"));
         question.setContent(getContent(jsonObject));
         question.setTestCase(jsonObject.getString("sampleTestCase"));
-        question.setExampleTestcases(jsonObject.getString("exampleTestcases"));
+        String exampleTestcases = jsonObject.getString("exampleTestcases");
+        question.setExampleTestcases(exampleTestcases);
+
         JSONObject metaData = jsonObject.getJSONObject("metaData");
         question.setFunctionName(metaData.getString("name"));
-        question.setParamTypes(metaData.getJSONArray("params").stream().map(t -> ((JSONObject)t).getString("type"))
-          .collect(Collectors.toList()));
-        question.setReturnType(metaData.getJSONObject("return").getString("type"));
+        question.setParamTypes(metaData.getJSONArray("params").stream().map(t -> {
+          String type = ((JSONObject)t).getString("type");
+          type = typeMapping(type);
+          return type;
+        }).collect(Collectors.toList()));
+        question.setReturnType(typeMapping(metaData.getJSONObject("return").getString("type")));
         question.setTitle(jsonObject.getString("title"));
         if (URLUtils.isCn() && !PersistentConfig.getInstance().getConfig().getEnglishContent()) {
           if (StringUtils.isNotBlank(jsonObject.getString("translatedTitle"))) {
@@ -446,6 +460,14 @@ public class QuestionManager {
       MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
     }
     return Boolean.FALSE;
+  }
+
+  @NotNull
+  private static String typeMapping(String type) {
+    type = type.replaceAll("character", "char");
+    type = type.replaceAll("string", "String");
+    type = type.replaceAll("integer", "int");
+    return type;
   }
 
   private static String getContent(JSONObject jsonObject) {
