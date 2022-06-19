@@ -1,12 +1,15 @@
 package com.shuzijun.leetcode.plugin.utils;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
+import com.shuzijun.leetcode.plugin.model.leetcode.ListNode;
+import com.shuzijun.leetcode.plugin.model.leetcode.TreeNode;
 
 /**
  * @author arronshentu
  */
 public class InputUtils {
-
   public static Object get(String testcase, Object type) {
     if (type instanceof String) {
       if ("ListNode.class".equals(type)) {
@@ -21,13 +24,41 @@ public class InputUtils {
       if ("TreeNode.class".equals(type)) {
         return stringToTree(testcase);
       }
+      if ("int.class".equals(type)) {
+        return Integer.parseInt(testcase);
+      }
+      if ("String.class".equals(type)) {
+        return testcase.replaceAll("\"", "");
+      }
+      if ("list<list<int>>.class".equals(type) || "List<List<Integer>>.class".equals(type)) {
+        return stringToInt2dList(testcase);
+      }
+      if ("list<int>.class".equals(type) || "List<Integer>.class".equals(type)) {
+        return stringToIntegerList(testcase);
+      }
+      if ("String[].class".equals(type)) {
+        return stringToStringArray(testcase);
+      }
     }
     return null;
+  }
+
+  public static String[] stringToStringArray(String s) {
+    s = process(s, "[", 1);
+    String[] split = s.split(",");
+    return Arrays.stream(split).map(t -> t.replaceAll("\"", "")).toArray(String[]::new);
   }
 
   public static String[] param(String s) {
     // [integer[], integer[]]
     s = process(s, "[", 1);
+
+    if (s.contains("list")) {
+      s = s.replaceAll("list", "List");
+      s = s.replaceAll("integer", "Integer");
+      return Arrays.stream(s.split(", ")).map(t -> t + ".class").toArray(String[]::new);
+    }
+
     s = s.replaceAll("integer", "int");
     s = s.replaceAll("string", "String");
     return Arrays.stream(s.split(", ")).map(t -> t + ".class").toArray(String[]::new);
@@ -110,49 +141,17 @@ public class InputUtils {
     return res.next;
   }
 
-}
-
-class ListNode {
-  public int val;
-  public ListNode next;
-
-  ListNode() {}
-
-  public ListNode(int val) {
-    this.val = val;
+  public static List<Integer> stringToIntegerList(String s) {
+    int[] array = stringToArray(s);
+    return Arrays.stream(array).boxed().collect(Collectors.toList());
   }
 
-  ListNode(int val, ListNode next) {
-    this.val = val;
-    this.next = next;
-  }
-
-  public void print() {
-    StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append(val);
-    ListNode index = next;
-    while (index != null) {
-      stringBuilder.append(" -> ").append(index.val);
-      index = index.next;
+  public static List<List<Integer>> stringToInt2dList(String s) {
+    int[][] arrays = stringToArrays(s);
+    List<List<Integer>> list = new ArrayList<>(arrays.length);
+    for (int[] array : arrays) {
+      list.add(Arrays.stream(array).boxed().collect(Collectors.toList()));
     }
-    System.out.println(stringBuilder);
-  }
-}
-
-class TreeNode {
-  public int val;
-  public TreeNode left;
-  public TreeNode right;
-
-  TreeNode() {}
-
-  public TreeNode(int val) {
-    this.val = val;
-  }
-
-  TreeNode(int val, TreeNode left, TreeNode right) {
-    this.val = val;
-    this.left = left;
-    this.right = right;
+    return list;
   }
 }

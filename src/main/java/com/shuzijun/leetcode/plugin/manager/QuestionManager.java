@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -464,9 +464,15 @@ public class QuestionManager {
 
   @NotNull
   private static String typeMapping(String type) {
+    if (type.contains("list")) {
+      type = type.replaceAll("list", "List");
+      type = type.replaceAll("integer", "Integer");
+      return type;
+    }
     type = type.replaceAll("character", "char");
     type = type.replaceAll("string", "String");
     type = type.replaceAll("integer", "int");
+    type = type.replaceAll("list", "List");
     return type;
   }
 
