@@ -5,15 +5,14 @@ import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.plugin.manager.CodeManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 
 /**
  * @author shuzijun
  */
 public class OpenAction extends AbstractTreeAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config, NavigatorTable navigatorTable, Question question) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
         Project project = anActionEvent.getProject();
-        CodeManager.openCode(question, project);
+        CodeManager.openCode(question.getTitleSlug(), project);
     }
 }

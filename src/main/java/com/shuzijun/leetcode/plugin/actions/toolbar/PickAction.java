@@ -1,24 +1,23 @@
 package com.shuzijun.leetcode.plugin.actions.toolbar;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.DumbAware;
 import com.shuzijun.leetcode.plugin.actions.AbstractAction;
+import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
-import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.utils.MessageUtils;
-import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.utils.DataKeys;
+import com.shuzijun.leetcode.plugin.window.WindowFactory;
 
 /**
  * @author shuzijun
  */
-public class PickAction extends AbstractAction {
+public class PickAction extends AbstractAction implements DumbAware {
+    private int i = 0;
+
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config) {
-        CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(config.getCodeType());
-        if (codeTypeEnum == null) {
-            MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("info", PropertiesUtils.getInfo("config.code"));
-            return;
-        }
-        ViewManager.pick(codeTypeEnum, anActionEvent.getProject());
+        NavigatorAction navigatorAction = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_NAVIGATORACTION);
+        ViewManager.pick(anActionEvent.getProject(), navigatorAction.getPageInfo());
     }
 }

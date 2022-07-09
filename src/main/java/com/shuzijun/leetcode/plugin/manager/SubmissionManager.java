@@ -17,9 +17,9 @@ import java.util.List;
  */
 public class SubmissionManager {
 
-    public static List<Submission> getSubmissionService(Question question, Project project) {
+    public static List<Submission> getSubmissionService(String titleSlug, Project project) {
 
-        if (!HttpRequestUtils.isLogin()) {
+        if (!HttpRequestUtils.isLogin(project)) {
             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return null;
         }
@@ -27,10 +27,7 @@ public class SubmissionManager {
         List<Submission> submissionList = new ArrayList<Submission>();
 
         try {
-            HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(), "application/json");
-            httpRequest.setBody("{\"operationName\":\"Submissions\",\"variables\":{\"offset\":0,\"limit\":20,\"lastKey\":null,\"questionSlug\":\"" + question.getTitleSlug() + "\"},\"query\":\"query Submissions($offset: Int!, $limit: Int!, $lastKey: String, $questionSlug: String!) {\\n  submissionList(offset: $offset, limit: $limit, lastKey: $lastKey, questionSlug: $questionSlug) {\\n    lastKey\\n    hasNext\\n    submissions {\\n      id\\n      statusDisplay\\n      lang\\n      runtime\\n      timestamp\\n      url\\n      isPending\\n      memory\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}");
-            httpRequest.addHeader("Accept", "application/json");
-            HttpResponse response = HttpRequestUtils.executePost(httpRequest);
+            HttpResponse response = Graphql.builder().operationName("submissions").variables("offset", 0).variables("limit", 100).variables("questionSlug", titleSlug).request();
             if (response != null && response.getStatusCode() == 200) {
                 String body = response.getBody();
                 if (StringUtils.isNotBlank(body)) {
@@ -47,9 +44,9 @@ public class SubmissionManager {
                         submission.setMemory(object.getString("memory"));
                         submissionList.add(submission);
                     }
-                    if (submissionList.size() == 0) {
+                   /* if (submissionList.size() == 0) {
                         MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("submission.empty"));
-                    }
+                    }*/
                 }
             } else {
                 MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
@@ -61,30 +58,34 @@ public class SubmissionManager {
         return submissionList;
     }
 
-    public static void openSubmission(Submission submission, Question question, Project project) {
+    public static File openSubmission(Submission submission, String titleSlug, Project project, Boolean isOpenEditor) {
 
-        if (!HttpRequestUtils.isLogin()) {
+        if (!HttpRequestUtils.isLogin(project)) {
             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
-            return;
+            return null;
         }
         Config config = PersistentConfig.getInstance().getInitConfig();
+        Question question = QuestionManager.getQuestionByTitleSlug(titleSlug, project);
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnumByLangSlug(submission.getLang());
         String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_SUBMISSION + VelocityUtils.convert(config.getCustomFileName(), question) + submission.getId() + ".txt";
 
         File file = new File(filePath);
         if (file.exists()) {
-            FileUtils.openFileEditor(file, project);
+            if (isOpenEditor) {
+                FileUtils.openFileEditor(file, project);
+            }
+            return file;
         } else {
             try {
 
                 JSONObject jsonObject;
                 if (URLUtils.isCn()) {
-                    jsonObject = loadSubmissionCn(submission,project);
+                    jsonObject = loadSubmissionCn(submission, project);
                 } else {
-                    jsonObject = loadSubmissionEn(submission,project);
+                    jsonObject = loadSubmissionEn(submission, project);
                 }
                 if (jsonObject == null) {
-                    return;
+                    return file;
                 }
 
                 StringBuffer sb = new StringBuffer();
@@ -121,23 +122,23 @@ public class SubmissionManager {
                     }
                 }
                 FileUtils.saveFile(file, sb.toString());
-                FileUtils.openFileEditor(file, project);
-
-
+                if (isOpenEditor) {
+                    FileUtils.openFileEditor(file, project);
+                }
+                return file;
             } catch (Exception e) {
                 LogUtils.LOG.error("获取提交详情失败", e);
                 MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
-                return;
+                return file;
             }
 
         }
 
     }
 
-    private static JSONObject loadSubmissionEn(Submission submission,Project project) {
-        HttpRequest httpRequest = HttpRequest.get(URLUtils.getLeetcodeSubmissions() + submission.getId() + "/");
-        HttpResponse response = HttpRequestUtils.executeGet(httpRequest);
-        if (response != null && response.getStatusCode() == 200) {
+    private static JSONObject loadSubmissionEn(Submission submission, Project project) {
+        HttpResponse response = HttpRequest.builderGet(URLUtils.getLeetcodeSubmissions() + submission.getId() + "/").request();
+        if (response.getStatusCode() == 200) {
             String html = response.getBody();
             String body = CommentUtils.createSubmissions(html);
             if (StringUtils.isBlank(body)) {
@@ -158,11 +159,8 @@ public class SubmissionManager {
         return null;
     }
 
-    private static JSONObject loadSubmissionCn(Submission submission,Project project) {
-        HttpRequest httpRequest = HttpRequest.post(URLUtils.getLeetcodeGraphql(), "application/json");
-        httpRequest.setBody("{\"operationName\":\"mySubmissionDetail\",\"variables\":{\"id\":\"" + submission.getId() + "\"},\"query\":\"query mySubmissionDetail($id: ID!) {\\n  submissionDetail(submissionId: $id) {\\n    id\\n    code\\n    runtime\\n    memory\\n    statusDisplay\\n    timestamp\\n    lang\\n    passedTestCaseCnt\\n    totalTestCaseCnt\\n    sourceUrl\\n    question {\\n      titleSlug\\n      title\\n      translatedTitle\\n      questionId\\n      __typename\\n    }\\n    ... on GeneralSubmissionNode {\\n      outputDetail {\\n        codeOutput\\n        expectedOutput\\n        input\\n        compileError\\n        runtimeError\\n        lastTestcase\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}");
-        httpRequest.addHeader("Accept", "application/json");
-        HttpResponse response = HttpRequestUtils.executePost(httpRequest);
+    private static JSONObject loadSubmissionCn(Submission submission, Project project) {
+        HttpResponse response = Graphql.builder().cn(URLUtils.isCn()).operationName("submissionDetail").variables("id", submission.getId()).request();
         if (response != null && response.getStatusCode() == 200) {
             String body = response.getBody();
             if (StringUtils.isNotBlank(body)) {

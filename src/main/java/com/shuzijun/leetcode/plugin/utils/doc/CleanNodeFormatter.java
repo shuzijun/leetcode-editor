@@ -66,7 +66,7 @@ public class CleanNodeFormatter implements NodeFormatter {
     }
 
     private void render(@NotNull AttributesNode attributesNode, @NotNull NodeFormatterContext nodeFormatterContext, @NotNull MarkdownWriter lineInfos) {
-        if(attributesNode.getText().startsWith(":align") ||attributesNode.getText().startsWith(":width") ){
+        if (attributesNode.getText().startsWith(":align") || attributesNode.getText().startsWith(":width")) {
             return;
         } else {
             nodeFormatterContext.delegateRender();
@@ -86,6 +86,9 @@ public class CleanNodeFormatter implements NodeFormatter {
             markdown.blankLine();
             markdown.append("* ").append(node.getInfo().toString());
         }
+        if(node.getInfo().equals("python3",true)){
+            node.setInfo(node.getInfo().subSequence(0,6));
+        }
         context.delegateRender();
     }
 
@@ -99,6 +102,18 @@ public class CleanNodeFormatter implements NodeFormatter {
             markdown.append("<div> Video is not supported.");
         } else if (node.getChars().startsWith("</video")) {
             markdown.append("</div>");
+        } else if (node.getChars().startsWith("<code")) {
+            if (node.getParent() != null && node.getParent().getChars().startsWith("<pre")) {
+                markdown.append("<span><code>");
+            } else {
+                context.delegateRender();
+            }
+        } else if (node.getChars().startsWith("</code")) {
+            if (node.getParent() != null && node.getParent().getChars().startsWith("<pre")) {
+                markdown.append("</code></span>");
+            } else {
+                context.delegateRender();
+            }
         } else {
             context.delegateRender();
         }
@@ -144,6 +159,13 @@ public class CleanNodeFormatter implements NodeFormatter {
             String src = element.attr("src");
             if (StringUtils.isNotBlank(src)) {
                 element.attr("src", formatUrl(src));
+            }
+        } else if ("code".equals(element.tagName())) {
+            if (element.parent() != null && "pre".equals(element.parent().tagName())) {
+                Element span = new Element("span");
+                element.before(span);
+                element.remove();
+                element.appendTo(span);
             }
         } else {
             Elements elements = element.children();

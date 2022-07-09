@@ -1,0 +1,27 @@
+query questionSolutionArticles($questionSlug: String!, $skip: Int, $first: Int, $orderBy: SolutionArticleOrderBy, $userInput: String, $tagSlugs: [String!]) {
+    questionSolutionArticles(questionSlug: $questionSlug, skip: $skip, first: $first, orderBy: $orderBy, userInput: $userInput, tagSlugs: $tagSlugs) {
+        totalNum
+        edges {
+            node {
+                ...solutionArticle
+                __typename
+            }
+            __typename
+        }
+        __typename
+    }
+}
+
+fragment solutionArticle on SolutionArticleNode {
+    uuid
+    title
+    slug
+    status
+    identifier
+    tags {
+        name
+    }
+    summary
+    hitCount
+    __typename
+}

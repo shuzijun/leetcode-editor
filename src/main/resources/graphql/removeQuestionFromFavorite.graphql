@@ -1,0 +1,9 @@
+mutation removeQuestionFromFavorite($favoriteIdHash: String!, $questionId: String!) {
+    removeQuestionFromFavorite(favoriteIdHash: $favoriteIdHash, questionId: $questionId) {
+        ok
+        error
+        favoriteIdHash
+        questionId
+        __typename
+    }
+}

@@ -33,7 +33,6 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
     private Map<String, Config> initConfig = new HashMap<>();
 
 
-    @Nullable
     public static PersistentConfig getInstance() {
         return ServiceManager.getService(PersistentConfig.class);
     }
@@ -49,6 +48,8 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
         XmlSerializerUtil.copyBean(persistentConfig, this);
     }
 
+
+    @Nullable
     public Config getInitConfig() {
         Config config = initConfig.get(INITNAME);
         if (config != null && config.getVersion() != null && config.getVersion() < Constant.PLUGIN_CONFIG_VERSION_3) {
@@ -69,6 +70,7 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
         return config;
     }
 
+    @NotNull
     public Config getConfig() {
         Config config = getInitConfig();
         if (config == null) {

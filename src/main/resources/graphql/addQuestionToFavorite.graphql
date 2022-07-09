@@ -1,0 +1,9 @@
+mutation addQuestionToFavorite($favoriteIdHash: String!, $questionId: String!) {
+    addQuestionToFavorite(favoriteIdHash: $favoriteIdHash, questionId: $questionId) {
+        ok
+        error
+        favoriteIdHash
+        questionId
+        __typename
+    }
+}
