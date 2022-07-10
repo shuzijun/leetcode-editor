@@ -11,7 +11,7 @@
 [![English Document][badge:en-doc]][gh:en-doc]
 [![中文文档][badge:zh-doc]][gh:zh-doc]
 [![捐赠][badge:donate]][shuzijun-donate]
-[![中文文档][badge:referrals]][shuzijun-referrals]  
+[![内推][badge:referrals]][shuzijun-referrals]  
 
 <p align="center"><img src="https://s1.imagehub.cc/images/2022/07/10/leetcode-demo.gif" alt="demo" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
 
@@ -37,7 +37,7 @@
 <p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/doc/customConfig-100.gif" alt="loacl" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
 
 
-### 安装  
+### 安装([help][managing-plugins])  
 - **通过插件库安装** [leetcode-editor][plugin-homepage]  
 - **下载文件安装** [releases][gh:releases]  
 - **如果您想捐助此项目,可以选择Pro版本** [leetcode-editor-pro][plugin-homepage-pro]
@@ -54,7 +54,7 @@
   - **`Password`**: 登录密码  
   - **`Temp File Path`**: 临时文件存放目录  
   - **`proxy(HTTP Proxy)`**: 使用http代理,配置路径:`File` -> `settings`->`Appearance & Behavior`->`System Settings`->`HTTP Proxy`
-  - **`Custom code template`**: 自定义代码生成模板 ([详细介绍](https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode_ZH.md))([示例](https://github.com/shuzijun/leetcode-question))  
+  - **`Custom code template`**: 自定义代码生成模板 ([详细介绍][gh:custom-code-zh])([示例][gh:leetcode-question])  
   - **`LevelColour`**: 自定义题目难度颜色,重启后生效  
   - **`English Content`**: 题目显示英文描述  
   
@@ -121,8 +121,8 @@
 [badge:pro-version]: https://img.shields.io/jetbrains/plugin/v/17166?label=Pro%20Plugin%20Version&logo=jetbrains&style=flat-square&color=blueviolet
 [badge:en-doc]: https://img.shields.io/badge/Docs-English%20Document-blue?logo=docs&style=flat-square
 [badge:zh-doc]: https://img.shields.io/badge/Docs-中文文档-blue?logo=docs&style=flat-square
-[badge:donate]: https://img.shields.io/badge/Docs-捐赠-blue?logo=docs&style=flat-square
-[badge:referrals]: https://img.shields.io/badge/Docs-内推-blue?logo=docs&style=flat-square
+[badge:donate]: https://img.shields.io/badge/Docs-捐赠-ff69c4?logo=docs&style=flat-square
+[badge:referrals]: https://img.shields.io/badge/Docs-内推-ff69c4?logo=docs&style=flat-square
 
 
 [icon:leetcode]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/icons/LeetCode_dark.svg
@@ -145,7 +145,7 @@
 [gh:en-doc]: https://github.com/shuzijun/leetcode-editor/blob/master/README.md
 [gh:zh-doc]: #简介
 [gh:login-help]: https://github.com/shuzijun/leetcode-editor/blob/master/doc/LoginHelp_ZH.md
-[gh:custom-code-zh]: https://github.com/shuzijun/leetcode-editor/blob/master/doc/LoginHelp_ZH.md
+[gh:custom-code-zh]: https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode_ZH.md
 [gh:leetcode-question]: https://github.com/shuzijun/leetcode-question
 [gh:question]: https://github.com/shuzijun/leetcode-editor/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98
 
@@ -156,5 +156,3 @@
 
 [shuzijun-donate]: https://shuzijun.cn/donate.html
 [shuzijun-referrals]: https://shuzijun.cn/referrals.html
-
-[image:demo]:
