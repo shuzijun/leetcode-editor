@@ -14,6 +14,7 @@
 [![中文文档][badge:referrals]][shuzijun-referrals]  
 
 <p align="center"><img src="https://s1.imagehub.cc/images/2022/07/10/leetcode-demo.gif" alt="demo" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+
 ---
 
 ## 简介  
@@ -86,10 +87,14 @@
   - **`favorite`**:添加或移除收藏
   - **`Clear cache`**:清理当前题目  
   - **`Timer`**:计时器,开启后在右下角状态栏提示解题时间    
-<br>
+
+<br>  
+
 - **Editor菜单(在Editor上右击出现)**:  
   功能同上  
-<br>
+
+<br>  
+
 - **问题编辑器**:
   - **`Content`**:查看描述，包含图片
   - **`Solution`**:查看解答
