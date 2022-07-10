@@ -29,11 +29,11 @@
       - [Custom Code][gh:custom-code] ([demo][gh:leetcode-question])  
   
 ## Getting Started  
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/doc/leetcode-editor-3.0.gif" alt="start" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/leetcode-editor-3.0.gif" alt="start" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
  
 
 ## Local debugging  
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/doc/customConfig-100.gif" alt="loacl" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/customConfig-100.gif" alt="loacl" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
   
 
 ### Installation([help][managing-plugins])  
@@ -43,7 +43,7 @@
 
 ### Configuration (configuration for first installation)  
 
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/doc/config-3.0.jpg" alt="config" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/config-3.0.jpg" alt="config" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
 
  
 - **Configuration path**: `File` -> `settings`->`tools`->`leetcode plugin`  
@@ -53,12 +53,12 @@
   - **`Password`**: Login password  
   - **`Temp File Path`**: Temporary file storage catalogue  
   - **`proxy(HTTP Proxy)`**: HTTP Proxy,config path:`File` -> `settings`->`Appearance & Behavior`->`System Settings`->`HTTP Proxy`
-  - **`Custom code template`**: Custom code template ([details][gh:custom-code-zh]) ([demo][gh:leetcode-question])  
+  - **`Custom code template`**: Custom code template ([details][gh:custom-code]) ([demo][gh:leetcode-question])  
   - **`LevelColour`**: Customize the difficulty color of the question, it will take effect after restart
   
-### Window (Icon in the lower right corner of the main window![icon][icon:leetcode])  
+### Window    
 
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/doc/window-3.0.jpg" alt="window" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>  
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/window-3.0.jpg" alt="window" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>  
   
 - **Toolbar**:  
   - ![login][icon:login]**`Sign in`**:The login accounts of the two websites are not interoperable and the corresponding users need to be configured when switching websites.  
@@ -72,7 +72,7 @@
   - ![clear][icon:clear]**`Clear`**:Clean up the files in the configured cache directories. The cache directories of the two websites are different and only the current configured websites are cleaned up. Carefully clean up cases without submitting.  
 
 ### Menu  
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/doc/menu-3.0.jpg" alt="menu" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/menu-3.0.jpg" alt="menu" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
 
 
 - **Menu (right-click on the questions)**:  
@@ -107,8 +107,8 @@
 
 [badge:plugin-homepage]: https://img.shields.io/badge/Plugin%20Home-Leetcode%20Editor-blue?logo=jetbrains&style=flat-square
 [badge:plugin-homepage-pro]: https://img.shields.io/badge/Pro%20Plugin%20Home-Leetcode%20Editor%20Pro-blue?logo=jetbrains&style=flat-square&color=blueviolet
-[badge:release]: https://img.shields.io/github/workflow/status/shuzijun/leetcode-editor/Release?style=flat-square&logo=github&label=Build
-[badge:snapshot]: https://img.shields.io/github/workflow/status/shuzijun/leetcode-editor/Snapshot?style=flat-square&logo=github&label=Build
+[badge:release]: https://img.shields.io/github/workflow/status/shuzijun/leetcode-editor/Release?style=flat-square&logo=github&&label=Release%20Build
+[badge:snapshot]: https://img.shields.io/github/workflow/status/shuzijun/leetcode-editor/Snapshot?style=flat-square&logo=github&&label=Snapshot%20Build
 [badge:license]: https://img.shields.io/github/license/shuzijun/leetcode-editor.svg?style=flat-square&&label=License
 [badge:downloads]: https://img.shields.io/jetbrains/plugin/d/12132?style=flat-square&label=Plugin%20Downloads&logo=jetbrains
 [badge:version]: https://img.shields.io/jetbrains/plugin/v/12132?label=Plugin%20Version&logo=jetbrains&style=flat-square
@@ -125,8 +125,8 @@
 [icon:pick]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/icons/random_dark.svg
 [icon:find]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/icons/find_dark.svg
 [icon:progress]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/icons/progress_dark.svg
-[icon:toggle]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/src/main/resources/icons/toggle_dark.svg
-[icon:config]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/src/main/resources/icons/config_lc_dark.svg
+[icon:toggle]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/icons/toggle_dark.svg
+[icon:config]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/icons/config_lc_dark.svg
 [icon:clear]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/icons/clear_dark.svg
 
 [gh:leetcode-editor]: https://github.com/shuzijun/leetcode-editor
