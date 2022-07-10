@@ -83,7 +83,6 @@ public class IOUtils {
         return output.toByteArray();
     }
 
-    /** @deprecated */
     public static byte[] toByteArray(String input) throws IOException {
         return input.getBytes();
     }
@@ -124,12 +123,10 @@ public class IOUtils {
         return sw.toString();
     }
 
-    /** @deprecated */
     public static String toString(byte[] input) throws IOException {
         return new String(input);
     }
 
-    /** @deprecated */
     public static String toString(byte[] input, String encoding) throws IOException {
         return encoding == null?new String(input):new String(input, encoding);
     }

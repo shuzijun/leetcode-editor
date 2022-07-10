@@ -103,6 +103,8 @@ public class Constant {
     public static final String SORT_TYPE_DIFFICULTY = "SortByDifficulty";
     public static final String SORT_TYPE_FREQUENCY = "SortByFrequency";
 
+    public static final String SORT_TYPE_STATES = "SortByStates";
+
     /**
      * path
      */
@@ -111,6 +113,20 @@ public class Constant {
     public static final String DOC_CONTENT = "doc"+ File.separator + "content" +  File.separator;
     public static final String DOC_SUBMISSION = "doc"+ File.separator + "submission" +  File.separator;
     public static final String DOC_NOTE = "doc"+ File.separator + "note" +  File.separator;
+
+
+    /**
+     * CodeTop类别类型
+     */
+    public static final String CODETOP_FIND_TYPE_DIFFICULTY = "Difficulty";
+    public static final String CODETOP_FIND_TYPE_TAGS = "Tags";
+    public static final String CODETOP_FIND_TYPE_COMPANY = "Company";
+    /**
+     * CodeTop排序类别
+     */
+    public static final String CODETOP_SORT_TYPE_TITLE = "CodeTopSortByTitle";
+    public static final String CODETOP_SORT_TYPE_TIME = "CodeTopSortByTime";
+    public static final String CODETOP_SORT_TYPE_FREQUENCY = "CodeTopSortByFrequency";
 
 
 }

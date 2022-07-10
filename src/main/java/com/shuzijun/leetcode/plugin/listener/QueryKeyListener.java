@@ -4,8 +4,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.shuzijun.leetcode.plugin.manager.ViewManager;
-import com.shuzijun.leetcode.plugin.window.NavigatorTable;
+import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -23,12 +22,12 @@ public class QueryKeyListener implements KeyListener {
     private final static Logger logger = LoggerFactory.getLogger(QueryKeyListener.class);
 
     private JTextField jTextField;
-    private NavigatorTable navigatorTable;
+    private NavigatorAction navigatorAction;
     private Project project;
 
-    public QueryKeyListener(JTextField jTextField, NavigatorTable navigatorTable, Project project) {
+    public QueryKeyListener(JTextField jTextField, NavigatorAction navigatorAction, Project project) {
         this.jTextField = jTextField;
-        this.navigatorTable = navigatorTable;
+        this.navigatorAction = navigatorAction;
         this.project = project;
     }
 
@@ -44,9 +43,9 @@ public class QueryKeyListener implements KeyListener {
                 @Override
                 public void run(@NotNull ProgressIndicator progressIndicator) {
                     String selectText = jTextField.getText();
-                    navigatorTable.getPageInfo().disposeFilters("searchKeywords", selectText, StringUtils.isNotBlank(selectText));
-                    navigatorTable.getPageInfo().setPageIndex(1);
-                    ViewManager.loadServiceData(navigatorTable, project);
+                    navigatorAction.getPageInfo().disposeFilters("searchKeywords", selectText, StringUtils.isNotBlank(selectText));
+                    navigatorAction.getPageInfo().setPageIndex(1);
+                    navigatorAction.loadServiceData();
                 }
             });
         }

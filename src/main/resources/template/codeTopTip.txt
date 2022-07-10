@@ -1,0 +1,15 @@
+You are browsing "CodeTop Problem List" window.The data is from CodeTop.
+Click {0} to open the CodeTop webpage for more functions.
+For first-time installation, Click {1} to configure the plugin.
+Click {2} to load questions,Click {3} to switch to other windows.
+
+Toolbar introduction:
+    {4} Log in LeetCode,Sync Problems status.(The login accounts of the two websites are not interoperable, users need to reconfigure while switching the corresponding websites.)
+    {5} Log out. (Exit the current account, if you encounter a login error, try to exit first.)
+    {6} Load or refresh problems. (You still could refresh or load questions even if you are not logged in, but you could not submit the answer.)
+    {7} Open filter panel. （You can filter and sort.）
+    {8} Open the CodeTop webpage
+    {9} Switch to other list windows, including "All Problem List" , "Paginated Problem List" , "CodeTop Problem List".
+    {10} Open configuration panel.
+    {11} Clear all problem cache files.
+    {12} Open help page.

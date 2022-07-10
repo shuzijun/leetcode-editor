@@ -21,24 +21,6 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="4c4ad" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="LevelColour:"/>
-            </properties>
-          </component>
-          <component id="24208" class="javax.swing.JCheckBox" binding="customCodeBox">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                <maximum-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <text value="Custom Template"/>
-            </properties>
-          </component>
           <component id="ec641" class="javax.swing.JCheckBox" binding="updateCheckBox">
             <constraints>
               <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
@@ -50,15 +32,16 @@
               <text value="Plugin Update"/>
             </properties>
           </component>
-          <component id="56608" class="javax.swing.JCheckBox" binding="jcefCheckBox">
+          <component id="56608" class="javax.swing.JCheckBox" binding="cookieCheckBox">
             <constraints>
               <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
                 <maximum-size width="150" height="-1"/>
               </grid>
             </constraints>
             <properties>
-              <text value="JCEF"/>
-              <toolTipText value="Version 2020.2+ is supported"/>
+              <selected value="false"/>
+              <text value="Cookie"/>
+              <toolTipText value="Use cookies to log in to the site"/>
             </properties>
           </component>
           <component id="5ac6d" class="javax.swing.JCheckBox" binding="proxyCheckBox">
@@ -73,20 +56,10 @@
               <toolTipText value="Employ File | Settings | Appearance &amp; Behavior | System Settings | HTTP Proxy"/>
             </properties>
           </component>
-          <component id="d82fd" class="javax.swing.JCheckBox" binding="englishContentBox">
-            <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                <maximum-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <text value="English Content"/>
-            </properties>
-          </component>
           <grid id="6778d" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <grid row="0" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="2" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
             <border type="none"/>
@@ -123,38 +96,6 @@
               </component>
             </children>
           </grid>
-          <component id="1aff0" class="javax.swing.JCheckBox" binding="questionEditorCheckBox" default-binding="true">
-            <constraints>
-              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                <maximum-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <selected value="true"/>
-              <text value="QuestionEditor"/>
-            </properties>
-          </component>
-          <component id="4fb71" class="javax.swing.JCheckBox" binding="multilineCheckBox" default-binding="true">
-            <constraints>
-              <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                <maximum-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <text value="Multiline"/>
-              <toolTipText value="Content  Multiline Comment"/>
-            </properties>
-          </component>
-          <component id="33e74" class="javax.swing.JCheckBox" binding="htmlContentCheckBox" default-binding="true">
-            <constraints>
-              <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                <maximum-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <text value="HtmlContent"/>
-            </properties>
-          </component>
           <component id="19b36" class="javax.swing.JCheckBox" binding="showTopicsCheckBox" default-binding="true">
             <constraints>
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -164,9 +105,105 @@
               <text value="Show Topics"/>
             </properties>
           </component>
+          <component id="33e74" class="javax.swing.JCheckBox" binding="htmlContentCheckBox" default-binding="true">
+            <constraints>
+              <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <maximum-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <text value="HtmlContent"/>
+            </properties>
+          </component>
+          <component id="f1471" class="javax.swing.JCheckBox" binding="convergeEditorCheckBox">
+            <constraints>
+              <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <selected value="true"/>
+              <text value="ConvergeEditor"/>
+              <toolTipText value="Information converge into one editor"/>
+            </properties>
+          </component>
+          <component id="4fb71" class="javax.swing.JCheckBox" binding="multilineCheckBox" default-binding="true">
+            <constraints>
+              <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <maximum-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <text value="Multiline"/>
+              <toolTipText value="Content  Multiline Comment"/>
+            </properties>
+          </component>
+          <component id="4c4ad" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="LevelColour:"/>
+            </properties>
+          </component>
+          <component id="24208" class="javax.swing.JCheckBox" binding="customCodeBox">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <maximum-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <text value="Custom Template"/>
+            </properties>
+          </component>
+          <grid id="c6a0b" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="a6ad6" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="QuestionEditor:"/>
+                  <toolTipText value="Choose whether to enable aggregated editors and specify the editor's layout."/>
+                </properties>
+              </component>
+              <component id="e66a5" class="javax.swing.JComboBox" binding="questionEditorBox">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <model/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <component id="64ad" class="javax.swing.JCheckBox" binding="showEditorSignCheckBox" default-binding="true">
+            <constraints>
+              <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <selected value="true"/>
+              <text value="showEditorSign"/>
+              <toolTipText value="Replace the icon and text in the editor"/>
+            </properties>
+          </component>
+          <component id="d82fd" class="javax.swing.JCheckBox" binding="englishContentBox">
+            <constraints>
+              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <maximum-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <text value="English Content"/>
+            </properties>
+          </component>
           <component id="2a21b" class="javax.swing.JCheckBox" binding="showToolIconCheckBox" default-binding="true">
             <constraints>
-              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <selected value="true"/>
@@ -306,7 +343,9 @@
                 <minimum-size width="150" height="-1"/>
               </grid>
             </constraints>
-            <properties/>
+            <properties>
+              <model/>
+            </properties>
           </component>
           <component id="c5d38" class="javax.swing.JComboBox" binding="codeComboBox">
             <constraints>

@@ -1,0 +1,12 @@
+query userStatus {
+    userStatus {
+        isSignedIn
+        isPremium
+        username
+        avatar
+        isAdmin
+        isSuperuser
+        isTranslator
+        isVerified
+    }
+}

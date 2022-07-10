@@ -12,6 +12,6 @@ public class SubmitAction extends AbstractEditAction {
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
-        CodeManager.SubmitCode(question, anActionEvent.getProject());
+        CodeManager.SubmitCode(question.getTitleSlug(), anActionEvent.getProject());
     }
 }

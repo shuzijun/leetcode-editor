@@ -4,15 +4,14 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.shuzijun.leetcode.plugin.manager.NoteManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 
 /**
  * @author shuzijun
  */
-public class PushNoteAction extends  AbstractTreeAction {
+public class PushNoteAction extends AbstractTreeAction {
 
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config, NavigatorTable navigatorTable, Question question) {
-        NoteManager.push(question,anActionEvent.getProject());
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
+        NoteManager.push(question.getTitleSlug(), anActionEvent.getProject());
     }
 }

@@ -5,14 +5,13 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
-import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 
 /**
  * @author zzdcon
  */
 public class OpenInWebAction extends AbstractTreeAction {
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config, NavigatorTable navigatorTable, Question question) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
 
         BrowserUtil.browse(URLUtils.getLeetcodeProblems() + question.getTitleSlug());
     }

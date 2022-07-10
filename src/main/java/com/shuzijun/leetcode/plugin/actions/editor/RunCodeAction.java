@@ -12,6 +12,6 @@ public class RunCodeAction extends AbstractEditAction {
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
-        CodeManager.RunCodeCode(question, anActionEvent.getProject());
+        CodeManager.RunCodeCode(question.getTitleSlug(), anActionEvent.getProject());
     }
 }

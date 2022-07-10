@@ -1,0 +1,26 @@
+query questionOfToday {
+    activeDailyCodingChallengeQuestion: todayRecord {
+        date
+        userStatus
+        question {
+            questionId
+            frontendQuestionId: questionFrontendId
+            difficulty
+            title
+            titleCn: translatedTitle
+            titleSlug
+            paidOnly: isPaidOnly
+            freqBar
+            isFavor
+            acRate
+            status
+            solutionNum
+            hasVideoSolution
+            topicTags {
+                name
+                nameTranslated: translatedName
+                id
+            }
+        }
+    }
+}

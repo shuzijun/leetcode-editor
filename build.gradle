@@ -1,14 +1,18 @@
 plugins {
     id 'java-library'
-    id 'org.jetbrains.intellij' version '1.0'
+    id 'org.jetbrains.intellij' version '1.7.0-SNAPSHOT'
+    id 'org.jetbrains.changelog' version "1.3.1"
     id "de.undercouch.download" version "4.0.2"
 }
 
-group 'com.shuzijun.leetcode'
-version (System.getenv('LD_VERSION')==null ? project.plugin_version :System.getenv('LD_VERSION')) + (project.build_env.isEmpty() ? "" : "-") + project.build_env
+apply plugin: 'org.jetbrains.changelog'
+
+group project.pluginGroup
+version (System.getenv('LD_VERSION')==null ? project.pluginVersion :System.getenv('LD_VERSION'))
 
 sourceCompatibility = 11
 targetCompatibility = 11
+
 
 repositories {
     mavenCentral()
@@ -31,47 +35,37 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    pluginName = 'leetcode-editor'
-    version = project.intellij_version
-    type = 'IU'
+    pluginName = project.pluginName
+    version = project.platformVersion
+    type = project.platformType
     downloadSources = true
     updateSinceUntilBuild = false
     buildSearchableOptions.enabled = false
     ideaDependencyCachePath = "$gradle.gradleUserHomeDir/caches/modules-2/files-2.1/com.jetbrains.intellij.idea"
-    /* localPath project.idea_local_path
-     alternativeIdePath project.idea_local_path*/
-    /*plugins = project.intellij_plugins.split(",").toList()*/
+
     runIde {
-        jvmArgs = ["-Dfile.encoding=utf-8"]
+        jvmArgs = project.runIdeJvmArgs.split(',').toList()
     }
-/*    prepareSandbox  {
-        from("src/main/natives" + (project.build_env.isEmpty() ? "" : "-") + project.build_env) { into(getPluginName() + '/natives') }
-    }*/
+
+    patchPluginXml {
+        sinceBuild = project.pluginSinceBuild
+        untilBuild = project.pluginUntilBuild
+        changeNotes.set(provider { changelog.get(project.version+".0").toHTML() })
+    }
+
+    publishPlugin {
+        dependsOn("patchChangelog")
+        token = System.getenv("PUBLISH_TOKEN")
+    }
+
+}
+
+changelog {
 
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
-
-
-
-
-
-/*
-task downloadJCEF(type: Copy) {
-    if (project.build_env.isEmpty()) {
-        return
-    }
-    def tempFile = new File(buildDir, "/download/natives-" + project.build_env + ".zip")
-    download {
-       src("https://github.com/shuzijun/leetcode-editor/releases/download/" + project.jcef_version + "/natives-" + project.build_env + ".zip")
-       dest tempFile
-    }
-
-    from zipTree(tempFile)
-    into "src/main/"
-}
-*/
 
 

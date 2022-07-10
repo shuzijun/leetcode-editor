@@ -1,12 +1,14 @@
 package com.shuzijun.leetcode.plugin.timer;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
+import com.intellij.util.messages.MessageBusConnection;
+import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -33,10 +35,12 @@ public class TimerBarWidget implements CustomStatusBarWidget {
 
     public TimerBarWidget(Project project) {
         this.project = project;
-        loaColor();
+        loaColor(PersistentConfig.getInstance().getInitConfig());
+        MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
+        messageBusConnection.subscribe(ConfigNotifier.TOPIC, (oldConfig, newConfig) -> loaColor(newConfig));
     }
-    public static void loaColor(){
-        Config config = PersistentConfig.getInstance().getInitConfig();
+
+    private void loaColor(Config config) {
         if (config != null) {
             Color[] colors = config.getFormatLevelColour();
             Level1 = colors[0];
@@ -90,30 +94,6 @@ public class TimerBarWidget implements CustomStatusBarWidget {
                 }
             }
         });
-        Config config = PersistentConfig.getInstance().getInitConfig();
-        if (config != null) {
-            if (StringUtils.isNotBlank(config.getLevelColour())) {
-                String[] colors = config.getLevelColour().split(";");
-                if (colors.length > 0) {
-                    try {
-                        Level1 = new Color(Integer.parseInt(colors[0].replace("#",""), 16));
-                    } catch (Exception ignore) {
-                    }
-                }
-                if (colors.length > 1) {
-                    try {
-                        Level2 = new Color(Integer.parseInt(colors[1].replace("#",""), 16));
-                    } catch (Exception ignore) {
-                    }
-                }
-                if (colors.length > 2) {
-                    try {
-                        Level3 = new Color(Integer.parseInt(colors[2].replace("#",""), 16));
-                    } catch (Exception ignore) {
-                    }
-                }
-            }
-        }
     }
 
     @Override

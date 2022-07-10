@@ -1,0 +1,23 @@
+query questionOfToday {
+    activeDailyCodingChallengeQuestion {
+        date
+        userStatus
+        question {
+            acRate
+            difficulty
+            freqBar
+            frontendQuestionId: questionFrontendId
+            paidOnly: isPaidOnly
+            status
+            title
+            titleSlug
+            hasSolution
+            topicTags {
+                name
+                id
+                slug
+            }
+        }
+    }
+}
+    

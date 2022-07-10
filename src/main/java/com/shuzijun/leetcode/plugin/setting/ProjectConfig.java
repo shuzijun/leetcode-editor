@@ -77,6 +77,15 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Inn
         return innerState.projectConfig.get(path);
     }
 
+    public LeetcodeEditor getEditor(String path, String host) {
+        LeetcodeEditor leetcodeEditor = innerState.projectConfig.get(path);
+        if (leetcodeEditor != null && host.equals(leetcodeEditor.getHost())) {
+            return leetcodeEditor;
+        } else {
+            return null;
+        }
+    }
+
     public static class InnerState {
         @NotNull
         @MapAnnotation

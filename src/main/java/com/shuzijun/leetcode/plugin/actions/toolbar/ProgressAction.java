@@ -2,18 +2,19 @@ package com.shuzijun.leetcode.plugin.actions.toolbar;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.shuzijun.leetcode.plugin.actions.AbstractAction;
+import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.manager.SessionManager;
-import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Session;
+import com.shuzijun.leetcode.plugin.setting.StatisticsData;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.utils.HttpRequestUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
-import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 import com.shuzijun.leetcode.plugin.window.ProgressPanel;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.jetbrains.annotations.Nullable;
@@ -25,11 +26,11 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * @author shuzijun
  */
-public class ProgressAction extends AbstractAction {
+public class ProgressAction extends AbstractAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config) {
-        if (!HttpRequestUtils.isLogin()) {
+        if (!HttpRequestUtils.isLogin(anActionEvent.getProject())) {
             MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return;
         }
@@ -52,9 +53,10 @@ public class ProgressAction extends AbstractAction {
                 return;
             } else {
                 if (SessionManager.switchSession(anActionEvent.getProject(), session.getId())) {
-                    NavigatorTable navigatorTable = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_TREE);
-                    navigatorTable.getPageInfo().clear();
-                    ViewManager.loadServiceData(navigatorTable, anActionEvent.getProject());
+                    NavigatorAction navigatorAction = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_NAVIGATORACTION);
+                    navigatorAction.getFind().operationType("");
+                    navigatorAction.findClear();
+                    StatisticsData.refresh(anActionEvent.getProject());
                     actionPerformed(anActionEvent, config);
                 }
             }
