@@ -30,11 +30,11 @@
 
 
 ##  开始使用 
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/doc/leetcode-editor-3.0.gif" alt="start" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/leetcode-editor-3.0.gif" alt="start" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
  
 
 ## 本地调试  
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/doc/customConfig-100.gif" alt="loacl" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/customConfig-100.gif" alt="loacl" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
 
 
 ### 安装([help][managing-plugins])  
@@ -44,7 +44,7 @@
 
 ### 配置(第一次安装需要先配置)  
 
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/doc/config-3.0.jpg" alt="config" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/config-3.0.jpg" alt="config" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
 
  
 - **配置路径**: `File` -> `settings`->`tools`->`leetcode plugin`  
@@ -58,9 +58,9 @@
   - **`LevelColour`**: 自定义题目难度颜色,重启后生效  
   - **`English Content`**: 题目显示英文描述  
   
-### 窗口(主窗口右下角![icon][icon:leetcode])  
+### 窗口    
 
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/doc/window-3.0.jpg" alt="window" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p> 
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/window-3.0.jpg" alt="window" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p> 
   
 - **工具栏**:  
   - ![login][icon:login]**`登录`**:两个网站的登录帐号不互通，切换网站需配置对应的用户  
@@ -74,7 +74,7 @@
   - ![clear][icon:clear]**`清理`**:清理配置的缓存目录下的文件，两个网站对应的缓存目录不同，只会清理当前配置的网站下的。部分题目未提交的情况下慎重清理  
 
 ### 菜单  
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/doc/menu-3.0.jpg" alt="menu" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/menu-3.0.jpg" alt="menu" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
    
 
 - **菜单(在题目上右击出现)**:  
@@ -113,8 +113,8 @@
 
 [badge:plugin-homepage]: https://img.shields.io/badge/Plugin%20Home-Leetcode%20Editor-blue?logo=jetbrains&style=flat-square
 [badge:plugin-homepage-pro]: https://img.shields.io/badge/Pro%20Plugin%20Home-Leetcode%20Editor%20Pro-blue?logo=jetbrains&style=flat-square&color=blueviolet
-[badge:release]: https://img.shields.io/github/workflow/status/shuzijun/leetcode-editor/Release?style=flat-square&logo=github&label=Build
-[badge:snapshot]: https://img.shields.io/github/workflow/status/shuzijun/leetcode-editor/Snapshot?style=flat-square&logo=github&label=Build
+[badge:release]: https://img.shields.io/github/workflow/status/shuzijun/leetcode-editor/Release?style=flat-square&logo=github&label=Release%20Build
+[badge:snapshot]: https://img.shields.io/github/workflow/status/shuzijun/leetcode-editor/Snapshot?style=flat-square&logo=github&label=Snapshot%20Build
 [badge:license]: https://img.shields.io/github/license/shuzijun/leetcode-editor.svg?style=flat-square&&label=License
 [badge:downloads]: https://img.shields.io/jetbrains/plugin/d/12132?style=flat-square&label=Plugin%20Downloads&logo=jetbrains
 [badge:version]: https://img.shields.io/jetbrains/plugin/v/12132?label=Plugin%20Version&logo=jetbrains&style=flat-square
@@ -132,8 +132,8 @@
 [icon:pick]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/icons/random_dark.svg
 [icon:find]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/icons/find_dark.svg
 [icon:progress]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/icons/progress_dark.svg
-[icon:toggle]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/src/main/resources/icons/toggle_dark.svg
-[icon:config]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@sync/src/main/resources/icons/config_lc_dark.svg
+[icon:toggle]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/icons/toggle_dark.svg
+[icon:config]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/icons/config_lc_dark.svg
 [icon:clear]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/icons/clear_dark.svg
 
 
@@ -153,6 +153,7 @@
 [plugin-versions]: https://plugins.jetbrains.com/plugin/12132-leetcode-editor/versions
 [plugin-homepage-pro]: https://plugins.jetbrains.com/plugin/17166-leetcode-editor-pro
 [plugin-versions-pro]: https://plugins.jetbrains.com/plugin/17166-leetcode-editor-pro/versions
+[managing-plugins]: https://www.jetbrains.com/help/idea/managing-plugins.html
 
 [shuzijun-donate]: https://shuzijun.cn/donate.html
 [shuzijun-referrals]: https://shuzijun.cn/referrals.html
