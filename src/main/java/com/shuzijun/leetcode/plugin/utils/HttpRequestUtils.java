@@ -1,6 +1,10 @@
 package com.shuzijun.leetcode.plugin.utils;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.io.HttpRequests;
+import com.shuzijun.leetcode.plugin.model.HttpRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.jetbrains.annotations.NotNull;
@@ -9,60 +13,78 @@ import java.io.IOException;
 import java.net.*;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author shuzijun
  */
 public class HttpRequestUtils {
 
-    private static final CookieManager cookieManager = new CookieManager();
+    private static final Cache<String, HttpResponse> httpResponseCache = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).build();
+
+    private static final CookieManager cookieManager = new CookieManager(null, (uri, cookie) -> {
+        if (uri == null || cookie == null || uri.getHost().equals("hm.baidu.com")) {
+            return false;
+        }
+        return HttpCookie.domainMatches(cookie.getDomain(), uri.getHost());
+    });
 
     static {
         CookieHandler.setDefault(cookieManager);
     }
 
+    @NotNull
     public static HttpResponse executeGet(HttpRequest httpRequest) {
 
-        HttpResponse httpResponse = new HttpResponse();
-        try {
-            HttpRequests.request(httpRequest.getUrl())
-                    .throwStatusCodeException(false)
-                    .tuner(new HttpRequestTuner(httpRequest))
-                    .connect(new HttpResponseProcessor(httpRequest, httpResponse));
+        return CacheProcessor.processor(httpRequest, request -> {
+            HttpResponse httpResponse = new HttpResponse();
+            try {
+                HttpRequests.request(request.getUrl()).
+                        throwStatusCodeException(false).
+                        tuner(new HttpRequestTuner(request)).
+                        connect(new HttpResponseProcessor(request, httpResponse));
 
-        } catch (IOException e) {
-            LogUtils.LOG.error("HttpRequestUtils request error:", e);
-            httpResponse.setStatusCode(-1);
-        }
-        return httpResponse;
+            } catch (IOException e) {
+                LogUtils.LOG.error("HttpRequestUtils request error:", e);
+                httpResponse.setStatusCode(-1);
+            }
+            return httpResponse;
+        });
+
+
     }
 
+    @NotNull
     public static HttpResponse executePost(HttpRequest httpRequest) {
-        HttpResponse httpResponse = new HttpResponse();
-        try {
-            HttpRequests.post(httpRequest.getUrl(), httpRequest.getContentType())
-                    .throwStatusCodeException(false)
-                    .tuner(new HttpRequestTuner(httpRequest))
-                    .connect(new HttpResponseProcessor(httpRequest, httpResponse));
-        } catch (IOException e) {
-            LogUtils.LOG.error("HttpRequestUtils request error:", e);
-            httpResponse.setStatusCode(-1);
-        }
-        return httpResponse;
+        return CacheProcessor.processor(httpRequest, request -> {
+            HttpResponse httpResponse = new HttpResponse();
+            try {
+                HttpRequests.post(request.getUrl(), request.getContentType())
+                        .throwStatusCodeException(false)
+                        .tuner(new HttpRequestTuner(request))
+                        .connect(new HttpResponseProcessor(request, httpResponse));
+            } catch (IOException e) {
+                LogUtils.LOG.error("HttpRequestUtils request error:", e);
+                httpResponse.setStatusCode(-1);
+            }
+            return httpResponse;
+        });
     }
 
     public static HttpResponse executePut(HttpRequest httpRequest) {
-        HttpResponse httpResponse = new HttpResponse();
-        try {
-            HttpRequests.put(httpRequest.getUrl(), httpRequest.getContentType())
-                    .throwStatusCodeException(false)
-                    .tuner(new HttpRequestTuner(httpRequest))
-                    .connect(new HttpResponseProcessor(httpRequest, httpResponse));
-        } catch (IOException e) {
-            LogUtils.LOG.error("HttpRequestUtils request error:", e);
-            httpResponse.setStatusCode(-1);
-        }
-        return httpResponse;
+        return CacheProcessor.processor(httpRequest, request -> {
+            HttpResponse httpResponse = new HttpResponse();
+            try {
+                HttpRequests.put(request.getUrl(), request.getContentType())
+                        .throwStatusCodeException(false)
+                        .tuner(new HttpRequestTuner(request))
+                        .connect(new HttpResponseProcessor(request, httpResponse));
+            } catch (IOException e) {
+                LogUtils.LOG.error("HttpRequestUtils request error:", e);
+                httpResponse.setStatusCode(-1);
+            }
+            return httpResponse;
+        });
     }
 
     public static String getToken() {
@@ -70,7 +92,8 @@ public class HttpRequestUtils {
             return null;
         }
         for (HttpCookie cookie : cookieManager.getCookieStore().getCookies()) {
-            if ("csrftoken".equals(cookie.getName())) {
+            if (StringUtils.isNotBlank(cookie.getDomain()) &&
+                    cookie.getDomain().toLowerCase().contains(URLUtils.getLeetcodeHost()) && "csrftoken".equals(cookie.getName())) {
                 return cookie.getValue();
             }
 
@@ -78,9 +101,8 @@ public class HttpRequestUtils {
         return null;
     }
 
-    public static boolean isLogin() {
-        HttpRequest request = HttpRequest.get(URLUtils.getLeetcodePoints());
-        HttpResponse response = executeGet(request);
+    public static boolean isLogin(Project project) {
+        HttpResponse response = HttpRequest.builderGet(URLUtils.getLeetcodePoints()).request();
         if (response.getStatusCode() == 200) {
             return Boolean.TRUE;
         }
@@ -113,7 +135,7 @@ public class HttpRequestUtils {
 
     private static class HttpRequestTuner implements HttpRequests.ConnectionTuner {
 
-        private HttpRequest httpRequest;
+        private final HttpRequest httpRequest;
 
         public HttpRequestTuner(HttpRequest httpRequest) {
             this.httpRequest = httpRequest;
@@ -122,14 +144,14 @@ public class HttpRequestUtils {
         @Override
         public void tune(@NotNull URLConnection urlConnection) throws IOException {
 
-            if (StringUtils.isNotBlank(getToken())) {
+            if (StringUtils.isNotBlank(getToken()) && (urlConnection.getURL().toString().contains(URLUtils.leetcode) || urlConnection.getURL().toString().contains(URLUtils.leetcodecn))) {
                 urlConnection.addRequestProperty("x-csrftoken", getToken());
             }
             urlConnection.addRequestProperty("referer", urlConnection.getURL().toString());
             //urlConnection.addRequestProperty(":path", urlConnection.getURL().getPath());
 
             defaultHeader(httpRequest);
-            httpRequest.getHeader().forEach((k, v) -> urlConnection.addRequestProperty(k, v));
+            httpRequest.getHeader().forEach(urlConnection::addRequestProperty);
         }
     }
 
@@ -166,6 +188,37 @@ public class HttpRequestUtils {
             }
             return httpResponse;
         }
+    }
+
+    private static class CacheProcessor {
+        public static HttpResponse processor(HttpRequest httpRequest, HttpRequestUtils.Callable<HttpResponse> callable) {
+
+            String key = httpRequest.hashCode() + "";
+            if (httpRequest.isCache() && httpResponseCache.getIfPresent(key) != null) {
+                return httpResponseCache.getIfPresent(key);
+            }
+            if (httpRequest.isCache()) {
+                synchronized (key.intern()) {
+                    if (httpResponseCache.getIfPresent(key) != null) {
+                        return httpResponseCache.getIfPresent(key);
+                    } else {
+                        HttpResponse httpResponse = callable.call(httpRequest);
+                        if (httpResponse.getStatusCode() == 200) {
+                            httpResponseCache.put(key, httpResponse);
+                        }
+                        return httpResponse;
+                    }
+                }
+            } else {
+                return callable.call(httpRequest);
+
+            }
+        }
+    }
+
+    @FunctionalInterface
+    private interface Callable<V> {
+        V call(HttpRequest request);
     }
 
 }

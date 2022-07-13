@@ -11,7 +11,7 @@ import com.shuzijun.leetcode.plugin.model.Question;
 public class PushNoteAction extends AbstractEditAction {
 
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question){
-        NoteManager.push(question,anActionEvent.getProject());
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
+        NoteManager.push(question.getTitleSlug(), anActionEvent.getProject());
     }
 }

@@ -13,7 +13,6 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBPasswordField;
@@ -21,20 +20,16 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.net.HttpConfigurable;
 import com.shuzijun.leetcode.plugin.listener.ColorListener;
+import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
 import com.shuzijun.leetcode.plugin.listener.DonateListener;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
-import com.shuzijun.leetcode.plugin.renderer.CustomTreeCellRenderer;
-import com.shuzijun.leetcode.plugin.timer.TimerBarWidget;
-import com.shuzijun.leetcode.plugin.utils.DataKeys;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
-import com.shuzijun.leetcode.plugin.window.HttpLogin;
-import com.shuzijun.leetcode.plugin.window.NavigatorTable;
-import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,9 +45,9 @@ import java.util.Objects;
  */
 public class SettingUI {
     private JPanel mainPanel;
-    private JCheckBox questionEditorCheckBox;
-    private JComboBox webComboBox;
-    private JComboBox codeComboBox;
+    private JComboBox<String> questionEditorBox;
+    private JComboBox<String> webComboBox;
+    private JComboBox<String> codeComboBox;
     private JBTextField userNameField;
     private JBPasswordField passwordField;
     private JLabel easyLabel;
@@ -68,19 +63,19 @@ public class SettingUI {
     private JPanel codeFileName;
     private JPanel codeTemplate;
     private JPanel templateConstant;
-    private JCheckBox jcefCheckBox;
+    private JCheckBox cookieCheckBox;
     private JCheckBox multilineCheckBox;
     private JCheckBox htmlContentCheckBox;
     private JCheckBox showTopicsCheckBox;
     private JCheckBox showToolIconCheckBox;
-
+    private JCheckBox convergeEditorCheckBox;
+    private JCheckBox showEditorSignCheckBox;
 
     private Editor fileNameEditor = null;
     private Editor templateEditor = null;
     private Editor templateHelpEditor = null;
 
     private boolean codeTypeChanged = false;
-
 
     public SettingUI() {
         initUI();
@@ -98,21 +93,22 @@ public class SettingUI {
         mediumLabel.addMouseListener(new ColorListener(mainPanel, mediumLabel));
         hardLabel.addMouseListener(new ColorListener(mainPanel, hardLabel));
 
-        fileFolderBtn.addBrowseFolderListener(new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrFolderDescriptor()) {
-        });
+        fileFolderBtn.addBrowseFolderListener(
+                new TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileOrFolderDescriptor()) {
+                });
 
         customCodeBox.addActionListener(new DonateListener(customCodeBox));
-        proxyCheckBox.setSelected(HttpConfigurable.getInstance().USE_HTTP_PROXY || HttpConfigurable.getInstance().USE_PROXY_PAC);
-        proxyCheckBox.addMouseListener(new MouseAdapter(){
+        proxyCheckBox.setSelected(
+                HttpConfigurable.getInstance().USE_HTTP_PROXY || HttpConfigurable.getInstance().USE_PROXY_PAC);
+        proxyCheckBox.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(HttpConfigurable.editConfigurable(mainPanel)){
-                    proxyCheckBox.setSelected(HttpConfigurable.getInstance().USE_HTTP_PROXY || HttpConfigurable.getInstance().USE_PROXY_PAC);
+                if (HttpConfigurable.editConfigurable(mainPanel)) {
+                    proxyCheckBox.setSelected(HttpConfigurable.getInstance().USE_HTTP_PROXY
+                            || HttpConfigurable.getInstance().USE_PROXY_PAC);
                 }
             }
         });
-
-        jcefCheckBox.setEnabled(HttpLogin.isSupportedJcef());
 
         templateConfigHelp.addMouseListener(new MouseAdapter() {
             @Override
@@ -121,36 +117,37 @@ public class SettingUI {
             }
         });
 
-        fileNameEditor = EditorFactory.getInstance().createEditor(EditorFactory.getInstance().createDocument(""), null, FileTypeManager.getInstance().getFileTypeByExtension("vm"), false);
+        fileNameEditor = EditorFactory.getInstance().createEditor(EditorFactory.getInstance().createDocument(""), null,
+                FileTypeManager.getInstance().getFileTypeByExtension("vm"), false);
         EditorSettings settings = fileNameEditor.getSettings();
         ((EditorImpl) fileNameEditor).setOneLineMode(true);
-        //额外的行
+        // 额外的行
         settings.setAdditionalLinesCount(0);
-        //额外的列
+        // 额外的列
         settings.setAdditionalColumnsCount(0);
         settings.setCaretRowShown(false);
-        //折叠大纲
+        // 折叠大纲
         settings.setFoldingOutlineShown(false);
-        //缩进
+        // 缩进
         settings.setIndentGuidesShown(false);
-        //线性标记区域
+        // 线性标记区域
         settings.setLineMarkerAreaShown(false);
-        //行号
+        // 行号
         settings.setLineNumbersShown(false);
-        //虚拟空间
+        // 虚拟空间
         settings.setVirtualSpace(false);
-        //允许单逻辑行折叠
+        // 允许单逻辑行折叠
         settings.setAllowSingleLogicalLineFolding(false);
-        //滚动
+        // 滚动
         settings.setAnimatedScrolling(true);
-        //底部附加
+        // 底部附加
         settings.setAdditionalPageAtBottom(false);
-        //代码自动折叠
+        // 代码自动折叠
         settings.setAutoCodeFoldingEnabled(false);
         codeFileName.add(fileNameEditor.getComponent(), BorderLayout.CENTER);
 
-
-        templateEditor = EditorFactory.getInstance().createEditor(EditorFactory.getInstance().createDocument(""), null, FileTypeManager.getInstance().getFileTypeByExtension("vm"), false);
+        templateEditor = EditorFactory.getInstance().createEditor(EditorFactory.getInstance().createDocument(""), null,
+                FileTypeManager.getInstance().getFileTypeByExtension("vm"), false);
         EditorSettings templateEditorSettings = templateEditor.getSettings();
         templateEditorSettings.setAdditionalLinesCount(0);
         templateEditorSettings.setAdditionalColumnsCount(0);
@@ -159,7 +156,9 @@ public class SettingUI {
         JBScrollPane jbScrollPane = new JBScrollPane(templateEditor.getComponent());
         codeTemplate.add(jbScrollPane, BorderLayout.CENTER);
 
-        templateHelpEditor = EditorFactory.getInstance().createEditor(EditorFactory.getInstance().createDocument(PropertiesUtils.getInfo("template.variable", "{", "}")), null, FileTypeManager.getInstance().getFileTypeByExtension("vm"), true);
+        templateHelpEditor = EditorFactory.getInstance().createEditor(
+                EditorFactory.getInstance().createDocument(PropertiesUtils.getInfo("template.variable", "{", "}")),
+                null, FileTypeManager.getInstance().getFileTypeByExtension("vm"), true);
         EditorSettings templateHelpEditorSettings = templateHelpEditor.getSettings();
         templateHelpEditorSettings.setAdditionalLinesCount(0);
         templateHelpEditorSettings.setAdditionalColumnsCount(0);
@@ -167,6 +166,10 @@ public class SettingUI {
         templateHelpEditorSettings.setLineNumbersShown(false);
         templateHelpEditorSettings.setVirtualSpace(false);
         templateConstant.add(templateHelpEditor.getComponent(), BorderLayout.CENTER);
+
+        questionEditorBox.addItem("Disable");
+        questionEditorBox.addItem("Left");
+        questionEditorBox.addItem("Right");
 
         loadSetting();
     }
@@ -202,12 +205,21 @@ public class SettingUI {
             mediumLabel.setForeground(colors[1]);
             hardLabel.setForeground(colors[2]);
 
-            jcefCheckBox.setSelected(config.getJcef());
-            questionEditorCheckBox.setSelected(config.getQuestionEditor());
+            cookieCheckBox.setSelected(config.isCookie());
+            if (config.getQuestionEditor().equals("true")) {
+                questionEditorBox.setSelectedItem("Left");
+            } else if (config.getQuestionEditor().equals("false")) {
+                questionEditorBox.setSelectedItem("Disable");
+            } else {
+                questionEditorBox.setSelectedItem(config.getQuestionEditor());
+            }
+
             multilineCheckBox.setSelected(config.getMultilineComment());
             htmlContentCheckBox.setSelected(config.getHtmlContent());
             showTopicsCheckBox.setSelected(config.getShowTopics());
             showToolIconCheckBox.setSelected(config.getShowToolIcon());
+            convergeEditorCheckBox.setSelected(config.getConvergeEditor());
+            showEditorSignCheckBox.setSelected(config.isShowQuestionEditorSign());
         } else {
             Color[] colors = new Config().getFormatLevelColour();
             easyLabel.setForeground(colors[0]);
@@ -217,8 +229,8 @@ public class SettingUI {
                 fileNameEditor.getDocument().setText(Constant.CUSTOM_FILE_NAME);
                 templateEditor.getDocument().setText(Constant.CUSTOM_TEMPLATE);
             });
+            questionEditorBox.setSelectedItem("Left");
         }
-
 
     }
 
@@ -239,7 +251,8 @@ public class SettingUI {
             }
 
             if (currentState.isModified(config)) {
-                if (passwordField.getText() != null && passwordField.getText().equals(PersistentConfig.getInstance().getPassword(config.getLoginName()))) {
+                if (passwordField.getText() != null && passwordField.getText()
+                        .equals(PersistentConfig.getInstance().getPassword(config.getLoginName()))) {
                     return false;
                 } else {
                     return true;
@@ -252,9 +265,12 @@ public class SettingUI {
 
     public void apply() {
         Config config = PersistentConfig.getInstance().getInitConfig();
+        Config oldConfig = null;
         if (config == null) {
             config = new Config();
             config.setId(MTAUtils.getI(""));
+        } else {
+            oldConfig = config.clone();
         }
         process(config);
         File file = new File(config.getFilePath() + File.separator + PersistentConfig.PATH + File.separator);
@@ -262,16 +278,21 @@ public class SettingUI {
             file.mkdirs();
         }
         PersistentConfig.getInstance().setInitConfig(config);
-        PersistentConfig.getInstance().savePassword(passwordField.getText(),config.getLoginName());
-        CustomTreeCellRenderer.loaColor();
-        TimerBarWidget.loaColor();
-        NavigatorTable.loaColor();
-
-        reLoadServiceData();
+        PersistentConfig.getInstance().savePassword(passwordField.getText(), config.getLoginName());
+        Config finalOldConfig = oldConfig;
+        Config finalConfig = config;
+        ProgressManager.getInstance()
+                .run(new Task.Backgroundable(null, PluginConstant.PLUGIN_NAME + " Apply Config", false) {
+                    @Override
+                    public void run(@NotNull ProgressIndicator progressIndicator) {
+                        ApplicationManager.getApplication().getMessageBus().syncPublisher(ConfigNotifier.TOPIC)
+                                .change(finalOldConfig, finalConfig);
+                    }
+                });
     }
 
     public void process(Config config) {
-        if(config.getVersion() == null) {
+        if (config.getVersion() == null) {
             config.setVersion(Constant.PLUGIN_CONFIG_VERSION_3);
         }
         config.setLoginName(userNameField.getText());
@@ -284,14 +305,15 @@ public class SettingUI {
         config.setCustomTemplate(templateEditor.getDocument().getText());
         config.setFormatLevelColour(easyLabel.getForeground(), mediumLabel.getForeground(), hardLabel.getForeground());
         config.setEnglishContent(englishContentBox.isSelected());
-        config.setJcef(jcefCheckBox.isSelected());
-        config.setQuestionEditor(questionEditorCheckBox.isSelected());
+        config.setCookie(cookieCheckBox.isSelected());
+        config.setQuestionEditor(questionEditorBox.getSelectedItem().toString());
         config.setMultilineComment(multilineCheckBox.isSelected());
         config.setHtmlContent(htmlContentCheckBox.isSelected());
         config.setShowTopics(showTopicsCheckBox.isSelected());
         config.setShowToolIcon(showToolIconCheckBox.isSelected());
+        config.setConvergeEditor(convergeEditorCheckBox.isSelected());
+        config.setShowQuestionEditorSign(showEditorSignCheckBox.isSelected());
     }
-
 
     public void reset() {
         loadSetting();
@@ -310,27 +332,5 @@ public class SettingUI {
             EditorFactory.getInstance().releaseEditor(this.templateHelpEditor);
             this.templateHelpEditor = null;
         }
-    }
-
-    private void reLoadServiceData() {
-        if (!codeTypeChanged) {
-            return;
-        }
-
-        DataManager.getInstance().getDataContextFromFocusAsync().onSuccess(
-                dataContext -> {
-                    Project project = dataContext != null ? dataContext.getData(CommonDataKeys.PROJECT) : null;
-                    if (project != null) {
-                        ProgressManager.getInstance().run(new Task.Backgroundable(project,Constant.REFRESH_TITLE,true) {
-                            @Override
-                            public void run(@NotNull ProgressIndicator progressIndicator) {
-                                NavigatorTable navigatorTable = WindowFactory.getDataContext(project).getData(DataKeys.LEETCODE_PROJECTS_TREE);
-                                navigatorTable.getPageInfo().clear();
-                                ViewManager.loadServiceData(navigatorTable, project);
-                            }
-                        });
-                    }
-                }
-        );
     }
 }

@@ -1,0 +1,16 @@
+You are browsing "All Problem List" window.
+For first-time installation, Click {0} to configure the plugin.
+Click {1} or {2} to load questions,Click {3} to switch to other windows.
+
+Toolbar introduction:
+    {4} Log in. (The login accounts of the two websites are not interoperable, users need to reconfigure while switching the corresponding websites.)
+    {5} Log out. (Exit the current account, if you encounter a login error, try to exit first.)
+    {6} Load or refresh problems. (You still could refresh or load questions even if you are not logged in, but you could not submit the answer.)
+    {7} Open a problem randomly.
+    {8} Open filter panel. （You can search, filter and sort.）
+    {9} Based on the current editor content, locate the position of the corresponding problem in the list.
+    {10} Open the Session panel. (You can view or switch sessions.)
+    {11} Switch to other list windows, including "All Problem List" , "Paginated Problem List" , "CodeTop Problem List".
+    {12} Open configuration panel.
+    {13} Clear all problem cache files.
+    {14} Open help page.

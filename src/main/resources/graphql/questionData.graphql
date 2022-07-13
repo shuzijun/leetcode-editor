@@ -1,0 +1,38 @@
+query questionData($titleSlug: String!) {
+    question(titleSlug: $titleSlug) {
+        questionId
+        questionFrontendId
+        title
+        titleSlug
+        content
+        translatedTitle
+        translatedContent
+        isPaidOnly
+        difficulty
+        likes
+        dislikes
+        isLiked
+        exampleTestcases
+        topicTags {
+            name
+            slug
+            translatedName
+        }
+        codeSnippets {
+            lang
+            langSlug
+            code
+        }
+        hints
+        solution {
+            id
+            canSeeDetail
+        }
+        status
+        sampleTestCase
+        judgerAvailable
+        judgeType
+        mysqlSchemas
+        libraryUrl
+    }
+}

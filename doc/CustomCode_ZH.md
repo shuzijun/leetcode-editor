@@ -2,14 +2,11 @@
   通过配置自定义代码生成模板可以自由生成代码格式，配合IDE可在本地调试代码。[示例工程](https://github.com/shuzijun/leetcode-question)  
   - [English Document](https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md)  
   - [中文文档](#配置)   
-  <p align="center">
-    <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/customConfig-100.gif" alt="demo"/>
-  </p>  
+  <p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/customConfig-100.gif" alt="loacl" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+ 
   
 ## 配置  
-<p align="center">
-  <img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/customConfig.png" alt="customConfig"/>
-</p>  
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/config-3.0.jpg" alt="config" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
   
   - **Custom code template**: 开启使用自定义模板，否则使用默认生成格式  
   - **CodeFileName**: 生成文件的名称，默认为题目标题  

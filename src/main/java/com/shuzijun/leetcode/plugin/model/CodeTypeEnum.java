@@ -57,6 +57,10 @@ public enum CodeTypeEnum {
         return type;
     }
 
+    public String getLangSlug() {
+        return langSlug;
+    }
+
     public String getSuffix() {
         return suffix;
     }

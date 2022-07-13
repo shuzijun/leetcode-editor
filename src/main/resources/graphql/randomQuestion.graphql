@@ -1,0 +1,5 @@
+query randomQuestion($categorySlug: String, $filters: QuestionListFilterInput) {
+    randomQuestion(categorySlug: $categorySlug, filters: $filters) {
+        titleSlug
+    }
+}

@@ -1,0 +1,34 @@
+query submissionDetail($id: ID!) {
+    submissionDetail(submissionId: $id) {
+        id
+        code
+        runtime
+        memory
+        statusDisplay
+        timestamp
+        lang
+        passedTestCaseCnt
+        totalTestCaseCnt
+        sourceUrl
+        question {
+            titleSlug
+            title
+            translatedTitle
+            questionId
+            __typename
+        }
+        ... on GeneralSubmissionNode {
+            outputDetail {
+                codeOutput
+                expectedOutput
+                input
+                compileError
+                runtimeError
+                lastTestcase
+                __typename
+            }
+            __typename
+        }
+        __typename
+    }
+}

@@ -15,7 +15,7 @@ public interface LeetCodeEditorIcons {
     Icon CLEAN = IconLoader.getIcon("/icons/clean.svg");
     Icon CLEAR = IconLoader.getIcon("/icons/clear.svg");
     Icon COLLAPSE = IconLoader.getIcon("/icons/collapse.svg");
-    Icon CONFIG = IconLoader.getIcon("/icons/config.svg");
+    Icon CONFIG = IconLoader.getIcon("/icons/config_lc.svg");
     Icon DESC = IconLoader.getIcon("/icons/desc.svg");
     Icon EDIT_DOC = IconLoader.getIcon("/icons/edit_doc.svg");
     Icon FAVORITE = IconLoader.getIcon("/icons/favorite.svg");
@@ -40,5 +40,9 @@ public interface LeetCodeEditorIcons {
     Icon NOTE = IconLoader.getIcon("/icons/note.svg");
     Icon LCV = IconLoader.getIcon("/icons/lcv.svg");
     Icon DONATE = IconLoader.getIcon("/icons/donate.svg");
-
+    Icon SHARE = IconLoader.getIcon("/icons/share.svg");
+    Icon TOGGLE = IconLoader.getIcon("/icons/toggle.svg");
+    Icon SHOW = IconLoader.getIcon("/icons/show.svg");
+    Icon PULL = IconLoader.getIcon("/icons/pull.svg");
+    Icon PUSH = IconLoader.getIcon("/icons/push.svg");
 }

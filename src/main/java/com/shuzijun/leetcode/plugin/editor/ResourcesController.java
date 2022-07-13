@@ -41,7 +41,7 @@ public class ResourcesController extends BaseController {
 
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(data));
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, FileResponses.INSTANCE.getContentType(resourceName) + "; charset=utf-8");
-        response.headers().set(HttpHeaderNames.CACHE_CONTROL, "max-age=3600, private, must-revalidate");
+        response.headers().set(HttpHeaderNames.CACHE_CONTROL, "max-age=3600, public");
         response.headers().set(HttpHeaderNames.ETAG, Long.toString(LAST_MODIFIED));
         return response;
     }

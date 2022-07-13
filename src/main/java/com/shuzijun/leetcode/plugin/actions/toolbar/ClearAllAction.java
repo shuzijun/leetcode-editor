@@ -3,6 +3,7 @@ package com.shuzijun.leetcode.plugin.actions.toolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -23,7 +24,7 @@ import java.io.File;
 /**
  * @author shuzijun
  */
-public class ClearAllAction extends AbstractAction {
+public class ClearAllAction extends AbstractAction implements DumbAware {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config) {
 
