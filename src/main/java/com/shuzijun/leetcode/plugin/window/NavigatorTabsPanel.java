@@ -224,17 +224,17 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
     public static synchronized void loadUser(boolean login) {
         User user = null;
         if (login) {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i <= 50; i++) {
                 user = QuestionManager.getUser();
                 if (!user.isSignedIn()) {
                     try {
-                        Thread.sleep(500);
+                        Thread.sleep(500 + (i / 10 * 100));
                     } catch (InterruptedException ignore) {
                     }
                 } else {
                     break;
                 }
-                if(i == 9){
+                if(i == 50){
                     LogUtils.LOG.warn("User data is not synchronized");
                 }
             }
