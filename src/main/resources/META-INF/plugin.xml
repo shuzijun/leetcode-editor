@@ -4,116 +4,7 @@
     <version>8.1</version>
     <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/leetcode-editor">shuzijun</vendor>
 
-    <description><![CDATA[
-        <div>
-           <p>Support for leetcode.com and leetcode.cn, can test and submit questions.
-			  More tutorial please visit： <a href="https://github.com/shuzijun/leetcode-editor">here</a></p>
-        </div>
-        <div>
-			<h2>Introduction</h2>
-			<br>
-			<ul>
-				<li>Support for leetcode.com and leetcode.cn, can test and submit questions</li>
-				<li>More tutorial please visit： <a href="https://github.com/shuzijun/leetcode-editor">here</a></li>
-			</ul>
-			<ul>
-				<li>支持leetcode.com和leetcode.cn,可测试与提交问题</li>
-				<li>更多的插件使用教程： <a href="https://github.com/shuzijun/leetcode-editor">插件使用介绍</a></li>
-			</ul>
-		</div>
-		<div>
-			<h2>How to use</h2>
-			<br>
-			<p >
-				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/leetcode-editor-3.0.gif" alt="demo" />
-			</p>
-		</div>
-		<br>
-		<div>
-			<h2>Local debugging  </h2>
-			<br>
-			<p >
-				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/customConfig-100.gif" alt="demo" />
-			</p>
-		</div>
-		<br>
-		<div>
-			<h2>Configuration (configuration for first installation)</h2>
-			<br>
-			<p>
-				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/config-3.0.png" alt="settings" />
-			</p>
-			<br>
-			<h3>Configuration path: File -> settings->tools->leetcode plugin</h3>
-			<br>
-			<ul>
-				<li>URL options: leetcode.com and leetcode.cn</li>
-				<li>Code Type: Java, Python, C++, Python3, C, C#, JavaScript, Ruby, Swift, Go, Scala, Kotlin, Rust, PHP</li>
-				<li> Login Name: Login Username</li>
-				<li> Password: Login password</li>
-				<li>Temp File Path: Temporary file storage catalogue</li>
-				<li>proxy(HTTP Proxy): HTTP Proxy,config path:`File` -> `settings`->`Appearance & Behavior`->`System Settings`->`HTTP Proxy`</li>
-                <li>Custom code template: Custom code template ([details](https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md))([demo](https://github.com/shuzijun/leetcode-question))</li>
-
-			</ul>
-		</div>
-		<br>
-		<br>
-		<div>
-			<h2>Window (Icon in the lower right corner of the main window)</h2>
-			<br>
-			<p >
-				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/window-3.0.png" alt="window" />
-			</p>
-			<br>
-			<h3>Toolbar:</h3>
-			<ul>
-				<li>Login: The login accounts of the two websites are not interoperable and the corresponding users need to be
-					configured when switching websites.</li>
-				<li>Logout: Exit the current account, if you encounter a login error, try to exit first</li>
-				<li>Refresh: You can also refresh and load questions if you are not logged in, but you cannot submit it.</li>
-				<li>Find: Input the content and press Enter to search , press again to search for the next one. It can only
-					search under the question bank node.</li>
-				<li>Collapse: Collapse all nodes.</li>
-				<li> Configuration: Quick jump to the configuration page</li>
-				<li> Clear: Clean up the files in the configured cache directories. The cache directories of the two websites
-					are different and only the current configured websites are cleaned up. Carefully clean up cases without
-					submitting.</li>
-			</ul>
-			<br>
-			<h3>Tree:</h3>
-			<ul>
-				<li>Questions: All questions</li>
-				<li>Difficulty: Classification of difficulties</li>
-				<li>Tags: Classification of types</li>
-				<li>Explore: Explore content, only contains titles of the questions, exclusive content that needs to pay ; some
-					questions are loaded in order</li>
-				<li>Color: The color represents the difficulty of the question</li>
-				<li>Symbol: The symbols of “√” and “?” represent the status of the current questions, and explores with the
-					beginning of “$” needs to pay or that cannot be viewed due to other causes.</li>
-			</ul>
-		</div>
-		<br>
-		<br>
-		<div>
-			<h2> Menu:</h2>
-			<br>
-			<p >
-				<img src="https://raw.githubusercontent.com/shuzijun/leetcode-editor/master/doc/menu-3.0.png" alt="menu" />
-			</p>
-			<br>
-			<h3>Menu (right-click on the questions)</h3>
-			<ul>
-				<li>Open question: Open the question or double click on the question</li>
-				<li>Submit: Submit the question</li>
-				<li>Submissions: View the submission record, select the record details in the pop-up window (Show detail)</li>
-				<li>Run Code: Run the code, the test case for the question is used by default</li>
-				<li>Test case: Customize test cases</li>
-				<li>favorite:Add or remove favorite</li>
-				<li>Clear cache: Clean up the current questionL</li>
-			</ul>
-		</div>
-    ]]></description>
+    <description><![CDATA[]]></description>
 
     <change-notes>
     </change-notes>
@@ -131,7 +22,7 @@
     </application-components>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!--    <postStartupActivity  implementation = "com.shuzijun.leetcode.plugin.listener.RegisterPluginInstallerStateListener"></postStartupActivity>-->
+        <postStartupActivity  implementation = "com.shuzijun.leetcode.plugin.listener.RegisterPluginInstallerStateListener"></postStartupActivity>
         <errorHandler implementation="com.shuzijun.leetcode.plugin.listener.ErrorReportHandler"/>
         <toolWindow id="Leetcode" secondary="false" icon="LeetCodeEditorIcons.LEETCODE_TOOL_WINDOW" anchor="left"
                     factoryClass="com.shuzijun.leetcode.plugin.window.WindowFactory" />

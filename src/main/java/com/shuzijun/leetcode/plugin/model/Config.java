@@ -17,6 +17,8 @@ public class Config implements Cloneable {
 
     private Integer version;
 
+    private String pluginVersion;
+
     private String id;
 
     /**
@@ -417,6 +419,14 @@ public class Config implements Cloneable {
 
     public void setShowQuestionEditorSign(boolean showQuestionEditorSign) {
         this.showQuestionEditorSign = showQuestionEditorSign;
+    }
+
+    public String getPluginVersion() {
+        return pluginVersion;
+    }
+
+    public void setPluginVersion(String pluginVersion) {
+        this.pluginVersion = pluginVersion;
     }
 
     public boolean isModified(Config config) {

@@ -50,6 +50,7 @@ intellij {
     patchPluginXml {
         sinceBuild = project.pluginSinceBuild
         untilBuild = project.pluginUntilBuild
+        pluginDescription = new File(project.pluginDescription).getText('UTF-8')
         changeNotes.set(provider { changelog.get(project.version+".0").toHTML() })
     }
 
