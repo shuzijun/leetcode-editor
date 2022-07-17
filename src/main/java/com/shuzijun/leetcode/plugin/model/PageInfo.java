@@ -1,7 +1,8 @@
 package com.shuzijun.leetcode.plugin.model;
 
 import com.alibaba.fastjson.JSON;
-import com.shuzijun.leetcode.plugin.manager.ViewManager;
+import com.alibaba.fastjson.annotation.JSONField;
+import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.List;
 public class PageInfo<T> {
 
     private int pageIndex;
-    public int pageSize;
+    private int pageSize;
     private int rowTotal;
 
     private String categorySlug = "";
@@ -90,7 +91,7 @@ public class PageInfo<T> {
     public void disposeFilters(String key, String value, boolean select) {
         Field[] fields = filters.getClass().getDeclaredFields();
         for (Field field : fields) {
-            if (field.getName().equals(key)) {
+            if (field.getName().equalsIgnoreCase(key)) {
                 field.setAccessible(true);
                 try {
                     if (List.class.isAssignableFrom(field.getType())) {
@@ -121,15 +122,16 @@ public class PageInfo<T> {
         this.pageIndex = 1;
         this.categorySlug = "";
         this.filters.clear();
-        ViewManager.clearFilter();
-        ViewManager.operationType("");
     }
 
     public void clearFilter() {
         this.pageIndex = 1;
         this.categorySlug = "";
         this.filters.clearFilter();
-        ViewManager.clearFilter();
+    }
+
+    public boolean isNoFilter() {
+        return StringUtils.isBlank(categorySlug) && filters.isNoFilter();
     }
 
     public static class Filters {
@@ -211,6 +213,28 @@ public class PageInfo<T> {
             this.status = null;
             this.listId = null;
             this.tags = null;
+        }
+        @JSONField(serialize = false)
+        public boolean isNoFilter() {
+            Field[] fields = this.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                try {
+                    if (List.class.isAssignableFrom(field.getType())) {
+                        List list = (List) field.get(this);
+                        if (list != null && !list.isEmpty()) {
+                            return false;
+                        }
+                    } else {
+                        String str = (String) field.get(this);
+                        if (StringUtils.isNotBlank(str)) {
+                            return false;
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                }
+            }
+            return true;
         }
 
         @Override

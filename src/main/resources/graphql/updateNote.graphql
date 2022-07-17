@@ -1,0 +1,12 @@
+mutation updateNote($titleSlug: String!, $content: String!) {
+    updateNote(titleSlug: $titleSlug, content: $content) {
+        ok
+        error
+        question {
+            questionId
+            note
+            __typename
+        }
+        __typename
+    }
+}

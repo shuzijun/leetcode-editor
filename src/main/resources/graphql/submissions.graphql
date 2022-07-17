@@ -1,0 +1,18 @@
+query submissions($offset: Int!, $limit: Int!, $lastKey: String, $questionSlug: String!) {
+    submissionList(offset: $offset, limit: $limit, lastKey: $lastKey, questionSlug: $questionSlug) {
+        lastKey
+        hasNext
+        submissions {
+            id
+            statusDisplay
+            lang
+            runtime
+            timestamp
+            url
+            isPending
+            memory
+            __typename
+        }
+        __typename
+    }
+}

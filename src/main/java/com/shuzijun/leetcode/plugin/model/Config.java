@@ -1,15 +1,19 @@
 package com.shuzijun.leetcode.plugin.model;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.annotations.Transient;
+import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import java.awt.*;
-import java.util.*;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author shuzijun
  */
-public class Config {
+public class Config implements Cloneable {
 
     private Integer version;
 
@@ -84,14 +88,14 @@ public class Config {
     private String levelColour = Constant.LEVEL_COLOUR;
 
     /**
-     * 使用jcef渲染
+     * 使用cookie登录
      */
-    private Boolean jcef = false;
+    private boolean cookie = false;
 
     /**
      * question Split Editor
      */
-    private Boolean questionEditor = true;
+    private String questionEditor = "Left";
 
     /**
      * Content  Multiline Comment
@@ -113,7 +117,20 @@ public class Config {
      */
     private Boolean showToolIcon = true;
 
-    private List<String> favoriteList;
+    /**
+     * convergeEditor
+     */
+    private Boolean convergeEditor = true;
+
+    /**
+     * 使用的导航
+     */
+    private String navigatorName;
+
+    /**
+     * 显示编辑器标志
+     */
+    private boolean showQuestionEditorSign = true;
 
     public String getId() {
         return id;
@@ -149,6 +166,14 @@ public class Config {
 
     public String getCodeType() {
         return codeType;
+    }
+
+    public CodeTypeEnum getCodeTypeEnum(Project project) {
+        CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(codeType);
+        if (codeTypeEnum == null) {
+            MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("config.code"));
+        }
+        return codeTypeEnum;
     }
 
     public void setCodeType(String codeType) {
@@ -227,18 +252,6 @@ public class Config {
         this.userCookie = userCookie;
     }
 
-    public List<String> getFavoriteList() {
-        if (favoriteList == null || favoriteList.isEmpty()) {
-            favoriteList = new ArrayList<>();
-            favoriteList.add("Favorite");
-        }
-        return favoriteList;
-    }
-
-    public void setFavoriteList(List<String> favoriteList) {
-        this.favoriteList = favoriteList;
-    }
-
     public String getAlias() {
         if ("leetcode.com".equals(getUrl())) {
             return "en";
@@ -261,6 +274,7 @@ public class Config {
     public String getLevelColour() {
         return levelColour;
     }
+
     @Transient
     public Color[] getFormatLevelColour() {
         Color[] formatColors = new Color[3];
@@ -290,16 +304,16 @@ public class Config {
     }
 
     public void setLevelColour(String levelColour) {
-        if(levelColour ==null || levelColour.isEmpty()){
+        if (levelColour == null || levelColour.isEmpty()) {
             this.levelColour = Constant.LEVEL_COLOUR;
-        }else {
+        } else {
             this.levelColour = levelColour;
         }
     }
 
     @Transient
     public void setFormatLevelColour(Color... colors) {
-        String levelColour = "";
+        StringBuilder levelColour = new StringBuilder();
         if (colors != null && colors.length > 0) {
             for (Color color : colors) {
                 String R = Integer.toHexString(color.getRed());
@@ -309,10 +323,10 @@ public class Config {
                 String B = Integer.toHexString(color.getBlue());
                 B = B.length() < 2 ? ('0' + B) : B;
 
-                levelColour = levelColour + '#' + R + G + B + ";";
+                levelColour.append('#').append(R).append(G).append(B).append(";");
             }
         }
-        this.levelColour = levelColour;
+        this.levelColour = levelColour.toString();
     }
 
     public Boolean getEnglishContent() {
@@ -323,19 +337,29 @@ public class Config {
         this.englishContent = englishContent;
     }
 
-    public Boolean getJcef() {
-        return jcef;
+    public boolean isCookie() {
+        return cookie;
     }
 
-    public void setJcef(Boolean jcef) {
-        this.jcef = jcef;
+    public void setCookie(boolean cookie) {
+        this.cookie = cookie;
     }
 
-    public Boolean getQuestionEditor() {
+    @Transient
+    public Boolean isQuestionEditor() {
+        return !"Disable".equals(questionEditor) && !"false".equals(questionEditor);
+    }
+
+    @Transient
+    public Boolean isLeftQuestionEditor() {
+        return "Left".equals(questionEditor) || "true".equals(questionEditor) || !isQuestionEditor();
+    }
+
+    public String getQuestionEditor() {
         return questionEditor;
     }
 
-    public void setQuestionEditor(Boolean questionEditor) {
+    public void setQuestionEditor(String questionEditor) {
         this.questionEditor = questionEditor;
     }
 
@@ -371,37 +395,67 @@ public class Config {
         this.showToolIcon = showToolIcon;
     }
 
-    public boolean isModified(Config config){
-        if(config ==null){
+    public Boolean getConvergeEditor() {
+        return convergeEditor;
+    }
+
+    public void setConvergeEditor(Boolean convergeEditor) {
+        this.convergeEditor = convergeEditor;
+    }
+
+    public String getNavigatorName() {
+        return navigatorName;
+    }
+
+    public void setNavigatorName(String navigatorName) {
+        this.navigatorName = navigatorName;
+    }
+
+    public boolean isShowQuestionEditorSign() {
+        return showQuestionEditorSign;
+    }
+
+    public void setShowQuestionEditorSign(boolean showQuestionEditorSign) {
+        this.showQuestionEditorSign = showQuestionEditorSign;
+    }
+
+    public boolean isModified(Config config) {
+
+        if (config == null) {
             return false;
         }
-        if (!Objects.equals(loginName, config.loginName)) return false;
-        if (!Objects.equals(filePath, config.filePath)) return false;
-        if (!Objects.equals(codeType, config.codeType)) return false;
-        if (!Objects.equals(url, config.url)) return false;
-        if (!Objects.equals(update, config.update)) return false;
-        if (!Objects.equals(proxy, config.proxy)) return false;
-        if (!Objects.equals(customCode, config.customCode)) return false;
-        if (!Objects.equals(englishContent, config.englishContent))
-            return false;
-        if (!Objects.equals(customFileName, config.customFileName))
-            return false;
-        if (!Objects.equals(customTemplate, config.customTemplate))
-            return false;
-        if (!Objects.equals(jcef, config.jcef))
-            return false;
-        if (!Objects.equals(questionEditor, config.questionEditor))
-            return false;
-        if (!Objects.equals(multilineComment, config.multilineComment))
-            return false;
-        if (!Objects.equals(htmlContent, config.htmlContent))
-            return false;
-        if (!Objects.equals(showTopics, config.showTopics))
-            return false;
-        if (!Objects.equals(showToolIcon, config.showToolIcon))
-            return false;
-        return Objects.equals(levelColour, config.levelColour);
+
+        return new EqualsBuilder()
+                .append(showQuestionEditorSign, config.showQuestionEditorSign)
+                .append(loginName, config.loginName)
+                .append(filePath, config.filePath)
+                .append(codeType, config.codeType)
+                .append(url, config.url)
+                .append(update, config.update)
+                .append(proxy, config.proxy)
+                .append(customCode, config.customCode)
+                .append(englishContent, config.englishContent)
+                .append(customFileName, config.customFileName)
+                .append(customTemplate, config.customTemplate)
+                .append(levelColour, config.levelColour)
+                .append(cookie, config.cookie)
+                .append(questionEditor, config.questionEditor)
+                .append(multilineComment, config.multilineComment)
+                .append(htmlContent, config.htmlContent)
+                .append(showTopics, config.showTopics)
+                .append(showToolIcon, config.showToolIcon)
+                .append(convergeEditor, config.convergeEditor)
+                .isEquals();
     }
 
 
+    @Override
+    public Config clone() {
+        Config config = null;
+        try {
+            config = (Config) super.clone();
+        } catch (CloneNotSupportedException ignore) {
+        }
+        return config;
+    }
 }

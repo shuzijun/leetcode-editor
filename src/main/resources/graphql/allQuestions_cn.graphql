@@ -1,0 +1,17 @@
+query allQuestions {
+    allQuestions {
+        ...questionSummaryFields
+    }
+}
+
+fragment questionSummaryFields on QuestionNode {
+    title
+    titleSlug
+    translatedTitle
+    frontendQuestionId: questionFrontendId
+    questionId
+    status
+    level: difficulty
+    isPaidOnly
+    category: categoryTitle
+}

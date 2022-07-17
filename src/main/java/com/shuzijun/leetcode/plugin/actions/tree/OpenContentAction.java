@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.plugin.manager.CodeManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 
 /**
  * @author shuzijun
@@ -13,8 +12,8 @@ import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 public class OpenContentAction extends AbstractTreeAction {
 
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config, NavigatorTable navigatorTable, Question question) {
+    public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
         Project project = anActionEvent.getProject();
-        CodeManager.openContent(question, project, true);
+        CodeManager.openContent(question.getTitleSlug(), project, true);
     }
 }

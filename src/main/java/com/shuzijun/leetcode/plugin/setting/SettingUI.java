@@ -8,6 +8,9 @@ import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBPasswordField;
@@ -15,18 +18,17 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.net.HttpConfigurable;
 import com.shuzijun.leetcode.plugin.listener.ColorListener;
+import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
 import com.shuzijun.leetcode.plugin.listener.DonateListener;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
-import com.shuzijun.leetcode.plugin.renderer.CustomTreeCellRenderer;
-import com.shuzijun.leetcode.plugin.timer.TimerBarWidget;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
-import com.shuzijun.leetcode.plugin.window.HttpLogin;
-import com.shuzijun.leetcode.plugin.window.NavigatorTable;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,9 +41,9 @@ import java.io.File;
  */
 public class SettingUI {
     private JPanel mainPanel;
-    private JCheckBox questionEditorCheckBox;
-    private JComboBox webComboBox;
-    private JComboBox codeComboBox;
+    private JComboBox<String> questionEditorBox;
+    private JComboBox<String> webComboBox;
+    private JComboBox<String> codeComboBox;
     private JBTextField userNameField;
     private JBPasswordField passwordField;
     private JLabel easyLabel;
@@ -57,11 +59,13 @@ public class SettingUI {
     private JPanel codeFileName;
     private JPanel codeTemplate;
     private JPanel templateConstant;
-    private JCheckBox jcefCheckBox;
+    private JCheckBox cookieCheckBox;
     private JCheckBox multilineCheckBox;
     private JCheckBox htmlContentCheckBox;
     private JCheckBox showTopicsCheckBox;
     private JCheckBox showToolIconCheckBox;
+    private JCheckBox convergeEditorCheckBox;
+    private JCheckBox showEditorSignCheckBox;
 
 
     private Editor fileNameEditor = null;
@@ -90,16 +94,14 @@ public class SettingUI {
 
         customCodeBox.addActionListener(new DonateListener(customCodeBox));
         proxyCheckBox.setSelected(HttpConfigurable.getInstance().USE_HTTP_PROXY || HttpConfigurable.getInstance().USE_PROXY_PAC);
-        proxyCheckBox.addMouseListener(new MouseAdapter(){
+        proxyCheckBox.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(HttpConfigurable.editConfigurable(mainPanel)){
+                if (HttpConfigurable.editConfigurable(mainPanel)) {
                     proxyCheckBox.setSelected(HttpConfigurable.getInstance().USE_HTTP_PROXY || HttpConfigurable.getInstance().USE_PROXY_PAC);
                 }
             }
         });
-
-        jcefCheckBox.setEnabled(HttpLogin.isSupportedJcef());
 
         templateConfigHelp.addMouseListener(new MouseAdapter() {
             @Override
@@ -155,6 +157,10 @@ public class SettingUI {
         templateHelpEditorSettings.setVirtualSpace(false);
         templateConstant.add(templateHelpEditor.getComponent(), BorderLayout.CENTER);
 
+        questionEditorBox.addItem("Disable");
+        questionEditorBox.addItem("Left");
+        questionEditorBox.addItem("Right");
+
         loadSetting();
     }
 
@@ -189,12 +195,21 @@ public class SettingUI {
             mediumLabel.setForeground(colors[1]);
             hardLabel.setForeground(colors[2]);
 
-            jcefCheckBox.setSelected(config.getJcef());
-            questionEditorCheckBox.setSelected(config.getQuestionEditor());
+            cookieCheckBox.setSelected(config.isCookie());
+            if (config.getQuestionEditor().equals("true")) {
+                questionEditorBox.setSelectedItem("Left");
+            } else if (config.getQuestionEditor().equals("false")) {
+                questionEditorBox.setSelectedItem("Disable");
+            } else {
+                questionEditorBox.setSelectedItem(config.getQuestionEditor());
+            }
+
             multilineCheckBox.setSelected(config.getMultilineComment());
             htmlContentCheckBox.setSelected(config.getHtmlContent());
             showTopicsCheckBox.setSelected(config.getShowTopics());
             showToolIconCheckBox.setSelected(config.getShowToolIcon());
+            convergeEditorCheckBox.setSelected(config.getConvergeEditor());
+            showEditorSignCheckBox.setSelected(config.isShowQuestionEditorSign());
         } else {
             Color[] colors = new Config().getFormatLevelColour();
             easyLabel.setForeground(colors[0]);
@@ -204,6 +219,7 @@ public class SettingUI {
                 fileNameEditor.getDocument().setText(Constant.CUSTOM_FILE_NAME);
                 templateEditor.getDocument().setText(Constant.CUSTOM_TEMPLATE);
             });
+            questionEditorBox.setSelectedItem("Left");
         }
 
 
@@ -234,9 +250,12 @@ public class SettingUI {
 
     public void apply() {
         Config config = PersistentConfig.getInstance().getInitConfig();
+        Config oldConfig = null;
         if (config == null) {
             config = new Config();
             config.setId(MTAUtils.getI(""));
+        } else {
+            oldConfig = config.clone();
         }
         process(config);
         File file = new File(config.getFilePath() + File.separator + PersistentConfig.PATH + File.separator);
@@ -244,14 +263,19 @@ public class SettingUI {
             file.mkdirs();
         }
         PersistentConfig.getInstance().setInitConfig(config);
-        PersistentConfig.getInstance().savePassword(passwordField.getText(),config.getLoginName());
-        CustomTreeCellRenderer.loaColor();
-        TimerBarWidget.loaColor();
-        NavigatorTable.loaColor();
+        PersistentConfig.getInstance().savePassword(passwordField.getText(), config.getLoginName());
+        Config finalOldConfig = oldConfig;
+        Config finalConfig = config;
+        ProgressManager.getInstance().run(new Task.Backgroundable(null, PluginConstant.PLUGIN_NAME + " Apply Config", false) {
+            @Override
+            public void run(@NotNull ProgressIndicator progressIndicator) {
+                ApplicationManager.getApplication().getMessageBus().syncPublisher(ConfigNotifier.TOPIC).change(finalOldConfig, finalConfig);
+            }
+        });
     }
 
     public void process(Config config) {
-        if(config.getVersion() == null) {
+        if (config.getVersion() == null) {
             config.setVersion(Constant.PLUGIN_CONFIG_VERSION_3);
         }
         config.setLoginName(userNameField.getText());
@@ -264,12 +288,14 @@ public class SettingUI {
         config.setCustomTemplate(templateEditor.getDocument().getText());
         config.setFormatLevelColour(easyLabel.getForeground(), mediumLabel.getForeground(), hardLabel.getForeground());
         config.setEnglishContent(englishContentBox.isSelected());
-        config.setJcef(jcefCheckBox.isSelected());
-        config.setQuestionEditor(questionEditorCheckBox.isSelected());
+        config.setCookie(cookieCheckBox.isSelected());
+        config.setQuestionEditor(questionEditorBox.getSelectedItem().toString());
         config.setMultilineComment(multilineCheckBox.isSelected());
         config.setHtmlContent(htmlContentCheckBox.isSelected());
         config.setShowTopics(showTopicsCheckBox.isSelected());
         config.setShowToolIcon(showToolIconCheckBox.isSelected());
+        config.setConvergeEditor(convergeEditorCheckBox.isSelected());
+        config.setShowQuestionEditorSign(showEditorSignCheckBox.isSelected());
     }
 
 

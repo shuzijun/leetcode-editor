@@ -1,0 +1,30 @@
+query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+    problemsetQuestionList(
+        categorySlug: $categorySlug
+        limit: $limit
+        skip: $skip
+        filters: $filters
+    ) {
+        hasMore
+        total
+        questions {
+            acRate
+            difficulty
+            freqBar
+            frontendQuestionId
+            paidOnly
+            solutionNum
+            status
+            title
+            titleCn
+            titleSlug
+            topicTags {
+                name
+                nameTranslated
+                id
+                slug
+            }
+        }
+    }
+}
+ 

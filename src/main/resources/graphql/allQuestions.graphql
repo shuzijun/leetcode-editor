@@ -1,0 +1,12 @@
+query allQuestions {
+    allQuestions {
+        title
+        titleSlug
+        frontendQuestionId: questionFrontendId
+        questionId
+        status
+        level: difficulty
+        isPaidOnly
+        category: categoryTitle
+    }
+}
