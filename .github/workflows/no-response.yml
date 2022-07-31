@@ -9,6 +9,10 @@ on:
     # Schedule for five minutes after the hour, every hour
     - cron: '5 * * * *'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        required: false
     
 permissions:
   issues: write
