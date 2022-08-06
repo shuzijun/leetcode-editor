@@ -23,7 +23,7 @@ public class QuestionEditorTabTitleProvider implements EditorTabTitleProvider {
     public @NlsContexts.TabTitle @Nullable String getEditorTabTitle(@NotNull Project project, @NotNull VirtualFile file) {
         try {
             Config config = PersistentConfig.getInstance().getInitConfig();
-            if (config == null || !config.isQuestionEditor() || !config.isShowQuestionEditorSign()) {
+            if (config == null || !config.isShowQuestionEditor() || !config.isShowQuestionEditorSign()) {
                 return null;
             }
             LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getEditor(file.getPath(), config.getUrl());

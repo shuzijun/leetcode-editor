@@ -36,7 +36,7 @@ public class CodeManager {
             return;
         }
 
-        if (config.isQuestionEditor()) {
+        if (config.isShowQuestionEditor()) {
             openContent(titleSlug, project, false);
         }
 

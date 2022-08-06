@@ -348,13 +348,13 @@ public class Config implements Cloneable {
     }
 
     @Transient
-    public Boolean isQuestionEditor() {
+    public Boolean isShowQuestionEditor() {
         return !"Disable".equals(questionEditor) && !"false".equals(questionEditor);
     }
 
     @Transient
     public Boolean isLeftQuestionEditor() {
-        return "Left".equals(questionEditor) || "true".equals(questionEditor) || !isQuestionEditor();
+        return "Left".equals(questionEditor) || "true".equals(questionEditor) || !isShowQuestionEditor();
     }
 
     public String getQuestionEditor() {
