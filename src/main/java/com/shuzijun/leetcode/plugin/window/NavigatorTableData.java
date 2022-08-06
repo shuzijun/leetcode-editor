@@ -30,6 +30,7 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -193,7 +194,7 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
             if (inputStream == null) {
                 LogUtils.LOG.error("/template/" + type + cn + ".txt Path is empty");
             } else {
-                String templateTxt = new String(FileUtilRt.loadBytes(inputStream));
+                String templateTxt = new String(FileUtilRt.loadBytes(inputStream), StandardCharsets.UTF_8);
                 int startIndex = 0;
                 for (int i = 0; i < icons.size(); i++) {
                     String placeholder = "{" + i + "}";
