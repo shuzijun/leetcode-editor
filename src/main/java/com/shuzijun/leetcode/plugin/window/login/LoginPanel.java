@@ -12,6 +12,7 @@ import com.intellij.ui.components.JBTextArea;
 import com.intellij.ui.jcef.JCEFHtmlPanel;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
+import com.shuzijun.leetcode.plugin.editor.LCVPanel;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang.StringUtils;
@@ -53,7 +54,11 @@ public class LoginPanel extends DialogWrapper {
         if (HttpLogin.isEnabledJcef()) {
             okAction = new OkAction() {
             };
-            jcefPanel = new JcefPanel(project, okAction);
+            try {
+                jcefPanel = new JcefPanel(project, okAction);
+            } catch (IllegalArgumentException e) {
+                jcefPanel = new JcefPanel(project, okAction,true);
+            }
             jcefPanel.getComponent().setMinimumSize(new Dimension(1000, 500));
             jcefPanel.getComponent().setPreferredSize(new Dimension(1000, 500));
             panel.addToCenter(new JBScrollPane(jcefPanel.getComponent(), JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
@@ -145,10 +150,21 @@ public class LoginPanel extends DialogWrapper {
 
         private Action okAction;
 
+        public JcefPanel(Project project, Action okAction, boolean old) {
+            super( null);
+            this.project = project;
+            this.okAction = okAction;
+            init();
+        }
+
         public JcefPanel(Project project, Action okAction) {
             super(null, null);
             this.project = project;
             this.okAction = okAction;
+            init();
+        }
+
+        private void init(){
             getJBCefClient().addLoadHandler(cefLoadHandler = new CefLoadHandlerAdapter() {
 
                 boolean successDispose = false;
