@@ -9,7 +9,10 @@ import com.intellij.openapi.progress.Task;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import com.shuzijun.leetcode.plugin.utils.*;
+import com.shuzijun.leetcode.plugin.utils.MTAUtils;
+import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.utils.UpdateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +38,7 @@ public abstract class AbstractAction extends AnAction {
         } catch (Exception e) {
         }
 
-        ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(),anActionEvent.getActionManager().getId(this),false) {
+        ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), anActionEvent.getActionManager().getId(this), false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 actionPerformed(anActionEvent, config);

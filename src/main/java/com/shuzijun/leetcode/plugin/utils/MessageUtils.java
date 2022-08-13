@@ -62,6 +62,54 @@ public final class MessageUtils implements Disposable {
         b.show(p, Balloon.Position.atRight);
     }
 
+    public static void showAllWarnMsg(String title, String body) {
+        Notifications.Bus.notify(new Notification(PluginConstant.NOTIFICATION_GROUP, title, body, NotificationType.WARNING));
+    }
+
+    public static String format(String body, String type) {
+        return FLAG + type + body.replace("\n", FLAG + "\n" + FLAG + type) + FLAG;
+    }
+
+    public static String formatDiff(String expected, String output) {
+        if ((StringUtils.isBlank(expected) && StringUtils.isNotBlank(output)) || (StringUtils.isNotBlank(expected) && StringUtils.isBlank(output))) {
+            return FLAG + "E" + output + FLAG;
+        } else if (StringUtils.isBlank(expected) || StringUtils.isBlank(output) || output.equals(expected)) {
+            return output;
+        } else {
+            boolean isDiff = false;
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < output.length(); i++) {
+                if (i >= expected.length()) {
+                    if (!isDiff) {
+                        sb.append(FLAG).append("E");
+                    }
+                    sb.append(output.substring(i)).append(FLAG);
+                    isDiff = true;
+                    break;
+                } else {
+                    if (output.charAt(i) == expected.charAt(i)) {
+                        if (isDiff) {
+                            sb.append(FLAG);
+                            isDiff = false;
+                        }
+                        sb.append(output.charAt(i));
+                    } else {
+                        if (!isDiff) {
+                            sb.append(FLAG).append("E");
+                            isDiff = true;
+                        }
+                        sb.append(output.charAt(i));
+                    }
+                }
+
+            }
+            if (isDiff) {
+                sb.append(FLAG);
+            }
+            return sb.toString();
+        }
+    }
+
     public void showInfoMsg(String title, String body) {
         showConsole(() -> {
             printTitle(title, ConsoleViewContentType.NORMAL_OUTPUT);
@@ -123,56 +171,8 @@ public final class MessageUtils implements Disposable {
         }
     }
 
-    public static void showAllWarnMsg(String title, String body) {
-        Notifications.Bus.notify(new Notification(PluginConstant.NOTIFICATION_GROUP, title, body, NotificationType.WARNING));
-    }
-
     public String getComponentName() {
         return this.getClass().getName();
-    }
-
-    public static String format(String body, String type) {
-        return FLAG + type + body.replace("\n", FLAG + "\n" + FLAG + type) + FLAG;
-    }
-
-    public static String formatDiff(String expected, String output) {
-        if ((StringUtils.isBlank(expected) && StringUtils.isNotBlank(output)) || (StringUtils.isNotBlank(expected) && StringUtils.isBlank(output))) {
-            return FLAG + "E" + output + FLAG;
-        } else if (StringUtils.isBlank(expected) || StringUtils.isBlank(output) || output.equals(expected)) {
-            return output;
-        } else {
-            boolean isDiff = false;
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < output.length(); i++) {
-                if (i >= expected.length()) {
-                    if (!isDiff) {
-                        sb.append(FLAG).append("E");
-                    }
-                    sb.append(output.substring(i)).append(FLAG);
-                    isDiff = true;
-                    break;
-                } else {
-                    if (output.charAt(i) == expected.charAt(i)) {
-                        if (isDiff) {
-                            sb.append(FLAG);
-                            isDiff = false;
-                        }
-                        sb.append(output.charAt(i));
-                    } else {
-                        if (!isDiff) {
-                            sb.append(FLAG).append("E");
-                            isDiff = true;
-                        }
-                        sb.append(output.charAt(i));
-                    }
-                }
-
-            }
-            if (isDiff) {
-                sb.append(FLAG);
-            }
-            return sb.toString();
-        }
     }
 
     private void showConsole(Runnable runnable) {

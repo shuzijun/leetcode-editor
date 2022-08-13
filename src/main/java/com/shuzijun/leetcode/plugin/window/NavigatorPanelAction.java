@@ -1,6 +1,6 @@
 package com.shuzijun.leetcode.plugin.window;
 
-import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
+import com.shuzijun.leetcode.platform.extension.NavigatorAction;
 
 /**
  * @author shuzijun

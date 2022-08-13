@@ -11,14 +11,14 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.util.messages.MessageBusConnection;
+import com.shuzijun.leetcode.platform.extension.NavigatorAction;
+import com.shuzijun.leetcode.platform.extension.NavigatorPagePanel;
 import com.shuzijun.leetcode.plugin.listener.AllQuestionNotifier;
 import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
-import com.shuzijun.leetcode.plugin.manager.CodeTopManager;
-import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.NavigatorPanelAction;
-import com.shuzijun.leetcode.plugin.window.NavigatorTableData;
 import org.apache.commons.collections.map.HashedMap;
 
 import javax.swing.*;
@@ -29,14 +29,13 @@ import java.util.Map;
  */
 public class TopNavigatorPanel extends SimpleToolWindowPanel implements NavigatorPanelAction, Disposable {
 
+    private final NavigatorAction myNavigatorAction;
     private Map<String, Find> findMap = new HashedMap();
     private JPanel queryPanel;
     private TopNavigatorTable topNavigatorTable;
     private ActionToolbar findToolbar;
     private ActionToolbar actionSortToolbar;
     private Project project;
-
-    private final NavigatorAction myNavigatorAction;
 
     public TopNavigatorPanel(ToolWindow toolWindow, Project project) {
         super(Boolean.TRUE, Boolean.TRUE);
@@ -114,7 +113,7 @@ public class TopNavigatorPanel extends SimpleToolWindowPanel implements Navigato
             public void findClear() {
                 topNavigatorTable.getPageInfo().clearFilter();
                 getFind().clearFilter();
-                CodeTopManager.loadServiceData(this, project);
+                RepositoryServiceImpl.getInstance(project).getCodeTopService().loadServiceData(this);
             }
 
             @Override
@@ -127,7 +126,7 @@ public class TopNavigatorPanel extends SimpleToolWindowPanel implements Navigato
                 }
                 topNavigatorTable.getPageInfo().disposeFilters(filterKey, tag.getSlug(), b);
                 topNavigatorTable.getPageInfo().setPageIndex(1);
-                CodeTopManager.loadServiceData(this, project);
+                RepositoryServiceImpl.getInstance(project).getCodeTopService().loadServiceData(this);
             }
 
             @Override
@@ -147,7 +146,7 @@ public class TopNavigatorPanel extends SimpleToolWindowPanel implements Navigato
                     topNavigatorTable.getPageInfo().disposeFilters("orderBy", sort.getSlug(), true);
                     topNavigatorTable.getPageInfo().disposeFilters("sortOrder", "ASCENDING", true);
                 }
-                CodeTopManager.loadServiceData(this, project);
+                RepositoryServiceImpl.getInstance(project).getCodeTopService().loadServiceData(this);
             }
 
             @Override
@@ -156,7 +155,7 @@ public class TopNavigatorPanel extends SimpleToolWindowPanel implements Navigato
             }
 
             @Override
-            public NavigatorTableData.PagePanel getPagePanel() {
+            public NavigatorPagePanel getPagePanel() {
                 return topNavigatorTable.getPagePanel();
             }
 
@@ -172,13 +171,13 @@ public class TopNavigatorPanel extends SimpleToolWindowPanel implements Navigato
 
             @Override
             public void loadServiceData() {
-                CodeTopManager.loadServiceData(this, project);
+                RepositoryServiceImpl.getInstance(project).getCodeTopService().loadServiceData(this);
             }
 
             @Override
             public void resetServiceData() {
                 if (topNavigatorTable.getPageInfo().getRowTotal() > 0) {
-                    CodeTopManager.loadServiceData(this, project);
+                    RepositoryServiceImpl.getInstance(project).getCodeTopService().loadServiceData(this);
                 }
             }
         };

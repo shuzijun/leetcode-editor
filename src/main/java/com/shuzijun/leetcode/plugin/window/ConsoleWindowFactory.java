@@ -20,6 +20,11 @@ public class ConsoleWindowFactory implements ToolWindowFactory, DumbAware {
 
     public static String ID = PluginConstant.CONSOLE_WINDOW_ID;
 
+    public static DataContext getDataContext(@NotNull Project project) {
+        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
+        ConsolePanel consolePanel = (ConsolePanel) leetcodeToolWindows.getContentManager().getContent(0).getComponent();
+        return DataManager.getInstance().getDataContext(consolePanel);
+    }
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
@@ -30,12 +35,6 @@ public class ConsoleWindowFactory implements ToolWindowFactory, DumbAware {
         if (PersistentConfig.getInstance().getInitConfig() != null && !PersistentConfig.getInstance().getInitConfig().getShowToolIcon()) {
             toolWindow.setIcon(LeetCodeEditorIcons.EMPEROR_NEW_CLOTHES);
         }
-    }
-
-    public static DataContext getDataContext(@NotNull Project project) {
-        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
-        ConsolePanel consolePanel = (ConsolePanel) leetcodeToolWindows.getContentManager().getContent(0).getComponent();
-        return DataManager.getInstance().getDataContext(consolePanel);
     }
 
     @Override

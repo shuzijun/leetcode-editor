@@ -70,6 +70,10 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
         return config;
     }
 
+    public void setInitConfig(Config config) {
+        initConfig.put(INITNAME, config);
+    }
+
     @NotNull
     public Config getConfig() {
         Config config = getInitConfig();
@@ -80,10 +84,6 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
             return config;
         }
 
-    }
-
-    public void setInitConfig(Config config) {
-        initConfig.put(INITNAME, config);
     }
 
     public String getTempFilePath() {

@@ -45,7 +45,7 @@ public class DonateListener implements ActionListener {
                 jpanel.add(new JLabel(new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResourceAsStream("image/WeChat.png")))));
                 jpanel.add(new JLabel(new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResourceAsStream("image/AliPay.png")))));
             } catch (IOException e) {
-               LogUtils.LOG.error("加载图片失败",e);
+                LogUtils.LOG.error("加载图片失败", e);
             }
             jpanel.setMinimumSize(new Dimension(400, 200));
             setModal(true);

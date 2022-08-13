@@ -18,9 +18,8 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
 import com.shuzijun.leetcode.plugin.editor.SplitFileEditor;
-import com.shuzijun.leetcode.plugin.manager.ArticleManager;
-import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
@@ -90,7 +89,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
             JBLabel loadingLabel = new JBLabel("Loading......");
             mySplitter.setFirstComponent(loadingLabel);
             try {
-                question = QuestionManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), project);
+                question = RepositoryServiceImpl.getInstance(project).getQuestionService().getQuestionByTitleSlug(leetcodeEditor.getTitleSlug());
 
                 if (question == null || Constant.ARTICLE_LIVE_NONE.equals(question.getArticleLive())) {
                     mySplitter.setFirstComponent(new JBLabel("No question or no solution"));
@@ -99,7 +98,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
                     myLayout = SplitFileEditor.SplitEditorLayout.SECOND;
                     adjustEditorsVisibility();
                 } else if (Constant.ARTICLE_LIVE_LIST.equals(question.getArticleLive())) {
-                    solutionList = ApplicationManager.getApplication().executeOnPooledThread(() -> ArticleManager.getSolutionList(question.getTitleSlug(), project)).get();
+                    solutionList = ApplicationManager.getApplication().executeOnPooledThread(() -> RepositoryServiceImpl.getInstance(project).getArticleService().getSolutionList(question.getTitleSlug())).get();
                     if (CollectionUtils.isEmpty(solutionList)) {
                         mySplitter.setFirstComponent(new JBLabel("no solution"));
                     } else {
@@ -171,7 +170,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
 
     private void openArticle() throws InterruptedException, java.util.concurrent.ExecutionException {
         File file = ApplicationManager.getApplication().executeOnPooledThread(() -> {
-            return ArticleManager.openArticle(question.getTitleSlug(), question.getArticleSlug(), project, false);
+            return RepositoryServiceImpl.getInstance(project).getArticleService().openArticle(question.getTitleSlug(), question.getArticleSlug(), false);
         }).get();
         if (file == null || !file.exists()) {
             mySplitter.setSecondComponent(new JBLabel("no solution"));

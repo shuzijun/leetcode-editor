@@ -34,7 +34,7 @@ public class UpdateUtils {
                     HttpGet httpget = null;
                     try {
                         String[] version = PluginManagerCore.getPlugin(PluginId.getId(PluginConstant.PLUGIN_ID)).getVersion().replace("v", "").split("\\.|-");
-                        httpget = new HttpGet("https://plugins.jetbrains.com/api/plugins/"+PluginConstant.WEB_ID+"/updates");
+                        httpget = new HttpGet("https://plugins.jetbrains.com/api/plugins/" + PluginConstant.WEB_ID + "/updates");
                         CloseableHttpResponse response = httpClient.execute(httpget);
                         String body = EntityUtils.toString(response.getEntity(), "UTF-8");
                         JSONArray jsonArray = JSONObject.parseArray(body);

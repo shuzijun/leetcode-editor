@@ -27,25 +27,6 @@ public class WindowFactory implements ToolWindowFactory, DumbAware {
 
     public static String ID = PluginConstant.TOOL_WINDOW_ID;
 
-    @Override
-    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        JComponent navigatorPanel = new NavigatorTabsPanel(toolWindow, project);
-        Content content = contentFactory.createContent(navigatorPanel, "", false);
-        toolWindow.getContentManager().addContent(content);
-        if (PersistentConfig.getInstance().getInitConfig() != null) {
-            if (!PersistentConfig.getInstance().getInitConfig().getShowToolIcon()) {
-                toolWindow.setIcon(LeetCodeEditorIcons.EMPEROR_NEW_CLOTHES);
-            }
-            if (!PersistentConfig.getInstance().getInitConfig().isLeftQuestionEditor()) {
-                toolWindow.setAnchor(ToolWindowAnchor.RIGHT, null);
-            }
-
-        }
-    }
-
-
     @NotNull
     public static DataContext getDataContext(@NotNull Project project) {
         AtomicReference<DataContext> dataContext = new AtomicReference<>();
@@ -75,6 +56,24 @@ public class WindowFactory implements ToolWindowFactory, DumbAware {
     public static void activateToolWindow(@NotNull Project project) {
         ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
         leetcodeToolWindows.activate(null);
+    }
+
+    @Override
+    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+
+        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        JComponent navigatorPanel = new NavigatorTabsPanel(toolWindow, project);
+        Content content = contentFactory.createContent(navigatorPanel, "", false);
+        toolWindow.getContentManager().addContent(content);
+        if (PersistentConfig.getInstance().getInitConfig() != null) {
+            if (!PersistentConfig.getInstance().getInitConfig().getShowToolIcon()) {
+                toolWindow.setIcon(LeetCodeEditorIcons.EMPEROR_NEW_CLOTHES);
+            }
+            if (!PersistentConfig.getInstance().getInitConfig().isLeftQuestionEditor()) {
+                toolWindow.setAnchor(ToolWindowAnchor.RIGHT, null);
+            }
+
+        }
     }
 
 }

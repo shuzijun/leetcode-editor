@@ -45,12 +45,10 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
     @NotNull
     private final JComponent myComponent;
     @NotNull
-    private SplitFileEditor.SplitEditorLayout mySplitEditorLayout = SplitEditorLayout.SPLIT;
-
-    private boolean myVerticalSplitOption = true;
-    @NotNull
     private final SplitFileEditor.MyListenersMultimap myListenersGenerator = new SplitFileEditor.MyListenersMultimap();
-
+    @NotNull
+    private SplitFileEditor.SplitEditorLayout mySplitEditorLayout = SplitEditorLayout.SPLIT;
+    private boolean myVerticalSplitOption = true;
     private SplitEditorToolbar myToolbarWrapper;
     private JBSplitter mySplitter;
 
@@ -94,6 +92,50 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
                 .subscribe(MarkdownApplicationSettings.SettingsChangedListener.TOPIC, settingsChangedListener);*/
     }
 
+    //todo: Refactor Markdown editor and make it a subclass of TextEditorWithPreview.
+    //      Move this method to TextEditorWithPreview.
+    @Nullable
+    private static TextEditorWithPreview.Layout getAndResetPredefinedLayoutForEditor(FileEditor editor) {
+        VirtualFile file = editor.getFile();
+        if (file != null) {
+            TextEditorWithPreview.Layout layout = file.getUserData(DEFAULT_LAYOUT_FOR_FILE);
+            if (layout != null) {
+                file.putUserData(DEFAULT_LAYOUT_FOR_FILE, null); //burn after reading
+                return layout;
+            }
+        }
+
+        return null;
+    }
+
+    @NotNull
+    private static SplitEditorToolbar createMarkdownToolbarWrapper(@NotNull JComponent targetComponentForActions) {
+        ActionToolbar leftToolbar = createToolbarFromGroupId("Markdown.Toolbar.Left");
+        leftToolbar.setTargetComponent(targetComponentForActions);
+        leftToolbar.setReservePlaceAutoPopupIcon(false);
+
+        ActionToolbar rightToolbar = createToolbarFromGroupId("Markdown.Toolbar.Right");
+        rightToolbar.setTargetComponent(targetComponentForActions);
+        rightToolbar.setReservePlaceAutoPopupIcon(false);
+
+        return new SplitEditorToolbar(leftToolbar, rightToolbar);
+    }
+
+    @NotNull
+    private static ActionToolbar createToolbarFromGroupId(@NotNull String groupId) {
+        final ActionManager actionManager = ActionManager.getInstance();
+
+        if (!actionManager.isGroup(groupId)) {
+            throw new IllegalStateException(groupId + " should have been a group");
+        }
+        final ActionGroup group = ((ActionGroup) actionManager.getAction(groupId));
+        final ActionToolbarImpl editorToolbar =
+                ((ActionToolbarImpl) actionManager.createActionToolbar(ActionPlaces.EDITOR_TOOLBAR, group, true));
+        editorToolbar.setBorder(new JBEmptyBorder(0, 2, 0, 2));
+
+        return editorToolbar;
+    }
+
     private void adjustDefaultLayout(E1 editor) {
         TextEditorWithPreview.Layout layout = getAndResetPredefinedLayoutForEditor(editor);
         if (layout != null) {
@@ -109,22 +151,6 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
                     break;
             }
         }
-    }
-
-    //todo: Refactor Markdown editor and make it a subclass of TextEditorWithPreview.
-    //      Move this method to TextEditorWithPreview.
-    @Nullable
-    private static TextEditorWithPreview.Layout getAndResetPredefinedLayoutForEditor(FileEditor editor) {
-        VirtualFile file = editor.getFile();
-        if (file != null) {
-            TextEditorWithPreview.Layout layout = file.getUserData(DEFAULT_LAYOUT_FOR_FILE);
-            if (layout != null) {
-                file.putUserData(DEFAULT_LAYOUT_FOR_FILE, null); //burn after reading
-                return layout;
-            }
-        }
-
-        return null;
     }
 
     private void triggerSplitOrientationChange(boolean isVerticalSplit) {
@@ -156,34 +182,6 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
         adjustEditorsVisibility();
 
         return result;
-    }
-
-    @NotNull
-    private static SplitEditorToolbar createMarkdownToolbarWrapper(@NotNull JComponent targetComponentForActions) {
-        ActionToolbar leftToolbar = createToolbarFromGroupId("Markdown.Toolbar.Left");
-        leftToolbar.setTargetComponent(targetComponentForActions);
-        leftToolbar.setReservePlaceAutoPopupIcon(false);
-
-        ActionToolbar rightToolbar = createToolbarFromGroupId("Markdown.Toolbar.Right");
-        rightToolbar.setTargetComponent(targetComponentForActions);
-        rightToolbar.setReservePlaceAutoPopupIcon(false);
-
-        return new SplitEditorToolbar(leftToolbar, rightToolbar);
-    }
-
-    @NotNull
-    private static ActionToolbar createToolbarFromGroupId(@NotNull String groupId) {
-        final ActionManager actionManager = ActionManager.getInstance();
-
-        if (!actionManager.isGroup(groupId)) {
-            throw new IllegalStateException(groupId + " should have been a group");
-        }
-        final ActionGroup group = ((ActionGroup) actionManager.getAction(groupId));
-        final ActionToolbarImpl editorToolbar =
-                ((ActionToolbarImpl) actionManager.createActionToolbar(ActionPlaces.EDITOR_TOOLBAR, group, true));
-        editorToolbar.setBorder(new JBEmptyBorder(0, 2, 0, 2));
-
-        return editorToolbar;
     }
 
     public void triggerLayoutChange() {
@@ -341,6 +339,31 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
         Disposer.dispose(mySecondEditor);
     }
 
+    public enum SplitEditorLayout {
+        FIRST(true, false, "editor only"),
+        SECOND(false, true, "preview only"),
+        SPLIT(true, true, "editor and preview");
+
+        public final boolean showFirst;
+        public final boolean showSecond;
+        public final String presentationName;
+
+        SplitEditorLayout(boolean showFirst, boolean showSecond, String presentationName) {
+            this.showFirst = showFirst;
+            this.showSecond = showSecond;
+            this.presentationName = presentationName;
+        }
+
+        public String getPresentationText() {
+            return StringUtil.capitalize(presentationName);
+        }
+
+        @Override
+        public String toString() {
+            return String.format("Show %s", presentationName);
+        }
+    }
+
     public static class MyFileEditorState implements FileEditorState {
         @Nullable
         private final String mySplitLayout;
@@ -420,31 +443,6 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
                 myMap.put(listener, Pair.create(oldPair.getFirst() - 1, oldPair.getSecond()));
             }
             return oldPair.getSecond();
-        }
-    }
-
-    public enum SplitEditorLayout {
-        FIRST(true, false, "editor only"),
-        SECOND(false, true, "preview only"),
-        SPLIT(true, true, "editor and preview");
-
-        public final boolean showFirst;
-        public final boolean showSecond;
-        public final String presentationName;
-
-        SplitEditorLayout(boolean showFirst, boolean showSecond, String presentationName) {
-            this.showFirst = showFirst;
-            this.showSecond = showSecond;
-            this.presentationName = presentationName;
-        }
-
-        public String getPresentationText() {
-            return StringUtil.capitalize(presentationName);
-        }
-
-        @Override
-        public String toString() {
-            return String.format("Show %s", presentationName);
         }
     }
 }

@@ -14,15 +14,15 @@ public class ColorListener extends MouseAdapter {
     private JLabel label;
     private JPanel mainPanel;
 
-    public ColorListener(JPanel mainPanel,JLabel label) {
+    public ColorListener(JPanel mainPanel, JLabel label) {
         this.mainPanel = mainPanel;
         this.label = label;
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        Color newColor = ColorPicker.showDialog(mainPanel, label.getText()+" Color", label.getForeground(), true, null, true);
-        if(newColor!=null){
+        Color newColor = ColorPicker.showDialog(mainPanel, label.getText() + " Color", label.getForeground(), true, null, true);
+        if (newColor != null) {
             label.setForeground(newColor);
         }
     }

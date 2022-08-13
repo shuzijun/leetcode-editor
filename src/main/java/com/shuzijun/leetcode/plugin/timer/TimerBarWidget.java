@@ -23,15 +23,27 @@ import java.awt.event.MouseEvent;
 public class TimerBarWidget implements CustomStatusBarWidget {
 
     public final static String ID = PluginConstant.LEETCODE_TIMER_BAR_WIDGET;
-
-    private Long second = 0L;
-    private String name = "";
-    private Project project;
-
-
     private static Color Level1 = new Color(92, 184, 92);
     private static Color Level2 = new Color(240, 173, 78);
     private static Color Level3 = new Color(217, 83, 79);
+    private Long second = 0L;
+    private String name = "";
+    private Project project;
+    private JLabel label = new JLabel(time());
+    private Timer timer = new Timer(1000, new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            second += 1;
+            if (second < 30 * 60) {
+                label.setForeground(Level1);
+            } else if (second < 60 * 60) {
+                label.setForeground(Level2);
+            } else {
+                label.setForeground(Level3);
+            }
+            label.setText(time());
+        }
+    });
 
     public TimerBarWidget(Project project) {
         this.project = project;
@@ -48,23 +60,6 @@ public class TimerBarWidget implements CustomStatusBarWidget {
             Level3 = colors[2];
         }
     }
-
-    private JLabel label = new JLabel(time());
-
-    private Timer timer = new Timer(1000, new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            second += 1;
-            if (second < 30 * 60) {
-                label.setForeground(Level1);
-            } else if (second < 60 * 60) {
-                label.setForeground(Level2);
-            } else {
-                label.setForeground(Level3);
-            }
-            label.setText(time());
-        }
-    });
 
     private String time() {
         return String.format("[%s]%02d:%02d:%02d", name, second / 60 / 60, second / 60 % 60, second % 60);

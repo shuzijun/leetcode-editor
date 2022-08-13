@@ -33,8 +33,8 @@ public class ProgressPanel {
         return mainPanel;
     }
 
-    public Session select(){
-      return (Session) sessionBox.getSelectedItem();
+    public Session select() {
+        return (Session) sessionBox.getSelectedItem();
     }
 
     public void update(List<Session> sessionList) {

@@ -10,10 +10,10 @@ import com.intellij.util.ArrayUtil;
 import com.shuzijun.leetcode.plugin.actions.AbstractAction;
 import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
 import com.shuzijun.leetcode.plugin.editor.QuestionEditorWithPreview;
-import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
@@ -44,7 +44,7 @@ abstract class AbstractEditAction extends AbstractAction {
             MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("info", PropertiesUtils.getInfo("tree.host"));
             return;
         }
-        Question question = QuestionManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), anActionEvent.getProject());
+        Question question = RepositoryServiceImpl.getInstance(anActionEvent.getProject()).getQuestionService().getQuestionByTitleSlug(leetcodeEditor.getTitleSlug());
         if (question == null) {
             MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("info", PropertiesUtils.getInfo("tree.null"));
             return;

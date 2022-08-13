@@ -121,7 +121,7 @@ public class FileUtils {
                 }
             }
         } catch (Exception e) {
-            LogUtils.LOG.error("getClearCommentFileBody error",e);
+            LogUtils.LOG.error("getClearCommentFileBody error", e);
         }
         return code.toString();
     }
@@ -224,23 +224,23 @@ public class FileUtils {
     }
 
 
-    public static void openFileEditorAndSaveState(File file, Project project, Question question, BiConsumer<LeetcodeEditor,String> consumer,boolean isOpen) {
+    public static void openFileEditorAndSaveState(File file, Project project, Question question, BiConsumer<LeetcodeEditor, String> consumer, boolean isOpen) {
         ApplicationManager.getApplication().invokeLater(() -> {
             VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-            LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(URLUtils.getLeetcodeHost()+question.getFrontendQuestionId());
-            leetcodeEditor.setFrontendQuestionId(URLUtils.getLeetcodeHost()+question.getFrontendQuestionId());
+            LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(URLUtils.getLeetcodeHost() + question.getFrontendQuestionId());
+            leetcodeEditor.setFrontendQuestionId(URLUtils.getLeetcodeHost() + question.getFrontendQuestionId());
             leetcodeEditor.setTitleSlug(question.getTitleSlug());
             leetcodeEditor.setHost(URLUtils.getLeetcodeHost());
-            consumer.accept(leetcodeEditor,vf.getPath());
+            consumer.accept(leetcodeEditor, vf.getPath());
             ProjectConfig.getInstance(project).addLeetcodeEditor(leetcodeEditor);
-            if(isOpen) {
+            if (isOpen) {
                 OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
                 FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
             }
         });
     }
 
-    public static void saveEditDocument(VirtualFile file){
+    public static void saveEditDocument(VirtualFile file) {
         if (FileDocumentManager.getInstance().isFileModified(file)) {
             try {
                 ApplicationManager.getApplication().invokeLaterOnWriteThread((() -> {

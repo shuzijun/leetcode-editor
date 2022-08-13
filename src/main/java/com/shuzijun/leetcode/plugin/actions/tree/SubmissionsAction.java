@@ -6,10 +6,10 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.shuzijun.leetcode.plugin.manager.SubmissionManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Submission;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.window.dialog.SubmissionsPanel;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +26,7 @@ public class SubmissionsAction extends AbstractTreeAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
 
-        List<Submission> submissionList = SubmissionManager.getSubmissionService(question.getTitleSlug(), anActionEvent.getProject());
+        List<Submission> submissionList = RepositoryServiceImpl.getInstance(anActionEvent.getProject()).getSubmissionService().getSubmissionService(question.getTitleSlug());
         if (submissionList == null || submissionList.isEmpty()) {
             return;
         }
@@ -65,7 +65,7 @@ public class SubmissionsAction extends AbstractTreeAction {
         ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), anActionEvent.getActionManager().getId(this), false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
-                SubmissionManager.openSubmission(submission, question.getTitleSlug(), anActionEvent.getProject(), true);
+                RepositoryServiceImpl.getInstance(anActionEvent.getProject()).getSubmissionService().openSubmission(submission, question.getTitleSlug(), true);
             }
         });
     }

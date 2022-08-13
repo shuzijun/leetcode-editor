@@ -29,6 +29,19 @@ public class ConvergeProvider implements AsyncFileEditorProvider, DumbAware {
         this.myEditorTypeId = "tab-provider[" + Arrays.stream(editorProviders).map(FileEditorProvider::getEditorTypeId).collect(Collectors.joining(";")) + "]";
     }
 
+    @NotNull
+    public static Builder getBuilderFromEditorProvider(@NotNull final FileEditorProvider provider, @NotNull final Project project, @NotNull final VirtualFile file) {
+        if (provider instanceof AsyncFileEditorProvider) {
+            return ((AsyncFileEditorProvider) provider).createEditorAsync(project, file);
+        } else {
+            return new Builder() {
+                @Override
+                public FileEditor build() {
+                    return provider.createEditor(project, file);
+                }
+            };
+        }
+    }
 
     @NotNull
     @Override
@@ -44,7 +57,7 @@ public class ConvergeProvider implements AsyncFileEditorProvider, DumbAware {
                 for (int i = 0; i < builders.length; i++) {
                     fileEditors[i] = builders[i].build();
                 }
-                return createSplitEditor(fileEditors,project,file);
+                return createSplitEditor(fileEditors, project, file);
             }
         };
     }
@@ -71,19 +84,5 @@ public class ConvergeProvider implements AsyncFileEditorProvider, DumbAware {
     @Override
     public @NotNull FileEditorPolicy getPolicy() {
         return FileEditorPolicy.HIDE_DEFAULT_EDITOR;
-    }
-
-    @NotNull
-    public static Builder getBuilderFromEditorProvider(@NotNull final FileEditorProvider provider, @NotNull final Project project, @NotNull final VirtualFile file) {
-        if (provider instanceof AsyncFileEditorProvider) {
-            return ((AsyncFileEditorProvider) provider).createEditorAsync(project, file);
-        } else {
-            return new Builder() {
-                @Override
-                public FileEditor build() {
-                    return provider.createEditor(project, file);
-                }
-            };
-        }
     }
 }

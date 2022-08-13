@@ -1,9 +1,10 @@
 package com.shuzijun.leetcode.plugin.window.navigator;
 
 import com.intellij.openapi.project.Project;
+import com.shuzijun.leetcode.platform.extension.NavigatorAction;
+import com.shuzijun.leetcode.platform.extension.NavigatorPagePanel;
 import com.shuzijun.leetcode.plugin.listener.JTableKeyAdapter;
 import com.shuzijun.leetcode.plugin.listener.TreeMouseListener;
-import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.model.PageInfo;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.QuestionView;
@@ -43,7 +44,7 @@ public class AllNavigatorTable extends NavigatorTableData<QuestionView> {
     }
 
     @Override
-    protected PagePanel createMyPagePanel(PageInfo<QuestionView> myPageInfo, Project project) {
+    protected NavigatorPagePanel createMyPagePanel(PageInfo<QuestionView> myPageInfo, Project project) {
         return null;
     }
 
@@ -68,10 +69,10 @@ public class AllNavigatorTable extends NavigatorTableData<QuestionView> {
 
         Style style = new StyleContext().addStyle("boldStyle", null);
         StyleConstants.setBold(style, true);
-        List<MyStyle> styleList ;
-        if(Locale.getDefault().getLanguage().equals(Locale.CHINESE.getLanguage())){
+        List<MyStyle> styleList;
+        if (Locale.getDefault().getLanguage().equals(Locale.CHINESE.getLanguage())) {
             styleList = Arrays.asList(new MyStyle(5, 7, style));
-        }else {
+        } else {
             styleList = Arrays.asList(new MyStyle(18, 16, style));
         }
         return createTip("allTip", icons, styleList);

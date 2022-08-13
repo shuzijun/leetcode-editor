@@ -2,9 +2,9 @@ package com.shuzijun.leetcode.plugin.actions.editor;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
-import com.shuzijun.leetcode.plugin.manager.NoteManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 
 /**
  * @author shuzijun
@@ -16,6 +16,6 @@ public class ShowNoteAction extends AbstractEditAction {
         if (config.getConvergeEditor() && openConvergeEditor(anActionEvent, new ConvergePreview.TabSelectFileEditorState("Note"))) {
             return;
         }
-        NoteManager.show(question.getTitleSlug(), anActionEvent.getProject(), true);
+        RepositoryServiceImpl.getInstance(anActionEvent.getProject()).getNoteService().show(question.getTitleSlug(), true);
     }
 }

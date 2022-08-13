@@ -2,15 +2,12 @@ package com.shuzijun.leetcode.plugin.window;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtilRt;
-import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.messages.MessageBusConnection;
+import com.shuzijun.leetcode.platform.extension.NavigatorPagePanel;
 import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
 import com.shuzijun.leetcode.plugin.listener.QuestionStatusNotifier;
 import com.shuzijun.leetcode.plugin.model.Config;
@@ -25,9 +22,9 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.text.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
-import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -43,18 +40,16 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
 
 
     protected static volatile Color defColor = null;
-
-    protected Color Level1 = new Color(92, 184, 92);
-    protected Color Level2 = new Color(240, 173, 78);
-    protected Color Level3 = new Color(217, 83, 79);
-
     private final MyJBTable<T> myTable;
     private final MyTableModel<T> myTableModel;
     private final Project project;
-    private List<T> myList;
     private final PageInfo<T> myPageInfo;
-    private final PagePanel myPagePanel;
+    private final NavigatorPagePanel myPagePanel;
     private final JComponent firstToolTip;
+    protected Color Level1 = new Color(92, 184, 92);
+    protected Color Level2 = new Color(240, 173, 78);
+    protected Color Level3 = new Color(217, 83, 79);
+    private List<T> myList;
     private boolean first = true;
 
     public NavigatorTableData(Project project) {
@@ -88,7 +83,7 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
         return new PageInfo<>(1, 50);
     }
 
-    protected abstract PagePanel createMyPagePanel(PageInfo<T> myPageInfo, Project project);
+    protected abstract NavigatorPagePanel createMyPagePanel(PageInfo<T> myPageInfo, Project project);
 
     protected abstract MyJBTable<T> createMyTable(MyTableModel<T> myTableModel, Project project);
 
@@ -142,13 +137,13 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
                 selectedRow(selectTitleSlug);
             }
             if (myPagePanel != null) {
-                if (myPageInfo.getPageTotal() != this.myPagePanel.page.getItemCount()) {
-                    this.myPagePanel.page.removeAllItems();
+                if (myPageInfo.getPageTotal() != this.myPagePanel.getPage().getItemCount()) {
+                    this.myPagePanel.getPage().removeAllItems();
                     for (int i = 1; i <= myPageInfo.getPageTotal(); i++) {
-                        this.myPagePanel.page.addItem(i);
+                        this.myPagePanel.getPage().addItem(i);
                     }
                 }
-                this.myPagePanel.page.setSelectedItem(myPageInfo.getPageIndex());
+                this.myPagePanel.getPage().setSelectedItem(myPageInfo.getPageIndex());
             }
         });
 
@@ -172,7 +167,7 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
         return false;
     }
 
-    public PagePanel getPagePanel() {
+    public NavigatorPagePanel getPagePanel() {
         return myPagePanel;
     }
 
@@ -308,124 +303,6 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
 
 
         protected abstract void prepareRenderer(Component component, Object value, int row, int column);
-    }
-
-    public static abstract class PagePanel extends JBPanel {
-        protected JComboBox<Integer> pageSizeBox;
-        protected JButton previous;
-        protected JButton next;
-        protected JButton go;
-        protected JComboBox<Integer> page;
-
-        public PagePanel(Project project, PageInfo pageInfo) {
-            super(new BorderLayout());
-            pageSizeBox = new JComboBox(pageSizeData());
-            pageSizeBox.setPreferredSize(new Dimension(60, -1));
-            pageSizeBox.setSelectedItem(pageInfo.getPageSize());
-            pageSizeBox.addItemListener(e -> {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    pageInfo.setPageSize((Integer) e.getItem());
-                }
-            });
-            add(pageSizeBox, BorderLayout.WEST);
-
-            JPanel control = new JPanel(new BorderLayout());
-            previous = new JButton("<");
-            previous.setToolTipText("Previous");
-            previous.setPreferredSize(new Dimension(50, -1));
-            previous.setMaximumSize(new Dimension(50, -1));
-            previous.addActionListener(event -> {
-                if (page.getItemCount() <= 0 || (int) page.getSelectedItem() < 2) {
-                } else {
-                    pageInfo.setPageIndex((int) page.getSelectedItem() - 1);
-                    ProgressManager.getInstance().run(new Task.Backgroundable(project, "Previous", false) {
-                        @Override
-                        public void run(@NotNull ProgressIndicator progressIndicator) {
-                            previousRunnable();
-                        }
-                    });
-                }
-
-            });
-            control.add(previous, BorderLayout.WEST);
-            next = new JButton(">");
-            next.setToolTipText("Next");
-            next.setPreferredSize(new Dimension(50, -1));
-            next.setMaximumSize(new Dimension(50, -1));
-            next.addActionListener(event -> {
-                if (page.getItemCount() <= 0 || (int) page.getSelectedItem() >= page.getItemCount()) {
-                    return;
-                } else {
-                    pageInfo.setPageIndex((int) page.getSelectedItem() + 1);
-                    ProgressManager.getInstance().run(new Task.Backgroundable(project, "Next", false) {
-                        @Override
-                        public void run(@NotNull ProgressIndicator progressIndicator) {
-                            nextRunnable();
-                        }
-                    });
-                }
-
-            });
-            control.add(next, BorderLayout.EAST);
-            page = new JComboBox();
-            control.add(page, BorderLayout.CENTER);
-            add(control, BorderLayout.CENTER);
-
-            go = new JButton("Go");
-            go.setPreferredSize(new Dimension(50, -1));
-            go.setMaximumSize(new Dimension(50, -1));
-            go.addActionListener(event -> {
-                if (page.getItemCount() <= 0) {
-                    return;
-                } else {
-                    pageInfo.setPageIndex((int) page.getSelectedItem());
-                    ProgressManager.getInstance().run(new Task.Backgroundable(project, "Go to", false) {
-                        @Override
-                        public void run(@NotNull ProgressIndicator progressIndicator) {
-                            goRunnable();
-                        }
-                    });
-                }
-
-            });
-            add(go, BorderLayout.EAST);
-        }
-
-        public abstract Integer[] pageSizeData();
-
-        public abstract void previousRunnable();
-
-        public abstract void nextRunnable();
-
-        public abstract void goRunnable();
-
-        public int getPageIndex() {
-            if (page.getItemCount() <= 0) {
-                return 1;
-            } else {
-                return (int) page.getSelectedItem();
-            }
-        }
-
-        public void focusedPageSize() {
-            pageSizeBox.requestFocusInWindow();
-        }
-
-        public void focusedPage() {
-            page.requestFocusInWindow();
-        }
-
-        public void clickPrevious() {
-            previous.doClick();
-        }
-
-        public void clickNext() {
-            next.doClick();
-        }
-
-        public void clickGo() {
-            go.doClick();
-        }
     }
 
     public static class MyStyle {

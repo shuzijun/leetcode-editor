@@ -1,9 +1,10 @@
 package com.shuzijun.leetcode.plugin.window.navigator;
 
 import com.intellij.openapi.project.Project;
+import com.shuzijun.leetcode.platform.extension.NavigatorAction;
+import com.shuzijun.leetcode.platform.extension.NavigatorPagePanel;
 import com.shuzijun.leetcode.plugin.listener.JTableKeyAdapter;
 import com.shuzijun.leetcode.plugin.listener.TreeMouseListener;
-import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.model.CodeTopQuestionView;
 import com.shuzijun.leetcode.plugin.model.PageInfo;
 import com.shuzijun.leetcode.plugin.model.Question;
@@ -71,8 +72,8 @@ public class TopNavigatorTable extends NavigatorTableData<CodeTopQuestionView> {
     }
 
     @Override
-    protected PagePanel createMyPagePanel(PageInfo<CodeTopQuestionView> myPageInfo, Project project) {
-        return new PagePanel(project, myPageInfo) {
+    protected NavigatorPagePanel createMyPagePanel(PageInfo<CodeTopQuestionView> myPageInfo, Project project) {
+        return new NavigatorPagePanel(project, myPageInfo) {
             @Override
             public Integer[] pageSizeData() {
                 return new Integer[]{20};

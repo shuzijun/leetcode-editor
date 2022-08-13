@@ -2,9 +2,9 @@ package com.shuzijun.leetcode.plugin.actions.tree;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
-import com.shuzijun.leetcode.plugin.manager.CodeManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.window.dialog.TestcasePanel;
@@ -35,7 +35,7 @@ public class TestcaseAction extends AbstractTreeAction {
                 return;
             } else {
                 question.setTestCase(text.get());
-                CodeManager.RunCodeCode(question.getTitleSlug(), anActionEvent.getProject());
+                RepositoryServiceImpl.getInstance(anActionEvent.getProject()).getCodeService().RunCodeCode(question.getTitleSlug());
             }
         }
 

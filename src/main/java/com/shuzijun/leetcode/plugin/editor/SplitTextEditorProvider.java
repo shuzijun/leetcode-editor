@@ -32,6 +32,22 @@ public abstract class SplitTextEditorProvider implements AsyncFileEditorProvider
         myEditorTypeId = "split-provider[" + myFirstProvider.getEditorTypeId() + ";" + mySecondProvider.getEditorTypeId() + "]";
     }
 
+    @NotNull
+    public static Builder getBuilderFromEditorProvider(@NotNull final FileEditorProvider provider,
+                                                       @NotNull final Project project,
+                                                       @NotNull final VirtualFile file) {
+        if (provider instanceof AsyncFileEditorProvider) {
+            return ((AsyncFileEditorProvider) provider).createEditorAsync(project, file);
+        } else {
+            return new Builder() {
+                @Override
+                public FileEditor build() {
+                    return provider.createEditor(project, file);
+                }
+            };
+        }
+    }
+
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile file) {
         return myFirstProvider.accept(project, file) && mySecondProvider.accept(project, file);
@@ -119,21 +135,5 @@ public abstract class SplitTextEditorProvider implements AsyncFileEditorProvider
     @Override
     public FileEditorPolicy getPolicy() {
         return FileEditorPolicy.HIDE_DEFAULT_EDITOR;
-    }
-
-    @NotNull
-    public static Builder getBuilderFromEditorProvider(@NotNull final FileEditorProvider provider,
-                                                       @NotNull final Project project,
-                                                       @NotNull final VirtualFile file) {
-        if (provider instanceof AsyncFileEditorProvider) {
-            return ((AsyncFileEditorProvider) provider).createEditorAsync(project, file);
-        } else {
-            return new Builder() {
-                @Override
-                public FileEditor build() {
-                    return provider.createEditor(project, file);
-                }
-            };
-        }
     }
 }

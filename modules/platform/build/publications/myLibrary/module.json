@@ -1,0 +1,120 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.shuzijun.leetcode",
+    "module": "platform",
+    "version": "0.0.1",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.4.2"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "com.alibaba",
+          "module": "fastjson",
+          "version": {
+            "requires": "1.2.47"
+          }
+        },
+        {
+          "group": "io.github.biezhi",
+          "module": "TinyPinyin",
+          "version": {
+            "requires": "2.0.3.RELEASE"
+          }
+        },
+        {
+          "group": "com.vladsch.flexmark",
+          "module": "flexmark",
+          "version": {
+            "requires": "0.62.2"
+          }
+        },
+        {
+          "group": "com.vladsch.flexmark",
+          "module": "flexmark-ext-attributes",
+          "version": {
+            "requires": "0.62.2"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "platform-0.0.1.jar",
+          "url": "platform-0.0.1.jar",
+          "size": 92074,
+          "sha512": "db08f236e4745a9c3db25c4ede2dad7731d820bc11c93b567540ef63ca2858c5c03367b153ce0c325855983a1e251fb3174fb2c60aad14c7f7c71507a8f6ace7",
+          "sha256": "dd39b05212abd76ce2336ca88e5fd58093c3ff4650867e764386134db5590d70",
+          "sha1": "5104f644d24a9525b28c66244ab7db2da02009fc",
+          "md5": "1d1fa32b2ed719d69e7eecb357e3c47e"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "com.alibaba",
+          "module": "fastjson",
+          "version": {
+            "requires": "1.2.47"
+          }
+        },
+        {
+          "group": "io.github.biezhi",
+          "module": "TinyPinyin",
+          "version": {
+            "requires": "2.0.3.RELEASE"
+          }
+        },
+        {
+          "group": "com.vladsch.flexmark",
+          "module": "flexmark",
+          "version": {
+            "requires": "0.62.2"
+          }
+        },
+        {
+          "group": "com.vladsch.flexmark",
+          "module": "flexmark-ext-attributes",
+          "version": {
+            "requires": "0.62.2"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "platform-0.0.1.jar",
+          "url": "platform-0.0.1.jar",
+          "size": 92074,
+          "sha512": "db08f236e4745a9c3db25c4ede2dad7731d820bc11c93b567540ef63ca2858c5c03367b153ce0c325855983a1e251fb3174fb2c60aad14c7f7c71507a8f6ace7",
+          "sha256": "dd39b05212abd76ce2336ca88e5fd58093c3ff4650867e764386134db5590d70",
+          "sha1": "5104f644d24a9525b28c66244ab7db2da02009fc",
+          "md5": "1d1fa32b2ed719d69e7eecb357e3c47e"
+        }
+      ]
+    }
+  ]
+}

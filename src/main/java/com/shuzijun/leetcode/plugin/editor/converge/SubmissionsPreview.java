@@ -20,12 +20,11 @@ import com.intellij.util.ui.components.BorderLayoutPanel;
 import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
 import com.shuzijun.leetcode.plugin.editor.SplitFileEditor;
 import com.shuzijun.leetcode.plugin.listener.QuestionSubmitNotifier;
-import com.shuzijun.leetcode.plugin.manager.QuestionManager;
-import com.shuzijun.leetcode.plugin.manager.SubmissionManager;
 import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Submission;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.window.dialog.SubmissionsPanel;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -106,12 +105,12 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
             JBLabel loadingLabel = new JBLabel("Loading......");
             mySplitter.setFirstComponent(loadingLabel);
             try {
-                question = QuestionManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), project);
+                question = RepositoryServiceImpl.getInstance(project).getQuestionService().getQuestionByTitleSlug(leetcodeEditor.getTitleSlug());
 
                 if (question == null) {
                     mySplitter.setFirstComponent(new JBLabel("No question"));
                 } else {
-                    submissionList = ApplicationManager.getApplication().executeOnPooledThread(() -> SubmissionManager.getSubmissionService(question.getTitleSlug(), project)).get();
+                    submissionList = ApplicationManager.getApplication().executeOnPooledThread(() -> RepositoryServiceImpl.getInstance(project).getSubmissionService().getSubmissionService(question.getTitleSlug())).get();
                     if (CollectionUtils.isNotEmpty(submissionList)) {
                         table = new JBTable(new SubmissionsPanel.TableModel(submissionList));
                         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -181,7 +180,7 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
     }
 
     private void openSubmission(Submission submission) throws InterruptedException, java.util.concurrent.ExecutionException {
-        File file = ApplicationManager.getApplication().executeOnPooledThread(() -> SubmissionManager.openSubmission(submission, question.getTitleSlug(), project, false)).get();
+        File file = ApplicationManager.getApplication().executeOnPooledThread(() -> RepositoryServiceImpl.getInstance(project).getSubmissionService().openSubmission(submission, question.getTitleSlug(), false)).get();
         if (file == null || !file.exists()) {
             mySplitter.setSecondComponent(new JBLabel("no submission"));
         } else {

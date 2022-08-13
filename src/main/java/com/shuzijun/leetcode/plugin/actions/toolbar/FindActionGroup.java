@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
-import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
+import com.shuzijun.leetcode.platform.extension.NavigatorAction;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Find;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;

@@ -2,12 +2,12 @@ package com.shuzijun.leetcode.plugin.actions.tree;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
+import com.shuzijun.leetcode.platform.extension.NavigatorAction;
 import com.shuzijun.leetcode.plugin.actions.AbstractAction;
-import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
-import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.QuestionView;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 
@@ -26,7 +26,7 @@ public abstract class AbstractTreeAction extends AbstractAction implements DumbA
         if (questionView == null) {
             return;
         }
-        Question question = QuestionManager.getQuestionByTitleSlug(questionView.getTitleSlug(), anActionEvent.getProject());
+        Question question = RepositoryServiceImpl.getInstance(anActionEvent.getProject()).getQuestionService().getQuestionByTitleSlug(questionView.getTitleSlug());
         if (question == null) {
             return;
         }

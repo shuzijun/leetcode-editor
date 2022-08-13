@@ -7,10 +7,10 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.shuzijun.leetcode.plugin.manager.ArticleManager;
-import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
-import com.shuzijun.leetcode.plugin.manager.QuestionManager;
+import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.extension.NavigatorAction;
 import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import com.shuzijun.leetcode.plugin.window.dialog.SolutionPanel;
@@ -39,7 +39,7 @@ public class OpenSolutionAction extends AbstractTreeAction {
             anActionEvent.getPresentation().setEnabled(false);
             return;
         }
-        Question question = QuestionManager.getQuestionByTitleSlug(questionView.getTitleSlug(), anActionEvent.getProject());
+        Question question = RepositoryServiceImpl.getInstance(anActionEvent.getProject()).getQuestionService().getQuestionByTitleSlug(questionView.getTitleSlug());
         if (question == null) {
             return;
         }
@@ -52,11 +52,12 @@ public class OpenSolutionAction extends AbstractTreeAction {
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
+        RepositoryService repositoryService = RepositoryServiceImpl.getInstance(anActionEvent.getProject());
         Project project = anActionEvent.getProject();
         if (Constant.ARTICLE_LIVE_ONE.equals(question.getArticleLive())) {
-            ArticleManager.openArticle(question.getTitleSlug(), question.getArticleSlug(), project, true);
+            repositoryService.getArticleService().openArticle(question.getTitleSlug(), question.getArticleSlug(), true);
         } else if (Constant.ARTICLE_LIVE_LIST.equals(question.getArticleLive())) {
-            List<Solution> solutionList = ArticleManager.getSolutionList(question.getTitleSlug(), anActionEvent.getProject());
+            List<Solution> solutionList = repositoryService.getArticleService().getSolutionList(question.getTitleSlug());
             if (solutionList.isEmpty()) {
                 return;
             }
@@ -97,7 +98,7 @@ public class OpenSolutionAction extends AbstractTreeAction {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 question.setArticleSlug(solution.getSlug());
-                ArticleManager.openArticle(question.getTitleSlug(), question.getArticleSlug(), anActionEvent.getProject(), true);
+                RepositoryServiceImpl.getInstance(anActionEvent.getProject()).getArticleService().openArticle(question.getTitleSlug(), question.getArticleSlug(), true);
             }
         });
     }

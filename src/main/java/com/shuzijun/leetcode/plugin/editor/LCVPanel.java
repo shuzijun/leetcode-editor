@@ -49,8 +49,8 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 /**
  * @author shuzijun
@@ -58,19 +58,16 @@ import java.util.List;
 public class LCVPanel extends JCEFHtmlPanel {
 
     private static final Logger LOG = Logger.getInstance(LCVPanel.class);
-
+    private static final List<String> headers = Arrays.asList(HttpHeaderNames.CONTENT_SECURITY_POLICY.toString(), HttpHeaderNames.CONTENT_ENCODING.toString()
+            , HttpHeaderNames.CONTENT_LENGTH.toString());
     private final Url servicePath = BuiltInServerManager.getInstance().addAuthToken(Urls.parseEncoded("http://localhost:" + BuiltInServerManager.getInstance().getPort() + PreviewStaticServer.PREFIX));
-    private String templateHtmlFile = "template/default.html";
-
-    private CefRequestHandler requestHandler;
-    private CefLifeSpanHandler lifeSpanHandler;
-
     private final String url;
     private final String text;
     private final Project project;
     private final List<String> iframe = new ArrayList<>();
-    private static final List<String> headers = Arrays.asList(HttpHeaderNames.CONTENT_SECURITY_POLICY.toString(), HttpHeaderNames.CONTENT_ENCODING.toString()
-            , HttpHeaderNames.CONTENT_LENGTH.toString());
+    private String templateHtmlFile = "template/default.html";
+    private CefRequestHandler requestHandler;
+    private CefLifeSpanHandler lifeSpanHandler;
 
     public LCVPanel(@Nullable String url, Project project, String text, boolean old) {
         super(null);

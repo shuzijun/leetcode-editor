@@ -18,9 +18,9 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
-import com.shuzijun.leetcode.plugin.manager.NoteManager;
 import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -69,7 +69,7 @@ public class NotePreview extends UserDataHolderBase implements FileEditor {
             JBLabel loadingLabel = new JBLabel("Loading......");
             myComponent.addToCenter(loadingLabel);
             try {
-                File file = ApplicationManager.getApplication().executeOnPooledThread(() -> NoteManager.show(leetcodeEditor.getTitleSlug(), project, false)).get();
+                File file = ApplicationManager.getApplication().executeOnPooledThread(() -> RepositoryServiceImpl.getInstance(project).getNoteService().show(leetcodeEditor.getTitleSlug(), false)).get();
                 if (file == null || !file.exists()) {
                     myComponent.addToCenter(new JBLabel("No note"));
                 } else {

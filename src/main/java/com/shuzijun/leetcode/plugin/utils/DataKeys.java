@@ -2,7 +2,7 @@ package com.shuzijun.leetcode.plugin.utils;
 
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.actionSystem.DataKey;
-import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
+import com.shuzijun.leetcode.platform.extension.NavigatorAction;
 import com.shuzijun.leetcode.plugin.window.NavigatorTabsPanel;
 
 /**

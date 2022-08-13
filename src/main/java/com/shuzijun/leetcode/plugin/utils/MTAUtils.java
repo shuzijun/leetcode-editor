@@ -80,7 +80,7 @@ public class MTAUtils {
                         .setParameter("cf", version)
                         .setParameter("ck", "0")
                         .setParameter("cl", Toolkit.getDefaultToolkit().getScreenResolution() + "-bit")
-                        .setParameter("ds", (int)screensize.getWidth() + "x" + (int)screensize.getHeight())
+                        .setParameter("ds", (int) screensize.getWidth() + "x" + (int) screensize.getHeight())
                         .setParameter("vl", "")
                         .setParameter("ep", "3392,2371")
                         .setParameter("ep", "3")
@@ -94,8 +94,8 @@ public class MTAUtils {
                         .setParameter("lv", "2")
                         .setParameter("sn", "44949")
                         .setParameter("r", "0")
-                        .setParameter("ww", String.valueOf((int)screensize.getWidth()))
-                        .setParameter("u", "http://leetcode-editor.shuzijun.cn/" + actionsId )
+                        .setParameter("ww", String.valueOf((int) screensize.getWidth()))
+                        .setParameter("u", "http://leetcode-editor.shuzijun.cn/" + actionsId)
                         .build();
                 HttpRequests.request(uri.toURL().toString()).userAgent(userAgent).tuner(connection -> {
                     connection.addRequestProperty("Cookie", "HMACCOUNT=" + config.getId() + ";" + "HMACCOUNT_BFESS" + config.getId());

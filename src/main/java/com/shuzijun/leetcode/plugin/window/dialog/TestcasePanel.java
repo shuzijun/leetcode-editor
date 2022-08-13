@@ -27,7 +27,7 @@ public class TestcasePanel extends DialogWrapper {
         jpanel = new JBPanel();
         jpanel.setLayout(new BorderLayout());
         caseText = new JTextArea();
-        JBScrollPane caseTextScroll =  new JBScrollPane(caseText, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        JBScrollPane caseTextScroll = new JBScrollPane(caseText, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         caseTextScroll.setMinimumSize(new Dimension(400, 200));
         caseTextScroll.setPreferredSize(new Dimension(400, 200));
         jpanel.add(caseTextScroll, BorderLayout.CENTER);
@@ -59,13 +59,13 @@ public class TestcasePanel extends DialogWrapper {
 
             @Override
             public Object getValue(String key) {
-                if(Action.NAME.equals(key)){
+                if (Action.NAME.equals(key)) {
                     return "&Use Example Testcases";
-                }else {
+                } else {
                     return super.getValue(key);
                 }
             }
-        },getOKAction(),getCancelAction()};
+        }, getOKAction(), getCancelAction()};
     }
 
     public String testcaseText() {

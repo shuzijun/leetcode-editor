@@ -23,13 +23,12 @@ import java.util.Map;
 public class ProjectConfig implements PersistentStateComponent<ProjectConfig.InnerState> {
 
     public Map<String, LeetcodeEditor> idProjectConfig = new HashMap<>();
+    private InnerState innerState = new InnerState();
 
     @Nullable
     public static ProjectConfig getInstance(Project project) {
         return project.getService(ProjectConfig.class);
     }
-
-    private InnerState innerState = new InnerState();
 
     @Nullable
     @Override
@@ -86,6 +85,10 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Inn
         }
     }
 
+    public String getComponentName() {
+        return this.getClass().getName();
+    }
+
     public static class InnerState {
         @NotNull
         @MapAnnotation
@@ -94,10 +97,6 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Inn
         InnerState() {
             projectConfig = new HashMap<>();
         }
-    }
-
-    public String getComponentName() {
-        return this.getClass().getName();
     }
 
 }

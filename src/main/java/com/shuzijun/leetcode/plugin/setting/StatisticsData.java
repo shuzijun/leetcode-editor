@@ -5,10 +5,10 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.annotations.MapAnnotation;
-import com.shuzijun.leetcode.plugin.manager.SessionManager;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Session;
 import com.shuzijun.leetcode.plugin.model.Statistics;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
@@ -24,12 +24,28 @@ import java.util.Map;
 @State(name = "LeetcodeEditorStatistics" + PluginConstant.ACTION_SUFFIX, storages = {@Storage(value = PluginConstant.ACTION_PREFIX + "/statistics.xml")}, externalStorageOnly = true)
 public class StatisticsData implements PersistentStateComponent<StatisticsData.InnerState> {
 
+    private InnerState innerState = new InnerState();
+
     @Nullable
     public static StatisticsData getInstance(Project project) {
         return project.getService(StatisticsData.class);
     }
 
-    private InnerState innerState = new InnerState();
+    public static void refresh(Project project) {
+        StatisticsData statisticsData = StatisticsData.getInstance(project);
+        List<Session> sessionList = RepositoryServiceImpl.getInstance(project).getSessionService().getSession(true);
+        if (CollectionUtils.isEmpty(sessionList)) {
+            return;
+        }
+        Session session = sessionList.get(0);
+        Statistics statistics = new Statistics();
+        statistics.setQuestionTotal(session.getQuestionTotal());
+        statistics.setSolvedTotal(session.getSolvedTotal());
+        statistics.setEasy(session.getEasy());
+        statistics.setMedium(session.getMedium());
+        statistics.setHard(session.getHard());
+        statisticsData.refresh(URLUtils.getLeetcodeHost(), statistics);
+    }
 
     @Nullable
     @Override
@@ -45,23 +61,6 @@ public class StatisticsData implements PersistentStateComponent<StatisticsData.I
     public void refresh(String host, Statistics statistics) {
         this.innerState.statistics.put(host, statistics);
     }
-
-    public static void refresh(Project project) {
-        StatisticsData statisticsData = StatisticsData.getInstance(project);
-        List<Session> sessionList = SessionManager.getSession(project, true);
-        if (CollectionUtils.isEmpty(sessionList)) {
-            return;
-        }
-        Session session = sessionList.get(0);
-        Statistics statistics = new Statistics();
-        statistics.setQuestionTotal(session.getQuestionTotal());
-        statistics.setSolvedTotal(session.getSolvedTotal());
-        statistics.setEasy(session.getEasy());
-        statistics.setMedium(session.getMedium());
-        statistics.setHard(session.getHard());
-        statisticsData.refresh(URLUtils.getLeetcodeHost(), statistics);
-    }
-
 
     public static class InnerState {
         @NotNull

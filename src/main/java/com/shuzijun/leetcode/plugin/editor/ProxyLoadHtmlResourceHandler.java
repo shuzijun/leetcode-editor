@@ -24,10 +24,10 @@ public class ProxyLoadHtmlResourceHandler extends CefResourceHandlerAdapter {
 
     @NotNull
     private final InputStream myInputStream;
-    private final Map<String,String> header ;
+    private final Map<String, String> header;
     private final int status;
 
-    public ProxyLoadHtmlResourceHandler(@NotNull String html, Map<String,String> header, int status) {
+    public ProxyLoadHtmlResourceHandler(@NotNull String html, Map<String, String> header, int status) {
         myInputStream = new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8));
         this.header = header;
         this.status = status;
@@ -41,12 +41,12 @@ public class ProxyLoadHtmlResourceHandler extends CefResourceHandlerAdapter {
 
     @Override
     public void getResponseHeaders(@NotNull CefResponse response, IntRef response_length, StringRef redirectUrl) {
-        header.forEach((key,value) -> {
-            response.setHeaderByName(key,value,true);
-            if(HttpHeaderNames.CONTENT_TYPE.toString().equals(key.toLowerCase())){
-                if(value.indexOf(";")>0){
-                    response.setMimeType(value.substring(0,value.indexOf(";")));
-                }else {
+        header.forEach((key, value) -> {
+            response.setHeaderByName(key, value, true);
+            if (HttpHeaderNames.CONTENT_TYPE.toString().equals(key.toLowerCase())) {
+                if (value.indexOf(";") > 0) {
+                    response.setMimeType(value.substring(0, value.indexOf(";")));
+                } else {
                     response.setMimeType(value);
                 }
             }
@@ -55,7 +55,7 @@ public class ProxyLoadHtmlResourceHandler extends CefResourceHandlerAdapter {
     }
 
     @Override
-    public boolean readResponse(byte@NotNull[] data_out, int bytes_to_read, IntRef bytes_read, CefCallback callback) {
+    public boolean readResponse(byte @NotNull [] data_out, int bytes_to_read, IntRef bytes_read, CefCallback callback) {
         try {
             int availableSize = myInputStream.available();
             if (availableSize > 0) {
@@ -64,15 +64,13 @@ public class ProxyLoadHtmlResourceHandler extends CefResourceHandlerAdapter {
                 bytes_read.set(bytesToRead);
                 return true;
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             LOG.error(e);
         }
         bytes_read.set(0);
         try {
             myInputStream.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             LOG.error(e);
         }
         return false;

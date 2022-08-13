@@ -6,11 +6,12 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.shuzijun.leetcode.platform.RepositoryService;
 import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
-import com.shuzijun.leetcode.plugin.manager.SubmissionManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Submission;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.window.dialog.SubmissionsPanel;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +28,8 @@ public class SubmissionsAction extends AbstractEditAction {
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
-        List<Submission> submissionList = SubmissionManager.getSubmissionService(question.getTitleSlug(), anActionEvent.getProject());
+        RepositoryService repositoryService = RepositoryServiceImpl.getInstance(anActionEvent.getProject());
+        List<Submission> submissionList = repositoryService.getSubmissionService().getSubmissionService(question.getTitleSlug());
         if (submissionList == null || submissionList.isEmpty()) {
             return;
         }
@@ -61,6 +63,7 @@ public class SubmissionsAction extends AbstractEditAction {
     }
 
     private void openSubmission(AnActionEvent anActionEvent, Config config, Question question, List<Submission> submissionList, int row) {
+        RepositoryService repositoryService = RepositoryServiceImpl.getInstance(anActionEvent.getProject());
         Submission submission = submissionList.get(row);
         if (submission != null) {
             if (config.getConvergeEditor() && openConvergeEditor(anActionEvent, new ConvergePreview.TabSelectFileEditorState("Submissions", submission.getId()))) {
@@ -69,7 +72,7 @@ public class SubmissionsAction extends AbstractEditAction {
             ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), anActionEvent.getActionManager().getId(this), false) {
                 @Override
                 public void run(@NotNull ProgressIndicator progressIndicator) {
-                    SubmissionManager.openSubmission(submission, question.getTitleSlug(), anActionEvent.getProject(), true);
+                    repositoryService.getSubmissionService().openSubmission(submission, question.getTitleSlug(), true);
                 }
             });
 

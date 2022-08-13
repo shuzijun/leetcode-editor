@@ -18,11 +18,10 @@ import java.util.Map;
  */
 public class PreviewStaticServer extends HttpRequestHandler {
 
+    public static final String PREFIX = "/3e41525e-e74a-4590-ba1d-982b8f638478/";
+    public static final Map<String, BaseController> route = new HashMap<>();
     private static final Logger LOG = Logger.getInstance(PreviewStaticServer.class);
 
-    public static final String PREFIX = "/3e41525e-e74a-4590-ba1d-982b8f638478/";
-
-    public static final Map<String, BaseController> route = new HashMap<>();
     static {
         new ResourcesController().addRoute(route);
     }

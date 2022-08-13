@@ -20,10 +20,10 @@ public class SupportCheck implements StartupActivity, DumbAware {
 
     @Override
     public void runActivity(@NotNull Project project) {
-        if (ApplicationManager.getApplication().isUnitTestMode() ||  !isFirstProject ) {
+        if (ApplicationManager.getApplication().isUnitTestMode() || !isFirstProject) {
             return;
         }
-        if(!JBCefApp.isSupported()){
+        if (!JBCefApp.isSupported()) {
             Notifications.Bus.notify(new Notification(PluginConstant.NOTIFICATION_GROUP, "Not Support JCEF", "Your environment does not support JCEF, cannot use LeetCode Editor.Check the Registry 'ide.browser.jcef.enabled'.", NotificationType.ERROR));
         }
     }

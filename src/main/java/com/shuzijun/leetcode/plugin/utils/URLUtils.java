@@ -38,11 +38,11 @@ public class URLUtils {
 
     public static boolean equalsHost(String host) {
         String thisHost = getLeetcodeHost();
-        if(thisHost.equals(host)){
+        if (thisHost.equals(host)) {
             return true;
-        }else if(thisHost.equals(leetcodecn) && leetcodecnOld.equals(host)){
+        } else if (thisHost.equals(leetcodecn) && leetcodecnOld.equals(host)) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }

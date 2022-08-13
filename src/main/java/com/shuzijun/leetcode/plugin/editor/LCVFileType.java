@@ -18,7 +18,7 @@ public class LCVFileType extends LanguageFileType {
     @NotNull
     @Override
     public String getName() {
-        return PluginConstant.LEETCODE_EDITOR_VIEW+"Doc";
+        return PluginConstant.LEETCODE_EDITOR_VIEW + "Doc";
     }
 
     @NotNull

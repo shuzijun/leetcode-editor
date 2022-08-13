@@ -15,17 +15,16 @@ import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.messages.MessageBusConnection;
+import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.extension.NavigatorAction;
+import com.shuzijun.leetcode.platform.extension.NavigatorPagePanel;
 import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
 import com.shuzijun.leetcode.plugin.listener.LoginNotifier;
 import com.shuzijun.leetcode.plugin.listener.QueryKeyListener;
-import com.shuzijun.leetcode.plugin.manager.FindManager;
-import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
-import com.shuzijun.leetcode.plugin.manager.QuestionManager;
-import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.NavigatorPanelAction;
-import com.shuzijun.leetcode.plugin.window.NavigatorTableData;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +38,7 @@ import java.util.Map;
 public class NavigatorPanel extends SimpleToolWindowPanel implements NavigatorPanelAction, Disposable {
 
 
+    private final NavigatorAction myNavigatorAction;
     private Map<String, Find> findMap = new HashedMap();
     private JPanel queryPanel;
     private JTextField queryField;
@@ -46,8 +46,6 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements NavigatorPa
     private ActionToolbar findToolbar;
     private ActionToolbar actionSortToolbar;
     private Project myProject;
-
-    private final NavigatorAction myNavigatorAction;
 
     public NavigatorPanel(ToolWindow toolWindow, Project project) {
         super(Boolean.TRUE, Boolean.TRUE);
@@ -155,7 +153,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements NavigatorPa
             public void findClear() {
                 navigatorTable.getPageInfo().clearFilter();
                 getFind().clearFilter();
-                ViewManager.loadServiceData(this, myProject);
+                RepositoryServiceImpl.getInstance(myProject).getViewService().loadServiceData(this);
             }
 
             @Override
@@ -170,7 +168,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements NavigatorPa
                     navigatorTable.getPageInfo().disposeFilters(filterKey, tag.getSlug(), b);
                 }
                 navigatorTable.getPageInfo().setPageIndex(1);
-                ViewManager.loadServiceData(this, myProject);
+                RepositoryServiceImpl.getInstance(myProject).getViewService().loadServiceData(this);
             }
 
             @Override
@@ -185,7 +183,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements NavigatorPa
                     navigatorTable.getPageInfo().disposeFilters("orderBy", sort.getSlug(), true);
                     navigatorTable.getPageInfo().disposeFilters("sortOrder", "ASCENDING", true);
                 }
-                ViewManager.loadServiceData(this, myProject);
+                RepositoryServiceImpl.getInstance(myProject).getViewService().loadServiceData(this);
             }
 
             @Override
@@ -194,7 +192,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements NavigatorPa
             }
 
             @Override
-            public NavigatorTableData.PagePanel getPagePanel() {
+            public NavigatorPagePanel getPagePanel() {
                 return navigatorTable.getPagePanel();
             }
 
@@ -210,13 +208,14 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements NavigatorPa
 
             @Override
             public void loadServiceData() {
-                ViewManager.loadServiceData(this, myProject);
+                RepositoryServiceImpl.getInstance(myProject).getViewService().loadServiceData(this);
             }
 
             @Override
             public void resetServiceData() {
-                getFind().resetFilterData(Constant.FIND_TYPE_LISTS, FindManager.getLists(myProject));
-                ViewManager.loadServiceData(this, myProject);
+                RepositoryService repositoryService = RepositoryServiceImpl.getInstance(myProject);
+                getFind().resetFilterData(Constant.FIND_TYPE_LISTS, repositoryService.getFindService().getLists());
+                repositoryService.getViewService().loadServiceData(this);
             }
 
             @Override
@@ -227,7 +226,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements NavigatorPa
                 if (selectedRow(slug)) {
                     return true;
                 }
-                QuestionIndex questionIndex = QuestionManager.getQuestionIndex(slug);
+                QuestionIndex questionIndex = RepositoryServiceImpl.getInstance(myProject).getQuestionService().getQuestionIndex(slug);
                 if (questionIndex == null) {
                     return false;
                 }
@@ -239,7 +238,7 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements NavigatorPa
                 queryField.setText("");
 
                 navigatorTable.getPageInfo().setPageIndex((questionIndex.getIndex() / navigatorTable.getPageInfo().getPageSize()) + 1);
-                ViewManager.loadServiceData(this, myProject, slug);
+                RepositoryServiceImpl.getInstance(myProject).getViewService().loadServiceData(this, slug);
                 return selectedRow(slug);
             }
         };

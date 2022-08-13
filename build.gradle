@@ -15,22 +15,21 @@ targetCompatibility = 11
 
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
 dependencies {
-    api 'com.alibaba:fastjson:1.2.47'
     api 'org.jsoup:jsoup:1.11.3'
     api('io.sentry:sentry:1.7.9') {
         exclude module: 'slf4j-api'
     }
     api 'org.scilab.forge:jlatexmath:1.0.7'
     api 'org.apache.commons:commons-lang3:3.9'
-    api 'com.vladsch.flexmark:flexmark:0.62.2'
-    api 'com.vladsch.flexmark:flexmark-ext-attributes:0.62.2'
-    api 'io.github.biezhi:TinyPinyin:2.0.3.RELEASE'
-    //api fileTree(dir: 'src/main/resources/lib', include: ['*.jar'])
 
+
+    //api fileTree(dir: 'src/main/resources/lib', include: ['*.jar'])
+    api 'com.shuzijun.leetcode:platform:0.0.1'
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/

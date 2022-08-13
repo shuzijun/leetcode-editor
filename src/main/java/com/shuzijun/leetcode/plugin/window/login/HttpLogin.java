@@ -7,12 +7,11 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.shuzijun.leetcode.platform.extension.NavigatorAction;
+import com.shuzijun.leetcode.platform.service.HttpRequestService;
 import com.shuzijun.leetcode.plugin.listener.LoginNotifier;
-import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
-import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.HttpRequest;
-import com.shuzijun.leetcode.plugin.model.PluginConstant;
-import com.shuzijun.leetcode.plugin.model.User;
+import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import com.shuzijun.leetcode.plugin.window.NavigatorTabsPanel;
@@ -40,15 +39,15 @@ public class HttpLogin {
         if (StringUtils.isBlank(PersistentConfig.getInstance().getPassword(config.getLoginName()))) {
             return Boolean.FALSE;
         }
-
+        HttpRequestService httpRequestService = RepositoryServiceImpl.getInstance(project).getHttpRequestService();
         try {
             HttpEntity ent = MultipartEntityBuilder.create()
-                    .addTextBody("csrfmiddlewaretoken", HttpRequestUtils.getToken() == null ? "" : HttpRequestUtils.getToken())
+                    .addTextBody("csrfmiddlewaretoken", httpRequestService.getToken() == null ? "" : httpRequestService.getToken())
                     .addTextBody("login", config.getLoginName())
                     .addTextBody("password", PersistentConfig.getInstance().getPassword(config.getLoginName()))
                     .addTextBody("next", "/problems")
                     .build();
-            HttpResponse response = HttpRequest.builderPost(URLUtils.getLeetcodeLogin(), ent.getContentType().getValue())
+            HttpResponse response = HttpRequest.builder(httpRequestService).post(URLUtils.getLeetcodeLogin(), ent.getContentType().getValue())
                     .body(IOUtils.toString(ent.getContent(), "UTF-8"))
                     .addHeader("x-requested-with", "XMLHttpRequest")
                     .addHeader("accept", "*/*").request();
@@ -61,7 +60,7 @@ public class HttpLogin {
                     JSONArray jsonArray = jsonObject.getJSONObject("form").getJSONArray("errors");
                     if (jsonArray.isEmpty()) {
                         MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                        NavigatorTabsPanel.loadUser(true);
+                        NavigatorTabsPanel.loadUser(true, project);
                         ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(project, config.getUrl());
                         examineEmail(project);
                         return Boolean.TRUE;
@@ -71,12 +70,12 @@ public class HttpLogin {
                     }
                 } else if (StringUtils.isBlank(body)) {
                     MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                    NavigatorTabsPanel.loadUser(true);
+                    NavigatorTabsPanel.loadUser(true, project);
                     ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(project, config.getUrl());
                     examineEmail(project);
                     return Boolean.TRUE;
                 } else {
-                    HttpRequestUtils.resetHttpclient();
+                    httpRequestService.resetHttpclient();
                     MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
                     SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", response.getStatusCode(), body));
                     return Boolean.FALSE;
@@ -91,7 +90,7 @@ public class HttpLogin {
                 }
                 return Boolean.FALSE;
             } else {
-                HttpRequestUtils.resetHttpclient();
+                httpRequestService.resetHttpclient();
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
                 SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", response.getStatusCode(), body));
                 return Boolean.FALSE;
@@ -128,7 +127,7 @@ public class HttpLogin {
                 config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.httpCookieToJSONString(cookieList));
                 PersistentConfig.getInstance().setInitConfig(config);
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                NavigatorTabsPanel.loadUser(true);
+                NavigatorTabsPanel.loadUser(true, project);
                 ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(project, config.getUrl());
                 examineEmail(project);
             }

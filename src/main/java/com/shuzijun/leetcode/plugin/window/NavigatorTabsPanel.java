@@ -12,9 +12,9 @@ import com.intellij.util.messages.MessageBusConnection;
 import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
 import com.shuzijun.leetcode.plugin.listener.LoginNotifier;
 import com.shuzijun.leetcode.plugin.listener.QuestionStatusNotifier;
-import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.User;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.setting.StatisticsData;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
@@ -44,6 +44,8 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
 
     private String id = UUID.randomUUID().toString();
 
+    private Project project;
+
     private SimpleToolWindowPanel[] navigatorPanels;
     private TabInfo[] tabInfos;
 
@@ -55,6 +57,8 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
 
     public NavigatorTabsPanel(ToolWindow toolWindow, Project project) {
         super(Boolean.TRUE, Boolean.TRUE);
+
+        this.project = project;
 
         navigatorPanels = new SimpleToolWindowPanel[3];
         tabInfos = new TabInfo[3];
@@ -153,6 +157,32 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
 
     }
 
+    public static synchronized void loadUser(boolean login, Project project) {
+        User user = null;
+        if (login) {
+            for (int i = 0; i <= 50; i++) {
+                user = RepositoryServiceImpl.getInstance(project).getQuestionService().getUser();
+                if (!user.isSignedIn()) {
+                    try {
+                        Thread.sleep(500 + (i / 10 * 100));
+                    } catch (InterruptedException ignore) {
+                    }
+                } else {
+                    break;
+                }
+                if (i == 50) {
+                    LogUtils.LOG.warn("User data is not synchronized");
+                }
+            }
+        } else {
+            user = new User();
+        }
+        Collection<NavigatorTabsPanel> collection = NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.values();
+        for (NavigatorTabsPanel navigatorTabsPanel : collection) {
+            navigatorTabsPanel.userCache.put(URLUtils.getLeetcodeHost(), user);
+        }
+    }
+
     public void toggle() {
         toggleIndex = (toggleIndex + 1) % 3;
         tabs.select(tabInfos[toggleIndex], true);
@@ -179,7 +209,7 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
                 }
             }
             if (otherKey == null || !((NavigatorTabsPanel) NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.get(otherKey)).userCache.containsKey(config.getUrl())) {
-                User user = QuestionManager.getUser();
+                User user = RepositoryServiceImpl.getInstance(project).getQuestionService().getUser();
                 userCache.put(config.getUrl(), user);
                 return user;
             } else {
@@ -218,32 +248,6 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
             if (navigatorPanel != null && navigatorPanel instanceof Disposable) {
                 ((Disposable) navigatorPanel).dispose();
             }
-        }
-    }
-
-    public static synchronized void loadUser(boolean login) {
-        User user = null;
-        if (login) {
-            for (int i = 0; i <= 50; i++) {
-                user = QuestionManager.getUser();
-                if (!user.isSignedIn()) {
-                    try {
-                        Thread.sleep(500 + (i / 10 * 100));
-                    } catch (InterruptedException ignore) {
-                    }
-                } else {
-                    break;
-                }
-                if(i == 50){
-                    LogUtils.LOG.warn("User data is not synchronized");
-                }
-            }
-        } else {
-            user = new User();
-        }
-        Collection<NavigatorTabsPanel> collection = NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.values();
-        for (NavigatorTabsPanel navigatorTabsPanel : collection) {
-            navigatorTabsPanel.userCache.put(URLUtils.getLeetcodeHost(), user);
         }
     }
 

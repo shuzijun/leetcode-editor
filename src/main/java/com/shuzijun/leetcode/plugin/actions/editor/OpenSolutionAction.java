@@ -9,10 +9,10 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.shuzijun.leetcode.platform.RepositoryService;
 import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
-import com.shuzijun.leetcode.plugin.manager.ArticleManager;
-import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.dialog.SolutionPanel;
@@ -41,7 +41,7 @@ public class OpenSolutionAction extends AbstractEditAction {
             anActionEvent.getPresentation().setEnabled(false);
             return;
         }
-        Question question = QuestionManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), anActionEvent.getProject());
+        Question question = RepositoryServiceImpl.getInstance(anActionEvent.getProject()).getQuestionService().getQuestionByTitleSlug(leetcodeEditor.getTitleSlug());
         if (question != null) {
             anActionEvent.getPresentation().setEnabled(!Constant.ARTICLE_LIVE_NONE.equals(question.getArticleLive()));
         } else {
@@ -52,13 +52,14 @@ public class OpenSolutionAction extends AbstractEditAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
         Project project = anActionEvent.getProject();
+        RepositoryService repositoryService = RepositoryServiceImpl.getInstance(project);
         if (Constant.ARTICLE_LIVE_ONE.equals(question.getArticleLive())) {
             if (config.getConvergeEditor() && openConvergeEditor(anActionEvent, new ConvergePreview.TabSelectFileEditorState("Solution"))) {
                 return;
             }
-            ArticleManager.openArticle(question.getTitleSlug(), question.getArticleSlug(), project, true);
+            repositoryService.getArticleService().openArticle(question.getTitleSlug(), question.getArticleSlug(), true);
         } else if (Constant.ARTICLE_LIVE_LIST.equals(question.getArticleLive())) {
-            List<Solution> solutionList = ArticleManager.getSolutionList(question.getTitleSlug(), anActionEvent.getProject());
+            List<Solution> solutionList = repositoryService.getArticleService().getSolutionList(question.getTitleSlug());
             if (solutionList.isEmpty()) {
                 return;
             }
@@ -104,7 +105,7 @@ public class OpenSolutionAction extends AbstractEditAction {
                 @Override
                 public void run(@NotNull ProgressIndicator progressIndicator) {
                     question.setArticleSlug(solution.getSlug());
-                    ArticleManager.openArticle(question.getTitleSlug(), question.getArticleSlug(), anActionEvent.getProject(), true);
+                    RepositoryServiceImpl.getInstance(anActionEvent.getProject()).getArticleService().openArticle(question.getTitleSlug(), question.getArticleSlug(), true);
                 }
             });
 

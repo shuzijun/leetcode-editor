@@ -181,6 +181,7 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
 
     public static class TabFileEditorState implements FileEditorState {
 
+        public static TabFileEditorState TabFileEditorLoadState = new TabFileEditorState(true);
         private boolean load = false;
 
         public TabFileEditorState(boolean load) {
@@ -195,8 +196,6 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
         public boolean canBeMergedWith(@NotNull FileEditorState otherState, @NotNull FileEditorStateLevel level) {
             return false;
         }
-
-        public static TabFileEditorState TabFileEditorLoadState = new TabFileEditorState(true);
 
 
     }
@@ -237,6 +236,13 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
         public static LoginState NoLoginSelect = new LoginState(false, true);
         public static LoginState LoginNoSelect = new LoginState(true, false);
         public static LoginState LoginSelect = new LoginState(true, true);
+        private boolean login;
+        private boolean select;
+
+        public LoginState(boolean login, boolean select) {
+            this.login = login;
+            this.select = select;
+        }
 
         public static LoginState getState(boolean login, boolean select) {
             if (login) {
@@ -252,15 +258,6 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
                     return NoLoginNoSelect;
                 }
             }
-        }
-
-        private boolean login;
-
-        private boolean select;
-
-        public LoginState(boolean login, boolean select) {
-            this.login = login;
-            this.select = select;
         }
 
         public boolean isLogin() {

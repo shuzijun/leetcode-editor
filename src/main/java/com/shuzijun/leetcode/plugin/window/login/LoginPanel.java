@@ -13,7 +13,11 @@ import com.intellij.ui.jcef.JCEFHtmlPanel;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
-import com.shuzijun.leetcode.plugin.utils.*;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
+import com.shuzijun.leetcode.plugin.utils.LogUtils;
+import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.commons.lang.StringUtils;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
@@ -56,7 +60,7 @@ public class LoginPanel extends DialogWrapper {
             try {
                 jcefPanel = new JcefPanel(project, okAction);
             } catch (IllegalArgumentException e) {
-                jcefPanel = new JcefPanel(project, okAction,true);
+                jcefPanel = new JcefPanel(project, okAction, true);
             }
             jcefPanel.getComponent().setMinimumSize(new Dimension(1000, 500));
             jcefPanel.getComponent().setPreferredSize(new Dimension(1000, 500));
@@ -90,12 +94,12 @@ public class LoginPanel extends DialogWrapper {
                             }
                         }
                     }
-                    HttpRequestUtils.setCookie(cookieList);
+                    RepositoryServiceImpl.getInstance(project).getHttpRequestService().setCookie(cookieList);
 
                     ProgressManager.getInstance().run(new Task.Backgroundable(project, PluginConstant.ACTION_PREFIX + ".loginSuccess", false) {
                         @Override
                         public void run(@NotNull ProgressIndicator progressIndicator) {
-                            if (HttpRequestUtils.isLogin(project)) {
+                            if (RepositoryServiceImpl.getInstance(project).getHttpRequestService().isLogin(project)) {
                                 HttpLogin.loginSuccess(project, cookieList);
                             } else {
                                 JOptionPane.showMessageDialog(null, PropertiesUtils.getInfo("login.failed"));
@@ -150,7 +154,7 @@ public class LoginPanel extends DialogWrapper {
         private Action okAction;
 
         public JcefPanel(Project project, Action okAction, boolean old) {
-            super( null);
+            super(null);
             this.project = project;
             this.okAction = okAction;
             init();
@@ -163,7 +167,7 @@ public class LoginPanel extends DialogWrapper {
             init();
         }
 
-        private void init(){
+        private void init() {
             getJBCefClient().addLoadHandler(cefLoadHandler = new CefLoadHandlerAdapter() {
 
                 boolean successDispose = false;
@@ -196,8 +200,8 @@ public class LoginPanel extends DialogWrapper {
                                 }
                             }
                             if (count == total - 1 && isSession) {
-                                HttpRequestUtils.setCookie(cookieList);
-                                if (HttpRequestUtils.isLogin(project)) {
+                                RepositoryServiceImpl.getInstance(project).getHttpRequestService().setCookie(cookieList);
+                                if (RepositoryServiceImpl.getInstance(project).getHttpRequestService().isLogin(project)) {
                                     HttpLogin.loginSuccess(project, cookieList);
                                     MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("browser.login.success"));
                                     ApplicationManager.getApplication().invokeLater(() -> okAction.actionPerformed(null));

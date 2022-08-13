@@ -6,13 +6,13 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
-import com.shuzijun.leetcode.plugin.manager.FavoriteManager;
-import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
-import com.shuzijun.leetcode.plugin.manager.QuestionManager;
+import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.extension.NavigatorAction;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.QuestionView;
 import com.shuzijun.leetcode.plugin.model.Tag;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +38,7 @@ public class FavoriteAction extends ToggleAction implements DumbAware {
         if (questionView == null) {
             return false;
         }
-        Question cacheQuestion = QuestionManager.getQuestionByTitleSlug(questionView.getTitleSlug(), anActionEvent.getProject());
+        Question cacheQuestion = RepositoryServiceImpl.getInstance(anActionEvent.getProject()).getQuestionService().getQuestionByTitleSlug(questionView.getTitleSlug());
         if (cacheQuestion == null) {
             return false;
         }
@@ -56,10 +56,11 @@ public class FavoriteAction extends ToggleAction implements DumbAware {
         ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), PluginConstant.PLUGIN_NAME + ".favorite", false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
+                RepositoryService repositoryService = RepositoryServiceImpl.getInstance(anActionEvent.getProject());
                 if (b) {
-                    FavoriteManager.addQuestionToFavorite(tag, questionView.getTitleSlug(), anActionEvent.getProject());
+                    repositoryService.getFavoriteService().addQuestionToFavorite(tag, questionView.getTitleSlug());
                 } else {
-                    FavoriteManager.removeQuestionFromFavorite(tag, questionView.getTitleSlug(), anActionEvent.getProject());
+                    repositoryService.getFavoriteService().removeQuestionFromFavorite(tag, questionView.getTitleSlug());
                 }
             }
         });
