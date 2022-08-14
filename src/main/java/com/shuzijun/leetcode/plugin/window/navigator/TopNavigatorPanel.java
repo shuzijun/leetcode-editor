@@ -5,46 +5,42 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.util.messages.MessageBusConnection;
-import com.shuzijun.leetcode.platform.extension.NavigatorAction;
-import com.shuzijun.leetcode.platform.extension.NavigatorPagePanel;
-import com.shuzijun.leetcode.plugin.listener.AllQuestionNotifier;
-import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
-import com.shuzijun.leetcode.plugin.model.*;
-import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
+import com.shuzijun.leetcode.extension.NavigatorAction;
+import com.shuzijun.leetcode.extension.NavigatorPagePanel;
+import com.shuzijun.leetcode.extension.NavigatorPanel;
+import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.model.*;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
-import com.shuzijun.leetcode.plugin.window.NavigatorPanelAction;
-import org.apache.commons.collections.map.HashedMap;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author shuzijun
  */
-public class TopNavigatorPanel extends SimpleToolWindowPanel implements NavigatorPanelAction, Disposable {
+public class TopNavigatorPanel extends NavigatorPanel implements Disposable {
 
-    private final NavigatorAction myNavigatorAction;
-    private Map<String, Find> findMap = new HashedMap();
-    private JPanel queryPanel;
-    private TopNavigatorTable topNavigatorTable;
-    private ActionToolbar findToolbar;
-    private ActionToolbar actionSortToolbar;
-    private Project project;
+    private final NavigatorAction<CodeTopQuestionView> myNavigatorAction;
+    private final Map<String, Find> findMap = new HashMap<>();
+    private final JPanel queryPanel;
+    private final TopNavigatorTable topNavigatorTable;
+    private final ActionToolbar findToolbar;
+    private final ActionToolbar actionSortToolbar;
+    private final RepositoryService repositoryService;
 
-    public TopNavigatorPanel(ToolWindow toolWindow, Project project) {
+    public TopNavigatorPanel(RepositoryService repositoryService) {
         super(Boolean.TRUE, Boolean.TRUE);
-        this.project = project;
+        this.repositoryService = repositoryService;
         final ActionManager actionManager = ActionManager.getInstance();
 
         this.myNavigatorAction = createMyNavigatorAction();
 
-        topNavigatorTable = new TopNavigatorTable(project, myNavigatorAction);
+        topNavigatorTable = new TopNavigatorTable(repositoryService.getProject(), myNavigatorAction);
         Disposer.register(this, topNavigatorTable);
 
         ActionToolbar actionToolbar = actionManager.createActionToolbar(PluginConstant.LEETCODE_CODETOP_NAVIGATOR_ACTIONS_TOOLBAR, (DefaultActionGroup) actionManager.getAction(PluginConstant.LEETCODE_CODETOP_NAVIGATOR_ACTIONS_TOOLBAR), true);
@@ -74,25 +70,16 @@ public class TopNavigatorPanel extends SimpleToolWindowPanel implements Navigato
     }
 
     private void subscribe() {
-        MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
-        messageBusConnection.subscribe(AllQuestionNotifier.TOPIC, new AllQuestionNotifier() {
-            @Override
-            public void reset() {
+        repositoryService.subscribeNotifier(Topic.AllQuestionNotifier, myNavigatorAction::resetServiceData, this);
+        repositoryService.subscribeNotifier(Topic.ConfigNotifier, (oldConfig, newConfig) -> {
+            if (oldConfig != null && !oldConfig.getUrl().equalsIgnoreCase(newConfig.getUrl())) {
                 myNavigatorAction.resetServiceData();
             }
-        });
-        messageBusConnection.subscribe(ConfigNotifier.TOPIC, new ConfigNotifier() {
-            @Override
-            public void change(Config oldConfig, Config newConfig) {
-                if (oldConfig != null && !oldConfig.getUrl().equalsIgnoreCase(newConfig.getUrl())) {
-                    myNavigatorAction.resetServiceData();
-                }
-            }
-        });
+        }, this);
     }
 
-    private NavigatorAction<QuestionView> createMyNavigatorAction() {
-        return new NavigatorAction.Adapter() {
+    private NavigatorAction<CodeTopQuestionView> createMyNavigatorAction() {
+        return new NavigatorAction.Adapter<>() {
             @Override
             public void updateUI() {
                 findToolbar.getComponent().updateUI();
@@ -113,7 +100,7 @@ public class TopNavigatorPanel extends SimpleToolWindowPanel implements Navigato
             public void findClear() {
                 topNavigatorTable.getPageInfo().clearFilter();
                 getFind().clearFilter();
-                RepositoryServiceImpl.getInstance(project).getCodeTopService().loadServiceData(this);
+                repositoryService.getCodeTopService().loadServiceData(this);
             }
 
             @Override
@@ -126,7 +113,7 @@ public class TopNavigatorPanel extends SimpleToolWindowPanel implements Navigato
                 }
                 topNavigatorTable.getPageInfo().disposeFilters(filterKey, tag.getSlug(), b);
                 topNavigatorTable.getPageInfo().setPageIndex(1);
-                RepositoryServiceImpl.getInstance(project).getCodeTopService().loadServiceData(this);
+                repositoryService.getCodeTopService().loadServiceData(this);
             }
 
             @Override
@@ -146,7 +133,7 @@ public class TopNavigatorPanel extends SimpleToolWindowPanel implements Navigato
                     topNavigatorTable.getPageInfo().disposeFilters("orderBy", sort.getSlug(), true);
                     topNavigatorTable.getPageInfo().disposeFilters("sortOrder", "ASCENDING", true);
                 }
-                RepositoryServiceImpl.getInstance(project).getCodeTopService().loadServiceData(this);
+                repositoryService.getCodeTopService().loadServiceData(this);
             }
 
             @Override
@@ -171,20 +158,20 @@ public class TopNavigatorPanel extends SimpleToolWindowPanel implements Navigato
 
             @Override
             public void loadServiceData() {
-                RepositoryServiceImpl.getInstance(project).getCodeTopService().loadServiceData(this);
+                repositoryService.getCodeTopService().loadServiceData(this);
             }
 
             @Override
             public void resetServiceData() {
                 if (topNavigatorTable.getPageInfo().getRowTotal() > 0) {
-                    RepositoryServiceImpl.getInstance(project).getCodeTopService().loadServiceData(this);
+                    repositoryService.getCodeTopService().loadServiceData(this);
                 }
             }
         };
     }
 
     @Override
-    public Object getData(String dataId) {
+    public Object getData(@NotNull String dataId) {
         return super.getData(dataId);
     }
 
@@ -202,7 +189,7 @@ public class TopNavigatorPanel extends SimpleToolWindowPanel implements Navigato
     }
 
     @Override
-    public NavigatorAction getNavigatorAction() {
+    public NavigatorAction<CodeTopQuestionView> getNavigatorAction() {
         return myNavigatorAction;
     }
 

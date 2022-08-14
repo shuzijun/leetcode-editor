@@ -1,7 +1,9 @@
 package com.shuzijun.leetcode.plugin.window;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Disposer;
@@ -9,26 +11,26 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
 import com.intellij.util.messages.MessageBusConnection;
-import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
-import com.shuzijun.leetcode.plugin.listener.LoginNotifier;
-import com.shuzijun.leetcode.plugin.listener.QuestionStatusNotifier;
-import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.User;
+import com.shuzijun.leetcode.extension.NavigatorPanel;
+import com.shuzijun.leetcode.extension.NavigatorPanelAction;
+import com.shuzijun.leetcode.extension.NavigatorPanelFactory;
+import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.model.Config;
+import com.shuzijun.leetcode.platform.model.User;
+import com.shuzijun.leetcode.platform.notifier.ConfigNotifier;
+import com.shuzijun.leetcode.platform.notifier.LoginNotifier;
+import com.shuzijun.leetcode.platform.utils.LogUtils;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.model.PluginTopic;
 import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.setting.StatisticsData;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
-import com.shuzijun.leetcode.plugin.utils.LogUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
-import com.shuzijun.leetcode.plugin.window.navigator.AllNavigatorPanel;
-import com.shuzijun.leetcode.plugin.window.navigator.NavigatorPanel;
-import com.shuzijun.leetcode.plugin.window.navigator.TopNavigatorPanel;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import javax.swing.*;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -36,65 +38,49 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposable {
 
+    private static final ExtensionPointName<NavigatorPanelFactory> EXTENSION_NAVIGATOR = ExtensionPointName.create(PluginConstant.EXTENSION_NAVIGATOR);
+
     private static final DisposableMap<String, NavigatorTabsPanel> NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP = new DisposableMap<>();
 
     static {
         Disposer.register(ApplicationManager.getApplication(), NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP);
     }
 
-    private String id = UUID.randomUUID().toString();
+    private final String id = UUID.randomUUID().toString();
 
-    private Project project;
+    private final RepositoryService repositoryService;
 
-    private SimpleToolWindowPanel[] navigatorPanels;
-    private TabInfo[] tabInfos;
+    private final LinkedList<NavigatorPanel> navigatorPanels = new LinkedList<>();
+    private final LinkedList<TabInfo> tabInfos = new LinkedList<>();
 
-    private JBTabsImpl tabs;
-
+    private final JBTabsImpl tabs;
+    private final Map<String, User> userCache = new ConcurrentHashMap<>();
     private int toggleIndex = 0;
 
-    private volatile Map<String, User> userCache = new ConcurrentHashMap<>();
-
-    public NavigatorTabsPanel(ToolWindow toolWindow, Project project) {
+    public NavigatorTabsPanel(ToolWindow ignoredToolWindow, Project project) {
         super(Boolean.TRUE, Boolean.TRUE);
 
-        this.project = project;
-
-        navigatorPanels = new SimpleToolWindowPanel[3];
-        tabInfos = new TabInfo[3];
+        this.repositoryService = RepositoryServiceImpl.getInstance(project);
 
         tabs = new JBTabsImpl(project);
         tabs.setHideTabs(true);
 
-        NavigatorPanel navigatorPanel = new NavigatorPanel(toolWindow, project);
-        navigatorPanels[0] = navigatorPanel;
+        List<NavigatorPanelFactory> extensionList = EXTENSION_NAVIGATOR.getExtensionList();
+        for (NavigatorPanelFactory factory : extensionList) {
+            NavigatorPanel navigatorPanel = factory.createPanel(repositoryService);
+            navigatorPanels.add(navigatorPanel);
 
-        TabInfo tabInfo = new TabInfo(navigatorPanel);
-        tabInfo.setText("page");
-        tabInfos[0] = tabInfo;
-        tabs.addTab(tabInfo);
-
-        AllNavigatorPanel allNavigatorPanel = new AllNavigatorPanel(toolWindow, project);
-        navigatorPanels[1] = allNavigatorPanel;
-
-        TabInfo allTabInfo = new TabInfo(allNavigatorPanel);
-        allTabInfo.setText("all");
-        tabInfos[1] = allTabInfo;
-        tabs.addTab(allTabInfo);
-
-        TopNavigatorPanel topNavigatorPanel = new TopNavigatorPanel(toolWindow, project);
-        navigatorPanels[2] = topNavigatorPanel;
-
-        TabInfo topTabInfo = new TabInfo(topNavigatorPanel);
-        topTabInfo.setText("codeTop");
-        tabInfos[2] = topTabInfo;
-        tabs.addTab(topTabInfo);
+            TabInfo tabInfo = new TabInfo(navigatorPanel);
+            tabInfo.setText(factory.getName());
+            tabInfos.add(tabInfo);
+            tabs.addTab(tabInfo);
+        }
 
         Config config = PersistentConfig.getInstance().getInitConfig();
         if (config != null) {
-            for (int i = 0; i < tabInfos.length; i++) {
-                if (tabInfos[i].getText().equalsIgnoreCase(config.getNavigatorName())) {
-                    tabs.select(tabInfos[i], true);
+            for (int i = 0; i < tabInfos.size(); i++) {
+                if (tabInfos.get(i).getText().equalsIgnoreCase(config.getNavigatorName())) {
+                    tabs.select(tabInfos.get(i), true);
                     toggleIndex = i;
                     break;
                 }
@@ -113,7 +99,7 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
             }
         });
         MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
-        messageBusConnection.subscribe(LoginNotifier.TOPIC, new LoginNotifier() {
+        messageBusConnection.subscribe(PluginTopic.LOGIN_TOPIC, new LoginNotifier() {
             @Override
             public void login(Project notifierProject, String host) {
                 User user = getUser();
@@ -131,7 +117,7 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
                 WindowFactory.updateTitle(project, "No login");
             }
         });
-        messageBusConnection.subscribe(ConfigNotifier.TOPIC, new ConfigNotifier() {
+        messageBusConnection.subscribe(PluginTopic.CONFIG_TOPIC, new ConfigNotifier() {
             @Override
             public void change(Config oldConfig, Config newConfig) {
                 if (oldConfig != null && !oldConfig.getUrl().equalsIgnoreCase(newConfig.getUrl())) {
@@ -145,10 +131,10 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
                 }
             }
         });
-        messageBusConnection.subscribe(QuestionStatusNotifier.QUESTION_STATUS_TOPIC, question -> StatisticsData.refresh(project));
+        messageBusConnection.subscribe(PluginTopic.QUESTION_STATUS_TOPIC, question -> StatisticsData.refresh(project));
 
-        for (SimpleToolWindowPanel n : navigatorPanels) {
-            if (n != null && navigatorPanel instanceof Disposable) {
+        for (JPanel n : navigatorPanels) {
+            if (n instanceof Disposable) {
                 Disposer.register(this, (Disposable) n);
             }
         }
@@ -185,10 +171,10 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
 
     public void toggle() {
         toggleIndex = (toggleIndex + 1) % 3;
-        tabs.select(tabInfos[toggleIndex], true);
+        tabs.select(tabInfos.get(toggleIndex), true);
         Config config = PersistentConfig.getInstance().getInitConfig();
         if (config != null) {
-            config.setNavigatorName(tabInfos[toggleIndex].getText());
+            config.setNavigatorName(tabInfos.get(toggleIndex).getText());
             PersistentConfig.getInstance().setInitConfig(config);
         }
     }
@@ -202,18 +188,18 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
             return userCache.get(config.getUrl());
         } else {
             String otherKey = null;
-            for (Object key : NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.keySet()) {
+            for (String key : NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.keySet()) {
                 if (!key.equals(id)) {
-                    otherKey = (String) key;
+                    otherKey = key;
                     break;
                 }
             }
-            if (otherKey == null || !((NavigatorTabsPanel) NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.get(otherKey)).userCache.containsKey(config.getUrl())) {
-                User user = RepositoryServiceImpl.getInstance(project).getQuestionService().getUser();
+            if (otherKey == null || !NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.get(otherKey).userCache.containsKey(config.getUrl())) {
+                User user = repositoryService.getQuestionService().getUser();
                 userCache.put(config.getUrl(), user);
                 return user;
             } else {
-                User user = ((NavigatorTabsPanel) NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.get(otherKey)).userCache.get(config.getUrl());
+                User user = NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.get(otherKey).userCache.get(config.getUrl());
                 userCache.put(config.getUrl(), user);
                 return user;
             }
@@ -221,18 +207,20 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
     }
 
     @Override
-    public Object getData(String dataId) {
-        for (SimpleToolWindowPanel navigatorPanel : navigatorPanels) {
-            Object object = navigatorPanel.getData(dataId);
-            if (object != null) {
-                return object;
+    public Object getData(@NotNull String dataId) {
+        for (JPanel panel : navigatorPanels) {
+            if (panel instanceof DataProvider) {
+                Object object = ((DataProvider) panel).getData(dataId);
+                if (object != null) {
+                    return object;
+                }
             }
         }
         if (DataKeys.LEETCODE_PROJECTS_TABS.is(dataId)) {
             return this;
         }
         if (DataKeys.LEETCODE_PROJECTS_NAVIGATORACTION.is(dataId)) {
-            SimpleToolWindowPanel panel = navigatorPanels[toggleIndex];
+            JPanel panel = navigatorPanels.get(toggleIndex);
             if (panel instanceof NavigatorPanelAction) {
                 return ((NavigatorPanelAction) panel).getNavigatorAction();
             }
@@ -244,14 +232,14 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
     @Override
     public void dispose() {
         NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.remove(id);
-        for (SimpleToolWindowPanel navigatorPanel : navigatorPanels) {
-            if (navigatorPanel != null && navigatorPanel instanceof Disposable) {
-                ((Disposable) navigatorPanel).dispose();
+        for (JPanel panel : navigatorPanels) {
+            if (panel instanceof Disposable) {
+                ((Disposable) panel).dispose();
             }
         }
     }
 
-    public static class DisposableMap<K, V> extends HashMap implements Disposable {
+    public static class DisposableMap<K, V> extends HashMap<K, V> implements Disposable {
         @Override
         public void dispose() {
             for (Object value : values()) {

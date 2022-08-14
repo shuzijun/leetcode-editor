@@ -1,5 +1,6 @@
 package com.shuzijun.leetcode.plugin.utils;
 
+import com.shuzijun.leetcode.platform.model.Config;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import org.apache.commons.lang.StringUtils;
 
@@ -29,7 +30,11 @@ public class URLUtils {
     private static String leetcodeRandomOneQuestion = "/problems/random-one-question/all";
 
     public static String getLeetcodeHost() {
-        String host = PersistentConfig.getInstance().getConfig().getUrl();
+        Config config = PersistentConfig.getInstance().getInitConfig();
+        if (config == null) {
+            return leetcode;
+        }
+        String host = config.getUrl();
         if (StringUtils.isBlank(host)) {
             return leetcode;
         }

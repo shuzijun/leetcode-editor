@@ -5,12 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.model.Constant;
+import com.shuzijun.leetcode.platform.model.HttpResponse;
+import com.shuzijun.leetcode.platform.model.Tag;
 import com.shuzijun.leetcode.platform.repository.FindService;
-import com.shuzijun.leetcode.plugin.model.Constant;
-import com.shuzijun.leetcode.plugin.model.HttpResponse;
-import com.shuzijun.leetcode.plugin.model.Tag;
+import com.shuzijun.leetcode.platform.utils.LogUtils;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
-import com.shuzijun.leetcode.plugin.utils.LogUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +29,7 @@ public class FindServiceImpl implements FindService {
     public FindServiceImpl(Project project) {
         this.project = project;
     }
+
     @Override
     public void registerRepository(RepositoryService repositoryService) {
         this.repositoryService = repositoryService;

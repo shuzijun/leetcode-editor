@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
-import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.leetcode.platform.model.Question;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

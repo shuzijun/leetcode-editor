@@ -12,47 +12,45 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.components.JBTextField;
-import com.intellij.util.messages.MessageBusConnection;
+import com.shuzijun.leetcode.extension.NavigatorAction;
+import com.shuzijun.leetcode.extension.NavigatorPagePanel;
+import com.shuzijun.leetcode.extension.NavigatorPanel;
 import com.shuzijun.leetcode.platform.RepositoryService;
-import com.shuzijun.leetcode.platform.extension.NavigatorAction;
-import com.shuzijun.leetcode.platform.extension.NavigatorPagePanel;
-import com.shuzijun.leetcode.plugin.listener.AllQuestionNotifier;
-import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
-import com.shuzijun.leetcode.plugin.listener.LoginNotifier;
+import com.shuzijun.leetcode.platform.model.*;
+import com.shuzijun.leetcode.platform.notifier.ConfigNotifier;
+import com.shuzijun.leetcode.platform.notifier.LoginNotifier;
 import com.shuzijun.leetcode.plugin.listener.QueryKeyListener;
-import com.shuzijun.leetcode.plugin.model.*;
-import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.model.PluginTopic;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
-import com.shuzijun.leetcode.plugin.window.NavigatorPanelAction;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author shuzijun
  */
-public class AllNavigatorPanel extends SimpleToolWindowPanel implements NavigatorPanelAction, Disposable {
+public class AllNavigatorPanel extends NavigatorPanel implements Disposable {
 
 
-    private final NavigatorAction myNavigatorAction;
-    private Map<String, Find> findMap = new HashedMap();
-    private JPanel queryPanel;
-    private JTextField queryField;
-    private AllNavigatorTable navigatorTable;
-    private ActionToolbar findToolbar;
-    private ActionToolbar actionSortToolbar;
-    private Project myProject;
+    private final NavigatorAction<QuestionView> myNavigatorAction;
+    private final Map<String, Find> findMap = new HashMap<>();
+    private final JPanel queryPanel;
+    private final JTextField queryField;
+    private final AllNavigatorTable navigatorTable;
+    private final ActionToolbar findToolbar;
+    private final ActionToolbar actionSortToolbar;
+    private final RepositoryService repositoryService;
 
-    public AllNavigatorPanel(ToolWindow toolWindow, Project project) {
+    public AllNavigatorPanel(RepositoryService repositoryService) {
         super(Boolean.TRUE, Boolean.TRUE);
-        this.myProject = project;
+        this.repositoryService = repositoryService;
         this.myNavigatorAction = createMyNavigatorAction();
-        navigatorTable = new AllNavigatorTable(project, myNavigatorAction);
+        navigatorTable = new AllNavigatorTable(repositoryService.getProject(), myNavigatorAction);
         Disposer.register(this, navigatorTable);
 
         final ActionManager actionManager = ActionManager.getInstance();
@@ -68,7 +66,7 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
         queryPanel.setLayout(new BoxLayout(queryPanel, BoxLayout.Y_AXIS));
         queryField = new JBTextField();
         queryField.setToolTipText("Enter Search");
-        queryField.addKeyListener(new QueryKeyListener(queryField, myNavigatorAction, project));
+        queryField.addKeyListener(new QueryKeyListener(queryField, myNavigatorAction, repositoryService.getProject()));
         queryPanel.add(queryField);
 
         findToolbar = actionManager.createActionToolbar(PluginConstant.LEETCODE_ALL_FIND_TOOLBAR, (DefaultActionGroup) actionManager.getAction(PluginConstant.LEETCODE_ALL_FIND_TOOLBAR), true);
@@ -87,37 +85,37 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
     }
 
     private void subscribe() {
-        MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
-        messageBusConnection.subscribe(LoginNotifier.TOPIC, new LoginNotifier() {
+
+        repositoryService.subscribeNotifier(Topic.LoginNotifier, new LoginNotifier() {
             @Override
             public void login(Project project, String host) {
-                ProgressManager.getInstance().run(new Task.Backgroundable(myProject, "Refresh data", false) {
+                ProgressManager.getInstance().run(new Task.Backgroundable(repositoryService.getProject(), "Refresh data", false) {
                     @Override
                     public void run(@NotNull ProgressIndicator progressIndicator) {
                         if (!project.equals(myProject) && myNavigatorAction.getPageInfo().getRowTotal() <= 0) {
                             return;
                         }
                         myNavigatorAction.resetServiceData();
-                        ApplicationManager.getApplication().getMessageBus().syncPublisher(AllQuestionNotifier.TOPIC).reset();
+                        ApplicationManager.getApplication().getMessageBus().syncPublisher(PluginTopic.ALL_QUESTION_TOPIC).reset();
                     }
                 });
             }
 
             @Override
             public void logout(Project project, String host) {
-                ProgressManager.getInstance().run(new Task.Backgroundable(myProject, "Refresh data", false) {
+                ProgressManager.getInstance().run(new Task.Backgroundable(repositoryService.getProject(), "Refresh data", false) {
                     @Override
                     public void run(@NotNull ProgressIndicator progressIndicator) {
                         if (!project.equals(myProject) && myNavigatorAction.getPageInfo().getRowTotal() <= 0) {
                             return;
                         }
                         myNavigatorAction.resetServiceData();
-                        ApplicationManager.getApplication().getMessageBus().syncPublisher(AllQuestionNotifier.TOPIC).reset();
+                        ApplicationManager.getApplication().getMessageBus().syncPublisher(PluginTopic.ALL_QUESTION_TOPIC).reset();
                     }
                 });
             }
-        });
-        messageBusConnection.subscribe(ConfigNotifier.TOPIC, new ConfigNotifier() {
+        }, this);
+        repositoryService.subscribeNotifier(Topic.ConfigNotifier, new ConfigNotifier() {
             @Override
             public void change(Config oldConfig, Config newConfig) {
                 if (oldConfig != null && !oldConfig.getUrl().equalsIgnoreCase(newConfig.getUrl())) {
@@ -126,11 +124,11 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
                     }
                 }
             }
-        });
+        }, this);
     }
 
     private NavigatorAction<QuestionView> createMyNavigatorAction() {
-        return new NavigatorAction.Adapter<QuestionView>() {
+        return new NavigatorAction.Adapter<>() {
             @Override
             public void updateUI() {
                 findToolbar.getComponent().updateUI();
@@ -156,7 +154,7 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
             public void findClear() {
                 navigatorTable.getPageInfo().clearFilter();
                 getFind().clearFilter();
-                RepositoryServiceImpl.getInstance(myProject).getViewService().loadAllServiceData(this);
+                repositoryService.getViewService().loadAllServiceData(this);
             }
 
             @Override
@@ -170,7 +168,7 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
                 } else {
                     navigatorTable.getPageInfo().disposeFilters(filterKey, tag.getSlug(), b);
                 }
-                RepositoryServiceImpl.getInstance(myProject).getViewService().loadAllServiceData(this);
+                repositoryService.getViewService().loadAllServiceData(this);
             }
 
             @Override
@@ -185,7 +183,7 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
                     navigatorTable.getPageInfo().disposeFilters("orderBy", sort.getSlug(), true);
                     navigatorTable.getPageInfo().disposeFilters("sortOrder", "ASCENDING", true);
                 }
-                RepositoryServiceImpl.getInstance(myProject).getViewService().loadAllServiceData(this);
+                repositoryService.getViewService().loadAllServiceData(this);
             }
 
             @Override
@@ -210,12 +208,11 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
 
             @Override
             public void loadServiceData() {
-                RepositoryServiceImpl.getInstance(myProject).getViewService().loadAllServiceData(this);
+                repositoryService.getViewService().loadAllServiceData(this);
             }
 
             @Override
             public void resetServiceData() {
-                RepositoryService repositoryService = RepositoryServiceImpl.getInstance(myProject);
                 getFind().resetFilterData(Constant.FIND_TYPE_LISTS, repositoryService.getFindService().getLists());
                 repositoryService.getViewService().loadAllServiceData(this, null, true);
             }
@@ -233,14 +230,14 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
                 queryField.setText("");
 
                 getFind().clearFilter();
-                RepositoryServiceImpl.getInstance(myProject).getViewService().loadAllServiceData(this, slug, false);
+                repositoryService.getViewService().loadAllServiceData(this, slug, false);
                 return selectedRow(slug);
             }
         };
     }
 
     @Override
-    public Object getData(String dataId) {
+    public Object getData(@NotNull String dataId) {
         return super.getData(dataId);
     }
 
@@ -250,7 +247,7 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
     }
 
     @Override
-    public NavigatorAction getNavigatorAction() {
+    public NavigatorAction<QuestionView> getNavigatorAction() {
         return myNavigatorAction;
     }
 

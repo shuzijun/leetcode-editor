@@ -4,11 +4,19 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.model.Constant;
+import com.shuzijun.leetcode.platform.model.Graphql;
+import com.shuzijun.leetcode.platform.model.HttpResponse;
+import com.shuzijun.leetcode.platform.model.Solution;
 import com.shuzijun.leetcode.platform.repository.ArticleService;
-import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.platform.utils.LogUtils;
+import com.shuzijun.leetcode.platform.utils.doc.CleanMarkdown;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import com.shuzijun.leetcode.plugin.utils.*;
-import com.shuzijun.leetcode.plugin.utils.doc.CleanMarkdown;
+import com.shuzijun.leetcode.plugin.utils.FileUtils;
+import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -27,6 +35,7 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleServiceImpl(Project project) {
         this.project = project;
     }
+
     @Override
     public void registerRepository(RepositoryService repositoryService) {
         this.repositoryService = repositoryService;

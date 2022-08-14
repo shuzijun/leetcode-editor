@@ -6,7 +6,7 @@ import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
-import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.platform.model.Config;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;

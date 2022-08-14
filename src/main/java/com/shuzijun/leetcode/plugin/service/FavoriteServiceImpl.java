@@ -3,11 +3,11 @@ package com.shuzijun.leetcode.plugin.service;
 import com.alibaba.fastjson.JSONObject;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.model.Graphql;
+import com.shuzijun.leetcode.platform.model.HttpResponse;
+import com.shuzijun.leetcode.platform.model.Question;
+import com.shuzijun.leetcode.platform.model.Tag;
 import com.shuzijun.leetcode.platform.repository.FavoriteService;
-import com.shuzijun.leetcode.plugin.model.Graphql;
-import com.shuzijun.leetcode.plugin.model.HttpResponse;
-import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 
@@ -22,6 +22,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     public FavoriteServiceImpl(Project project) {
         this.project = project;
     }
+
     @Override
     public void registerRepository(RepositoryService repositoryService) {
         this.repositoryService = repositoryService;

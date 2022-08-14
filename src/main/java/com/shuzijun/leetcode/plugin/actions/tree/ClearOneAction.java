@@ -5,13 +5,13 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
-import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.leetcode.platform.model.CodeTypeEnum;
+import com.shuzijun.leetcode.platform.model.Config;
+import com.shuzijun.leetcode.platform.model.Question;
+import com.shuzijun.leetcode.platform.utils.VelocityUtils;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
-import com.shuzijun.leetcode.plugin.utils.VelocityUtils;
 
 import java.io.File;
 

@@ -16,12 +16,15 @@
     text-shadow: none;
     background: #b3d4fc;
 }
+
 .highlight-o {
     color: #0b8235;
 }
+
 .highlight-p {
     color: #999;
 }
+
 /* Error */
 .highlight-chroma .highlight-err {
     color: #a61717;
@@ -423,6 +426,7 @@
 .hljs-regexp {
     color: #e90;
 }
+
 .hljs-string,
 .hljs-addition,
 .hljs-attribute,

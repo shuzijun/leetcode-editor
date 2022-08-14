@@ -7,13 +7,23 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.shuzijun.leetcode.platform.extension.NavigatorAction;
+import com.shuzijun.leetcode.extension.NavigatorAction;
+import com.shuzijun.leetcode.platform.model.Config;
+import com.shuzijun.leetcode.platform.model.HttpRequest;
+import com.shuzijun.leetcode.platform.model.HttpResponse;
+import com.shuzijun.leetcode.platform.model.User;
 import com.shuzijun.leetcode.platform.service.HttpRequestService;
-import com.shuzijun.leetcode.plugin.listener.LoginNotifier;
-import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.platform.utils.CookieUtils;
+import com.shuzijun.leetcode.platform.utils.IOUtils;
+import com.shuzijun.leetcode.platform.utils.LogUtils;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.model.PluginTopic;
 import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import com.shuzijun.leetcode.plugin.utils.*;
+import com.shuzijun.leetcode.plugin.utils.DataKeys;
+import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.NavigatorTabsPanel;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.apache.commons.lang.StringUtils;
@@ -61,7 +71,7 @@ public class HttpLogin {
                     if (jsonArray.isEmpty()) {
                         MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
                         NavigatorTabsPanel.loadUser(true, project);
-                        ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(project, config.getUrl());
+                        ApplicationManager.getApplication().getMessageBus().syncPublisher(PluginTopic.LOGIN_TOPIC).login(project, config.getUrl());
                         examineEmail(project);
                         return Boolean.TRUE;
                     } else {
@@ -71,13 +81,12 @@ public class HttpLogin {
                 } else if (StringUtils.isBlank(body)) {
                     MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
                     NavigatorTabsPanel.loadUser(true, project);
-                    ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(project, config.getUrl());
+                    ApplicationManager.getApplication().getMessageBus().syncPublisher(PluginTopic.LOGIN_TOPIC).login(project, config.getUrl());
                     examineEmail(project);
                     return Boolean.TRUE;
                 } else {
                     httpRequestService.resetHttpclient();
                     MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
-                    SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", response.getStatusCode(), body));
                     return Boolean.FALSE;
                 }
             } else if (response.getStatusCode() == 400) {
@@ -92,7 +101,6 @@ public class HttpLogin {
             } else {
                 httpRequestService.resetHttpclient();
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
-                SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", response.getStatusCode(), body));
                 return Boolean.FALSE;
             }
         } catch (Exception e) {
@@ -128,7 +136,7 @@ public class HttpLogin {
                 PersistentConfig.getInstance().setInitConfig(config);
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
                 NavigatorTabsPanel.loadUser(true, project);
-                ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(project, config.getUrl());
+                ApplicationManager.getApplication().getMessageBus().syncPublisher(PluginTopic.LOGIN_TOPIC).login(project, config.getUrl());
                 examineEmail(project);
             }
         });

@@ -10,8 +10,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.shuzijun.leetcode.platform.RepositoryService;
-import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
-import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.platform.model.*;
 import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -54,7 +53,7 @@ public class OpenSolutionAction extends AbstractEditAction {
         Project project = anActionEvent.getProject();
         RepositoryService repositoryService = RepositoryServiceImpl.getInstance(project);
         if (Constant.ARTICLE_LIVE_ONE.equals(question.getArticleLive())) {
-            if (config.getConvergeEditor() && openConvergeEditor(anActionEvent, new ConvergePreview.TabSelectFileEditorState("Solution"))) {
+            if (config.getConvergeEditor() && openConvergeEditor(anActionEvent, new ConvergeFileEditorState.TabSelectFileEditorState("Solution"))) {
                 return;
             }
             repositoryService.getArticleService().openArticle(question.getTitleSlug(), question.getArticleSlug(), true);
@@ -98,7 +97,7 @@ public class OpenSolutionAction extends AbstractEditAction {
     private void openArticle(AnActionEvent anActionEvent, Config config, Question question, List<Solution> solutionList, int row) {
         Solution solution = solutionList.get(row);
         if (solution != null) {
-            if (config.getConvergeEditor() && openConvergeEditor(anActionEvent, new ConvergePreview.TabSelectFileEditorState("Solution", solution.getSlug()))) {
+            if (config.getConvergeEditor() && openConvergeEditor(anActionEvent, new ConvergeFileEditorState.TabSelectFileEditorState("Solution", solution.getSlug()))) {
                 return;
             }
             ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), anActionEvent.getActionManager().getId(this), false) {

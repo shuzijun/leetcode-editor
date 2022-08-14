@@ -4,17 +4,17 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtilRt;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.messages.MessageBusConnection;
-import com.shuzijun.leetcode.platform.extension.NavigatorPagePanel;
-import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
-import com.shuzijun.leetcode.plugin.listener.QuestionStatusNotifier;
-import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.Graphql;
-import com.shuzijun.leetcode.plugin.model.PageInfo;
-import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.utils.LogUtils;
+import com.shuzijun.leetcode.extension.NavigatorPagePanel;
+import com.shuzijun.leetcode.platform.model.Config;
+import com.shuzijun.leetcode.platform.model.Graphql;
+import com.shuzijun.leetcode.platform.model.PageInfo;
+import com.shuzijun.leetcode.platform.model.Question;
+import com.shuzijun.leetcode.platform.utils.LogUtils;
+import com.shuzijun.leetcode.plugin.model.PluginTopic;
 import com.shuzijun.leetcode.plugin.window.navigator.TopNavigatorTable;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,19 +42,17 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
     protected static volatile Color defColor = null;
     private final MyJBTable<T> myTable;
     private final MyTableModel<T> myTableModel;
-    private final Project project;
     private final PageInfo<T> myPageInfo;
     private final NavigatorPagePanel myPagePanel;
     private final JComponent firstToolTip;
-    protected Color Level1 = new Color(92, 184, 92);
-    protected Color Level2 = new Color(240, 173, 78);
-    protected Color Level3 = new Color(217, 83, 79);
+    protected Color Level1 = new JBColor(new Color(92, 184, 92), new Color(92, 184, 92));
+    protected Color Level2 = new JBColor(new Color(240, 173, 78), new Color(240, 173, 78));
+    protected Color Level3 = new JBColor(new Color(217, 83, 79), new Color(217, 83, 79));
     private List<T> myList;
     private boolean first = true;
 
     public NavigatorTableData(Project project) {
         super(new BorderLayout());
-        this.project = project;
         this.myTableModel = createMyTableModel();
         this.myTable = createMyTable(myTableModel, project);
         this.myPageInfo = createMyPageInfo();
@@ -62,8 +60,8 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
         this.firstToolTip = firstToolTip();
         this.add(firstToolTip, BorderLayout.CENTER);
         MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
-        messageBusConnection.subscribe(ConfigNotifier.TOPIC, (oldConfig, newConfig) -> loaColor(newConfig));
-        messageBusConnection.subscribe(QuestionStatusNotifier.QUESTION_STATUS_TOPIC, question -> {
+        messageBusConnection.subscribe(PluginTopic.CONFIG_TOPIC, (oldConfig, newConfig) -> loaColor(newConfig));
+        messageBusConnection.subscribe(PluginTopic.QUESTION_STATUS_TOPIC, question -> {
             if (myList != null) {
                 for (T q : myList) {
                     if (dataNotifier(q, question)) {
@@ -171,7 +169,7 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
         return myPagePanel;
     }
 
-    protected abstract void setColumnWidth(MyJBTable myJBTable);
+    protected abstract void setColumnWidth(MyJBTable<T> myJBTable);
 
     public abstract boolean compareSlug(T myData, String titleSlug);
 
@@ -306,9 +304,9 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
     }
 
     public static class MyStyle {
-        private int offset;
-        private int length;
-        private AttributeSet s;
+        private final int offset;
+        private final int length;
+        private final AttributeSet s;
 
         public MyStyle(int offset, int length, AttributeSet s) {
             this.offset = offset;

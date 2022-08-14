@@ -1,7 +1,7 @@
 package com.shuzijun.leetcode.platform.repository;
 
-import com.shuzijun.leetcode.platform.extension.NavigatorAction;
-import com.shuzijun.leetcode.plugin.model.PageInfo;
+import com.shuzijun.leetcode.extension.NavigatorAction;
+import com.shuzijun.leetcode.platform.model.PageInfo;
 
 /**
  * 视图服务

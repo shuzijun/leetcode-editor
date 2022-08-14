@@ -8,7 +8,7 @@ import javax.swing.*;
  * @author shuzijun
  */
 public interface LeetCodeEditorIcons {
-    
+
     Icon LEETCODE_TOOL_WINDOW = IconLoader.getIcon("/icons/LeetCode.svg");
     Icon EMPEROR_NEW_CLOTHES = IconLoader.getIcon("/icons/emperor_new_clothes.svg");
 

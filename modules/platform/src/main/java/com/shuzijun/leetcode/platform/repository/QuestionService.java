@@ -1,6 +1,6 @@
 package com.shuzijun.leetcode.platform.repository;
 
-import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.platform.model.*;
 
 import java.util.List;
 

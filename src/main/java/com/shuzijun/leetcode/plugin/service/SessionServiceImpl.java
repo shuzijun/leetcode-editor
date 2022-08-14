@@ -5,9 +5,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.model.HttpResponse;
+import com.shuzijun.leetcode.platform.model.Session;
 import com.shuzijun.leetcode.platform.repository.SessionService;
-import com.shuzijun.leetcode.plugin.model.HttpResponse;
-import com.shuzijun.leetcode.plugin.model.Session;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -27,6 +27,7 @@ public class SessionServiceImpl implements SessionService {
     public SessionServiceImpl(Project project) {
         this.project = project;
     }
+
     @Override
     public void registerRepository(RepositoryService repositoryService) {
         this.repositoryService = repositoryService;

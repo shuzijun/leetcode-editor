@@ -5,7 +5,7 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.annotations.MapAnnotation;
-import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
+import com.shuzijun.leetcode.platform.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +25,7 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Inn
     public Map<String, LeetcodeEditor> idProjectConfig = new HashMap<>();
     private InnerState innerState = new InnerState();
 
-    @Nullable
+    @NotNull
     public static ProjectConfig getInstance(Project project) {
         return project.getService(ProjectConfig.class);
     }

@@ -8,17 +8,23 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.model.*;
 import com.shuzijun.leetcode.platform.repository.CodeService;
-import com.shuzijun.leetcode.plugin.listener.QuestionStatusNotifier;
-import com.shuzijun.leetcode.plugin.listener.QuestionSubmitNotifier;
-import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.platform.utils.CommentUtils;
+import com.shuzijun.leetcode.platform.utils.LogUtils;
+import com.shuzijun.leetcode.platform.utils.VelocityUtils;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.model.PluginTopic;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import com.shuzijun.leetcode.plugin.utils.*;
+import com.shuzijun.leetcode.plugin.utils.FileUtils;
+import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.function.BiConsumer;
 
 /**
@@ -32,6 +38,21 @@ public class CodeServiceImpl implements CodeService {
     public CodeServiceImpl(Project project) {
         this.project = project;
     }
+
+    private static String buildErrorMsg(JSONObject errorBody) {
+        String statusMsg = errorBody.getString("status_msg");
+        if (StringUtils.isNotBlank(statusMsg)) {
+            if (statusMsg.equals("Compile Error")) {
+                return errorBody.getString("full_compile_error");
+            } else if (statusMsg.equals("Runtime Error")) {
+                return errorBody.getString("full_runtime_error");
+            } else {
+                return statusMsg;
+            }
+        }
+        return "Unknown error";
+    }
+
     @Override
     public void registerRepository(RepositoryService repositoryService) {
         this.repositoryService = repositoryService;
@@ -66,23 +87,9 @@ public class CodeServiceImpl implements CodeService {
         }
     }
 
-    private static String buildErrorMsg(JSONObject errorBody) {
-        String statusMsg = errorBody.getString("status_msg");
-        if (StringUtils.isNotBlank(statusMsg)) {
-            if (statusMsg.equals("Compile Error")) {
-                return errorBody.getString("full_compile_error");
-            } else if (statusMsg.equals("Runtime Error")) {
-                return errorBody.getString("full_runtime_error");
-            } else {
-                return statusMsg;
-            }
-        }
-        return "Unknown error";
-    }
-
     @Override
     public void openCode(String titleSlug) {
-        Config config = PersistentConfig.getInstance().getInitConfig();
+        Config config = PersistentConfig.getInstance().getConfig();
         CodeTypeEnum codeTypeEnum = config.getCodeTypeEnum(project);
         if (codeTypeEnum == null) {
             return;
@@ -100,7 +107,7 @@ public class CodeServiceImpl implements CodeService {
         String filePath = PersistentConfig.getInstance().getTempFilePath() + VelocityUtils.convert(config.getCustomFileName(), question) + codeTypeEnum.getSuffix();
 
         File file = new File(filePath);
-        BiConsumer<LeetcodeEditor, String> fillPath = (e, s) -> e.setPath(s);
+        BiConsumer<LeetcodeEditor, String> fillPath = LeetcodeEditor::setPath;
         if (file.exists()) {
             FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, true);
         } else {
@@ -119,7 +126,7 @@ public class CodeServiceImpl implements CodeService {
 
     @Override
     public void openContent(String titleSlug, boolean isOpen) {
-        Config config = PersistentConfig.getInstance().getInitConfig();
+        Config config = PersistentConfig.getInstance().getConfig();
         Question question = repositoryService.getQuestionService().getQuestionByTitleSlug(titleSlug);
         if (question == null) {
             return;
@@ -128,7 +135,7 @@ public class CodeServiceImpl implements CodeService {
         String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_CONTENT + VelocityUtils.convert(config.getCustomFileName(), question) + ".md";
 
         File file = new File(filePath);
-        BiConsumer<LeetcodeEditor, String> fillPath = (e, s) -> e.setContentPath(s);
+        BiConsumer<LeetcodeEditor, String> fillPath = LeetcodeEditor::setContentPath;
         if (file.exists()) {
             FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, isOpen);
         } else {
@@ -139,7 +146,7 @@ public class CodeServiceImpl implements CodeService {
 
     @Override
     public void SubmitCode(String titleSlug) {
-        Config config = PersistentConfig.getInstance().getInitConfig();
+        Config config = PersistentConfig.getInstance().getConfig();
         Question question = repositoryService.getQuestionService().getQuestionByTitleSlug(titleSlug);
         if (question == null) {
             return;
@@ -160,7 +167,7 @@ public class CodeServiceImpl implements CodeService {
             if (response.getStatusCode() == 200) {
                 String body = response.getBody();
                 JSONObject returnObj = JSONObject.parseObject(body);
-                ProgressManager.getInstance().run(new SubmitCheckTask(returnObj, codeTypeEnum, question, project,repositoryService));
+                ProgressManager.getInstance().run(new SubmitCheckTask(returnObj, codeTypeEnum, question, project, repositoryService));
                 MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("request.pending"));
             } else if (response.getStatusCode() == 429) {
                 MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("request.pending"));
@@ -178,7 +185,7 @@ public class CodeServiceImpl implements CodeService {
 
     @Override
     public void RunCodeCode(String titleSlug) {
-        Config config = PersistentConfig.getInstance().getInitConfig();
+        Config config = PersistentConfig.getInstance().getConfig();
         Question question = repositoryService.getQuestionService().getQuestionByTitleSlug(titleSlug);
         if (question == null) {
             return;
@@ -201,12 +208,12 @@ public class CodeServiceImpl implements CodeService {
 
                 String body = response.getBody();
                 JSONObject returnObj = JSONObject.parseObject(body);
-                ProgressManager.getInstance().run(new RunCodeCheckTask(returnObj, project, question.getTestCase(),repositoryService));
+                ProgressManager.getInstance().run(new RunCodeCheckTask(returnObj, project, question.getTestCase(), repositoryService));
                 MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("request.pending"));
             } else if (response.getStatusCode() == 429) {
                 MessageUtils.getInstance(project).showWarnMsg("", "Please wait for the result.");
             } else {
-                LogUtils.LOG.error("RuncodeCode failure " + response == null ? "" : response.getBody());
+                LogUtils.LOG.error("RuncodeCode failure " + response.getBody());
                 MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.failed"));
             }
         } catch (Exception i) {
@@ -216,12 +223,12 @@ public class CodeServiceImpl implements CodeService {
 
     private static class SubmitCheckTask extends Task.Backgroundable {
 
-        private Question question;
-        private JSONObject returnObj;
-        private CodeTypeEnum codeTypeEnum;
-        private Project project;
+        private final Question question;
+        private final JSONObject returnObj;
+        private final CodeTypeEnum codeTypeEnum;
+        private final Project project;
 
-        private RepositoryService repositoryService;
+        private final RepositoryService repositoryService;
 
         public SubmitCheckTask(JSONObject returnObj, CodeTypeEnum codeTypeEnum, Question question, Project project, RepositoryService repositoryService) {
             super(project, PluginConstant.PLUGIN_NAME + ".submitCheckTask", true);
@@ -249,13 +256,13 @@ public class CodeServiceImpl implements CodeService {
                             if (jsonObject.getBoolean("run_success")) {
                                 if (Integer.valueOf(10).equals(jsonObject.getInteger("status_code"))) {
                                     String runtime = jsonObject.getString("status_runtime");
-                                    String runtimePercentile = jsonObject.getBigDecimal("runtime_percentile").setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+                                    String runtimePercentile = jsonObject.getBigDecimal("runtime_percentile").setScale(2, RoundingMode.HALF_UP).toString();
                                     String memory = jsonObject.getString("status_memory");
-                                    String memoryPercentile = jsonObject.getBigDecimal("memory_percentile").setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+                                    String memoryPercentile = jsonObject.getBigDecimal("memory_percentile").setScale(2, RoundingMode.HALF_UP).toString();
 
                                     MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("submit.success", runtime, runtimePercentile, codeTypeEnum.getType(), memory, memoryPercentile, codeTypeEnum.getType()));
                                     question.setStatus("ac");
-                                    ApplicationManager.getApplication().getMessageBus().syncPublisher(QuestionStatusNotifier.QUESTION_STATUS_TOPIC).updateTable(question);
+                                    ApplicationManager.getApplication().getMessageBus().syncPublisher(PluginTopic.QUESTION_STATUS_TOPIC).updateTable(question);
                                 } else {
 
                                     String input = jsonObject.getString("input");
@@ -270,7 +277,7 @@ public class CodeServiceImpl implements CodeService {
 
                                     if (!"ac".equals(question.getStatus())) {
                                         question.setStatus("notac");
-                                        ApplicationManager.getApplication().getMessageBus().syncPublisher(QuestionStatusNotifier.QUESTION_STATUS_TOPIC).updateTable(question);
+                                        ApplicationManager.getApplication().getMessageBus().syncPublisher(PluginTopic.QUESTION_STATUS_TOPIC).updateTable(question);
                                     }
                                 }
                             } else {
@@ -282,10 +289,10 @@ public class CodeServiceImpl implements CodeService {
                                 MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("submit.run.failed", MessageUtils.format(buildErrorMsg(jsonObject), "E"), testcase, outputs));
                                 if (!"ac".equals(question.getStatus())) {
                                     question.setStatus("notac");
-                                    ApplicationManager.getApplication().getMessageBus().syncPublisher(QuestionStatusNotifier.QUESTION_STATUS_TOPIC).updateTable(question);
+                                    ApplicationManager.getApplication().getMessageBus().syncPublisher(PluginTopic.QUESTION_STATUS_TOPIC).updateTable(question);
                                 }
                             }
-                            ApplicationManager.getApplication().getMessageBus().syncPublisher(QuestionSubmitNotifier.TOPIC).submit(URLUtils.getLeetcodeHost(), question.getTitleSlug());
+                            ApplicationManager.getApplication().getMessageBus().syncPublisher(PluginTopic.QUESTION_SUBMIT_TOPIC).submit(URLUtils.getLeetcodeHost(), question.getTitleSlug());
                             return;
                         }
 
@@ -298,16 +305,16 @@ public class CodeServiceImpl implements CodeService {
                 }
 
             }
-            ApplicationManager.getApplication().getMessageBus().syncPublisher(QuestionSubmitNotifier.TOPIC).submit(URLUtils.getLeetcodeHost(), question.getTitleSlug());
+            ApplicationManager.getApplication().getMessageBus().syncPublisher(PluginTopic.QUESTION_SUBMIT_TOPIC).submit(URLUtils.getLeetcodeHost(), question.getTitleSlug());
             MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("response.timeout"));
         }
     }
 
     private static class RunCodeCheckTask extends Task.Backgroundable {
-        private JSONObject returnObj;
-        private Project project;
-        private String input;
-        private RepositoryService repositoryService;
+        private final JSONObject returnObj;
+        private final Project project;
+        private final String input;
+        private final RepositoryService repositoryService;
 
         public RunCodeCheckTask(JSONObject returnObj, Project project, String input, RepositoryService repositoryService) {
             super(project, PluginConstant.PLUGIN_NAME + ".runCodeCheckTask", true);
@@ -331,7 +338,7 @@ public class CodeServiceImpl implements CodeService {
                 String body = null;
                 try {
                     HttpResponse response = repositoryService.HttpRequest().get(URLUtils.getLeetcodeSubmissions() + key + "/check/").request();
-                    if (response != null && response.getStatusCode() == 200) {
+                    if (response.getStatusCode() == 200) {
                         body = response.getBody();
                         JSONObject jsonObject = JSONObject.parseObject(body);
                         if ("SUCCESS".equals(jsonObject.getString("state"))) {

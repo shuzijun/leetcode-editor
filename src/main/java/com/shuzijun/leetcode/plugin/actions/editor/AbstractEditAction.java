@@ -7,12 +7,13 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.TextEditorWithPreview;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
+import com.shuzijun.leetcode.platform.model.Config;
+import com.shuzijun.leetcode.platform.model.ConvergeFileEditorState;
+import com.shuzijun.leetcode.platform.model.LeetcodeEditor;
+import com.shuzijun.leetcode.platform.model.Question;
 import com.shuzijun.leetcode.plugin.actions.AbstractAction;
 import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
 import com.shuzijun.leetcode.plugin.editor.QuestionEditorWithPreview;
-import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
-import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
@@ -57,7 +58,7 @@ abstract class AbstractEditAction extends AbstractAction {
 
     public abstract void actionPerformed(AnActionEvent anActionEvent, Config config, Question question);
 
-    protected boolean openConvergeEditor(AnActionEvent anActionEvent, ConvergePreview.TabSelectFileEditorState state) {
+    protected boolean openConvergeEditor(AnActionEvent anActionEvent, ConvergeFileEditorState.TabSelectFileEditorState state) {
         FileEditor fileEditor = FileEditorManager.getInstance(anActionEvent.getProject()).getSelectedEditor();
         if (fileEditor != null && fileEditor instanceof QuestionEditorWithPreview) {
             QuestionEditorWithPreview questionEditorWithPreview = (QuestionEditorWithPreview) fileEditor;

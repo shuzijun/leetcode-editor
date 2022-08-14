@@ -29,7 +29,7 @@ public class QuestionEditorWithPreview extends TextEditorWithPreview {
 
     @Nullable
     protected ActionGroup createLeftToolbarActionGroup() {
-        if (!PersistentConfig.getInstance().getInitConfig().isLeftQuestionEditor()) {
+        if (!PersistentConfig.getInstance().getConfig().isLeftQuestionEditor()) {
             return (ActionGroup) ActionManager.getInstance().getAction(PluginConstant.LEETCODE_EDITOR_GROUP);
         } else {
             return null;
@@ -39,7 +39,7 @@ public class QuestionEditorWithPreview extends TextEditorWithPreview {
 
     @Nullable
     protected ActionGroup createRightToolbarActionGroup() {
-        if (PersistentConfig.getInstance().getInitConfig().isLeftQuestionEditor()) {
+        if (PersistentConfig.getInstance().getConfig().isLeftQuestionEditor()) {
             return (ActionGroup) ActionManager.getInstance().getAction(PluginConstant.LEETCODE_EDITOR_GROUP);
         } else {
             return null;
@@ -48,7 +48,7 @@ public class QuestionEditorWithPreview extends TextEditorWithPreview {
 
     @NotNull
     protected ActionGroup createViewActionGroup() {
-        if (PersistentConfig.getInstance().getInitConfig().isLeftQuestionEditor()) {
+        if (PersistentConfig.getInstance().getConfig().isLeftQuestionEditor()) {
             return new DefaultActionGroup(
                     getShowEditorAndPreviewAction(),
                     getShowPreviewAction()
@@ -84,7 +84,7 @@ public class QuestionEditorWithPreview extends TextEditorWithPreview {
 
     @NotNull
     public TextEditor getTextEditor() {
-        if (PersistentConfig.getInstance().getInitConfig().isLeftQuestionEditor()) {
+        if (PersistentConfig.getInstance().getConfig().isLeftQuestionEditor()) {
             if (((TextEditor) myPreview).getEditor() == null) {
                 return myEditor;
             }

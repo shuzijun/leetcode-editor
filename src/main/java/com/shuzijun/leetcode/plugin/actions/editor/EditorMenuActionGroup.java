@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
+import com.shuzijun.leetcode.platform.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 
 /**

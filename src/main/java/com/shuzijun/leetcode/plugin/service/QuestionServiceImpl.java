@@ -8,16 +8,23 @@ import com.google.common.collect.Maps;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.model.*;
 import com.shuzijun.leetcode.platform.repository.QuestionService;
-import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.platform.utils.LogUtils;
+import com.shuzijun.leetcode.platform.utils.doc.CleanMarkdown;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import com.shuzijun.leetcode.plugin.utils.*;
-import com.shuzijun.leetcode.plugin.utils.doc.CleanMarkdown;
+import com.shuzijun.leetcode.plugin.utils.DataKeys;
+import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,6 +44,7 @@ public class QuestionServiceImpl implements QuestionService {
     public QuestionServiceImpl(Project project) {
         this.project = project;
     }
+
     @Override
     public void registerRepository(RepositoryService repositoryService) {
         this.repositoryService = repositoryService;
@@ -71,11 +79,9 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public List<QuestionView> getQuestionAllService(boolean reset) {
-        Boolean isPremium = false;
+        boolean isPremium = false;
         User user = WindowFactory.getDataContext(project).getData(DataKeys.LEETCODE_PROJECTS_TABS).getUser();
-        if (user != null) {
-            isPremium = user.isPremium();
-        }
+        isPremium = user.isPremium();
         if (questionAllCache.getIfPresent(URLUtils.getLeetcodeHost()) == null || reset) {
             String key = URLUtils.getLeetcodeHost() + "getQuestionAll";
             synchronized (key.intern()) {
@@ -100,7 +106,7 @@ public class QuestionServiceImpl implements QuestionService {
 
                         }
 
-                        Collections.sort(questionViews, (o1, o2) -> o1.frontendQuestionIdCompareTo(o2));
+                        questionViews.sort(QuestionView::frontendQuestionIdCompareTo);
 
                         Map<String, Integer> questionIndex = Maps.newHashMap();
                         for (int i = 0; i < questionViews.size(); i++) {

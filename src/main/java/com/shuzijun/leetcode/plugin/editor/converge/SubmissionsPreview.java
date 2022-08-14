@@ -14,17 +14,13 @@ import com.intellij.ui.JBSplitter;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
-import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
-import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
+import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.model.*;
+import com.shuzijun.leetcode.platform.notifier.QuestionSubmitNotifier;
 import com.shuzijun.leetcode.plugin.editor.SplitFileEditor;
-import com.shuzijun.leetcode.plugin.listener.QuestionSubmitNotifier;
-import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
-import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.model.Submission;
-import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.window.dialog.SubmissionsPanel;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +49,7 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
 
     private final Project project;
     private final LeetcodeEditor leetcodeEditor;
+    private final RepositoryService repositoryService;
 
 
     private BorderLayoutPanel myComponent;
@@ -67,12 +64,11 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
     private JBSplitter mySplitter;
     private SplitFileEditor.SplitEditorLayout myLayout = SplitFileEditor.SplitEditorLayout.FIRST;
 
-    public SubmissionsPreview(Project project, LeetcodeEditor leetcodeEditor) {
-        this.project = project;
+    public SubmissionsPreview(RepositoryService repositoryService, LeetcodeEditor leetcodeEditor) {
+        this.project = repositoryService.getProject();
+        this.repositoryService = repositoryService;
         this.leetcodeEditor = leetcodeEditor;
-        MessageBusConnection settingsConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
-
-        settingsConnection.subscribe(QuestionSubmitNotifier.TOPIC, new QuestionSubmitNotifier() {
+        repositoryService.subscribeNotifier(Topic.QuestionSubmitNotifier, new QuestionSubmitNotifier() {
             @Override
             public void submit(String host, String slug) {
                 if (leetcodeEditor.getTitleSlug().equals(slug) && leetcodeEditor.getHost().equals(host)) {
@@ -81,7 +77,7 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
                     }
                 }
             }
-        });
+        }, this);
     }
 
     @Override
@@ -105,12 +101,12 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
             JBLabel loadingLabel = new JBLabel("Loading......");
             mySplitter.setFirstComponent(loadingLabel);
             try {
-                question = RepositoryServiceImpl.getInstance(project).getQuestionService().getQuestionByTitleSlug(leetcodeEditor.getTitleSlug());
+                question = repositoryService.getQuestionService().getQuestionByTitleSlug(leetcodeEditor.getTitleSlug());
 
                 if (question == null) {
                     mySplitter.setFirstComponent(new JBLabel("No question"));
                 } else {
-                    submissionList = ApplicationManager.getApplication().executeOnPooledThread(() -> RepositoryServiceImpl.getInstance(project).getSubmissionService().getSubmissionService(question.getTitleSlug())).get();
+                    submissionList = ApplicationManager.getApplication().executeOnPooledThread(() -> repositoryService.getSubmissionService().getSubmissionService(question.getTitleSlug())).get();
                     if (CollectionUtils.isNotEmpty(submissionList)) {
                         table = new JBTable(new SubmissionsPanel.TableModel(submissionList));
                         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -180,7 +176,7 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
     }
 
     private void openSubmission(Submission submission) throws InterruptedException, java.util.concurrent.ExecutionException {
-        File file = ApplicationManager.getApplication().executeOnPooledThread(() -> RepositoryServiceImpl.getInstance(project).getSubmissionService().openSubmission(submission, question.getTitleSlug(), false)).get();
+        File file = ApplicationManager.getApplication().executeOnPooledThread(() -> repositoryService.getSubmissionService().openSubmission(submission, question.getTitleSlug(), false)).get();
         if (file == null || !file.exists()) {
             mySplitter.setSecondComponent(new JBLabel("no submission"));
         } else {
@@ -246,12 +242,12 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
 
     @Override
     public void setState(@NotNull FileEditorState state) {
-        if (state instanceof ConvergePreview.TabFileEditorState) {
-            if (!isLoad && ((ConvergePreview.TabFileEditorState) state).isLoad()) {
+        if (state instanceof ConvergeFileEditorState.TabFileEditorState) {
+            if (!isLoad && ((ConvergeFileEditorState.TabFileEditorState) state).isLoad()) {
                 initComponent(null);
             }
-        } else if (state instanceof ConvergePreview.TabSelectFileEditorState) {
-            String id = ((ConvergePreview.TabSelectFileEditorState) state).getChildrenState();
+        } else if (state instanceof ConvergeFileEditorState.TabSelectFileEditorState) {
+            String id = ((ConvergeFileEditorState.TabSelectFileEditorState) state).getChildrenState();
             if (!isLoad) {
                 initComponent(id);
             } else if (CollectionUtils.isNotEmpty(submissionList)) {
@@ -263,8 +259,8 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
                     }
                 }
             }
-        } else if (state instanceof ConvergePreview.LoginState) {
-            ConvergePreview.LoginState loginState = (ConvergePreview.LoginState) state;
+        } else if (state instanceof ConvergeFileEditorState.LoginState) {
+            ConvergeFileEditorState.LoginState loginState = (ConvergeFileEditorState.LoginState) state;
             if (isLoad) {
                 if (loginState.isSelect()) {
                     initComponent(null);

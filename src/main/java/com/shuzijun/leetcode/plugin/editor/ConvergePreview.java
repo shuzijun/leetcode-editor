@@ -2,7 +2,10 @@ package com.shuzijun.leetcode.plugin.editor;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.*;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorLocation;
+import com.intellij.openapi.fileEditor.FileEditorState;
+import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -14,9 +17,11 @@ import com.intellij.ui.tabs.TabsListener;
 import com.intellij.ui.tabs.impl.JBEditorTabs;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.JBUI;
-import com.shuzijun.leetcode.plugin.listener.LoginNotifier;
-import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
+import com.shuzijun.leetcode.platform.model.ConvergeFileEditorState;
+import com.shuzijun.leetcode.platform.model.LeetcodeEditor;
+import com.shuzijun.leetcode.platform.notifier.LoginNotifier;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.model.PluginTopic;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,12 +39,9 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
     private final String[] names;
     private final TabInfo[] tabInfos;
     private final VirtualFile file;
-
-
+    private final LeetcodeEditor leetcodeEditor;
     private JComponent myComponent;
     private JBEditorTabs jbEditorTabs;
-
-    private LeetcodeEditor leetcodeEditor;
 
     public ConvergePreview(@NotNull FileEditor[] fileEditors, String[] names, Project project, VirtualFile file) {
         this.project = project;
@@ -52,12 +54,12 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
 
 
         MessageBusConnection settingsConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
-        settingsConnection.subscribe(LoginNotifier.TOPIC, new LoginNotifier() {
+        settingsConnection.subscribe(PluginTopic.LOGIN_TOPIC, new LoginNotifier() {
             @Override
             public void login(Project project, String host) {
                 if (host.equals(leetcodeEditor.getHost())) {
                     for (int i = 0; i < names.length; i++) {
-                        fileEditors[i].setState(LoginState.getState(true, tabInfos[i] == jbEditorTabs.getSelectedInfo()));
+                        fileEditors[i].setState(ConvergeFileEditorState.LoginState.getState(true, tabInfos[i] == jbEditorTabs.getSelectedInfo()));
                     }
                 }
             }
@@ -66,7 +68,7 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
             public void logout(Project project, String host) {
                 if (host.equals(leetcodeEditor.getHost())) {
                     for (int i = 0; i < names.length; i++) {
-                        fileEditors[i].setState(LoginState.getState(false, tabInfos[i] == jbEditorTabs.getSelectedInfo()));
+                        fileEditors[i].setState(ConvergeFileEditorState.LoginState.getState(false, tabInfos[i] == jbEditorTabs.getSelectedInfo()));
                     }
                 }
             }
@@ -88,7 +90,7 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
                 public void selectionChanged(TabInfo oldSelection, TabInfo newSelection) {
                     for (int i = 0; i < names.length; i++) {
                         if (newSelection.getText().equals(names[i])) {
-                            fileEditors[i].setState(TabFileEditorState.TabFileEditorLoadState);
+                            fileEditors[i].setState(ConvergeFileEditorState.TabFileEditorState.TabFileEditorLoadState);
                             break;
                         }
                     }
@@ -113,9 +115,9 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
 
     @Override
     public void setState(@NotNull FileEditorState state) {
-        if (state instanceof TabSelectFileEditorState) {
+        if (state instanceof ConvergeFileEditorState.TabSelectFileEditorState) {
             if (jbEditorTabs != null) {
-                String name = ((TabSelectFileEditorState) state).getName();
+                String name = ((ConvergeFileEditorState.TabSelectFileEditorState) state).getName();
                 for (int i = 0; i < names.length; i++) {
                     if (name.equals(names[i])) {
                         fileEditors[i].setState(state);
@@ -178,101 +180,4 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
     public void navigateTo(@NotNull Navigatable navigatable) {
 
     }
-
-    public static class TabFileEditorState implements FileEditorState {
-
-        public static TabFileEditorState TabFileEditorLoadState = new TabFileEditorState(true);
-        private boolean load = false;
-
-        public TabFileEditorState(boolean load) {
-            this.load = load;
-        }
-
-        public boolean isLoad() {
-            return load;
-        }
-
-        @Override
-        public boolean canBeMergedWith(@NotNull FileEditorState otherState, @NotNull FileEditorStateLevel level) {
-            return false;
-        }
-
-
-    }
-
-    public static class TabSelectFileEditorState implements FileEditorState {
-
-        private String name;
-
-        private String childrenState;
-
-        public TabSelectFileEditorState(String name) {
-            this.name = name;
-        }
-
-        public TabSelectFileEditorState(String name, String childrenState) {
-            this.name = name;
-            this.childrenState = childrenState;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getChildrenState() {
-            return childrenState;
-        }
-
-        @Override
-        public boolean canBeMergedWith(@NotNull FileEditorState otherState, @NotNull FileEditorStateLevel level) {
-            return false;
-        }
-
-    }
-
-    public static class LoginState implements FileEditorState {
-
-        public static LoginState NoLoginNoSelect = new LoginState(false, false);
-        public static LoginState NoLoginSelect = new LoginState(false, true);
-        public static LoginState LoginNoSelect = new LoginState(true, false);
-        public static LoginState LoginSelect = new LoginState(true, true);
-        private boolean login;
-        private boolean select;
-
-        public LoginState(boolean login, boolean select) {
-            this.login = login;
-            this.select = select;
-        }
-
-        public static LoginState getState(boolean login, boolean select) {
-            if (login) {
-                if (select) {
-                    return LoginSelect;
-                } else {
-                    return LoginNoSelect;
-                }
-            } else {
-                if (select) {
-                    return NoLoginSelect;
-                } else {
-                    return NoLoginNoSelect;
-                }
-            }
-        }
-
-        public boolean isLogin() {
-            return login;
-        }
-
-        public boolean isSelect() {
-            return select;
-        }
-
-        @Override
-        public boolean canBeMergedWith(@NotNull FileEditorState otherState, @NotNull FileEditorStateLevel level) {
-            return false;
-        }
-
-    }
-
 }

@@ -1,13 +1,13 @@
 package com.shuzijun.leetcode.plugin.window.navigator;
 
 import com.intellij.openapi.project.Project;
-import com.shuzijun.leetcode.platform.extension.NavigatorAction;
-import com.shuzijun.leetcode.platform.extension.NavigatorPagePanel;
+import com.shuzijun.leetcode.extension.NavigatorAction;
+import com.shuzijun.leetcode.extension.NavigatorPagePanel;
+import com.shuzijun.leetcode.platform.model.PageInfo;
+import com.shuzijun.leetcode.platform.model.Question;
+import com.shuzijun.leetcode.platform.model.QuestionView;
 import com.shuzijun.leetcode.plugin.listener.JTableKeyAdapter;
 import com.shuzijun.leetcode.plugin.listener.TreeMouseListener;
-import com.shuzijun.leetcode.plugin.model.PageInfo;
-import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.model.QuestionView;
 import com.shuzijun.leetcode.plugin.window.NavigatorTableData;
 import icons.LeetCodeEditorIcons;
 

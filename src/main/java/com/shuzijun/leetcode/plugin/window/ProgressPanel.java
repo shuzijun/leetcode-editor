@@ -2,7 +2,7 @@ package com.shuzijun.leetcode.plugin.window;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextField;
-import com.shuzijun.leetcode.plugin.model.Session;
+import com.shuzijun.leetcode.platform.model.Session;
 
 import javax.swing.*;
 import java.util.List;
@@ -11,6 +11,7 @@ import java.util.List;
  * @author shuzijun
  */
 public class ProgressPanel {
+    private final Project project;
     private JPanel mainPanel;
     private JComboBox sessionBox;
     private JBTextField todoField;
@@ -21,8 +22,6 @@ public class ProgressPanel {
     private JBTextField hardField;
     private JBTextField expField;
     private JBTextField pointField;
-
-    private Project project;
 
     public ProgressPanel(List<Session> sessionList, Project project) {
         this.project = project;

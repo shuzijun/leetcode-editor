@@ -17,13 +17,13 @@ import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.net.HttpConfigurable;
+import com.shuzijun.leetcode.platform.model.CodeTypeEnum;
+import com.shuzijun.leetcode.platform.model.Config;
+import com.shuzijun.leetcode.platform.model.Constant;
 import com.shuzijun.leetcode.plugin.listener.ColorListener;
-import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
 import com.shuzijun.leetcode.plugin.listener.DonateListener;
-import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
-import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.model.PluginTopic;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -269,7 +269,7 @@ public class SettingUI {
         ProgressManager.getInstance().run(new Task.Backgroundable(null, PluginConstant.PLUGIN_NAME + " Apply Config", false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
-                ApplicationManager.getApplication().getMessageBus().syncPublisher(ConfigNotifier.TOPIC).change(finalOldConfig, finalConfig);
+                ApplicationManager.getApplication().getMessageBus().syncPublisher(PluginTopic.CONFIG_TOPIC).change(finalOldConfig, finalConfig);
             }
         });
     }

@@ -5,9 +5,9 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
-import com.shuzijun.leetcode.platform.extension.NavigatorAction;
-import com.shuzijun.leetcode.plugin.model.Constant;
-import com.shuzijun.leetcode.plugin.model.Tag;
+import com.shuzijun.leetcode.extension.NavigatorAction;
+import com.shuzijun.leetcode.platform.model.Constant;
+import com.shuzijun.leetcode.platform.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 

@@ -17,10 +17,10 @@ import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
-import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
-import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
+import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.model.ConvergeFileEditorState;
+import com.shuzijun.leetcode.platform.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
-import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +38,7 @@ public class NotePreview extends UserDataHolderBase implements FileEditor {
 
     private final Project project;
     private final LeetcodeEditor leetcodeEditor;
+    private final RepositoryService repositoryService;
 
 
     private BorderLayoutPanel myComponent;
@@ -45,8 +46,9 @@ public class NotePreview extends UserDataHolderBase implements FileEditor {
 
     private boolean isLoad = false;
 
-    public NotePreview(Project project, LeetcodeEditor leetcodeEditor) {
-        this.project = project;
+    public NotePreview(RepositoryService repositoryService, LeetcodeEditor leetcodeEditor) {
+        this.project = repositoryService.getProject();
+        this.repositoryService = repositoryService;
         this.leetcodeEditor = leetcodeEditor;
     }
 
@@ -69,14 +71,14 @@ public class NotePreview extends UserDataHolderBase implements FileEditor {
             JBLabel loadingLabel = new JBLabel("Loading......");
             myComponent.addToCenter(loadingLabel);
             try {
-                File file = ApplicationManager.getApplication().executeOnPooledThread(() -> RepositoryServiceImpl.getInstance(project).getNoteService().show(leetcodeEditor.getTitleSlug(), false)).get();
+                File file = ApplicationManager.getApplication().executeOnPooledThread(() -> repositoryService.getNoteService().show(leetcodeEditor.getTitleSlug(), false)).get();
                 if (file == null || !file.exists()) {
                     myComponent.addToCenter(new JBLabel("No note"));
                 } else {
                     VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
                     FileEditorProvider[] editorProviders = FileEditorProviderManager.getInstance().getProviders(project, vf);
 
-                    if (editorProviders != null && editorProviders.length > 0) {
+                    if (editorProviders.length > 0) {
                         fileEditor = editorProviders[0].createEditor(project, vf);
                         Disposer.register(notePreview, fileEditor);
                     } else {
@@ -119,16 +121,16 @@ public class NotePreview extends UserDataHolderBase implements FileEditor {
 
     @Override
     public void setState(@NotNull FileEditorState state) {
-        if (state instanceof ConvergePreview.TabFileEditorState) {
-            if (!isLoad && ((ConvergePreview.TabFileEditorState) state).isLoad()) {
+        if (state instanceof ConvergeFileEditorState.TabFileEditorState) {
+            if (!isLoad && ((ConvergeFileEditorState.TabFileEditorState) state).isLoad()) {
                 initComponent();
             } else {
                 if (fileEditor != null) {
                     RefreshQueue.getInstance().refresh(false, false, null, fileEditor.getFile());
                 }
             }
-        } else if (state instanceof ConvergePreview.LoginState) {
-            ConvergePreview.LoginState loginState = (ConvergePreview.LoginState) state;
+        } else if (state instanceof ConvergeFileEditorState.LoginState) {
+            ConvergeFileEditorState.LoginState loginState = (ConvergeFileEditorState.LoginState) state;
             if (isLoad && loginState.isLogin()) {
                 if (loginState.isSelect()) {
                     ApplicationManager.getApplication().invokeLater(() -> {

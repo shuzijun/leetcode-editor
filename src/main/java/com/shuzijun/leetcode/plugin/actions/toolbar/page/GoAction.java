@@ -1,7 +1,7 @@
 package com.shuzijun.leetcode.plugin.actions.toolbar.page;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.shuzijun.leetcode.platform.extension.NavigatorAction;
+import com.shuzijun.leetcode.extension.NavigatorAction;
 
 /**
  * @author shuzijun

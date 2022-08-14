@@ -21,9 +21,9 @@ import org.jetbrains.annotations.Nullable;
  */
 public class ConsolePanel extends SimpleToolWindowPanel implements DataProvider {
 
-    private ConsoleView consoleView;
+    private final ConsoleView consoleView;
 
-    public ConsolePanel(ToolWindow toolWindow, Project project) {
+    public ConsolePanel(ToolWindow ignoredToolWindow, Project project) {
         super(Boolean.FALSE, Boolean.TRUE);
         this.consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
         SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(Boolean.FALSE, Boolean.TRUE);

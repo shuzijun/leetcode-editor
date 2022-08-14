@@ -9,10 +9,12 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.RefreshQueue;
-import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
-import com.shuzijun.leetcode.plugin.model.Constant;
-import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
-import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.leetcode.platform.model.CodeTypeEnum;
+import com.shuzijun.leetcode.platform.model.Constant;
+import com.shuzijun.leetcode.platform.model.LeetcodeEditor;
+import com.shuzijun.leetcode.platform.model.Question;
+import com.shuzijun.leetcode.platform.utils.IOUtils;
+import com.shuzijun.leetcode.platform.utils.LogUtils;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import org.apache.commons.lang.StringUtils;
 

@@ -7,10 +7,10 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.shuzijun.leetcode.platform.RepositoryService;
-import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
-import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.model.Submission;
+import com.shuzijun.leetcode.platform.model.Config;
+import com.shuzijun.leetcode.platform.model.ConvergeFileEditorState;
+import com.shuzijun.leetcode.platform.model.Question;
+import com.shuzijun.leetcode.platform.model.Submission;
 import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.window.dialog.SubmissionsPanel;
 import org.jetbrains.annotations.NotNull;
@@ -66,7 +66,7 @@ public class SubmissionsAction extends AbstractEditAction {
         RepositoryService repositoryService = RepositoryServiceImpl.getInstance(anActionEvent.getProject());
         Submission submission = submissionList.get(row);
         if (submission != null) {
-            if (config.getConvergeEditor() && openConvergeEditor(anActionEvent, new ConvergePreview.TabSelectFileEditorState("Submissions", submission.getId()))) {
+            if (config.getConvergeEditor() && openConvergeEditor(anActionEvent, new ConvergeFileEditorState.TabSelectFileEditorState("Submissions", submission.getId()))) {
                 return;
             }
             ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), anActionEvent.getActionManager().getId(this), false) {

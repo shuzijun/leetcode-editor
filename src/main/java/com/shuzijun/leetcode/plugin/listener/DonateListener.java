@@ -3,7 +3,7 @@ package com.shuzijun.leetcode.plugin.listener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.shuzijun.leetcode.plugin.utils.LogUtils;
+import com.shuzijun.leetcode.platform.utils.LogUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import org.jetbrains.annotations.Nullable;
 

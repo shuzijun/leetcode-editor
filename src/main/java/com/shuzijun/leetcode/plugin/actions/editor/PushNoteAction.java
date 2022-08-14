@@ -1,8 +1,8 @@
 package com.shuzijun.leetcode.plugin.actions.editor;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.leetcode.platform.model.Config;
+import com.shuzijun.leetcode.platform.model.Question;
 import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 
 /**

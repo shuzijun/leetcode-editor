@@ -3,8 +3,8 @@ package com.shuzijun.leetcode.plugin.actions.toolbar;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
+import com.shuzijun.leetcode.platform.model.Config;
 import com.shuzijun.leetcode.plugin.actions.AbstractAction;
-import com.shuzijun.leetcode.plugin.model.Config;
 
 /**
  * @author shuzijun

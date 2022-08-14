@@ -4,8 +4,8 @@ import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.shuzijun.leetcode.platform.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.editor.LCVProvider;
-import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import org.jetbrains.annotations.NotNull;
 

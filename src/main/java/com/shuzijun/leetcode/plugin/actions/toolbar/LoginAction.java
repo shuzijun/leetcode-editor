@@ -3,16 +3,20 @@ package com.shuzijun.leetcode.plugin.actions.toolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
-import com.shuzijun.leetcode.platform.extension.NavigatorAction;
+import com.shuzijun.leetcode.extension.NavigatorAction;
+import com.shuzijun.leetcode.platform.model.Config;
+import com.shuzijun.leetcode.platform.model.HttpRequest;
+import com.shuzijun.leetcode.platform.model.HttpResponse;
 import com.shuzijun.leetcode.platform.service.HttpRequestService;
+import com.shuzijun.leetcode.platform.utils.CookieUtils;
 import com.shuzijun.leetcode.plugin.actions.AbstractAction;
-import com.shuzijun.leetcode.plugin.listener.LoginNotifier;
-import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.HttpRequest;
-import com.shuzijun.leetcode.plugin.model.HttpResponse;
+import com.shuzijun.leetcode.plugin.model.PluginTopic;
 import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import com.shuzijun.leetcode.plugin.utils.*;
+import com.shuzijun.leetcode.plugin.utils.DataKeys;
+import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.NavigatorTabsPanel;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import com.shuzijun.leetcode.plugin.window.login.HttpLogin;
@@ -43,7 +47,7 @@ public class LoginAction extends AbstractAction implements DumbAware {
                 MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("info", PropertiesUtils.getInfo("login.exist"));
                 NavigatorTabsPanel.loadUser(true, anActionEvent.getProject());
                 if (navigatorAction.getPageInfo().getRowTotal() == 0) {
-                    ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(anActionEvent.getProject(), config.getUrl());
+                    ApplicationManager.getApplication().getMessageBus().syncPublisher(PluginTopic.LOGIN_TOPIC).login(anActionEvent.getProject(), config.getUrl());
                 }
                 return;
             }
@@ -60,7 +64,7 @@ public class LoginAction extends AbstractAction implements DumbAware {
             if (httpRequestService.isLogin(anActionEvent.getProject())) {
                 MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("login", PropertiesUtils.getInfo("login.success"));
                 NavigatorTabsPanel.loadUser(true, anActionEvent.getProject());
-                ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(anActionEvent.getProject(), config.getUrl());
+                ApplicationManager.getApplication().getMessageBus().syncPublisher(PluginTopic.LOGIN_TOPIC).login(anActionEvent.getProject(), config.getUrl());
                 return;
             } else {
                 config.addCookie(config.getUrl() + config.getLoginName(), null);

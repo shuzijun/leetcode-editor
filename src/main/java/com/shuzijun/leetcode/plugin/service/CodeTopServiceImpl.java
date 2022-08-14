@@ -4,12 +4,12 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.project.Project;
+import com.shuzijun.leetcode.extension.NavigatorAction;
 import com.shuzijun.leetcode.platform.RepositoryService;
-import com.shuzijun.leetcode.platform.extension.NavigatorAction;
+import com.shuzijun.leetcode.platform.model.*;
 import com.shuzijun.leetcode.platform.repository.CodeTopService;
-import com.shuzijun.leetcode.plugin.model.*;
-import com.shuzijun.leetcode.plugin.utils.CodeTopURLUtils;
-import com.shuzijun.leetcode.plugin.utils.LogUtils;
+import com.shuzijun.leetcode.platform.utils.CodeTopURLUtils;
+import com.shuzijun.leetcode.platform.utils.LogUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +28,7 @@ public class CodeTopServiceImpl implements CodeTopService {
     public CodeTopServiceImpl(Project project) {
         this.project = project;
     }
+
     @Override
     public void registerRepository(RepositoryService repositoryService) {
         this.repositoryService = repositoryService;
@@ -41,7 +42,7 @@ public class CodeTopServiceImpl implements CodeTopService {
     @Override
     public void loadServiceData(NavigatorAction navigatorAction, String selectTitleSlug) {
         repositoryService.getQuestionService().getQuestionAllService(false);
-        PageInfo pageInfo = getQuestionService(navigatorAction.getPageInfo());
+        PageInfo<CodeTopQuestionView> pageInfo = getQuestionService(navigatorAction.getPageInfo());
         if ((pageInfo.getRows() == null || pageInfo.getRows().isEmpty()) && pageInfo.getRowTotal() != 0) {
             MessageUtils.getInstance(project).showErrorMsg("error", PropertiesUtils.getInfo("response.question"));
             return;
@@ -59,7 +60,7 @@ public class CodeTopServiceImpl implements CodeTopService {
         List<Tag> tags = new ArrayList<>();
 
         HttpResponse response = repositoryService.HttpRequest().get(CodeTopURLUtils.getCompanies()).request();
-        if (response != null && response.getStatusCode() == 200) {
+        if (response.getStatusCode() == 200) {
             try {
                 String body = response.getBody();
                 if (StringUtils.isNotBlank(body)) {
@@ -120,7 +121,7 @@ public class CodeTopServiceImpl implements CodeTopService {
         return difficultyList;
     }
 
-    private PageInfo<CodeTopQuestionView> getQuestionService(PageInfo pageInfo) {
+    private PageInfo<CodeTopQuestionView> getQuestionService(PageInfo<CodeTopQuestionView> pageInfo) {
         String url = CodeTopURLUtils.getQuestions() + "?page=" + pageInfo.getPageIndex();
         PageInfo.Filters filters = pageInfo.getFilters();
         if (StringUtils.isNotBlank(filters.getOrderBy())) {
@@ -141,7 +142,7 @@ public class CodeTopServiceImpl implements CodeTopService {
 
         HttpResponse response = repositoryService.HttpRequest().get(url).request();
         if (response.getStatusCode() == 200) {
-            List<CodeTopQuestionView> questionList = new ArrayList();
+            List<CodeTopQuestionView> questionList = new ArrayList<>();
             JSONObject pageObject = JSONObject.parseObject(response.getBody());
             JSONArray questionJsonArray = pageObject.getJSONArray("list");
             for (int i = 0; i < pageObject.getJSONArray("list").size(); i++) {
@@ -169,7 +170,7 @@ public class CodeTopServiceImpl implements CodeTopService {
             pageInfo.setRowTotal(pageObject.getInteger("count"));
             pageInfo.setRows(questionList);
         } else {
-            LogUtils.LOG.error("Request question list failed, status:" + response == null ? "" : response.getStatusCode());
+            LogUtils.LOG.error("Request question list failed, status:" + response.getStatusCode());
             throw new RuntimeException("Request question list failed");
         }
 

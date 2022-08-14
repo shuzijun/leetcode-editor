@@ -1,32 +1,29 @@
 package com.shuzijun.leetcode.plugin.editor;
 
+import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.shuzijun.leetcode.extension.ConvergeEditorFactory;
+import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.List;
 
 /**
  * @author shuzijun
  */
 public class ConvergeProvider implements AsyncFileEditorProvider, DumbAware {
 
+    private static final ExtensionPointName<ConvergeEditorFactory> EXTENSION_CONVERGE_EDITOR = ExtensionPointName.create(PluginConstant.EXTENSION_CONVERGE_EDITOR);
 
-    @NotNull
-    protected final FileEditorProvider[] editorProviders;
-    protected final String[] names;
+    private String myEditorTypeId = "tab-provider-ConvergeProvider";
 
-    @NotNull
-    private final String myEditorTypeId;
-
-    public ConvergeProvider(@NotNull FileEditorProvider[] editorProviders, @NotNull String[] names) {
-        this.editorProviders = editorProviders;
-        this.names = names;
-        this.myEditorTypeId = "tab-provider[" + Arrays.stream(editorProviders).map(FileEditorProvider::getEditorTypeId).collect(Collectors.joining(";")) + "]";
+    public ConvergeProvider() {
     }
 
     @NotNull
@@ -46,23 +43,30 @@ public class ConvergeProvider implements AsyncFileEditorProvider, DumbAware {
     @NotNull
     @Override
     public AsyncFileEditorProvider.Builder createEditorAsync(@NotNull final Project project, @NotNull final VirtualFile file) {
-        final Builder[] builders = new Builder[editorProviders.length];
-        for (int i = 0; i < editorProviders.length; i++) {
-            builders[i] = getBuilderFromEditorProvider(editorProviders[i], project, file);
+        RepositoryService repositoryService = RepositoryServiceImpl.getInstance(project);
+        List<ConvergeEditorFactory> convergeEditorFactory = EXTENSION_CONVERGE_EDITOR.getExtensionList();
+
+        final Builder[] builders = new Builder[convergeEditorFactory.size()];
+        final String[] names = new String[convergeEditorFactory.size()];
+        for (int i = 0; i < convergeEditorFactory.size(); i++) {
+            builders[i] = getBuilderFromEditorProvider(convergeEditorFactory.get(i).createEditorProvider(repositoryService), project, file);
+            names[i] = convergeEditorFactory.get(i).getName();
         }
+
+
         return new Builder() {
             @Override
             public TextEditor build() {
-                FileEditor[] fileEditors = new FileEditor[editorProviders.length];
+                FileEditor[] fileEditors = new FileEditor[convergeEditorFactory.size()];
                 for (int i = 0; i < builders.length; i++) {
                     fileEditors[i] = builders[i].build();
                 }
-                return createSplitEditor(fileEditors, project, file);
+                return createSplitEditor(fileEditors, names, project, file);
             }
         };
     }
 
-    protected TextEditor createSplitEditor(@NotNull FileEditor[] fileEditors, Project project, VirtualFile file) {
+    protected TextEditor createSplitEditor(@NotNull FileEditor[] fileEditors, String[] names, Project project, VirtualFile file) {
         return new ConvergePreview(fileEditors, names, project, file);
     }
 

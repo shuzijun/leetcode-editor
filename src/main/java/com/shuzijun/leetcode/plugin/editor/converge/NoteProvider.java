@@ -6,9 +6,9 @@ import com.intellij.openapi.fileEditor.FileEditorPolicy;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
+import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
-import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -16,22 +16,27 @@ import org.jetbrains.annotations.NotNull;
  */
 public class NoteProvider implements AsyncFileEditorProvider, DumbAware {
 
-    private FileEditor fileEditor;
+    private final RepositoryService repositoryService;
+
+    public NoteProvider(RepositoryService repositoryService) {
+        this.repositoryService = repositoryService;
+    }
+
 
     @Override
     public @NotNull Builder createEditorAsync(@NotNull Project project, @NotNull VirtualFile file) {
-        LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getEditor(file.getPath());
+        LeetcodeEditor leetcodeEditor = repositoryService.getLeetcodeEditor(file.getPath());
 
         return new Builder() {
             @Override
             public FileEditor build() {
-                return createSplitEditor(leetcodeEditor, project);
+                return createSplitEditor(leetcodeEditor);
             }
         };
     }
 
-    protected FileEditor createSplitEditor(@NotNull LeetcodeEditor leetcodeEditor, Project project) {
-        return new NotePreview(project, leetcodeEditor);
+    protected FileEditor createSplitEditor(@NotNull LeetcodeEditor leetcodeEditor) {
+        return new NotePreview(repositoryService, leetcodeEditor);
     }
 
     @Override
@@ -53,5 +58,4 @@ public class NoteProvider implements AsyncFileEditorProvider, DumbAware {
     public @NotNull FileEditorPolicy getPolicy() {
         return FileEditorPolicy.HIDE_DEFAULT_EDITOR;
     }
-
 }

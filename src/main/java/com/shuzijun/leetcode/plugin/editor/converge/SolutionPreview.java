@@ -16,10 +16,10 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
-import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
+import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.model.*;
 import com.shuzijun.leetcode.plugin.editor.SplitFileEditor;
-import com.shuzijun.leetcode.plugin.model.*;
-import com.shuzijun.leetcode.plugin.service.RepositoryServiceImpl;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
@@ -49,7 +49,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
 
     private final Project project;
     private final LeetcodeEditor leetcodeEditor;
-
+    private final RepositoryService repositoryService;
 
     private BorderLayoutPanel myComponent;
     private Question question;
@@ -63,8 +63,9 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
     private JBSplitter mySplitter;
     private SplitFileEditor.SplitEditorLayout myLayout = SplitFileEditor.SplitEditorLayout.FIRST;
 
-    public SolutionPreview(Project project, LeetcodeEditor leetcodeEditor) {
-        this.project = project;
+    public SolutionPreview(RepositoryService repositoryService, LeetcodeEditor leetcodeEditor) {
+        this.project = repositoryService.getProject();
+        this.repositoryService = repositoryService;
         this.leetcodeEditor = leetcodeEditor;
     }
 
@@ -89,7 +90,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
             JBLabel loadingLabel = new JBLabel("Loading......");
             mySplitter.setFirstComponent(loadingLabel);
             try {
-                question = RepositoryServiceImpl.getInstance(project).getQuestionService().getQuestionByTitleSlug(leetcodeEditor.getTitleSlug());
+                question = repositoryService.getQuestionService().getQuestionByTitleSlug(leetcodeEditor.getTitleSlug());
 
                 if (question == null || Constant.ARTICLE_LIVE_NONE.equals(question.getArticleLive())) {
                     mySplitter.setFirstComponent(new JBLabel("No question or no solution"));
@@ -98,7 +99,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
                     myLayout = SplitFileEditor.SplitEditorLayout.SECOND;
                     adjustEditorsVisibility();
                 } else if (Constant.ARTICLE_LIVE_LIST.equals(question.getArticleLive())) {
-                    solutionList = ApplicationManager.getApplication().executeOnPooledThread(() -> RepositoryServiceImpl.getInstance(project).getArticleService().getSolutionList(question.getTitleSlug())).get();
+                    solutionList = ApplicationManager.getApplication().executeOnPooledThread(() -> repositoryService.getArticleService().getSolutionList(question.getTitleSlug())).get();
                     if (CollectionUtils.isEmpty(solutionList)) {
                         mySplitter.setFirstComponent(new JBLabel("no solution"));
                     } else {
@@ -169,9 +170,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
     }
 
     private void openArticle() throws InterruptedException, java.util.concurrent.ExecutionException {
-        File file = ApplicationManager.getApplication().executeOnPooledThread(() -> {
-            return RepositoryServiceImpl.getInstance(project).getArticleService().openArticle(question.getTitleSlug(), question.getArticleSlug(), false);
-        }).get();
+        File file = ApplicationManager.getApplication().executeOnPooledThread(() -> repositoryService.getArticleService().openArticle(question.getTitleSlug(), question.getArticleSlug(), false)).get();
         if (file == null || !file.exists()) {
             mySplitter.setSecondComponent(new JBLabel("no solution"));
         } else {
@@ -239,8 +238,8 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
 
     @Override
     public void setState(@NotNull FileEditorState state) {
-        if (state instanceof ConvergePreview.TabFileEditorState) {
-            if (!isLoad && ((ConvergePreview.TabFileEditorState) state).isLoad()) {
+        if (state instanceof ConvergeFileEditorState.TabFileEditorState) {
+            if (!isLoad && ((ConvergeFileEditorState.TabFileEditorState) state).isLoad()) {
                 initComponent(null);
             } else if (myLayout == SplitFileEditor.SplitEditorLayout.SECOND || myLayout == SplitFileEditor.SplitEditorLayout.SPLIT) {
                 try {
@@ -248,8 +247,8 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
                 } catch (Exception ignore) {
                 }
             }
-        } else if (state instanceof ConvergePreview.TabSelectFileEditorState) {
-            String slug = ((ConvergePreview.TabSelectFileEditorState) state).getChildrenState();
+        } else if (state instanceof ConvergeFileEditorState.TabSelectFileEditorState) {
+            String slug = ((ConvergeFileEditorState.TabSelectFileEditorState) state).getChildrenState();
             if (!isLoad) {
                 initComponent(slug);
             } else if (CollectionUtils.isNotEmpty(solutionList)) {

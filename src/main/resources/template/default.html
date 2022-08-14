@@ -1,13 +1,13 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="{{service}}resources/vditor/dist/index.css?{{serverToken}}"/>
-    <link rel="stylesheet" href="{{service}}resources/vditor/style.css?{{serverToken}}"/>
+    <link href="{{service}}resources/vditor/dist/index.css?{{serverToken}}" rel="stylesheet"/>
+    <link href="{{service}}resources/vditor/style.css?{{serverToken}}" rel="stylesheet"/>
     <script src="{{service}}resources/vditor/dist/index.min.js?{{serverToken}}"></script>
     <script src="{{service}}resources/vditor/jquery-3.6.0.min.js?{{serverToken}}"></script>
 </head>
 <body className="body" style="margin: 0px;">
-<div id="vditor" className="vditor vditor--fullscreen" style="height: 100%"></div>
+<div className="vditor vditor--fullscreen" id="vditor" style="height: 100%"></div>
 <textarea id="fileValue" style="display:none;">
 {{fileValue}}
 </textarea>
@@ -20,7 +20,7 @@
     window.onload = function () {
         $(".vditor-toolbar")[0].remove();
         $(".vditor-sv")[0].remove();
-        $(".vditor-preview").find(".vditor-reset").css("max-width","90%" )
+        $(".vditor-preview").find(".vditor-reset").css("max-width", "90%")
     }
     const vditor = new Vditor('vditor', {
         "mode": "sv",
@@ -45,13 +45,14 @@
         },
         "value": document.getElementById("fileValue").innerText
     });
-    function updateStyle(style,darcula){
+
+    function updateStyle(style, darcula) {
         let newStyle = document.createElement('style');
         newStyle.id = 'ideaStyle';
         newStyle.innerHTML = style;
         let oldStyle = document.getElementById('ideaStyle');
-        oldStyle.parentNode.replaceChild(newStyle,oldStyle);
-        vditor.setTheme(darcula? "dark" : "light",darcula ? "idea-dark" : "idea-light",darcula ? "dracula" : "github",vditorThemeCDN)
+        oldStyle.parentNode.replaceChild(newStyle, oldStyle);
+        vditor.setTheme(darcula ? "dark" : "light", darcula ? "idea-dark" : "idea-light", darcula ? "dracula" : "github", vditorThemeCDN)
     }
 </script>
 {{ideStyle}}

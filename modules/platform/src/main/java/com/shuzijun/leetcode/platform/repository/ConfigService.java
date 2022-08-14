@@ -1,6 +1,6 @@
 package com.shuzijun.leetcode.platform.repository;
 
-import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.platform.model.Config;
 
 /**
  * 获取配置数据

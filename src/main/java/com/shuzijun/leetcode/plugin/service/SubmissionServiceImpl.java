@@ -4,10 +4,16 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.platform.RepositoryService;
+import com.shuzijun.leetcode.platform.model.*;
 import com.shuzijun.leetcode.platform.repository.SubmissionService;
-import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.platform.utils.CommentUtils;
+import com.shuzijun.leetcode.platform.utils.LogUtils;
+import com.shuzijun.leetcode.platform.utils.VelocityUtils;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import com.shuzijun.leetcode.plugin.utils.*;
+import com.shuzijun.leetcode.plugin.utils.FileUtils;
+import com.shuzijun.leetcode.plugin.utils.MessageUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -25,6 +31,7 @@ public class SubmissionServiceImpl implements SubmissionService {
     public SubmissionServiceImpl(Project project) {
         this.project = project;
     }
+
     @Override
     public void registerRepository(RepositoryService repositoryService) {
         this.repositoryService = repositoryService;
@@ -58,9 +65,6 @@ public class SubmissionServiceImpl implements SubmissionService {
                         submission.setMemory(object.getString("memory"));
                         submissionList.add(submission);
                     }
-                   /* if (submissionList.size() == 0) {
-                        MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("submission.empty"));
-                    }*/
                 }
             } else {
                 MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
@@ -79,7 +83,7 @@ public class SubmissionServiceImpl implements SubmissionService {
             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return null;
         }
-        Config config = PersistentConfig.getInstance().getInitConfig();
+        Config config = PersistentConfig.getInstance().getConfig();
         Question question = repositoryService.getQuestionService().getQuestionByTitleSlug(titleSlug);
         CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnumByLangSlug(submission.getLang());
         String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_SUBMISSION + VelocityUtils.convert(config.getCustomFileName(), question) + submission.getId() + ".txt";

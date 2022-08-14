@@ -5,9 +5,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.util.messages.MessageBusConnection;
-import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
-import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.platform.model.Config;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.model.PluginTopic;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,7 +49,7 @@ public class TimerBarWidget implements CustomStatusBarWidget {
         this.project = project;
         loaColor(PersistentConfig.getInstance().getInitConfig());
         MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
-        messageBusConnection.subscribe(ConfigNotifier.TOPIC, (oldConfig, newConfig) -> loaColor(newConfig));
+        messageBusConnection.subscribe(PluginTopic.CONFIG_TOPIC, (oldConfig, newConfig) -> loaColor(newConfig));
     }
 
     private void loaColor(Config config) {

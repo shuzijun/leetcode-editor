@@ -1,7 +1,7 @@
 query getNote($titleSlug: String!) {
-  question(titleSlug: $titleSlug) {
-    questionId
-    note
-    __typename
-  }
+    question(titleSlug: $titleSlug) {
+        questionId
+        note
+        __typename
+    }
 }

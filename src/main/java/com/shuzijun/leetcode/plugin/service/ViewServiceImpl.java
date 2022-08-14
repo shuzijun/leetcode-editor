@@ -2,16 +2,19 @@ package com.shuzijun.leetcode.plugin.service;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.shuzijun.leetcode.extension.NavigatorAction;
 import com.shuzijun.leetcode.platform.RepositoryService;
-import com.shuzijun.leetcode.platform.extension.NavigatorAction;
+import com.shuzijun.leetcode.platform.model.*;
 import com.shuzijun.leetcode.platform.repository.ViewService;
-import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -25,10 +28,12 @@ public class ViewServiceImpl implements ViewService {
     public ViewServiceImpl(Project project) {
         this.project = project;
     }
+
     @Override
     public void registerRepository(RepositoryService repositoryService) {
         this.repositoryService = repositoryService;
     }
+
     @Override
     public void loadServiceData(NavigatorAction navigatorAction) {
         loadServiceData(navigatorAction, null);
@@ -126,7 +131,7 @@ public class ViewServiceImpl implements ViewService {
                 continue;
             }
             if (difficulty) {
-                List<String> difficultyList = repositoryService.getFindService().getDifficulty().stream().map(t -> t.getSlug()).collect(Collectors.toList());
+                List<String> difficultyList = repositoryService.getFindService().getDifficulty().stream().map(Tag::getSlug).collect(Collectors.toList());
                 Integer level = difficultyList.indexOf(filters.getDifficulty()) + 1;
                 if (!questionView.getLevel().equals(level)) {
                     continue;
@@ -146,25 +151,22 @@ public class ViewServiceImpl implements ViewService {
 
         if (StringUtils.isNotBlank(filters.getOrderBy())) {
             int order = "DESCENDING".equalsIgnoreCase(filters.getSortOrder()) ? -1 : 1;
-            Collections.sort(conformList, new Comparator<QuestionView>() {
-                @Override
-                public int compare(QuestionView o1, QuestionView o2) {
-                    if ("day".equalsIgnoreCase(o1.getStatus())) {
-                        return 1;
-                    } else if ("day".equalsIgnoreCase(o2.getStatus())) {
-                        return -1;
-                    }
-                    if ("TITLE".equalsIgnoreCase(filters.getOrderBy())) {
-                        return order * o1.getTitle().compareTo(o2.getTitle());
-                    }
-                    if ("DIFFICULTY".equalsIgnoreCase(filters.getOrderBy())) {
-                        return order * o1.getLevel().compareTo(o2.getLevel());
-                    }
-                    if ("STATES".equalsIgnoreCase(filters.getOrderBy())) {
-                        return order * o1.getStatusSign().compareTo(o2.getStatusSign());
-                    }
-                    return order * o1.getFrontendQuestionId().compareTo(o2.getFrontendQuestionId());
+            conformList.sort((o1, o2) -> {
+                if ("day".equalsIgnoreCase(o1.getStatus())) {
+                    return 1;
+                } else if ("day".equalsIgnoreCase(o2.getStatus())) {
+                    return -1;
                 }
+                if ("TITLE".equalsIgnoreCase(filters.getOrderBy())) {
+                    return order * o1.getTitle().compareTo(o2.getTitle());
+                }
+                if ("DIFFICULTY".equalsIgnoreCase(filters.getOrderBy())) {
+                    return order * o1.getLevel().compareTo(o2.getLevel());
+                }
+                if ("STATES".equalsIgnoreCase(filters.getOrderBy())) {
+                    return order * o1.getStatusSign().compareTo(o2.getStatusSign());
+                }
+                return order * o1.getFrontendQuestionId().compareTo(o2.getFrontendQuestionId());
             });
         }
 
