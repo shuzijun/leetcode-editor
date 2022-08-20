@@ -1,63 +1,0 @@
-CursorRenderingHintsPoint2DVectorRenderedImageMethodKeyInputStreamReceiverTransmitterbyte
-EventQueue"PaintHeavyweightComponentsCallback"PrintHeavyweightComponentsCallbackKeyboardFocusManagerWindow[]TransferableFloat	PopupMenuCauseSampleModelAppletURISizeSegmentPositionWidgetReaderType[]	KeyStrokePopupRepaintManagerPrintStreamKeyBinding[]	SortOrder	ActionMapAccessibleStateSetLayoutStyleElementKindRSDocumentationTaskJavaCompilerDocumentationToolOutputStreamCharSequenceWriterModifierPathServiceLoaderCompilationTaskStandardLocation
-CompletionMessagerElementsFilerTypesLinkedHashSetDataFlavorComparatorCharsetComparatorDesktopDatatransferService
-ComparatorTextFlavorComparatorCaretFieldConstructorValueObjectMethodOrder	ClassInfoNameRecordingTrackTrackRuntimeExceptionDLSIDGUIDModelDestinationSoftResamplerStreamerSF2Soundbank	SF2SampleSF2LayerSF2InstrumentAudioFloatConverterAudioSynthesizerPropertyInfo[]SoftMixingMixerModelOscillatorStreamJavaSoundAudioClipModelConnectionBlock[]CloseActionDimension[]JPEGQTable[]JPEGHuffmanTable[]ImageTypeProducerTIFFTagIndexColorModelAquaScrollRegionBorderCapsLockSymbolPainterTypeSpecifierAquaHierarchyButtonListenerArrowButtonHandlerSearchFieldBorderDynamicallySizingJRSUIIconLayerPainterAquaMenuPainterAquaTextFieldBorderAquaInternalFrameBorderMetricsAlterRects[]
-AlterRectsIndeterminateListenerPropertySizeListenerAquaInternalFrameBorderLazyKeyedSingleton%HorizontalSplitDividerGradientPainter
-SystemIconAquaButtonBorderScreenMenuBarKeyEventPostProcessorAquaKeyBindingsSizeDescriptorTableColumnApplicationFullScreenHandler_AppEventHandler_AppMenuBarHandlerPerComponentNotifierGestureHandlerPaintEventDispatcherAWTAutoShutdownValueLightweightFrameDataBufferIntInputMethodDescriptorDebugSettingsOSTypeWindowsVersionPrivilegedActionAWTPermissionCheckboxMenuItemAccessorBufferStrategyClientPropertyKeyAccessorCursorAccessorMenuBarAccessorPopupMenuAccessorDropTargetContextAccessorMenuContainerMenuAccessibleContextAccessorFileDialogAccessorContainerAccessorInvocationEventAccessorKeyEventAccessorMenuAccessorDragSourceContextAccessor#DefaultKeyboardFocusManagerAccessorScrollPaneAdjustableAccessorAccessControlContextTrayIconAccessorSequencedEventAccessorAWTEventAccessorSystemTrayAccessorEventQueueAccessorMenuComponentAccessorToolkitAccessorMenuShortcutWindowAccessorMenuItemAccessorAccessibleBundleAccessorSystemColorAccessorInputEventAccessorComponentAccessorFrameAccessorMouseEventAccessorKeyboardFocusManagerAccessor
-AdjustableSecondaryLoopListPeerPopupMenuPeerMenuPeer	FramePeerFontPeerMenuBarPeer
-CanvasPeer
-WindowPeerScrollPanePeerMenuItemPeerFileDialogPeerTextAreaPeer	PanelPeer
-ButtonPeerTaskbarPeer	RobotPeerMouseInfoPeerDesktopPeer
-ChoicePeerTextFieldPeer
-DialogPeer	LabelPeerScrollbarPeerCheckboxPeerCheckboxMenuItemPeerKeyboardFocusManagerPeer
-JPopupMenuInputMethodManager	HashtableInputMethodPopupMenuToolkitThreadBlockedHandler	CrossingsImageConsumerQueueSurfaceManagerWritableRasterNative
-ImageCacheLinkFetcherInfoBufferedImageGraphicsConfigImageObserverPixelConverterShellFolderColumnInfo[]ShellFolder
-FontAccessAttributeValuesTextLineComponentGlyphLayoutLayoutEngineSDCache
-MetricsKeyFontDesignMetrics	GlyphListFontManagerCreatedFontTrackerStandardGlyphVectorGlyphStrikeFontFamily[]
-FontFamilyCompositeFontSunFontManager
-FontScaler
-Decoration
-EAttributeEAttribute[]Font2DHandle	ArrayListFontStrike[]FontStrikeDisposerEndTypeSegmentPathLayoutPathImplchar[][]NullCMapClasschar[]CMapLayoutEngineFactoryPlatformLoggerTreeMap	UnderlineFontResolverCodePointIteratorLWKeyboardFocusManagerPeerLWComponentPeerPeerTypeGraphicsDevice	LWToolkitCAccessible
-LWCToolkitAccessibleEditableTextCPlatformWindowCDataTransfererCCursorManagerCPrinterGraphicsConfigCDropTargetContextPeerCreatorCImageAccessibleActionAccessibleTextAccessibleComponentNumberAccessibleValueAccessibleSelectionCAccessibilityCDragSourceContextPeerSunPageSelectionSoftReference	HashMap[]HttpURLConnectionDialogOwnerAccessorAttributeClassListSelectionListenerJPanelBasicDirectoryModelJFileChooserJComponentAccessorPopupFactoryAccessorRepaintManagerAccessorJTextComponentAccessorDropLocationUIDefaultsAccessorJLightweightFrameAccessorKeyStrokeAccessorPrintingStatusFontRenderContext
-Graphics2DSectionFutureTreePathColumnAlignmentStyleAssociation	PaintTypeSurfaceSpanIntersectionDrawImagePipeAAShapePipeTextPipeAlphaColorPipeLoopPipePixelToShapeConverterCompositePipeSpanShapeRenderer
-PermissionBufferCapabilitiesSurfaceManagerFactory
-ByteBuffer	CRendererCompositeCRendererBasicStroke	CTextPipeValidatePipeStroke	CompositeProfileColorTransformDirectColorModelOSXOffScreenSurfaceDataFontManagerForSGE	BandOrderLCMSImageLayoutLCMSProfileShapeSpanIteratorRenderBufferContextCapabilities	VSyncTypeDrawGlyphListAAFillRectFillPathDrawPolygonsMaskBlitMaskFillTransformBlitDrawGlyphListLCDDrawRectDrawPathTransformHelperPixelWriter	FillSpansDrawGlyphListDrawParallelogram
-ScaledBlitFillParallelogramDrawLineBlitBgAnyBlitEndSubPathHandlerRendererStatsHolderOGLTextRendererOGLRendererOGLDrawImageParallelogramPipeCGLWindowSurfaceDataCGLLayerSurfaceDataCGLOffScreenSurfaceData
-OGLContextOGLRenderQueue
-MediaEntryComponentOrientationSystemColorFeatureTaskbarCycleMethodColorSpaceTypeNestingKindClassLoaderStandardJavaFileManagerLocationIterable
-FileObjectJavaFileObjectSourceVersion	FlavorMapKindModelIdentifierAudioFloatInputStream
-Object[][]TIFFIFDint[][]IIOMetadataFormatImageTypeSpecifierAquaPainterJButton
-UIResourceIconUIResourceAquaTableHeaderBorder
-AppContextThreadLightweightPeer	SoftCacheDataTransfererFlavorTable
-DataFlavorlong[]CoreMetricsFont2D[]Font2DFontUIResourceLWWindowPeerClientPropertyApplicator	boolean[]AccessibleContextDragSourceContextPeerFileStringUIClientPropertyKeyReferenceQueueRenderLoopsStateTrackableDelegateFontConfigurationStateTrackerPCMMRenderingEngineBufferedContextRegionGraphicsPrimitiveHashMapCompositeTypeBlitUnsafeDRendererContextNormModeRendererContextSimplifierStateThreadGroupRendererStatsOffHeapArrayPixelToParallelogramConverterSurfaceTypeSurfaceDataCGLGraphicsConfigSurfaceDataProxyShapeWeakReferenceAWTEventIdentityArrayList	MediaTypeObject[]Font[]MouseListenerPaintContextEventListenerDataFlavor[]BooleanTextHitInfoNumericShaperAffineTransformdouble[]float[]GraphicsConfigurationVolatileImageFontMetricsshort
-ColorSpacecharBufferedImage
-ColorModelbyte[]short[]RasterWritableRasterRectangle2D	Printable
-PrinterJob	ReferenceString[]
-BeanInfo[]PropertyChangeListenerBeanContextChildIterator	AudioClip
-JRSUIStatedoubleDocFlavor[]TStateHitClass[]PrintService[]PrintServiceURLStreamPrintServiceFactory[]AttributeSetPrintServiceAttributeSetPrintJobAttributeSetDocAttributeSetAttribute[]	AttributeMediaSizeNameListInstrument[]Sequence
-MidiDevice	SoundbankInfolongAudioFormatInfo[]LineAudioInputStreamFontImageActionMapTypeColorPoint
-JComponentFrame	JRootPane
-Accessible	RectangleWindowInputMapClassWindowListener	Container	ComponentIntegerJLayeredPaneLocaleGraphicsSetint[]IconBorderObjectintComponentUIfloat	DimensionStringbooleanInsetsvoidAWTEventListenerToolkitModalityTypeModalExclusionTypePrintJobPeerPrintCallbackPaintAllCallbackPaintCallbackPrintCallbackPeerPaintCallbackPrintAllCallbackAWTKeyStrokeFrame[]EventTargetFilterModalEventFilterDesktopDefaultSelectionTypeDestinationType
-DialogType	SidesTypeMultipleDocumentHandlingType
-FocusEventHeavyweightFocusRequestMessageTypeFilterAction
-SystemTrayAlphaCompositeSplashScreenCompositeContextFlipContentsGraphicsEnvironmentBaselineResizeBehaviorPointerInfoOrientationRequestedTypePrintQualityType
-OriginType	ColorTypePathIteratorWindowTranslucency
-String[][]Cursor[]InputMethodListenerMouseWheelListenerT[]WindowStateListenerTextListenerHierarchyListenerContainerListenerAdjustmentListenerMouseMotionListenerKeyListenerActionListenerFocusListenerItemListenerComponentListenerHierarchyBoundsListenerWindowFocusListenerInputSubsetInputContextInputMethodHighlightInputMethodLocale[]JFrameAttributedCharacterIterator
-DragSourceDragSourceListenerDragSourceMotionListener
-DropTargetTransformAttributeCaretPolicyTextAttributeStyledParagraphTextLineComponent[]TextLineRangeInputMethodRequestsICC_ProfilePoint[]RenderContext
-PageFormatQuitStrategyReasonPropertyDescriptor[]BeanDescriptorEventSetDescriptor[]MethodDescriptor[]PropertyEditorExceptionListenerPersistenceDelegateBeanInfoDefaultHandlerThreadGroupContextBeanContextServicesListenerBeanContext
-VisibilityVetoableChangeListenerSerializableBeanContextMembershipListenerAppletContextEnumerationAnimationFrameStateScrollBarState
-ValueStateTitleBarHeightStateNineSliceMetricsBufferStateMultiDocPrintJobDocPrintJobServiceUIFactoryScrollBarHit	AnimatingSegmentTrailingSeparatorOrientationIndicatorOnlyBooleanValueSegmentLeadingSeparatorNothingToScroll	FrameOnly
-ShowArrowsWindowTitleBarSeparator
-WindowTypeNoIndicatorFocused
-ArrowsOnlyScrollBarPartWindowClipCornersAlignmentVerticalAlignmentHorizontalVariant	Direction	DocFlavorMultiDocDocMultiDocPrintService[]READERSTRING
-CHAR_ARRAYINPUT_STREAM
-BYTE_ARRAYSERVICE_FORMATTEDPrintRequestAttributeSetPrinterStateJobStateReasonSidesPrintQualityOrientationRequestedSheetCollateSeverityChromaticityDialogTypeSelection	MediaTrayReferenceUriSchemesSupportedJobStatePrinterStateReasonPresentationDirectionCompressionColorSupportedMultipleDocumentHandlingPDLOverrideSupported
-Finishings	MediaName	JobSheetsPrinterIsAcceptingJobs	MediaSizeFidelity
-SyncMode[]SyncModeMidiChannel[]VoiceStatus[]SoundbankResource[]
-Instrument	SequencerSynthesizerMidiFileFormat	Control[]ControlLine[]EncodingSourceDataLineAudioFileFormatMixer
-Encoding[]AudioFormat[]TargetDataLineClipSizeRequirementsLookAndFeelLookAndFeel[]
-UIDefaultsLookAndFeelInfo[]PropertyChangeListener[]E
-StateValueCompoundBorderMatteBorderTitledBorderPopupFactoryToolTipManagerMenuSelectionManager	TreeModelEmptySelectionModelMenuElement[]SpringJScrollPane	PrintModeDebugGraphicsInfoMediaTrackerTransferHandlerComparisonType	RowFilterViewportLayoutClientPropertyKey	EditorKitKeyboardManagerComponentInputMapJDialogJDesktopPaneFocusManager
-MouseEventRectangle[]
-TimerQueueBoxButtonGroupRequestFocusController	IntVectorDropModeComponentPlacement	AlignmentStringBuffer	ListModel                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        

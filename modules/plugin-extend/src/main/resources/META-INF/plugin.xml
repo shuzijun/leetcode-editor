@@ -1,0 +1,29 @@
+<idea-plugin>
+    <id>leetcode-editor-extend</id>
+    <name>LeetCode Editor Extend</name>
+    <version>0.0.1</version>
+    <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/leetcode-editor">shuzijun</vendor>
+
+    <description><![CDATA[]]></description>
+
+    <change-notes>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="211.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products -->
+    <depends>com.intellij.modules.lang</depends>
+
+    <application-components>
+
+    </application-components>
+
+    <depends optional="true" config-file="editor.xml">leetcode-editor</depends>
+
+
+
+
+</idea-plugin>

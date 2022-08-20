@@ -19,10 +19,10 @@ import java.awt.event.ItemEvent;
  */
 public abstract class NavigatorPagePanel extends JBPanel {
 
-    private JComboBox<Integer> pageSizeBox;
-    private JButton previous;
-    private JButton next;
-    private JButton go;
+    private final JComboBox<Integer> pageSizeBox;
+    private final JButton previous;
+    private final JButton next;
+    private final JButton go;
     private JComboBox<Integer> page;
 
     public NavigatorPagePanel(Project project, PageInfo pageInfo) {

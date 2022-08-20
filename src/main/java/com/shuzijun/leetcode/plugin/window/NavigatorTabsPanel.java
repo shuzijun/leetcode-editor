@@ -170,7 +170,7 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
     }
 
     public void toggle() {
-        toggleIndex = (toggleIndex + 1) % 3;
+        toggleIndex = (toggleIndex + 1) % navigatorPanels.size();
         tabs.select(tabInfos.get(toggleIndex), true);
         Config config = PersistentConfig.getInstance().getInitConfig();
         if (config != null) {

@@ -68,6 +68,12 @@ public class RepositoryServiceImpl implements RepositoryService {
         return project.getService(RepositoryServiceImpl.class);
     }
 
+
+    @Override
+    public boolean isPro() {
+        return false;
+    }
+
     @Override
     public Project getProject() {
         return project;

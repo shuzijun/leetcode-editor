@@ -1,0 +1,6 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="leetcode-editor">
+        <navigator implementation="com.shuzijun.leetcode.extend.navigator.TreePanelFactory"/>
+       <!-- <convergeEditor implementation="com.shuzijun.leetcode.plugin.editor.converge.ContentFactory"/>-->
+    </extensions>
+</idea-plugin>

@@ -15,6 +15,7 @@ import com.shuzijun.leetcode.platform.model.PageInfo;
 import com.shuzijun.leetcode.platform.model.Question;
 import com.shuzijun.leetcode.platform.utils.LogUtils;
 import com.shuzijun.leetcode.plugin.model.PluginTopic;
+import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.window.navigator.TopNavigatorTable;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,6 +60,7 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
         this.myPagePanel = createMyPagePanel(myPageInfo, project);
         this.firstToolTip = firstToolTip();
         this.add(firstToolTip, BorderLayout.CENTER);
+        loaColor(PersistentConfig.getInstance().getInitConfig());
         MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
         messageBusConnection.subscribe(PluginTopic.CONFIG_TOPIC, (oldConfig, newConfig) -> loaColor(newConfig));
         messageBusConnection.subscribe(PluginTopic.QUESTION_STATUS_TOPIC, question -> {

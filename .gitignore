@@ -100,6 +100,8 @@ fabric.properties
 ### Gradle template
 .gradle
 /build/
+*/*/.gradle
+*/*/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting

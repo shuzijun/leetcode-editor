@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface RepositoryService {
 
+    boolean isPro();
     Project getProject();
 
     URLService getUrlService();
