@@ -148,7 +148,7 @@ public class CodeManager {
             } else if (response.getStatusCode() == 429) {
                 MessageUtils.getInstance(project).showWarnMsg("", "Please wait for the result.");
             } else {
-                LogUtils.LOG.error("RuncodeCode failure " + response == null ? "" : response.getBody());
+                LogUtils.LOG.error("RuncodeCode failure " +  response.getBody());
                 MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.failed"));
             }
         } catch (Exception i) {

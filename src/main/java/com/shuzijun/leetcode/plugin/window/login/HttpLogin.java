@@ -78,7 +78,7 @@ public class HttpLogin {
                 } else {
                     HttpRequestUtils.resetHttpclient();
                     MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
-                    SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", response.getStatusCode(), body));
+                    //SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", response.getStatusCode(), body));
                     return Boolean.FALSE;
                 }
             } else if (response.getStatusCode() == 400) {
@@ -93,7 +93,7 @@ public class HttpLogin {
             } else {
                 HttpRequestUtils.resetHttpclient();
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
-                SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", response.getStatusCode(), body));
+                //SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", response.getStatusCode(), body));
                 return Boolean.FALSE;
             }
         } catch (Exception e) {

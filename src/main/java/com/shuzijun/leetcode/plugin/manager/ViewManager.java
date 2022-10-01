@@ -116,7 +116,7 @@ public class ViewManager {
                 }
             }
             if (status) {
-                if ("TRIED".equalsIgnoreCase(filters.getStatus()) && !questionView.getStatusSign().equalsIgnoreCase("❓")) {
+                if ("TRIED".equalsIgnoreCase(filters.getStatus()) && !questionView.getStatusSign().equalsIgnoreCase("?")) {
                     continue;
                 } else if ("AC".equalsIgnoreCase(filters.getStatus()) && !questionView.getStatusSign().equalsIgnoreCase("✔")) {
                     continue;
