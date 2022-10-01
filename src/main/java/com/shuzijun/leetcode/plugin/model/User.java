@@ -9,6 +9,9 @@ public class User {
 
     private String username;
 
+
+    private String userSlug;
+
     private boolean isPremium;
 
     private boolean isSignedIn = Boolean.FALSE;
@@ -23,6 +26,14 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getUserSlug() {
+        return userSlug;
+    }
+
+    public void setUserSlug(String userSlug) {
+        this.userSlug = userSlug;
     }
 
     public boolean isPremium() {
