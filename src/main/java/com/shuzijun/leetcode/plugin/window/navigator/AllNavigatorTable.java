@@ -82,6 +82,13 @@ public class AllNavigatorTable extends NavigatorTableData<QuestionView> {
         MyJBTable<QuestionView> myJBTable = new MyJBTable(myTableModel) {
             @Override
             protected void prepareRenderer(Component component, Object value, int row, int column) {
+                if (component instanceof JLabel) {
+                    if (column == 0 || column == 2) {
+                        ((JLabel) component).setHorizontalAlignment(SwingConstants.CENTER);
+                    } else {
+                        ((JLabel) component).setHorizontalAlignment(SwingConstants.LEADING);
+                    }
+                }
                 if (column == 2) {
                     if (value != null) {
                         if (value.toString().equals("Easy")) {
@@ -147,8 +154,8 @@ public class AllNavigatorTable extends NavigatorTableData<QuestionView> {
     }
 
     protected void setColumnWidth(MyJBTable myJBTable) {
-        myJBTable.getColumnModel().getColumn(0).setMaxWidth(20);
-        myJBTable.getColumnModel().getColumn(2).setMaxWidth(60);
+        myJBTable.getColumnModel().getColumn(0).setMaxWidth(30);
+        myJBTable.getColumnModel().getColumn(2).setMaxWidth(70);
     }
 
 }

@@ -100,6 +100,13 @@ public class TopNavigatorTable extends NavigatorTableData<CodeTopQuestionView> {
         MyJBTable<CodeTopQuestionView> myJBTable = new MyJBTable(myTableModel) {
             @Override
             protected void prepareRenderer(Component component, Object value, int row, int column) {
+                if (component instanceof JLabel) {
+                    if (column == 0 || column == 2 || column == 3 || column == 4) {
+                        ((JLabel) component).setHorizontalAlignment(SwingConstants.CENTER);
+                    } else {
+                        ((JLabel) component).setHorizontalAlignment(SwingConstants.LEADING);
+                    }
+                }
                 if (column == 2) {
                     if (value != null) {
                         if (value.toString().equals("Easy")) {
@@ -175,10 +182,11 @@ public class TopNavigatorTable extends NavigatorTableData<CodeTopQuestionView> {
 
     @Override
     protected void setColumnWidth(MyJBTable myJBTable) {
-        myJBTable.getColumnModel().getColumn(0).setMaxWidth(20);
-        myJBTable.getColumnModel().getColumn(2).setMaxWidth(60);
-        myJBTable.getColumnModel().getColumn(3).setMaxWidth(80);
-        myJBTable.getColumnModel().getColumn(4).setMaxWidth(50);
+        myJBTable.getColumnModel().getColumn(0).setMaxWidth(30);
+        myJBTable.getColumnModel().getColumn(2).setMaxWidth(70);
+        myJBTable.getColumnModel().getColumn(3).setMinWidth(100);
+        myJBTable.getColumnModel().getColumn(3).setMaxWidth(120);
+        myJBTable.getColumnModel().getColumn(4).setMaxWidth(60);
     }
 
 

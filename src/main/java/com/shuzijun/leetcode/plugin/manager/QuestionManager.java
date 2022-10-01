@@ -295,12 +295,17 @@ public class QuestionManager {
     }
 
     public static User getUser() {
-        HttpResponse response = Graphql.builder().cn(URLUtils.isCn()).operationName("userStatus").request();
+        HttpResponse response = Graphql.builder().cn(URLUtils.isCn()).operationName("userStatus","globalData").request();
         if (response.getStatusCode() == 200) {
             JSONObject userObject = JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONObject("userStatus");
             User user = new User();
             user.setPremium(userObject.getBoolean("isPremium"));
             user.setUsername(userObject.getString("username"));
+            if (userObject.containsValue("userSlug")){
+                user.setUserSlug(userObject.getString("userSlug"));
+            }else {
+                user.setUserSlug(user.getUsername());
+            }
             user.setSignedIn(userObject.getBoolean("isSignedIn"));
             user.setVerified(userObject.getBoolean("isVerified"));
             user.setPhoneVerified(userObject.getBoolean("isPhoneVerified"));

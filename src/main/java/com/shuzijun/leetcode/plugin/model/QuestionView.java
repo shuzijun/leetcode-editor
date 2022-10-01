@@ -109,6 +109,9 @@ public class QuestionView {
     }
 
     public void setAcceptance(Double acceptance) {
+        if (acceptance != null && acceptance.doubleValue() > 1) {
+            acceptance = acceptance / 100;
+        }
         this.acceptance = acceptance;
     }
 
@@ -117,6 +120,9 @@ public class QuestionView {
     }
 
     public Double getFrequency() {
+        if (frequency != null && frequency.doubleValue() > 1) {
+            frequency = frequency / 100;
+        }
         return frequency;
     }
 
@@ -127,7 +133,7 @@ public class QuestionView {
     public String getStatusSign() {
 
         if ("notac".equalsIgnoreCase(status) || "TRIED".equalsIgnoreCase(status)) {
-            return "❓";
+            return "?";
         } else if ("ac".equalsIgnoreCase(status)) {
             return "✔";
         } else if ("lock".equalsIgnoreCase(status)) {
@@ -135,9 +141,9 @@ public class QuestionView {
         } else if ("day".equalsIgnoreCase(status)) {
             return "D";
         } else if (level != null) {
-            return "   ";
+            return " ";
         }
-        return "   ";
+        return " ";
     }
 
     public String getCategory() {

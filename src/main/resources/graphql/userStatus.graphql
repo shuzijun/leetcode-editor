@@ -1,12 +1,20 @@
-query userStatus {
+query globalData {
     userStatus {
+        userId
         isSignedIn
+        isMockUser
         isPremium
+        isVerified
         username
         avatar
         isAdmin
         isSuperuser
+        permissions
         isTranslator
-        isVerified
+        activeSessionId
+        notificationStatus {
+            lastModified
+            numUnread
+        }
     }
 }

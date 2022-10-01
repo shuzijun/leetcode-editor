@@ -7,7 +7,6 @@ import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.model.PageInfo;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.QuestionView;
-import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.NavigatorTableData;
 import icons.LeetCodeEditorIcons;
 
@@ -103,6 +102,14 @@ public class NavigatorTable extends NavigatorTableData<QuestionView> {
         MyJBTable<QuestionView> myJBTable = new MyJBTable(myTableModel) {
             @Override
             protected void prepareRenderer(Component component, Object value, int row, int column) {
+
+                if (component instanceof JLabel) {
+                    if (column == 0 || column == 2 || column == 3 || column == 4) {
+                        ((JLabel) component).setHorizontalAlignment(SwingConstants.CENTER);
+                    } else {
+                        ((JLabel) component).setHorizontalAlignment(SwingConstants.LEADING);
+                    }
+                }
                 if (column == 3) {
                     if (value != null) {
                         if (value.toString().equals("Easy")) {
@@ -173,10 +180,10 @@ public class NavigatorTable extends NavigatorTableData<QuestionView> {
     }
 
     protected void setColumnWidth(MyJBTable myJBTable) {
-        myJBTable.getColumnModel().getColumn(0).setMaxWidth(20);
-        myJBTable.getColumnModel().getColumn(2).setMaxWidth(50);
-        myJBTable.getColumnModel().getColumn(3).setMaxWidth(60);
-        myJBTable.getColumnModel().getColumn(4).setMaxWidth(50);
+        myJBTable.getColumnModel().getColumn(0).setMaxWidth(30);
+        myJBTable.getColumnModel().getColumn(2).setMaxWidth(60);
+        myJBTable.getColumnModel().getColumn(3).setMaxWidth(70);
+        myJBTable.getColumnModel().getColumn(4).setMaxWidth(60);
     }
 
 }

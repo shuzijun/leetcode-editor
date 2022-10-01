@@ -1,0 +1,26 @@
+query userSessionProgress($userSlug: String!) {
+    userProfileUserQuestionSubmitStats(userSlug: $userSlug) {
+        acSubmissionNum {
+            difficulty
+            count
+        }
+        totalSubmissionNum {
+            difficulty
+            count
+        }
+    }
+    userProfileUserQuestionProgress(userSlug: $userSlug) {
+        numAcceptedQuestions {
+            difficulty
+            count
+        }
+        numFailedQuestions {
+            difficulty
+            count
+        }
+        numUntouchedQuestions {
+            difficulty
+            count
+        }
+    }
+}

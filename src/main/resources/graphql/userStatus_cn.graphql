@@ -1,13 +1,21 @@
-query userStatus {
+query globalData {
     userStatus {
         isSignedIn
         isPremium
         username
+        realName
         avatar
+        userSlug
         isAdmin
-        isSuperuser
+        useTranslation
+        premiumExpiredAt
         isTranslator
-        isVerified
+        isSuperuser
         isPhoneVerified
+        isVerified
     }
+    jobsMyCompany {
+        nameSlug
+    }
+    commonNojPermissionTypes
 }
