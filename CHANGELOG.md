@@ -7,6 +7,47 @@
 [![捐赠][badge:donate-zh]][shuzijun-donate]
 [![内推][badge:referrals]][shuzijun-referrals]
 
+## 2022.2.4
+
+### Added
+- 新增展示提示
+- Add show hint [#issues/230](https://github.com/shuzijun/leetcode-editor/issues/230)
+- 新增原来树形题目展示
+- Add tree navigator [#issues/516](https://github.com/shuzijun/leetcode-editor/issues/516)
+- 新增重置代码为默认代码
+- Add reset to default code definition [#issues/462](https://github.com/shuzijun/leetcode-editor/issues/462)
+- 新增完成每日签到任务
+- Add daily check-in mission
+- 新增可以同时配置多种语言模版
+- Add multiple template configurations [#issues/552](https://github.com/shuzijun/leetcode-editor/issues/552)
+- 新增配置笔记模版
+- Add note template [#issues/542](https://github.com/shuzijun/leetcode-editor/issues/542)
+- 新增支持切换题目语言类型
+- Add switch question code type
+- 新增快速下一题
+- Add quickly switch question
+
+
+### Changed
+- 修改提交记录的文件为markdown
+- Change the submission file type to markdown [#issues/546](https://github.com/shuzijun/leetcode-editor/issues/546)
+- 新配置界面
+- Change setting ui
+- 新的通知样式
+- Change notification style
+
+### Deprecated
+
+### Fixed
+- 修复中国站进度问题
+- Fix session [#issues/566](https://github.com/shuzijun/leetcode-editor/issues/566)
+- 修复表格宽度问题
+- Fix table width [#issues/567](https://github.com/shuzijun/leetcode-editor/issues/567)
+- Fix bugs
+
+### Removed
+
+
 ## 2022.2.3
 
 ### Added
