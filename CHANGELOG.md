@@ -1,15 +1,34 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
 # Leetcode Editor Pro Changelog
+
 [![English Document][badge:en-doc]][gh:en-doc]
 [![中文文档][badge:zh-doc]][gh:zh-doc]
 [![捐赠][badge:donate]][shuzijun-donate]
 [![捐赠][badge:donate-zh]][shuzijun-donate]
 [![内推][badge:referrals]][shuzijun-referrals]
 
+## 2022.2.5
+
+### Added
+
+- 扩展协议,支持通过浏览器插件[Leetcode Editoe Extension](https://github.com/shuzijun/leetcode-editor-extension)打开题目
+- Extension protocol, support opening questions through the browser plugin [Leetcode Editoe Extension](https://github.com/shuzijun/leetcode-editor-extension)
+- 增加描述文件加载动画
+- Add description file loading animation
+
+### Changed
+
+### Deprecated
+
+### Fixed
+
+### Removed
+
 ## 2022.2.4
 
 ### Added
+
 - 新增展示提示
 - Add show hint [#issues/230](https://github.com/shuzijun/leetcode-editor/issues/230)
 - 新增原来树形题目展示
@@ -27,8 +46,8 @@
 - 新增快速下一题
 - Add quickly switch question
 
-
 ### Changed
+
 - 修改提交记录的文件为markdown
 - Change the submission file type to markdown [#issues/546](https://github.com/shuzijun/leetcode-editor/issues/546)
 - 新配置界面
@@ -39,6 +58,7 @@
 ### Deprecated
 
 ### Fixed
+
 - 修复中国站进度问题
 - Fix session [#issues/566](https://github.com/shuzijun/leetcode-editor/issues/566)
 - 修复表格宽度问题
@@ -46,7 +66,6 @@
 - Fix bugs
 
 ### Removed
-
 
 ## 2022.2.3
 
@@ -57,6 +76,7 @@
 ### Deprecated
 
 ### Fixed
+
 - fix UnsupportedOperationException
 - fix Acceptance Width
 - fix bugs
@@ -72,6 +92,7 @@
 ### Deprecated
 
 ### Fixed
+
 - fix bugs
 
 ### Removed
@@ -88,6 +109,7 @@
 ### Deprecated
 
 ### Fixed
+
 - fix bugs
 
 ### Removed
@@ -100,6 +122,7 @@
 - Added different windows, including paging window, all problem window, [CodeTop](https://codetop.cc/?utm_source=leetcode_editor) window, which can be switched by buttons in the navigation bar.
 
 ### Changed
+
 - domain name change
 - 修改域名
 
@@ -114,10 +137,7 @@
 [badge:donate]: https://img.shields.io/badge/Docs-donate-ff69c4?logo=docs&style=flat-square
 [badge:donate-zh]: https://img.shields.io/badge/Docs-捐赠-ff69c4?logo=docs&style=flat-square
 [badge:referrals]: https://img.shields.io/badge/Docs-内推-ff69c4?logo=docs&style=flat-square
-
-
 [gh:en-doc]: https://github.com/shuzijun/leetcode-editor/blob/master/README.md
 [gh:zh-doc]: https://github.com/shuzijun/leetcode-editor/blob/master/README_ZH.md
-
 [shuzijun-donate]: https://shuzijun.cn/donate.html
 [shuzijun-referrals]: https://shuzijun.cn/referrals.html
