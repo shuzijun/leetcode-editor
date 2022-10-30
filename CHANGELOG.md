@@ -8,6 +8,25 @@
 [![捐赠][badge:donate-zh]][shuzijun-donate]
 [![内推][badge:referrals]][shuzijun-referrals]
 
+## 2022.2.6
+
+### Added
+
+- 扩展协议,支持通过浏览器插件[Leetcode Editoe Extension](https://github.com/shuzijun/leetcode-editor-extension)登录
+- Extension protocol, support login through the browser plugin [Leetcode Editoe Extension](https://github.com/shuzijun/leetcode-editor-extension)
+
+### Changed
+- 修改编辑器查看解答与提交的方式.
+- Modify the way the editor views solution and submissions.
+- 修改插件图标.
+- Modify plugin icon.
+
+### Deprecated
+
+### Fixed
+
+### Removed
+
 ## 2022.2.5
 
 ### Added
