@@ -466,7 +466,11 @@ public class QuestionManager {
   private static String typeMapping(String type) {
     if (type.contains("list")) {
       type = type.replaceAll("list", "List");
+      // basic type to boxed type
       type = type.replaceAll("integer", "Integer");
+      type = type.replaceAll("string", "String");
+      type = type.replaceAll("boolean", "Boolean");
+      type = type.replaceAll("char", "Character");
       return type;
     }
     type = type.replaceAll("character", "char");

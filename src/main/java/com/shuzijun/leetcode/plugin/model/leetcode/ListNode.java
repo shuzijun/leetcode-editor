@@ -4,7 +4,8 @@ public class ListNode {
   public int val;
   public ListNode next;
 
-  ListNode() {}
+  ListNode() {
+  }
 
   public ListNode(int val) {
     this.val = val;
@@ -29,5 +30,10 @@ public class ListNode {
       index = index.next;
     }
     return stringBuilder.toString();
+  }
+
+
+  public static ListNode empty() {
+    return null;
   }
 }
