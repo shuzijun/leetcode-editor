@@ -368,14 +368,6 @@ public class QuestionManager {
     return true;
   }
 
-  private static Map<String, String> map = new HashMap<>() {
-    {
-      put("string", "String");
-      put("integer", "int");
-      put("character", "char");
-    }
-  };
-
   /**
    * queryQuestionData 获取题目数据
    *
@@ -400,10 +392,14 @@ public class QuestionManager {
         question.setTestCase(jsonObject.getString("sampleTestCase"));
         String exampleTestcases = jsonObject.getString("exampleTestcases");
         question.setExampleTestcases(exampleTestcases);
-
+        // todo 判斷當前question是否為design類的題目 有個tag為design
+        if(question.isDesign()){
+          question.setTitle(question.getTitle() + "Wrapper");
+        }
+        // 如果是的話 title後面加上Wrapper
         JSONObject metaData = jsonObject.getJSONObject("metaData");
         question.setFunctionName(metaData.getString("name"));
-        question.setParamTypes(metaData.getJSONArray("params").stream().map(t -> {
+        question.setParamTypes((List<String>) metaData.getJSONArray("params").stream().map(t -> {
           String type = ((JSONObject)t).getString("type");
           type = typeMapping(type);
           return type;
@@ -430,18 +426,20 @@ public class QuestionManager {
         JSONArray jsonArray = jsonObject.getJSONArray("codeSnippets");
         if (jsonArray == null) {
           question.setCode("Subscribe to unlock.");
-          // todo 这里用中文账号
+          // todo add a prime account in configuration
+          // if current account has no permission to view this question
+          // use prime account to query submit
+          // Question: How to save cookie && how to login?
 
         } else if (codeTypeEnum != null) {
           for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject object = jsonArray.getJSONObject(i);
             if (codeTypeEnum.getType().equals(object.getString("lang"))) {
               question.setLangSlug(object.getString("langSlug"));
-              StringBuffer sb = new StringBuffer();
-              sb.append(codeTypeEnum.getComment()).append(Constant.SUBMIT_REGION_BEGIN).append("\n");
-              sb.append(object.getString("code").replaceAll("\\n", "\n")).append("\n");
-              sb.append(codeTypeEnum.getComment()).append(Constant.SUBMIT_REGION_END).append("\n");
-              question.setCode(sb.toString());
+              String sb = codeTypeEnum.getComment() + Constant.SUBMIT_REGION_BEGIN + "\n" +
+                object.getString("code").replaceAll("\\n", "\n") + "\n" +
+                codeTypeEnum.getComment() + Constant.SUBMIT_REGION_END + "\n";
+              question.setCode(sb);
               break;
             }
             if (i == jsonArray.size() - 1) {

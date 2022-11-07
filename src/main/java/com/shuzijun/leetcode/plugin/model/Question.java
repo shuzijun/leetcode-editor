@@ -26,6 +26,7 @@ public class Question {
    * 函数名 用于生成测试代码
    */
   private String functionName;
+  private Boolean isDesign = Boolean.FALSE;
   private String returnType;
   private List<String> paramTypes;
   private String langSlug;
@@ -355,4 +356,13 @@ public class Question {
   public void setParamTypes(List<String> paramTypes) {
     this.paramTypes = paramTypes;
   }
+
+  public Boolean isDesign() {
+    return isDesign;
+  }
+
+  public void setDesign(Boolean design) {
+    isDesign = design;
+  }
+
 }
