@@ -19,20 +19,19 @@ public class CommentUtils {
 
   public static String createComment(String html, CodeTypeEnum codeTypeEnum, Config config) {
     html = html.replaceAll("(\\r\\n|\\r|\\n|\\n\\r)", "\\\\n").replaceAll(" ", " ");
-    // if (config.getHtmlContent()) {
-    // if (config.getMultilineComment()) {
-    // return String.format(codeTypeEnum.getMultiLineComment(), html.replaceAll("\\\\n", "\n"));
-    // } else {
-    // return codeTypeEnum.getComment() + html.replaceAll("\\\\n", "\n" + codeTypeEnum.getComment());
-    // }
-    // }
+    if (config.getHtmlContent()) {
+      if (config.getMultilineComment()) {
+        return String.format(codeTypeEnum.getMultiLineComment(), html.replaceAll("\\\\n", "\n"));
+      } else {
+        return codeTypeEnum.getComment() + html.replaceAll("\\\\n", "\n" + codeTypeEnum.getComment());
+      }
+    }
     Matcher subMatcher = subPattern.matcher(html);
     while (subMatcher.find()) {
       String subStr = SuperscriptUtils.getSup(subMatcher.group(2));
       html = html.replace(subMatcher.group(), "<sup>" + subStr + "</sup>");
     }
-    String comment = codeTypeEnum.getComment();
-    // String comment = config.getMultilineComment() ? "" : codeTypeEnum.getComment();
+    String comment = config.getMultilineComment() ? "" : codeTypeEnum.getComment();
     String body = comment + Jsoup.parse(html).text().replaceAll("\\\\n", "\n" + comment);
     String[] lines = body.split("\n");
     StringBuilder sb = new StringBuilder();
@@ -55,8 +54,7 @@ public class CommentUtils {
         sb.append(lineBuilder).append("\n");
       }
     }
-    // return config.getMultilineComment() ? String.format(codeTypeEnum.getMultiLineComment(), sb) : sb.toString();
-    return sb.toString();
+    return config.getMultilineComment() ? String.format(codeTypeEnum.getMultiLineComment(), sb) : sb.toString();
   }
 
   public static String createSubmissions(String html) {

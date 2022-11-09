@@ -181,7 +181,6 @@ public class ExploreManager {
 
           JSONObject question = object.getJSONObject(q.getLangSlug());
           if (Constant.ITEM_TYPE_QUESTION.equals(q.getLangSlug())) {
-            // todo langSlug表示语言版本 用途不详
             q.setQuestionId(question.getString("questionId"));
             q.setFrontendQuestionId(question.getString("questionId"));
             q.setTitleSlug(question.getString("titleSlug"));

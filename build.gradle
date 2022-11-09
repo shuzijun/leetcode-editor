@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'com.shuzijun.leetcode'
-version (System.getenv('LD_VERSION')==null ? project.plugin_version :System.getenv('LD_VERSION')) + (project.build_env.isEmpty() ? "" : "-") + project.build_env
+version(System.getenv('LD_VERSION') == null ? project.plugin_version : System.getenv('LD_VERSION')) + (project.build_env.isEmpty() ? "" : "-") + project.build_env
 
 sourceCompatibility = 11
 targetCompatibility = 11
@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    api 'com.alibaba:fastjson:2.0.17'
+    api 'com.alibaba:fastjson:1.2.47'
     api 'org.jsoup:jsoup:1.15.3'
     api('io.sentry:sentry:1.7.9') {
         exclude module: 'slf4j-api'
@@ -53,9 +53,6 @@ intellij {
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
-
-
-
 
 
 /*

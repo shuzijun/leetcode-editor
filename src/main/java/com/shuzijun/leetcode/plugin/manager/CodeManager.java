@@ -40,7 +40,6 @@ public class CodeManager {
     if (config.getQuestionEditor()) {
       openContent(question, project, false);
     }
-
     String filePath = PersistentConfig.getInstance().getTempFilePath()
       + VelocityUtils.convert(config.getCustomFileName(), question) + codeTypeEnum.getSuffix();
     // todo 文件如果不是当天建的
@@ -49,6 +48,8 @@ public class CodeManager {
     if (file.exists()) {
       FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, true);
     } else {
+      // todo 如果某个文件当天被重复创建了多次
+      // comment 会重复
       question.setContent(CommentUtils.createComment(question.getContent(), codeTypeEnum, config));
       FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
       FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, true);

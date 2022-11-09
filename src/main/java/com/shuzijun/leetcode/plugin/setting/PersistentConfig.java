@@ -99,7 +99,7 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
       return;
     }
     PasswordSafe.getInstance().set(new CredentialAttributes(PluginConstant.PLUGIN_ID, username, this.getClass()),
-      new Credentials(username, password == null ? "" : password));
+      new Credentials(username, password));
   }
 
   public String getPassword(String username) {

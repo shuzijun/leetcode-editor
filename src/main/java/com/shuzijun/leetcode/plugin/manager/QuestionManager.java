@@ -1,5 +1,8 @@
 package com.shuzijun.leetcode.plugin.manager;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -392,15 +395,25 @@ public class QuestionManager {
         question.setTestCase(jsonObject.getString("sampleTestCase"));
         String exampleTestcases = jsonObject.getString("exampleTestcases");
         question.setExampleTestcases(exampleTestcases);
-        // todo 判斷當前question是否為design類的題目 有個tag為design
-        if(question.isDesign()){
-          question.setTitle(question.getTitle() + "Wrapper");
+
+        JSONArray topicTags = jsonObject.getJSONArray("topicTags");
+        for (int i = 0, n = topicTags.size(); i < n; i++) {
+          Object topicTag = topicTags.get(i);
+          if (topicTag instanceof JSONObject) {
+            JSONObject tag = (JSONObject) topicTag;
+            if (tag.getString("name") != null && "Design".equals(tag.getString("name"))) {
+              question.setDesign(true);
+            }
+          }
+          if (i == n - 1 && Objects.equals(!question.isDesign(), true)) {
+            question.setDesign(false);
+          }
         }
-        // 如果是的話 title後面加上Wrapper
+
         JSONObject metaData = jsonObject.getJSONObject("metaData");
         question.setFunctionName(metaData.getString("name"));
-        question.setParamTypes((List<String>) metaData.getJSONArray("params").stream().map(t -> {
-          String type = ((JSONObject)t).getString("type");
+        question.setParamTypes(metaData.getJSONArray("params").stream().map(t -> {
+          String type = ((JSONObject) t).getString("type");
           type = typeMapping(type);
           return type;
         }).collect(Collectors.toList()));
@@ -422,6 +435,7 @@ public class QuestionManager {
         } else {
           question.setArticleLive(Constant.ARTICLE_LIVE_NONE);
         }
+
 
         JSONArray jsonArray = jsonObject.getJSONArray("codeSnippets");
         if (jsonArray == null) {
@@ -446,6 +460,25 @@ public class QuestionManager {
               question.setCode(
                 codeTypeEnum.getComment() + "There is no code of " + codeTypeEnum.getType() + " type for this problem");
             }
+          }
+        }
+
+        if (question.isDesign()) {
+          question.setTitle(question.getTitle() + "Wrapper");
+          String[] cases = exampleTestcases.split("\n");
+//          String filePath = "/Users/arronshentu/Downloads/untitle";
+          String filePath = PersistentConfig.getInstance().getTempFilePath() + "tmp"
+            + VelocityUtils.convert(PersistentConfig.getInstance().getConfig().getCustomFileName(), question);
+          FileUtils.saveFile(filePath, question.getCode());
+          String s = InputUtils.generateTemplateCode(filePath, cases[0], cases[1], question);
+          if (s.isEmpty()) {
+            MessageUtils.getInstance(project).showWarnMsg("Design Code Error", "template code is empty");
+          }
+          question.setDesignCode(s);
+          try {
+            Files.deleteIfExists(Path.of(filePath));
+          } catch (IOException ignored) {
+            // do nothing
           }
         }
         return Boolean.TRUE;
@@ -481,7 +514,9 @@ public class QuestionManager {
   private static String getContent(JSONObject jsonObject) {
     StringBuffer sb = new StringBuffer();
     sb.append(jsonObject.getString(URLUtils.getDescContent()));
-    Config config = PersistentConfig.getInstance().getConfig();
+//    Config config = PersistentConfig.getInstance().getConfig();
+    Config config = new Config();
+    config.setShowTopics(true);
     if (config.getShowTopics()) {
       JSONArray topicTagsArray = jsonObject.getJSONArray("topicTags");
       if (topicTagsArray != null && !topicTagsArray.isEmpty()) {

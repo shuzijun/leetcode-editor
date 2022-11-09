@@ -7,11 +7,15 @@ import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import com.shuzijun.leetcode.plugin.utils.InputUtils;
-import com.shuzijun.leetcode.plugin.utils.URLUtils;
+import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang3.StringUtils;
 import x.c.o.Q;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -38,33 +42,10 @@ public class Function {
     question.setTestCase(jsonObject.getString("sampleTestCase"));
     String exampleTestcases = jsonObject.getString("exampleTestcases");
     question.setExampleTestcases(exampleTestcases);
-    JSONArray topicTags = jsonObject.getJSONArray("topicTags");
-    boolean isDesignQuestion = false;
-    for (Object topicTag : topicTags) {
-      if (topicTag instanceof JSONObject) {
-        JSONObject tag = (JSONObject) topicTag;
-        if (tag.getString("name") != null && "Design".equals(tag.getString("name"))) {
-          isDesignQuestion = true;
-        }
-      }
-    }
-    if (isDesignQuestion) {
-      // todo
-      String[] cases = exampleTestcases.split("\n");
-      String className = "";
-      for (String testcase : cases) {
-        String[] elements = InputUtils.stringToStringArray(testcase);
-        className = elements[0];
-        for (int i = 1, n = elements.length; i < n; i++) {
-
-        }
-      }
-      return;
-    }
 
     JSONObject metaData = jsonObject.getJSONObject("metaData");
     question.setFunctionName(metaData.getString("name"));
-    question.setParamTypes(metaData.getJSONArray("params").stream().map(t -> {
+    question.setParamTypes((List<String>) metaData.getJSONArray("params").stream().map(t -> {
       String type = ((JSONObject) t).getString("type");
       type = typeMapping(type);
       return type;

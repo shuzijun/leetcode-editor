@@ -1,5 +1,6 @@
 package com.shuzijun.leetcode.plugin.utils;
 
+import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.leetcode.ListNode;
 import com.shuzijun.leetcode.plugin.model.leetcode.TreeNode;
 import com.thoughtworks.qdox.JavaProjectBuilder;
@@ -18,9 +19,15 @@ import java.util.stream.Collectors;
  */
 public class InputUtils {
 
-  private static void generateTemplateCode(String path, String s, String s1) throws IOException {
+  public static String generateTemplateCode(String path, String methodsString, String paramsString, Question q) {
     JavaProjectBuilder builder = new JavaProjectBuilder();
-    JavaSource source = builder.addSource(new File(path));
+    JavaSource source = null;
+    try {
+      source = builder.addSource(new File(path));
+    } catch (IOException e) {
+      e.printStackTrace();
+      return "";
+    }
     JavaClass javaClass = source.getClasses().get(0);
     List<JavaMethod> methods = javaClass.getMethods();
     Map<String, JavaMethod> methodMap = new HashMap<>();
@@ -28,8 +35,8 @@ public class InputUtils {
       methodMap.put(method.getName(), method);
     }
     String className = javaClass.getName();
-    List<String> cases = Arrays.stream(stringToStringArray(s)).collect(Collectors.toList());
-    List<String> params = parseDesignParams(s1);
+    List<String> cases = Arrays.stream(stringToStringArray(methodsString)).collect(Collectors.toList());
+    List<String> params = parseDesignParams(paramsString);
     String objectName = "instance";
     StringBuilder stringBuilder = new StringBuilder();
     StringBuilder printBuilder = new StringBuilder();
@@ -39,7 +46,7 @@ public class InputUtils {
       String c = cases.get(i);
       String p = params.get(i);
       if (className.equals(c)) {
-        stringBuilder.append(className).append(" ").append(objectName).append(" = new ").append(className).append("(");
+        stringBuilder.append(className).append(" ").append(objectName).append(" = new ").append(VelocityTool.camelCaseName(q.getTitle())).append("().new ").append(className).append("(");
         stringBuilder.append(p).append(");");
         stringBuilder.append("\n");
       } else {
@@ -55,9 +62,9 @@ public class InputUtils {
         }
       }
     }
-    System.out.println(stringBuilder);
-    System.out.println(printBuilder);
+    return stringBuilder.append("\n").append(printBuilder).toString();
   }
+
   public static List<String> parseDesignParams(String s) {
     Deque<Character> deque = new ArrayDeque<>();
     s = s.trim();

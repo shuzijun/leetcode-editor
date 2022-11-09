@@ -27,6 +27,9 @@ public class Question {
    */
   private String functionName;
   private Boolean isDesign = Boolean.FALSE;
+
+  private String designCode;
+
   private String returnType;
   private List<String> paramTypes;
   private String langSlug;
@@ -302,8 +305,6 @@ public class Question {
     } else if ("ac".equalsIgnoreCase(status)) {
       return "✔";
     } else if ("lock".equalsIgnoreCase(status)) {
-      // todo lock为会员题
-      // 为什么会员题无法打开
       return "$";
     } else if ("day".equalsIgnoreCase(status)) {
       return "day";
@@ -365,4 +366,11 @@ public class Question {
     isDesign = design;
   }
 
+  public String getDesignCode() {
+    return designCode;
+  }
+
+  public void setDesignCode(String designCode) {
+    this.designCode = designCode;
+  }
 }
