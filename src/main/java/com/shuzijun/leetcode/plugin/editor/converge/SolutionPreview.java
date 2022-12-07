@@ -4,7 +4,6 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.*;
-import com.intellij.openapi.fileEditor.ex.FileEditorProviderManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -21,6 +20,7 @@ import com.shuzijun.leetcode.plugin.editor.SplitFileEditor;
 import com.shuzijun.leetcode.plugin.manager.ArticleManager;
 import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.plugin.utils.FileEditorProviderReflection;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
@@ -177,7 +177,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
             mySplitter.setSecondComponent(new JBLabel("no solution"));
         } else {
             VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-            FileEditorProvider[] editorProviders = FileEditorProviderManager.getInstance().getProviders(project, vf);
+            FileEditorProvider[] editorProviders = FileEditorProviderReflection.getProviders(project, vf);
             FileEditor newEditor = editorProviders[0].createEditor(project, vf);
             if (newEditor == fileEditor) {
                 return;

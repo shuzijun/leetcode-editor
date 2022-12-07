@@ -141,7 +141,7 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
                 }
             }
         });
-        messageBusConnection.subscribe(QuestionStatusNotifier.QUESTION_STATUS_TOPIC, question -> StatisticsData.refresh(project));
+        messageBusConnection.subscribe(QuestionStatusNotifier.QUESTION_STATUS_TOPIC, (QuestionStatusNotifier) question -> StatisticsData.refresh(project));
 
         for (SimpleToolWindowPanel n : navigatorPanels) {
             if (n != null && navigatorPanel instanceof Disposable) {
@@ -171,13 +171,7 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
         } else if (userCache.containsKey(config.getUrl())) {
             return userCache.get(config.getUrl());
         } else {
-            String otherKey = null;
-            for (Object key : NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.keySet()) {
-                if (!key.equals(id)) {
-                    otherKey = (String) key;
-                    break;
-                }
-            }
+            String otherKey = NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.getOtherKey(id);
             if (otherKey == null || !((NavigatorTabsPanel) NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.get(otherKey)).userCache.containsKey(config.getUrl())) {
                 User user = QuestionManager.getUser();
                 userCache.put(config.getUrl(), user);
@@ -248,6 +242,22 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
     }
 
     public static class DisposableMap<K, V> extends HashMap implements Disposable {
+        @Override
+        public synchronized Object put(Object key, Object value) {
+            return super.put(key,value);
+        }
+
+        public synchronized K getOtherKey(K key){
+            K otherKey = null;
+            for (Object k : this.keySet()) {
+                if (!k.equals(key)) {
+                    otherKey = key;
+                    break;
+                }
+            }
+            return otherKey;
+        }
+
         @Override
         public void dispose() {
             for (Object value : values()) {
