@@ -1,0 +1,38 @@
+query submissionDetails($id: Int!) {
+    submissionDetails(submissionId: $id) {
+        runtime
+        runtimeDisplay
+        runtimePercentile
+        runtimeDistribution
+        memory
+        memoryDisplay
+        memoryPercentile
+        memoryDistribution
+        code
+        timestamp
+        statusCode
+        user {
+            username
+            profile {
+                realName
+                userAvatar
+            }
+        }
+        lang {
+            name
+            verboseName
+        }
+        question {
+            questionId
+        }
+        notes
+        topicTags {
+            tagId
+            slug
+            name
+        }
+        runtimeError
+        compileError
+        lastTestcase
+    }
+}

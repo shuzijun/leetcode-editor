@@ -102,6 +102,7 @@ public class SubmissionManager {
                     sb.append(codeTypeEnum.getComment()).append("input_formatted:").append(submissionData.getString("input_formatted")).append("\n");
                     sb.append(codeTypeEnum.getComment()).append("expected_output:").append(submissionData.getString("expected_output")).append("\n");
                     sb.append(codeTypeEnum.getComment()).append("code_output:").append(submissionData.getString("code_output")).append("\n");
+                    sb.append(codeTypeEnum.getComment()).append("last_testcase:").append(submissionData.getString("last_testcase")).append("\n");
                 } else if ("Runtime Error".equals(submission.getStatus())) {
                     sb.append(codeTypeEnum.getComment()).append("runtime_error:").append(submissionData.getString("runtime_error")).append("\n");
                     sb.append(codeTypeEnum.getComment()).append("last_testcase:").append(submissionData.getString("last_testcase").replaceAll("(\\r|\\r\\n|\\n\\r|\\n)", " ")).append("\n");
@@ -137,21 +138,30 @@ public class SubmissionManager {
     }
 
     private static JSONObject loadSubmissionEn(Submission submission, Project project) {
-        HttpResponse response = HttpRequest.builderGet(URLUtils.getLeetcodeSubmissions() + submission.getId() + "/").request();
+        HttpResponse response = Graphql.builder().operationName("submissionDetail","submissionDetails").variables("id", submission.getId()).request();
         if (response.getStatusCode() == 200) {
-            String html = response.getBody();
-            String body = CommentUtils.createSubmissions(html);
-            if (StringUtils.isBlank(body)) {
-                LogUtils.LOG.error(html);
-                MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("submission.parse"));
-            } else {
-                try {
-                    JSONObject jsonObject = JSONObject.parseObject(body);
-                    return jsonObject;
-                } catch (Exception e) {
-                    LogUtils.LOG.error(body, e);
-                    MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("submission.parse"));
-                }
+            String body = response.getBody();
+            if (StringUtils.isNotBlank(body)) {
+                JSONObject jsonObject = new JSONObject();
+                JSONObject enObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("submissionDetails");
+
+                jsonObject.put("submissionCode", enObject.getString("code"));
+
+                JSONObject submissionData = new JSONObject();
+                submissionData.put("runtime", enObject.getString("runtimeDisplay"));
+                submissionData.put("memory", enObject.getString("memoryDisplay"));
+                submissionData.put("total_testcases", "");
+                submissionData.put("total_correct", "");
+                submissionData.put("input_formatted", "");
+                submissionData.put("expected_output", "");
+                submissionData.put("code_output", "");
+                submissionData.put("runtime_error", enObject.getString("runtimeError"));
+                submissionData.put("last_testcase", enObject.getString("lastTestcase"));
+                submissionData.put("compile_error", enObject.getString("compileError"));
+                jsonObject.put("submissionData", submissionData);
+
+                return jsonObject;
+
             }
         } else {
             MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
@@ -161,7 +171,7 @@ public class SubmissionManager {
 
     private static JSONObject loadSubmissionCn(Submission submission, Project project) {
         HttpResponse response = Graphql.builder().cn(URLUtils.isCn()).operationName("submissionDetail").variables("id", submission.getId()).request();
-        if (response != null && response.getStatusCode() == 200) {
+        if (response.getStatusCode() == 200) {
             String body = response.getBody();
             if (StringUtils.isNotBlank(body)) {
                 JSONObject jsonObject = new JSONObject();
