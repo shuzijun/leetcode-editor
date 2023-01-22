@@ -13,10 +13,15 @@ import com.shuzijun.leetcode.plugin.utils.*;
 import com.shuzijun.leetcode.plugin.utils.doc.CleanMarkdown;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author shuzijun
@@ -196,6 +201,7 @@ public class QuestionManager {
     private static boolean getQuestion(Question question, Project project) {
         try {
             HttpResponse response = Graphql.builder().operationName("questionData").variables("titleSlug", question.getTitleSlug()).request();
+
             if (response.getStatusCode() == 200) {
 
                 String body = response.getBody();
@@ -208,6 +214,38 @@ public class QuestionManager {
                 question.setExampleTestcases(jsonObject.getString("exampleTestcases"));
                 question.setStatus(jsonObject.get("status") == null ? "" : jsonObject.getString("status"));
                 question.setTitle(jsonObject.getString("title"));
+                // todo
+                Config config = PersistentConfig.getInstance().getInitConfig();
+                CodeTypeEnum codeTypeEnum = config.getCodeTypeEnum(project);
+                question.setLangSlug(codeTypeEnum.getLangSlug());
+
+                JSONArray topicTags = jsonObject.getJSONArray("topicTags");
+                for (int i = 0, n = topicTags.size(); i < n; i++) {
+                    Object topicTag = topicTags.get(i);
+                    if (topicTag instanceof JSONObject) {
+                        JSONObject tag = (JSONObject) topicTag;
+                        if (tag.getString("name") != null && "Design".equals(tag.getString("name"))) {
+                            question.setDesign(true);
+                            break;
+                        }
+                    }
+                    if (i == n - 1 && Objects.equals(!question.isDesign(), true)) {
+                        question.setDesign(false);
+                    }
+                }
+                JSONObject metaData = jsonObject.getJSONObject("metaData");
+                question.setFunctionName(metaData.getString("name"));
+                if(metaData.getJSONArray("params") == null){
+                    question.setParamTypes(List.of());
+                }else{
+                    question.setParamTypes(metaData.getJSONArray("params").stream().map(t -> {
+                        String type = ((JSONObject) t).getString("type");
+                        type = typeMapping(type);
+                        return type;
+                    }).collect(Collectors.toList()));
+                }
+                question.setReturnType(typeMapping(metaData.getJSONObject("return").getString("type")));
+
                 if (URLUtils.isCn() && !PersistentConfig.getInstance().getConfig().getEnglishContent()) {
                     if (StringUtils.isNotBlank(jsonObject.getString("translatedTitle"))) {
                         question.setTitle(jsonObject.getString("translatedTitle"));
@@ -236,6 +274,23 @@ public class QuestionManager {
                         codeSnippets.add(codeSnippet);
                     }
                     question.setCodeSnippets(codeSnippets);
+                }
+                if (question.isDesign()) {
+                    question.setTitle(question.getTitle() + "Wrapper");
+                    String[] cases = jsonObject.getString("exampleTestcases").split("\n");
+                    String filePath = PersistentConfig.getInstance().getTempFilePath() + "tmp"
+                      + VelocityUtils.convert(PersistentConfig.getInstance().getConfig().getCustomFileName(), question);
+                    FileUtils.saveFile(filePath, question.getCode());
+                    String s = InputUtils.generateTemplateCode(filePath, cases[0], cases[1], question);
+                    if (s.isEmpty()) {
+                        MessageUtils.getInstance(project).showWarnMsg("Design Code Error", "template code is empty");
+                    }
+                    question.setDesignCode(s);
+                    try {
+                        Files.deleteIfExists(Path.of(filePath));
+                    } catch (IOException ignored) {
+                        // do nothing
+                    }
                 }
                 return Boolean.TRUE;
             } else {
@@ -342,4 +397,23 @@ public class QuestionManager {
         }
         return questionCache.getIfPresent(key);
     }
+
+    @NotNull
+    private static String typeMapping(String type) {
+        if (type.contains("list")) {
+            type = type.replaceAll("list", "List");
+            // basic type to boxed type
+            type = type.replaceAll("integer", "Integer");
+            type = type.replaceAll("string", "String");
+            type = type.replaceAll("boolean", "Boolean");
+            type = type.replaceAll("char", "Character");
+            return type;
+        }
+        type = type.replaceAll("character", "char");
+        type = type.replaceAll("string", "String");
+        type = type.replaceAll("integer", "int");
+        type = type.replaceAll("list", "List");
+        return type;
+    }
+
 }

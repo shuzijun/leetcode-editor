@@ -30,7 +30,9 @@ public class URLUtils {
     private static String leetcodeRandomOneQuestion = "/problems/random-one-question/all";
 
     public static String getLeetcodeHost() {
-        Config config = PersistentConfig.getInstance().getInitConfig();
+//        Config config = PersistentConfig.getInstance().getInitConfig();
+        Config config = null;
+
         if (config == null) {
             return leetcode;
         }

@@ -40,6 +40,56 @@ public class Question extends QuestionView {
      */
     private Integer columnArticles = 0;
 
+    /**
+     * 函数名 用于生成测试代码
+     */
+    private String functionName;
+    private Boolean isDesign = Boolean.FALSE;
+
+    private String designCode;
+
+    private String returnType;
+    private List<String> paramTypes;
+
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public void setFunctionName(String functionName) {
+        this.functionName = functionName;
+    }
+
+    public Boolean isDesign() {
+        return isDesign;
+    }
+
+    public void setDesign(Boolean design) {
+        isDesign = design;
+    }
+
+    public String getDesignCode() {
+        return designCode;
+    }
+
+    public void setDesignCode(String designCode) {
+        this.designCode = designCode;
+    }
+
+    public String getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(String returnType) {
+        this.returnType = returnType;
+    }
+
+    public List<String> getParamTypes() {
+        return paramTypes;
+    }
+
+    public void setParamTypes(List<String> paramTypes) {
+        this.paramTypes = paramTypes;
+    }
 
     public Question() {
         super();
@@ -90,7 +140,7 @@ public class Question extends QuestionView {
     }
 
     public String getCode() {
-        if (CollectionUtils.isEmpty(codeSnippets)) {
+        if (codeSnippets == null || codeSnippets.isEmpty()) {
             return "Subscribe to unlock.";
         }
         CodeTypeEnum codeType = CodeTypeEnum.getCodeTypeEnumByLangSlug(langSlug);

@@ -13,6 +13,7 @@ query questionData($titleSlug: String!) {
         dislikes
         isLiked
         exampleTestcases
+        metaData
         topicTags {
             name
             slug

@@ -16,9 +16,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * @author shuzijun
@@ -87,7 +87,14 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
     }
 
     public String getTempFilePath() {
-        return getConfig().getFilePath() + File.separator + PATH + File.separator + initConfig.get(INITNAME).getAlias() + File.separator;
+        LocalDate now = LocalDate.now();
+        List<String> paths = new ArrayList<>(Arrays.asList(getConfig().getFilePath(), PATH, initConfig.get(INITNAME).getAlias()));
+        StringBuilder sb = new StringBuilder();
+        paths.add(DateTimeFormatter.ofPattern("_yyyyMMdd").format(now));
+        for (String path : paths) {
+            sb.append(path).append(File.separator);
+        }
+        return sb.toString();
     }
 
     public void savePassword(String password, String username) {
