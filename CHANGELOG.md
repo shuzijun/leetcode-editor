@@ -8,6 +8,23 @@
 [![捐赠][badge:donate-zh]][shuzijun-donate]
 [![内推][badge:referrals]][shuzijun-referrals]
 
+## 2023.1.0
+
+### Added
+
+### Changed
+
+- 优化操作响应时间
+- Optimize operation response time
+
+### Deprecated
+
+### Fixed
+
+- fix [#613](https://github.com/shuzijun/leetcode-editor/issues/613)
+
+### Removed
+
 ## 2022.2.8
 
 ### Added
@@ -17,7 +34,9 @@
 ### Deprecated
 
 ### Fixed
+
 - fix [#601](https://github.com/shuzijun/leetcode-editor/issues/601)
+
 ### Removed
 
 ## 2022.2.7
@@ -29,7 +48,9 @@
 ### Deprecated
 
 ### Fixed
+
 - fix [#598](https://github.com/shuzijun/leetcode-editor/issues/598)
+
 ### Removed
 
 ## 2022.2.6
@@ -40,6 +61,7 @@
 - Extension protocol, support login through the browser plugin [Leetcode Editoe Extension](https://github.com/shuzijun/leetcode-editor-extension)
 
 ### Changed
+
 - 修改编辑器查看解答与提交的方式.
 - Modify the way the editor views solution and submissions.
 - 修改插件图标.
