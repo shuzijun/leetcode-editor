@@ -13,7 +13,7 @@
 [![捐赠][badge:donate]][shuzijun-donate]
 [![内推][badge:referrals]][shuzijun-referrals]  
 
-<p align="center"><img src="https://s1.imagehub.cc/images/2022/07/10/leetcode-demo.gif" alt="demo" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/blog-comment@v0.0.1/doc/leetcode-demo.gif" alt="demo" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
 
 ---
 
@@ -27,6 +27,8 @@
   - 有用的链接
     - [登录帮助][gh:login-help]
     - [自定义代码生成][gh:custom-code-zh] ([示例][gh:leetcode-question])
+    
+  - **更开放的功能**: [shuzijun/lc-sdk](https://github.com/shuzijun/lc-sdk)
 
 
 ##  开始使用 

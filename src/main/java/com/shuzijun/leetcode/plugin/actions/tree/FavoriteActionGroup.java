@@ -21,6 +21,9 @@ public class FavoriteActionGroup extends ActionGroup implements DumbAware {
     @Override
     public AnAction[] getChildren(AnActionEvent anActionEvent) {
         NavigatorAction navigatorAction = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_NAVIGATORACTION);
+        if (navigatorAction == null){
+            return new AnAction[0];
+        }
         List<AnAction> anActionList = Lists.newArrayList();
         List<Tag> tags = navigatorAction.getFind().getFilter(Constant.FIND_TYPE_LISTS);
         if (tags != null && !tags.isEmpty()) {

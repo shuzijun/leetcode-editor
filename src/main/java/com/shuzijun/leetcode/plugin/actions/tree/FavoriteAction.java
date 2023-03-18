@@ -38,7 +38,7 @@ public class FavoriteAction extends ToggleAction implements DumbAware {
         if (questionView == null) {
             return false;
         }
-        Question cacheQuestion = QuestionManager.getQuestionByTitleSlug(questionView.getTitleSlug(), anActionEvent.getProject());
+        Question cacheQuestion = QuestionManager.getQuestionByTitleSlug(questionView.getTitleSlug(), anActionEvent.getProject(),true);
         if (cacheQuestion == null) {
             return false;
         }

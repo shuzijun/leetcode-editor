@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -317,6 +318,11 @@ public class QuestionManager {
     }
 
     public static Question getQuestionByTitleSlug(String titleSlug, Project project) {
+        return getQuestionByTitleSlug(titleSlug,project, false);
+    }
+
+    public static Question getQuestionByTitleSlug(String titleSlug, Project project, boolean readOnlyCache) {
+
         if (StringUtils.isBlank(titleSlug)) {
             return null;
         }
@@ -327,9 +333,13 @@ public class QuestionManager {
                     try {
                         Question question = new Question();
                         question.setTitleSlug(titleSlug);
-                        if (ApplicationManager.getApplication().executeOnPooledThread(() -> {
+                        Future<Boolean> questionFuture = ApplicationManager.getApplication().executeOnPooledThread(() -> {
                             return getQuestion(question, project);
-                        }).get()) {
+                        });
+                        if (readOnlyCache) {
+                            return null;
+                        }
+                        if (questionFuture.get()) {
                             questionCache.put(key, question);
                         } else {
                             return null;
