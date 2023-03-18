@@ -39,7 +39,7 @@ public class OpenSolutionAction extends AbstractTreeAction {
             anActionEvent.getPresentation().setEnabled(false);
             return;
         }
-        Question question = QuestionManager.getQuestionByTitleSlug(questionView.getTitleSlug(), anActionEvent.getProject());
+        Question question = QuestionManager.getQuestionByTitleSlug(questionView.getTitleSlug(), anActionEvent.getProject(), true);
         if (question == null) {
             return;
         }

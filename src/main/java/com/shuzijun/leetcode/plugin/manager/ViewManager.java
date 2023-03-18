@@ -72,8 +72,11 @@ public class ViewManager {
         PageInfo.Filters filters = pageInfo.getFilters();
         if (StringUtils.isNotBlank(filters.getListId())) {
             List<Tag> tagList = navigatorAction.getFind().getFilter(Constant.FIND_TYPE_LISTS);
-            Tag tag = tagList.stream().filter(t -> t.getSlug().equalsIgnoreCase(filters.getListId())).findAny().get();
-            conformSet.retainAll(tag.getQuestions());
+            Optional<Tag> optional = tagList.stream().filter(t -> t.getSlug().equalsIgnoreCase(filters.getListId())).findAny();
+            if (optional.isPresent()){
+                Tag tag = optional.get();
+                conformSet.retainAll(tag.getQuestions());
+            }
         }
         if (CollectionUtils.isNotEmpty(filters.getTags())) {
             List<Tag> tagList = navigatorAction.getFind().getFilter(Constant.FIND_TYPE_TAGS);

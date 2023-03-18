@@ -41,11 +41,11 @@ public class OpenSolutionAction extends AbstractEditAction {
             anActionEvent.getPresentation().setEnabled(false);
             return;
         }
-        Question question = QuestionManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), anActionEvent.getProject());
+        Question question = QuestionManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), anActionEvent.getProject(), true);
         if (question != null) {
             anActionEvent.getPresentation().setEnabled(!Constant.ARTICLE_LIVE_NONE.equals(question.getArticleLive()));
         } else {
-            anActionEvent.getPresentation().setEnabled(false);
+            anActionEvent.getPresentation().setEnabled(true);
         }
     }
 

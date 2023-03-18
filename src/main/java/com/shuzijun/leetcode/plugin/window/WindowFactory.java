@@ -1,7 +1,7 @@
 package com.shuzijun.leetcode.plugin.window;
 
-import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
@@ -16,9 +16,9 @@ import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import icons.LeetCodeEditorIcons;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author shuzijun
@@ -48,16 +48,17 @@ public class WindowFactory implements ToolWindowFactory, DumbAware {
 
     @NotNull
     public static DataContext getDataContext(@NotNull Project project) {
-        AtomicReference<DataContext> dataContext = new AtomicReference<>();
-        ApplicationManager.getApplication().invokeAndWait(() -> {
-            ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
-            if (leetcodeToolWindows == null) {
-                dataContext.set(DataContext.EMPTY_CONTEXT);
-            } else {
-                dataContext.set(DataManager.getInstance().getDataContext(leetcodeToolWindows.getContentManager().getContent(0).getComponent()));
-            }
-        });
-        return dataContext.get();
+        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
+        if (leetcodeToolWindows == null) {
+            return DataContext.EMPTY_CONTEXT;
+        }
+
+        JComponent navigatorPanel =  leetcodeToolWindows.getContentManager().getContent(0).getComponent();
+        if (navigatorPanel instanceof DataProvider){
+            return new MyDataContext((DataProvider) navigatorPanel);
+        }
+
+        return DataContext.EMPTY_CONTEXT;
     }
 
     public static void updateTitle(@NotNull Project project, String userName) {
@@ -75,6 +76,19 @@ public class WindowFactory implements ToolWindowFactory, DumbAware {
     public static void activateToolWindow(@NotNull Project project) {
         ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
         leetcodeToolWindows.activate(null);
+    }
+
+    public static class  MyDataContext implements DataContext{
+        private final DataProvider dataProvider;
+
+        public MyDataContext(DataProvider dataProvider) {
+            this.dataProvider = dataProvider;
+        }
+
+        @Override
+        public @Nullable Object getData(@NotNull String dataId) {
+            return dataProvider.getData(dataId);
+        }
     }
 
 }
