@@ -8,6 +8,21 @@
 [![捐赠][badge:donate-zh]][shuzijun-donate]
 [![内推][badge:referrals]][shuzijun-referrals]
 
+## 2023.1.1
+
+### Added
+
+### Changed
+
+- 优化操作响应时间
+- Optimize operation response time
+
+### Deprecated
+
+### Fixed
+
+### Removed
+
 ## 2023.1.0
 
 ### Added
