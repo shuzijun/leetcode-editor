@@ -122,3 +122,8 @@
     font-weight: 800;
     src: url("./fonts/JetBrainsMono-ExtraBoldItalic.woff2") format("woff2");
 }
+
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
