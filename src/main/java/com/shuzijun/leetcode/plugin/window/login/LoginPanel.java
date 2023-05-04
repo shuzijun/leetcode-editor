@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.ui.jcef.JCEFHtmlPanel;
@@ -58,6 +59,7 @@ public class LoginPanel extends DialogWrapper {
             } catch (IllegalArgumentException e) {
                 jcefPanel = new JcefPanel(project, okAction,true);
             }
+            Disposer.register(getDisposable(),jcefPanel);
             jcefPanel.getComponent().setMinimumSize(new Dimension(1000, 500));
             jcefPanel.getComponent().setPreferredSize(new Dimension(1000, 500));
             panel.addToCenter(new JBScrollPane(jcefPanel.getComponent(), JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
@@ -140,6 +142,8 @@ public class LoginPanel extends DialogWrapper {
     }
 
 
+
+
     private static class JcefPanel extends JCEFHtmlPanel {
 
 
@@ -185,27 +189,26 @@ public class LoginPanel extends DialogWrapper {
                         @Override
                         public boolean visit(CefCookie cefCookie, int count, int total, BoolRef boolRef) {
 
-                            boolean isSession = Boolean.FALSE;
                             if (cefCookie.domain.contains("leetcode")) {
                                 HttpCookie cookie = new HttpCookie(cefCookie.name, cefCookie.value);
                                 cookie.setDomain(cefCookie.domain);
                                 cookie.setPath(cefCookie.path);
                                 cookieList.add(cookie);
-                                if ("LEETCODE_SESSION".equals(cefCookie.name)) {
-                                    isSession = Boolean.TRUE;
-                                }
                             }
-                            if (count == total - 1 && isSession) {
-                                HttpRequestUtils.setCookie(cookieList);
-                                if (HttpRequestUtils.isLogin(project)) {
-                                    HttpLogin.loginSuccess(project, cookieList);
-                                    MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("browser.login.success"));
-                                    ApplicationManager.getApplication().invokeLater(() -> okAction.actionPerformed(null));
-                                    successDispose = true;
-                                } else {
-                                    cookieList.clear();
-                                    LogUtils.LOG.info("login failure");
-                                }
+                            if (count == total - 1) {
+                                if (cookieList.stream().anyMatch(cookie -> cookie.getName().equals("LEETCODE_SESSION")) &&
+                                        !HttpRequestUtils.isLogin(project)) {
+                                    HttpRequestUtils.setCookie(cookieList);
+                                    if (HttpRequestUtils.isLogin(project)) {
+                                        HttpLogin.loginSuccess(project, cookieList);
+                                        MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("browser.login.success"));
+                                        ApplicationManager.getApplication().invokeLater(() -> okAction.actionPerformed(null));
+                                        successDispose = true;
+                                    } else {
+                                        cookieList.clear();
+                                        LogUtils.LOG.info("login failure");
+                                    }
+                               }
                             }
                             return true;
                         }
