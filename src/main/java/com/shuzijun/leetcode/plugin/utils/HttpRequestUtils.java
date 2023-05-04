@@ -113,6 +113,7 @@ public class HttpRequestUtils {
 
         cookieManager.getCookieStore().removeAll();
         for (HttpCookie cookie : cookieList) {
+            cookie.setVersion(0);
             cookieManager.getCookieStore().add(null, cookie);
         }
     }
