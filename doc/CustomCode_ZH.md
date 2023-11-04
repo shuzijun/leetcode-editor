@@ -3,11 +3,11 @@
   - [English Document](https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md)  
   - [中文文档](#配置)   
   <p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/customConfig-100.gif" alt="loacl" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
- 
-  
+
+
 ## 配置  
 <p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/config-3.0.jpg" alt="config" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
-  
+
   - **Custom code template**: 开启使用自定义模板，否则使用默认生成格式  
   - **CodeFileName**: 生成文件的名称，默认为题目标题  
   - **CodeTemplate**: 生成题目代码的内容，默认为题目描述和题目代码   
@@ -24,25 +24,61 @@
   在生成的自定义代码中包含两行关键信息:  
   - `leetcode submit region begin(Prohibit modification and deletion)`:提交到leetcode进行验证的代码开始标记  
   - `leetcode submit region end(Prohibit modification and deletion)`:提交到leetcode进行验证的代码结束标记  
-  这两行标记标示了提交到leetcode服务器进行验证的代码范围,在此范围内只允许有出现与题目解答相关的内容，出现其他内容可能导致leetcode验证不通过。  
-  除了此范围内，其他区域是可以任意填写的，内容不会提交到leetcode，可以增加一些可以本地调试的内容，例如:import java.util.Arrays;  
-  所以，这两行内容是不能被删除和修改的，否则将识别不到提交的内容。
-  
+    这两行标记标示了提交到leetcode服务器进行验证的代码范围,在此范围内只允许有出现与题目解答相关的内容，出现其他内容可能导致leetcode验证不通过。  
+    除了此范围内，其他区域是可以任意填写的，内容不会提交到leetcode，可以增加一些可以本地调试的内容，例如:import java.util.Arrays;  
+    所以，这两行内容是不能被删除和修改的，否则将识别不到提交的内容。
+
 ## JAVA常用配置  
   可参考示例：[示例工程](https://github.com/shuzijun/leetcode-question)  
   CodeFileName:
+
   ```java
   $!velocityTool.camelCaseName(${question.titleSlug})
   ```
   TemplateConstant:
   ```java
-    ${question.content}
+  ${question.content}
     
-    package com.shuzijun.leetcode.editor.en;
-    public class $!velocityTool.camelCaseName(${question.titleSlug}){
-        public static void main(String[] args) {
-             Solution solution = new $!velocityTool.camelCaseName(${question.titleSlug})().new Solution();
-        }
-        ${question.code}
-    }
+  package com.shuzijun.leetcode.editor.en;
+  public class $!velocityTool.camelCaseName(${question.titleSlug}){
+      public static void main(String[] args) {
+           Solution solution = new $!velocityTool.camelCaseName(${question.titleSlug})().new Solution();
+      }
+      ${question.code}
+  }
   ```
+
+## C++常用配置 
+
+CodeFileName:
+
+```
+Leetcode_$!velocityTool.toPinyinAndTrims(${question.frontendQuestionId})_$!velocityTool.toPinyinAndTrims(${question.titleSlug})
+```
+
+TemplateConstant:
+
+```cpp
+${question.content}
+\#include <bits/stdc++.h>
+
+using namespace std;
+#set($solutionId = ${question.frontendQuestionId})
+#set($solutionId = $solutionId.replaceAll(" ", "_"))
+#set($solutionId = $solutionId.replaceAll("[\\u4e00-\\u9fa5-]", ""))  ## 删除中文字符和"-"符号
+
+namespace solution${solutionId}{
+${question.code}
+}
+
+using namespace solution${solutionId};
+int main() {
+    Solution solution;
+
+    return 0;
+}
+```
+
+效果如下图所示:
+
+<img src="CustomCode-cpp.png" alt="CustomCode-cpp" style="zoom: 60%;" />
