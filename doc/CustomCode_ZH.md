@@ -17,7 +17,10 @@
     - **${question.frontendQuestionId}**：题目编号，例如:1  
     - **${question.content}**：题目描述内容  
     - **${question.code}**：题目代码部分  
-    - **$!velocityTool.camelCaseName(str)**：一个函数，用来将字符串转化为驼峰样式  
+    - **$!velocityTool.camelCaseName(str)**：一个函数，用来将字符串转换为大驼峰样式
+    - **$!velocityTool.smallCamelCaseName  (str)**：一个函数，用来将字符串转换为小驼峰样式
+    - **$!velocityTool.snakeCaseName(str)**：一个函数，用来将字符串转换为蛇形样式
+    - **$!velocityTool.toPinyinAndTrims(str)**：将汉字转为为拼音并去除所有空格
   - 更多工具参考[VelocityTool.java](https://github.com/shuzijun/leetcode-editor/blob/master/src/main/java/com/shuzijun/leetcode/plugin/utils/VelocityTool.java)
 
 ## 注意  
