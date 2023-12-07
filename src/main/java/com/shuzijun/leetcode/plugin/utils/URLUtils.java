@@ -2,7 +2,7 @@ package com.shuzijun.leetcode.plugin.utils;
 
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author shuzijun

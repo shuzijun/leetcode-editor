@@ -1,6 +1,6 @@
 package com.shuzijun.leetcode.plugin.model;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;

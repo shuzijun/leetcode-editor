@@ -12,7 +12,7 @@ import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import com.shuzijun.leetcode.plugin.utils.doc.CleanMarkdown;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;

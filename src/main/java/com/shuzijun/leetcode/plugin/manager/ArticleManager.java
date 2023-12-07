@@ -10,7 +10,7 @@ import com.shuzijun.leetcode.plugin.model.Solution;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import com.shuzijun.leetcode.plugin.utils.doc.CleanMarkdown;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -21,7 +21,7 @@ public class VelocityUtils {
         engine = new VelocityEngine();
         engine.setProperty(RuntimeConstants.PARSER_POOL_SIZE, 20);
         engine.setProperty(RuntimeConstants.INPUT_ENCODING, "UTF-8");
-        engine.setProperty(RuntimeConstants.OUTPUT_ENCODING, "UTF-8");
+        //engine.setProperty(RuntimeConstants.OUTPUT_ENCODING, "UTF-8");
 
         Properties props = new Properties();
         props.put("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");

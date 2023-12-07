@@ -14,7 +14,7 @@ import com.shuzijun.leetcode.plugin.window.NavigatorTabsPanel;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import com.shuzijun.leetcode.plugin.window.login.HttpLogin;
 import com.shuzijun.leetcode.plugin.window.login.LoginPanel;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.HttpCookie;
 import java.util.List;

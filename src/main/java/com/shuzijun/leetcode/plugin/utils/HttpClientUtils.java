@@ -3,7 +3,7 @@
 //import com.intellij.util.proxy.CommonProxy;
 //import com.shuzijun.leetcode.plugin.model.Config;
 //import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
-//import org.apache.commons.lang.StringUtils;
+//import org.apache.commons.lang3.StringUtils;
 //import org.apache.http.Header;
 //import org.apache.http.HttpHeaders;
 //import org.apache.http.client.config.AuthSchemes;
