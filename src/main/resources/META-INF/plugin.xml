@@ -36,7 +36,7 @@
                         serviceImplementation="com.shuzijun.leetcode.plugin.setting.StatisticsData"/>
         <applicationConfigurable groupId="tools" displayName="LeetCode Plugin" id="leetcode.id"
                                  instance="com.shuzijun.leetcode.plugin.setting.SettingConfigurable"/>
-        <statusBarWidgetFactory implementation="com.shuzijun.leetcode.plugin.timer.TimerStatusBarWidgetProvider"/>
+        <statusBarWidgetFactory id="leetcode-editor-TimerStatusBar" implementation="com.shuzijun.leetcode.plugin.timer.TimerStatusBarWidgetProvider"/>
         <lang.foldingBuilder language="JAVA" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
         <lang.foldingBuilder language="Python" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
         <lang.foldingBuilder language="ObjectiveC" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
