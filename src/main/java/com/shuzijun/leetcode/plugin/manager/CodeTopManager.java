@@ -40,7 +40,7 @@ public class CodeTopManager {
         List<Tag> tags = new ArrayList<>();
 
         HttpResponse response = HttpRequest.builderGet(CodeTopURLUtils.getCompanies()).request();
-        if (response != null && response.getStatusCode() == 200) {
+        if (response.getStatusCode() == 200) {
             try {
                 String body = response.getBody();
                 if (StringUtils.isNotBlank(body)) {
@@ -150,7 +150,7 @@ public class CodeTopManager {
             pageInfo.setRowTotal(pageObject.getInteger("count"));
             pageInfo.setRows(questionList);
         } else {
-            LogUtils.LOG.error("Request question list failed, status:" + response == null ? "" : response.getStatusCode());
+            LogUtils.LOG.error("Request question list failed, status:" + response.getStatusCode());
             throw new RuntimeException("Request question list failed");
         }
 

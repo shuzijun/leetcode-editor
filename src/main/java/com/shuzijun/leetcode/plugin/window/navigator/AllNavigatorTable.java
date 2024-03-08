@@ -133,6 +133,9 @@ public class AllNavigatorTable extends NavigatorTableData<QuestionView> {
 
                 if (columnIndex == 2) {
                     Integer level = question.getLevel();
+                    if (level == null) {
+                        return null;
+                    }
                     if (level == 1) {
                         return "Easy";
                     } else if (level == 2) {

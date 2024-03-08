@@ -23,7 +23,7 @@ public class URLUtils {
     private static String leetcodeSubmissions = "/submissions/detail/";
     private static String leetcodeTags = "/problems/api/tags/";
     private static String leetcodeFavorites = "/problems/api/favorites/";
-    private static String leetcodeVerify = "/problemset/all/";
+    private static String leetcodeVerify = "/problemset/";
     private static String leetcodeProgress = "/api/progress/all/";
     private static String leetcodeSession = "/session/";
     private static String leetcodeCardInfo = "/problems/api/card-info/";

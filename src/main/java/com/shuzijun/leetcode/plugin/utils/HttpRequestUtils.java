@@ -3,16 +3,26 @@ package com.shuzijun.leetcode.plugin.utils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.io.HttpRequests;
+import com.intellij.util.net.HttpConfigurable;
+import com.intellij.util.net.IdeaWideAuthenticator;
+import com.intellij.util.net.IdeaWideProxySelector;
+import com.shuzijun.lc.LcClient;
+import com.shuzijun.lc.errors.LcException;
+import com.shuzijun.lc.http.DefaultExecutoHttp;
+import com.shuzijun.lc.http.HttpClient;
 import com.shuzijun.leetcode.plugin.model.HttpRequest;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHeaders;
+import okhttp3.Credentials;
+import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.net.*;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.HttpCookie;
+import java.net.PasswordAuthentication;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -22,6 +32,9 @@ public class HttpRequestUtils {
 
     private static final Cache<String, HttpResponse> httpResponseCache = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).build();
 
+    private static MyExecutorHttp executorHttp = new MyExecutorHttp();
+    private static LcClient enLcClient = LcClient.builder(HttpClient.SiteEnum.EN).executorHttp(executorHttp).build();
+    private static LcClient cnLcClient = LcClient.builder(HttpClient.SiteEnum.CN).executorHttp(executorHttp).build();
     private static final CookieManager cookieManager = new CookieManager(null, (uri, cookie) -> {
         if (uri == null || cookie == null || uri.getHost().equals("hm.baidu.com")) {
             return false;
@@ -33,18 +46,36 @@ public class HttpRequestUtils {
         CookieHandler.setDefault(cookieManager);
     }
 
+    private static HttpResponse buildResp(com.shuzijun.lc.http.HttpResponse response, HttpResponse httpResponse) {
+        httpResponse.setUrl(response.getHttpRequest().getUrl());
+        httpResponse.setStatusCode(response.getStatusCode());
+        httpResponse.setBody(response.getBody());
+        return httpResponse;
+    }
+
+    private static Map<String, String> getHeader(String url) {
+        if (url.contains(HttpClient.SiteEnum.EN.defaultEndpoint)){
+            return enLcClient.getClient().getHeader();
+        } else {
+            return cnLcClient.getClient().getHeader();
+        }
+    }
+
     @NotNull
     public static HttpResponse executeGet(HttpRequest httpRequest) {
 
         return CacheProcessor.processor(httpRequest, request -> {
+
             HttpResponse httpResponse = new HttpResponse();
             try {
-                HttpRequests.request(request.getUrl()).
-                        throwStatusCodeException(false).
-                        tuner(new HttpRequestTuner(request)).
-                        connect(new HttpResponseProcessor(request, httpResponse));
+                com.shuzijun.lc.http.HttpRequest.HttpRequestBuilder builder = com.shuzijun.lc.http.HttpRequest.
+                        builderGet(request.getUrl()).body(request.getBody()).addHeader(getHeader(request.getUrl()));
+                if (request.getHeader() != null) {
+                    builder.addHeader(request.getHeader());
+                }
+                return buildResp(executorHttp.executeGet(builder.build()), httpResponse);
 
-            } catch (IOException e) {
+            } catch (LcException e) {
                 LogUtils.LOG.error("HttpRequestUtils request error:", e);
                 httpResponse.setStatusCode(-1);
             }
@@ -59,11 +90,13 @@ public class HttpRequestUtils {
         return CacheProcessor.processor(httpRequest, request -> {
             HttpResponse httpResponse = new HttpResponse();
             try {
-                HttpRequests.post(request.getUrl(), request.getContentType())
-                        .throwStatusCodeException(false)
-                        .tuner(new HttpRequestTuner(request))
-                        .connect(new HttpResponseProcessor(request, httpResponse));
-            } catch (IOException e) {
+                com.shuzijun.lc.http.HttpRequest.HttpRequestBuilder builder = com.shuzijun.lc.http.HttpRequest.
+                        builderPost(request.getUrl(), request.getContentType()).body(request.getBody()).addHeader(getHeader(request.getUrl()));
+                if (request.getHeader() != null) {
+                    builder.addHeader(request.getHeader());
+                }
+                return buildResp(executorHttp.executePost(builder.build()), httpResponse);
+            } catch (LcException e) {
                 LogUtils.LOG.error("HttpRequestUtils request error:", e);
                 httpResponse.setStatusCode(-1);
             }
@@ -75,11 +108,13 @@ public class HttpRequestUtils {
         return CacheProcessor.processor(httpRequest, request -> {
             HttpResponse httpResponse = new HttpResponse();
             try {
-                HttpRequests.put(request.getUrl(), request.getContentType())
-                        .throwStatusCodeException(false)
-                        .tuner(new HttpRequestTuner(request))
-                        .connect(new HttpResponseProcessor(request, httpResponse));
-            } catch (IOException e) {
+                com.shuzijun.lc.http.HttpRequest.HttpRequestBuilder builder = com.shuzijun.lc.http.HttpRequest.
+                        builderPut(request.getUrl(), request.getContentType()).body(request.getBody()).addHeader(getHeader(request.getUrl()));
+                if (request.getHeader() != null) {
+                    builder.addHeader(request.getHeader());
+                }
+                return buildResp(executorHttp.executePut(builder.build()), httpResponse);
+            } catch (LcException e) {
                 LogUtils.LOG.error("HttpRequestUtils request error:", e);
                 httpResponse.setStatusCode(-1);
             }
@@ -88,17 +123,8 @@ public class HttpRequestUtils {
     }
 
     public static String getToken() {
-        if (cookieManager.getCookieStore().getCookies() == null) {
-            return null;
-        }
-        for (HttpCookie cookie : cookieManager.getCookieStore().getCookies()) {
-            if (StringUtils.isNotBlank(cookie.getDomain()) &&
-                    cookie.getDomain().toLowerCase().contains(URLUtils.getLeetcodeHost()) && "csrftoken".equals(cookie.getName())) {
-                return cookie.getValue();
-            }
-
-        }
-        return null;
+        Map<String,String> headerMap = getHeader(URLUtils.getLeetcodeHost());
+        return headerMap.get("x-csrftoken");
     }
 
     public static boolean isLogin(Project project) {
@@ -110,86 +136,14 @@ public class HttpRequestUtils {
     }
 
     public static void setCookie(List<HttpCookie> cookieList) {
-
-        cookieManager.getCookieStore().removeAll();
-        for (HttpCookie cookie : cookieList) {
-            cookie.setVersion(0);
-            cookieManager.getCookieStore().add(null, cookie);
-        }
+        enLcClient.getClient().cookieStore().clearCookie(URLUtils.getLeetcodeHost());
+        enLcClient.getClient().cookieStore().addCookie(URLUtils.getLeetcodeHost(),cookieList);
     }
 
     public static void resetHttpclient() {
-        cookieManager.getCookieStore().removeAll();
+        enLcClient.getClient().cookieStore().clearCookie(URLUtils.getLeetcodeHost());
     }
 
-
-    private static void defaultHeader(HttpRequest httpRequest) {
-        Map<String, String> header = httpRequest.getHeader();
-        header.putIfAbsent(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36");
-        header.putIfAbsent(HttpHeaders.ACCEPT, "*/*");
-        //header.putIfAbsent(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate, br");
-        header.putIfAbsent(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN,zh;q=0.9");
-        header.putIfAbsent("origin", URLUtils.getLeetcodeUrl());
-        //header.putIfAbsent(":authority", URLUtils.getLeetcodeHost());
-        //header.putIfAbsent(":scheme", "https");
-    }
-
-    private static class HttpRequestTuner implements HttpRequests.ConnectionTuner {
-
-        private final HttpRequest httpRequest;
-
-        public HttpRequestTuner(HttpRequest httpRequest) {
-            this.httpRequest = httpRequest;
-        }
-
-        @Override
-        public void tune(@NotNull URLConnection urlConnection) throws IOException {
-
-            if (StringUtils.isNotBlank(getToken()) && (urlConnection.getURL().toString().contains(URLUtils.leetcode) || urlConnection.getURL().toString().contains(URLUtils.leetcodecn))) {
-                urlConnection.addRequestProperty("x-csrftoken", getToken());
-            }
-            urlConnection.addRequestProperty("referer", urlConnection.getURL().toString());
-            //urlConnection.addRequestProperty(":path", urlConnection.getURL().getPath());
-
-            defaultHeader(httpRequest);
-            httpRequest.getHeader().forEach(urlConnection::addRequestProperty);
-        }
-    }
-
-
-    private static class HttpResponseProcessor implements HttpRequests.RequestProcessor<HttpResponse> {
-
-        private final HttpRequest httpRequest;
-        private final HttpResponse httpResponse;
-
-        public HttpResponseProcessor(HttpRequest httpRequest, HttpResponse httpResponse) {
-            this.httpRequest = httpRequest;
-            this.httpResponse = httpResponse;
-        }
-
-        @Override
-        public HttpResponse process(@NotNull HttpRequests.Request request) throws IOException {
-
-            if (StringUtils.isNoneBlank(httpRequest.getBody())) {
-                request.write(httpRequest.getBody());
-            }
-
-            URLConnection urlConnection = request.getConnection();
-
-            if (!(urlConnection instanceof HttpURLConnection)) {
-                httpResponse.setStatusCode(-1);
-                return httpResponse;
-            } else {
-                httpResponse.setStatusCode(((HttpURLConnection) urlConnection).getResponseCode());
-            }
-            httpResponse.setUrl(urlConnection.getURL().toString());
-            try {
-                httpResponse.setBody(request.readString());
-            } catch (IOException ignore) {
-            }
-            return httpResponse;
-        }
-    }
 
     private static class CacheProcessor {
         public static HttpResponse processor(HttpRequest httpRequest, HttpRequestUtils.Callable<HttpResponse> callable) {
@@ -222,4 +176,38 @@ public class HttpRequestUtils {
         V call(HttpRequest request);
     }
 
+
+    private static class MyExecutorHttp extends DefaultExecutoHttp {
+        @Override
+        public OkHttpClient getRequestClient() {
+            final HttpConfigurable httpConfigurable = HttpConfigurable.getInstance();
+            if (!httpConfigurable.USE_HTTP_PROXY &&  !httpConfigurable.USE_PROXY_PAC) {
+                return super.getRequestClient();
+            }
+            final IdeaWideProxySelector ideaWideProxySelector = new IdeaWideProxySelector(httpConfigurable);
+            OkHttpClient.Builder builder = super.getRequestClient().newBuilder().proxySelector(ideaWideProxySelector);
+            if (httpConfigurable.PROXY_AUTHENTICATION) {
+                final IdeaWideAuthenticator ideaWideAuthenticator = new IdeaWideAuthenticator(httpConfigurable);
+                final okhttp3.Authenticator proxyAuthenticator = getProxyAuthenticator(ideaWideAuthenticator);
+                builder.proxyAuthenticator(proxyAuthenticator);
+            }
+            return builder.build();
+        }
+
+        private okhttp3.Authenticator getProxyAuthenticator(IdeaWideAuthenticator ideaWideAuthenticator) {
+            okhttp3.Authenticator proxyAuthenticator = null;
+
+            if (Objects.nonNull(ideaWideAuthenticator)) {
+                proxyAuthenticator = (route, response) -> {
+                    final PasswordAuthentication authentication = ideaWideAuthenticator.getPasswordAuthentication();
+                    final String credential = Credentials.basic(authentication.getUserName(), Arrays.toString(authentication.getPassword()));
+                    return response.request().newBuilder()
+                            .header("Proxy-Authorization", credential)
+                            .build();
+                };
+            }
+            return proxyAuthenticator;
+        }
+    }
 }
+
