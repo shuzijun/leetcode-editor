@@ -130,6 +130,9 @@
         <action id="leetcode.PickAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.PickAction"
                 text="Pick one" description="Pick one" icon="LeetCodeEditorIcons.RANDOM">
         </action>
+        <action id="leetcode.DaliyAction" class="com.shuzijun.leetcode.plugin.actions.toolbar.DailyAction"
+                text="Daily one" description="Daily one" icon="LeetCodeEditorIcons.DAILY">
+        </action>
         <action id="leetcode.positionAction" class="com.shuzijun.leetcode.plugin.actions.editor.PositionAction"
                 text="position" description="position" icon="LeetCodeEditorIcons.POSITION"/>
 
@@ -139,6 +142,7 @@
             <separator/>
             <reference id="leetcode.RefreshAction"/>
             <reference id="leetcode.PickAction"/>
+            <reference id="leetcode.DaliyAction"/>
             <reference id="leetcode.FindAction"/>
             <reference id="leetcode.positionAction"/>
             <reference id="leetcode.ProgressAction"/>
