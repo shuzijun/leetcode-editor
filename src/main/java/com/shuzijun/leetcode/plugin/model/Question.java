@@ -89,19 +89,27 @@ public class Question extends QuestionView {
         this.langSlug = langSlug;
     }
 
+    public String getLangSlugCode() {
+         CodeTypeEnum codeType = CodeTypeEnum.getCodeTypeEnumByLangSlug(langSlug);
+         for (CodeSnippet codeSnippet : codeSnippets) {
+            if (codeType.getLangSlug().equals(codeSnippet.getLangSlug())) {
+                return codeSnippet.getCode();
+            }
+        }
+        return "";
+    }
+    
     public String getCode() {
         if (CollectionUtils.isEmpty(codeSnippets)) {
             return "Subscribe to unlock.";
         }
-        CodeTypeEnum codeType = CodeTypeEnum.getCodeTypeEnumByLangSlug(langSlug);
-        for (CodeSnippet codeSnippet : codeSnippets) {
-            if (codeType.getLangSlug().equals(codeSnippet.getLangSlug())) {
-                StringBuffer sb = new StringBuffer();
+        var code = getLangSlugCode();
+        if !"".equals(code) {
+             StringBuffer sb = new StringBuffer();
                 sb.append(codeType.getComment()).append(Constant.SUBMIT_REGION_BEGIN).append("\n");
-                sb.append(codeSnippet.getCode()).append("\n");
+                sb.append(code).append("\n");
                 sb.append(codeType.getComment()).append(Constant.SUBMIT_REGION_END).append("\n");
                 return sb.toString();
-            }
         }
         return codeType.getComment() + "There is no code of " + codeType.getType() + " type for this problem";
     }
