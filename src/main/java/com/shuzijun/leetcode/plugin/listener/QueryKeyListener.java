@@ -46,29 +46,21 @@ public class QueryKeyListener implements KeyListener {
                 @Override
                 public void run(@NotNull ProgressIndicator progressIndicator) {
                     String selectText = jTextField.getText();
-                    navigatorAction.getPageInfo().disposeFilters("searchKeywords", selectText, StringUtils.isNotBlank(selectText));
-                    navigatorAction.getPageInfo().setPageIndex(1);
-                    navigatorAction.loadServiceData();
-                }
-            });
-        }
-        if (e.getKeyCode() == KeyEvent.VK_ALT) {
-            ProgressManager.getInstance().run(new Task.Backgroundable(project, "Open code from URL", false) {
-                @Override
-                public void run(@NotNull ProgressIndicator progressIndicator) {
-                    String selectText = jTextField.getText();
                     try {
+                        // if is url, open it
                         URL url = new URL(selectText);
                         String path = url.getPath();
                         String[] pathSegments = path.split("/");
                         String titleSlug = pathSegments[2];
                         CodeManager.openCode(titleSlug, project);
                     } catch (MalformedURLException ex) {
-                        throw new RuntimeException(ex);
+                        // if not, search it
+                        navigatorAction.getPageInfo().disposeFilters("searchKeywords", selectText, StringUtils.isNotBlank(selectText));
+                        navigatorAction.getPageInfo().setPageIndex(1);
+                        navigatorAction.loadServiceData();
                     }
                 }
             });
-
         }
     }
 
