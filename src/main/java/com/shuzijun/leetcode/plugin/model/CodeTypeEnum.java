@@ -21,11 +21,17 @@ public enum CodeTypeEnum {
     KOTLIN("Kotlin", "kotlin", ".kt", "//", "/**\n%s\n*/"),
     RUST("Rust", "rust", ".rs", "//", "/**\n%s\n*/"),
     PHP("PHP", "php", ".php", "//", "/**\n%s\n*/"),
+    TypeScript("TypeScript", "typescript", ".ts", "//", "/**\n%s\n*/"),
+    Dart("Dart", "dart", ".dart", "//", "/**\n%s\n*/"),
+    Racket("Racket", "racket", ".rkt", ";", "#|\n%s\n|#"),
+    Erlang("Erlang", "erlang", ".erl", "%", ""),
+    Elixir("Elixir", "elixir", ".ex", "#", ""),
     BASH("Bash", "bash", ".sh", "#",": '\n%s\n'"),
     MYSQL("MySQL", "mysql", ".sql", "#", "/**\n%s\n*/"),
     ORACLE("Oracle", "oraclesql", ".sql", "#", "/**\n%s\n*/"),
     MSSQLSERVER("MS SQL Server", "mssql", ".sql", "#", "/**\n%s\n*/"),
-    TypeScript("TypeScript", "typescript", ".ts", "//", "/**\n%s\n*/"),
+    Pandas("Pandas", "pythondata", ".py", "#", "\"\"\"\n%s\n\"\"\""),
+    PostgreSQL("PostgreSQL", "postgresql", ".sql", "--", "/**\n%s\n*/"),
     ;
 
 
