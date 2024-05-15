@@ -1,5 +1,6 @@
 package com.shuzijun.leetcode.plugin.actions;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
@@ -45,6 +46,11 @@ public abstract class AbstractAction extends AnAction {
             }
         });
 
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return  ActionUpdateThread.BGT;
     }
 
     public abstract void actionPerformed(AnActionEvent anActionEvent, Config config);

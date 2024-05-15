@@ -1,11 +1,13 @@
 package com.shuzijun.leetcode.plugin.actions.toolbar;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -46,4 +48,8 @@ public class FindAction extends ToggleAction implements DumbAware {
         panel.setVisible(b);
     }
 
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return  ActionUpdateThread.BGT;
+    }
 }

@@ -1,5 +1,6 @@
 package com.shuzijun.leetcode.plugin.actions.tree;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -64,5 +65,10 @@ public class FavoriteAction extends ToggleAction implements DumbAware {
             }
         });
 
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return  ActionUpdateThread.BGT;
     }
 }

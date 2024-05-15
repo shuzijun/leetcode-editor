@@ -1,5 +1,6 @@
 package com.shuzijun.leetcode.plugin.actions.toolbar;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -59,6 +60,11 @@ public class FindTagAction extends ToggleAction implements DumbAware {
                 navigatorAction.findChange(filterKey, b, tag);
             }
         });
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return  ActionUpdateThread.BGT;
     }
 
 

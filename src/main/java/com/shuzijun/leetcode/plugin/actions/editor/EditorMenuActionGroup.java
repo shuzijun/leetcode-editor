@@ -1,11 +1,13 @@
 package com.shuzijun.leetcode.plugin.actions.editor;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author shuzijun
@@ -23,5 +25,10 @@ public class EditorMenuActionGroup extends DefaultActionGroup {
             }
         }
         e.getPresentation().setEnabledAndVisible(menuAllowed);
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return  ActionUpdateThread.BGT;
     }
 }

@@ -31,6 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.Map;
 
 /**
@@ -71,6 +73,12 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
         queryField.setToolTipText("Enter Search");
         queryField.addKeyListener(new QueryKeyListener(queryField, myNavigatorAction, project));
         queryPanel.add(queryField);
+        queryPanel.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                queryField.requestFocusInWindow();
+            }
+        });
 
         findToolbar = actionManager.createActionToolbar(PluginConstant.LEETCODE_ALL_FIND_TOOLBAR, (DefaultActionGroup) actionManager.getAction(PluginConstant.LEETCODE_ALL_FIND_TOOLBAR), true);
         findToolbar.setTargetComponent(navigatorTable);

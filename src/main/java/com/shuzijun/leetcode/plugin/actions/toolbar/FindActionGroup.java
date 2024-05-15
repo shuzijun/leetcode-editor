@@ -2,6 +2,7 @@ package com.shuzijun.leetcode.plugin.actions.toolbar;
 
 import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
@@ -13,6 +14,7 @@ import com.shuzijun.leetcode.plugin.model.Tag;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import icons.LeetCodeEditorIcons;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -96,5 +98,10 @@ public class FindActionGroup extends ActionGroup implements DumbAware {
 
     private String getKey(String id) {
         return id.replace(PluginConstant.LEETCODE_FIND_PREFIX, "").replace(PluginConstant.LEETCODE_ALL_FIND_PREFIX, "").replace(PluginConstant.LEETCODE_CODETOP_FIND_PREFIX, "");
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return  ActionUpdateThread.BGT;
     }
 }

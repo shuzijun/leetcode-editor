@@ -94,7 +94,7 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
         if (username == null || password == null) {
             return;
         }
-        PasswordSafe.getInstance().set(new CredentialAttributes(PluginConstant.PLUGIN_ID, username, this.getClass()), new Credentials(username, password == null ? "" : password));
+        PasswordSafe.getInstance().set(new CredentialAttributes(PluginConstant.PLUGIN_ID, username, this.getClass()), new Credentials(username, password));
     }
 
     public String getPassword(String username) {

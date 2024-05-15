@@ -2,24 +2,30 @@ package com.shuzijun.leetcode.plugin.utils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.net.HttpConfigurable;
-import com.intellij.util.net.IdeaWideAuthenticator;
 import com.intellij.util.net.IdeaWideProxySelector;
+import com.intellij.util.proxy.NonStaticAuthenticator;
 import com.shuzijun.lc.LcClient;
 import com.shuzijun.lc.errors.LcException;
 import com.shuzijun.lc.http.DefaultExecutoHttp;
 import com.shuzijun.lc.http.HttpClient;
 import com.shuzijun.leetcode.plugin.model.HttpRequest;
+import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import okhttp3.Challenge;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpCookie;
 import java.net.PasswordAuthentication;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,7 +60,7 @@ public class HttpRequestUtils {
     }
 
     private static Map<String, String> getHeader(String url) {
-        if (url.contains(HttpClient.SiteEnum.EN.defaultEndpoint)){
+        if (url.contains(HttpClient.SiteEnum.EN.defaultEndpoint)) {
             return enLcClient.getClient().getHeader();
         } else {
             return cnLcClient.getClient().getHeader();
@@ -123,7 +129,7 @@ public class HttpRequestUtils {
     }
 
     public static String getToken() {
-        Map<String,String> headerMap = getHeader(URLUtils.getLeetcodeHost());
+        Map<String, String> headerMap = getHeader(URLUtils.getLeetcodeHost());
         return headerMap.get("x-csrftoken");
     }
 
@@ -137,7 +143,7 @@ public class HttpRequestUtils {
 
     public static void setCookie(List<HttpCookie> cookieList) {
         enLcClient.getClient().cookieStore().clearCookie(URLUtils.getLeetcodeHost());
-        enLcClient.getClient().cookieStore().addCookie(URLUtils.getLeetcodeHost(),cookieList);
+        enLcClient.getClient().cookieStore().addCookie(URLUtils.getLeetcodeHost(), cookieList);
     }
 
     public static void resetHttpclient() {
@@ -181,32 +187,110 @@ public class HttpRequestUtils {
         @Override
         public OkHttpClient getRequestClient() {
             final HttpConfigurable httpConfigurable = HttpConfigurable.getInstance();
-            if (!httpConfigurable.USE_HTTP_PROXY &&  !httpConfigurable.USE_PROXY_PAC) {
+            if (!httpConfigurable.USE_HTTP_PROXY && !httpConfigurable.USE_PROXY_PAC) {
                 return super.getRequestClient();
             }
             final IdeaWideProxySelector ideaWideProxySelector = new IdeaWideProxySelector(httpConfigurable);
             OkHttpClient.Builder builder = super.getRequestClient().newBuilder().proxySelector(ideaWideProxySelector);
             if (httpConfigurable.PROXY_AUTHENTICATION) {
-                final IdeaWideAuthenticator ideaWideAuthenticator = new IdeaWideAuthenticator(httpConfigurable);
+                final MyAuthenticator ideaWideAuthenticator = new MyAuthenticator(httpConfigurable);
                 final okhttp3.Authenticator proxyAuthenticator = getProxyAuthenticator(ideaWideAuthenticator);
                 builder.proxyAuthenticator(proxyAuthenticator);
             }
             return builder.build();
         }
 
-        private okhttp3.Authenticator getProxyAuthenticator(IdeaWideAuthenticator ideaWideAuthenticator) {
+        private okhttp3.Authenticator getProxyAuthenticator(MyAuthenticator ideaWideAuthenticator) {
             okhttp3.Authenticator proxyAuthenticator = null;
 
             if (Objects.nonNull(ideaWideAuthenticator)) {
                 proxyAuthenticator = (route, response) -> {
+                    ideaWideAuthenticator.SetResponse(response);
                     final PasswordAuthentication authentication = ideaWideAuthenticator.getPasswordAuthentication();
-                    final String credential = Credentials.basic(authentication.getUserName(), Arrays.toString(authentication.getPassword()));
-                    return response.request().newBuilder()
-                            .header("Proxy-Authorization", credential)
-                            .build();
+                    final String credential = Credentials.basic(authentication.getUserName(), new String(authentication.getPassword()));
+
+                    for (Challenge challenge : response.challenges()) {
+                        if (challenge.scheme().equalsIgnoreCase("OkHttp-Preemptive")) {
+                            return response.request().newBuilder()
+                                    .header("Proxy-Authorization", credential)
+                                    .build();
+                        }
+                    }
+                    return null;
                 };
             }
             return proxyAuthenticator;
+        }
+    }
+
+    private static class MyAuthenticator extends NonStaticAuthenticator {
+        private static final Logger LOG = Logger.getInstance(com.intellij.util.net.IdeaWideAuthenticator.class);
+        private final HttpConfigurable myHttpConfigurable;
+
+        private okhttp3.Response response;
+
+        public MyAuthenticator(@NotNull HttpConfigurable configurable) {
+            super();
+            this.myHttpConfigurable = configurable;
+        }
+
+
+        public void SetResponse(okhttp3.Response response) {
+            this.response = response;
+        }
+
+        public PasswordAuthentication getPasswordAuthentication() {
+            okhttp3.HttpUrl url = response.request().url();
+            Application application = ApplicationManager.getApplication();
+
+            if (StringUtils.isNoneBlank(myHttpConfigurable.getPlainProxyPassword()) && StringUtils.isNoneBlank(myHttpConfigurable.getProxyLogin())) {
+                return new PasswordAuthentication(myHttpConfigurable.getProxyLogin(), myHttpConfigurable.getPlainProxyPassword().toCharArray());
+            }
+
+            if (this.myHttpConfigurable.USE_HTTP_PROXY) {
+                LOG.debug("CommonAuthenticator.getPasswordAuthentication will return common defined proxy");
+                return this.myHttpConfigurable.getPromptedAuthentication(url.host() + ":" + url.port(), this.getRequestingPrompt());
+            }
+
+            if (this.myHttpConfigurable.USE_PROXY_PAC) {
+                LOG.debug("CommonAuthenticator.getPasswordAuthentication will return autodetected proxy");
+                if (this.myHttpConfigurable.isGenericPasswordCanceled(this.getRequestingHost(), this.getRequestingPort())) {
+                    return null;
+                }
+
+                PasswordAuthentication password = this.myHttpConfigurable.getGenericPassword(this.getRequestingHost(), this.getRequestingPort());
+                if (password != null) {
+                    return password;
+                }
+
+                if (application != null && !application.isDisposed()) {
+                    return this.myHttpConfigurable.getGenericPromptedAuthentication(PluginConstant.PLUGIN_ID, this.getRequestingHost(), this.getRequestingPrompt(), this.getRequestingPort(), true);
+                }
+
+                return null;
+            }
+
+            if (application != null && !application.isDisposed()) {
+                LOG.debug("CommonAuthenticator.getPasswordAuthentication generic authentication will be asked");
+                return null;
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        protected String getRequestingHost() {
+            return response.request().url().host();
+        }
+
+        @Override
+        protected int getRequestingPort() {
+            return response.request().url().port();
+        }
+
+        @Override
+        protected @Nls String getRequestingPrompt() {
+            return PluginConstant.PLUGIN_ID;
         }
     }
 }
