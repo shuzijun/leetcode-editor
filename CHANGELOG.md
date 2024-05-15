@@ -8,6 +8,22 @@
 [![捐赠][badge:donate-zh]][shuzijun-donate]
 [![内推][badge:referrals]][shuzijun-referrals]
 
+## 2024.1.3
+
+### Added
+- Code Type: Pandas & PostgreSQL enhancement [#709](https://github.com/shuzijun/leetcode-editor/issues/709)
+- 希望点击搜索按钮时可以自动聚焦到搜索框 [#713](https://github.com/shuzijun/leetcode-editor/issues/713)
+
+### Changed
+
+### Deprecated
+
+### Fixed
+- fix [#708](https://github.com/shuzijun/leetcode-editor/issues/708)
+- fix [#712](https://github.com/shuzijun/leetcode-editor/issues/712)
+
+### Removed
+
 ## 2024.1.2
 
 ### Added
