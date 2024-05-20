@@ -11,6 +11,7 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.ui.content.ContentManager;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import icons.LeetCodeEditorIcons;
@@ -52,8 +53,15 @@ public class WindowFactory implements ToolWindowFactory, DumbAware {
         if (leetcodeToolWindows == null) {
             return DataContext.EMPTY_CONTEXT;
         }
-
-        JComponent navigatorPanel =  leetcodeToolWindows.getContentManager().getContent(0).getComponent();
+        ContentManager navigatorContentManager = leetcodeToolWindows.getContentManagerIfCreated();
+        if (navigatorContentManager == null) {
+            return DataContext.EMPTY_CONTEXT;
+        }
+        Content navigatorContent= navigatorContentManager.getContent(0);
+        if (navigatorContent == null) {
+            return DataContext.EMPTY_CONTEXT;
+        }
+        JComponent navigatorPanel =  navigatorContent.getComponent();
         if (navigatorPanel instanceof DataProvider){
             return new MyDataContext((DataProvider) navigatorPanel);
         }
