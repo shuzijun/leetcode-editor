@@ -5,6 +5,7 @@ import com.intellij.ide.structureView.StructureViewBuilder;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorLocation;
 import com.intellij.openapi.fileEditor.TextEditor;
@@ -98,7 +99,11 @@ public class QuestionEditorWithPreview extends TextEditorWithPreview {
 
     }
 
-    public FileEditor getPreviewEditor() {
+    public @NotNull FileEditor getPreviewEditor() {
         return myPreview == getTextEditor() ? myEditor : myPreview;
+    }
+
+    public @NotNull Editor getEditor() {
+        return getTextEditor().getEditor();
     }
 }

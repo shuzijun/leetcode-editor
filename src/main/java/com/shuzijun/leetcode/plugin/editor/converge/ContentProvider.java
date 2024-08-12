@@ -1,5 +1,6 @@
 package com.shuzijun.leetcode.plugin.editor.converge;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -24,8 +25,13 @@ public class ContentProvider extends LCVProvider {
     @Override
     public @NotNull FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
         LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getEditor(file.getPath());
-        VirtualFile contentVf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(leetcodeEditor.getContentPath()));
 
+        VirtualFile contentVf;
+        try {
+            contentVf = ApplicationManager.getApplication().executeOnPooledThread(() -> LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(leetcodeEditor.getContentPath()))).get();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return super.createEditor(project, contentVf);
     }
 }
