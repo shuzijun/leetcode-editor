@@ -97,9 +97,9 @@ public class Question extends QuestionView {
         for (CodeSnippet codeSnippet : codeSnippets) {
             if (codeType.getLangSlug().equals(codeSnippet.getLangSlug())) {
                 StringBuffer sb = new StringBuffer();
-                sb.append(codeType.getComment()).append(Constant.SUBMIT_REGION_BEGIN).append("\n");
+//                sb.append(codeType.getComment()).append(Constant.SUBMIT_REGION_BEGIN).append("\n");
                 sb.append(codeSnippet.getCode()).append("\n");
-                sb.append(codeType.getComment()).append(Constant.SUBMIT_REGION_END).append("\n");
+//                sb.append(codeType.getComment()).append(Constant.SUBMIT_REGION_END).append("\n");
                 return sb.toString();
             }
         }

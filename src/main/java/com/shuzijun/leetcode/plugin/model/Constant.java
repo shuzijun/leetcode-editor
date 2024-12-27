@@ -52,11 +52,6 @@ public class Constant {
     public static final String STATUS_SOLVED = "Solved";
     public static final String STATUS_ATTEMPTED = "Attempted";
 
-    /**
-     * 默认模板
-     */
-    public static final String CUSTOM_FILE_NAME = "[$!{question.frontendQuestionId}]${question.title}";
-    public static final String CUSTOM_TEMPLATE = "${question.content}\n\n${question.code}";
 
     /**
      * 提交代码标识 submit
@@ -64,6 +59,11 @@ public class Constant {
     public static final String SUBMIT_REGION_BEGIN = "leetcode submit region begin(Prohibit modification and deletion)";
     public static final String SUBMIT_REGION_END = "leetcode submit region end(Prohibit modification and deletion)";
 
+    /**
+     * 默认模板
+     */
+    public static final String CUSTOM_FILE_NAME = "$!{question.frontendQuestionId}-${question.titleSlug}";
+    public static final String CUSTOM_TEMPLATE = "${question.content}\n//"+SUBMIT_REGION_BEGIN+"\n${question.code}\n//"+SUBMIT_REGION_END;
     /**
      * 配置文件版本记录
      */
