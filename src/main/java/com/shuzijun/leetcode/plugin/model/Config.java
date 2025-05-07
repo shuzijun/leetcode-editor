@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.annotations.Transient;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import java.awt.*;
@@ -66,8 +67,9 @@ public class Config implements Cloneable {
      * 自定义代码生成
      */
     private Boolean customCode = false;
+
     /**
-     * 适应英文描述
+     * 使用英文描述
      */
     private Boolean englishContent = false;
 
@@ -78,7 +80,13 @@ public class Config implements Cloneable {
     /**
      * 自定义代码
      */
+    @Deprecated
+    @Transient
     private String customTemplate = Constant.CUSTOM_TEMPLATE;
+
+
+    private Map<String, String> langCustomTemplate = new HashMap<>();
+
     /**
      * 用户cookie
      */
@@ -234,16 +242,39 @@ public class Config implements Cloneable {
         this.customFileName = customFileName;
     }
 
+    @Deprecated
     public String getCustomTemplate() {
+        return customTemplate;
+    }
+
+    @Deprecated
+    public void setCustomTemplate(String customTemplate) {
+        this.customTemplate = customTemplate;
+    }
+
+    public Map<String, String> getLangCustomTemplate() {
+        return langCustomTemplate;
+    }
+
+    public void setLangCustomTemplate(Map<String, String> langCustomTemplate) {
+        this.langCustomTemplate = langCustomTemplate;
+    }
+
+    public String getLangCustomTemplate(String codeType) {
         if (!customCode) {
             return Constant.CUSTOM_TEMPLATE;
         } else {
-            return customTemplate;
+            return langCustomTemplate.getOrDefault(codeType, Constant.CUSTOM_TEMPLATE);
         }
     }
 
-    public void setCustomTemplate(String customTemplate) {
-        this.customTemplate = customTemplate;
+    public void setLangCustomTemplate(String codeType, String customTemplate) {
+        System.out.println("setLangCustomTemplate: " + codeType + " " + customTemplate);
+        if (StringUtils.isBlank(customTemplate)) {
+            this.langCustomTemplate.remove(codeType);
+        } else {
+            this.langCustomTemplate.put(codeType, customTemplate);
+        }
     }
 
     public Map<String, String> getUserCookie() {
@@ -446,7 +477,7 @@ public class Config implements Cloneable {
                 .append(customCode, config.customCode)
                 .append(englishContent, config.englishContent)
                 .append(customFileName, config.customFileName)
-                .append(customTemplate, config.customTemplate)
+                .append(langCustomTemplate, config.langCustomTemplate)
                 .append(levelColour, config.levelColour)
                 .append(cookie, config.cookie)
                 .append(questionEditor, config.questionEditor)
@@ -467,5 +498,11 @@ public class Config implements Cloneable {
         } catch (CloneNotSupportedException ignore) {
         }
         return config;
+    }
+
+    public void printLangCustomTemplate() {
+        for (Map.Entry<String, String> entry : langCustomTemplate.entrySet()) {
+            System.out.println(entry.getKey() + " :\n " + entry.getValue());
+        }
     }
 }

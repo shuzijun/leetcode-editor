@@ -72,6 +72,10 @@ public class SettingUI {
     private Editor templateEditor = null;
     private Editor templateHelpEditor = null;
 
+    /**
+     * 上一次的语言，用于在切换语言的时候保存上一个语言的模板
+     */
+    private String previousLang;
 
     public SettingUI() {
         initUI();
@@ -161,6 +165,20 @@ public class SettingUI {
         questionEditorBox.addItem("Left");
         questionEditorBox.addItem("Right");
 
+        codeComboBox.addActionListener(e -> {
+            String newCodeType = (String) codeComboBox.getSelectedItem();
+            String oldTemplate = templateEditor.getDocument().getText();
+            Config config = PersistentConfig.getInstance().getInitConfig();
+            if (config != null && config.getCustomCode()) {
+                config.setLangCustomTemplate(previousLang, oldTemplate); // 上一个语言的模板保存
+                String customTemplate = config.getLangCustomTemplate(newCodeType);
+                ApplicationManager.getApplication().runWriteAction(() -> {
+                    templateEditor.getDocument().setText(customTemplate);
+                });
+            }
+            previousLang = newCodeType;
+        });
+
         loadSetting();
     }
 
@@ -179,6 +197,7 @@ public class SettingUI {
             if (StringUtils.isNotBlank(config.getCodeType())) {
                 codeComboBox.setSelectedItem(config.getCodeType());
             }
+            previousLang = (String) codeComboBox.getSelectedItem();
             if (StringUtils.isNotBlank(config.getUrl())) {
                 webComboBox.setSelectedItem(config.getUrl());
             }
@@ -186,7 +205,7 @@ public class SettingUI {
             customCodeBox.setSelected(config.getCustomCode());
             ApplicationManager.getApplication().runWriteAction(() -> {
                 fileNameEditor.getDocument().setText(config.getCustomFileName());
-                templateEditor.getDocument().setText(config.getCustomTemplate());
+                templateEditor.getDocument().setText(config.getLangCustomTemplate(config.getCodeType()));
             });
             englishContentBox.setSelected(config.getEnglishContent());
 
@@ -276,16 +295,17 @@ public class SettingUI {
 
     public void process(Config config) {
         if (config.getVersion() == null) {
-            config.setVersion(Constant.PLUGIN_CONFIG_VERSION_3);
+            config.setVersion(Constant.PLUGIN_CONFIG_VERSION_4);
         }
         config.setLoginName(userNameField.getText());
         config.setFilePath(fileFolderBtn.getText());
-        config.setCodeType(codeComboBox.getSelectedItem().toString());
+        String codeType = codeComboBox.getSelectedItem().toString();
+        config.setCodeType(codeType);
         config.setUrl(webComboBox.getSelectedItem().toString());
         config.setUpdate(updateCheckBox.isSelected());
         config.setCustomCode(customCodeBox.isSelected());
         config.setCustomFileName(fileNameEditor.getDocument().getText());
-        config.setCustomTemplate(templateEditor.getDocument().getText());
+        config.setLangCustomTemplate(codeType, templateEditor.getDocument().getText());
         config.setFormatLevelColour(easyLabel.getForeground(), mediumLabel.getForeground(), hardLabel.getForeground());
         config.setEnglishContent(englishContentBox.isSelected());
         config.setCookie(cookieCheckBox.isSelected());
