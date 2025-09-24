@@ -6,7 +6,6 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.shuzijun.leetcode.plugin.model.Solution;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -63,7 +62,7 @@ public class SolutionPanel extends DialogWrapper {
     }
 
     @Override
-    protected Action @NotNull [] createActions() {
+    protected Action[] createActions() {
         return new Action[]{getCancelAction()};
     }
 

@@ -1,6 +1,8 @@
 package com.shuzijun.leetcode.plugin.actions.toolbar;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
 import com.shuzijun.leetcode.plugin.actions.AbstractAction;
 import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
@@ -37,7 +39,6 @@ public class SortAction extends AbstractAction implements DumbAware {
         } else {
             e.getPresentation().setIcon(null);
         }
-        navigatorAction.updateUI();
         super.update(e);
 
     }
@@ -64,5 +65,10 @@ public class SortAction extends AbstractAction implements DumbAware {
         return anActionEvent.getActionManager().getId(this).replace(PluginConstant.LEETCODE_SORT_PREFIX, "")
                 .replace(PluginConstant.LEETCODE_CODETOP_SORT_PREFIX, "")
                 .replace(PluginConstant.LEETCODE_ALL_SORT_PREFIX, "");
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return  ActionUpdateThread.EDT;
     }
 }

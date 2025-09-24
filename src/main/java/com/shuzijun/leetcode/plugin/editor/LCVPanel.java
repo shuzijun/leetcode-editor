@@ -36,7 +36,6 @@ import org.cef.browser.CefFrame;
 import org.cef.handler.*;
 import org.cef.misc.BoolRef;
 import org.cef.network.CefRequest;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.ide.BuiltInServerManager;
 
@@ -120,7 +119,7 @@ public class LCVPanel extends JCEFHtmlPanel {
                                     .throwStatusCodeException(false)
                                     .connect(new HttpRequests.RequestProcessor<CefResourceHandler>() {
                                         @Override
-                                        public CefResourceHandler process(HttpRequests.@NotNull Request request) throws IOException {
+                                        public CefResourceHandler process(HttpRequests.Request request) throws IOException {
                                             HttpURLConnection urlConnection = (HttpURLConnection) request.getConnection();
                                             Map<String, String> header = new HashMap<>();
                                             urlConnection.getHeaderFields().forEach((key, values) -> {

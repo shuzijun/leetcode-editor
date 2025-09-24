@@ -55,7 +55,7 @@ public class ProxyLoadHtmlResourceHandler extends CefResourceHandlerAdapter {
     }
 
     @Override
-    public boolean readResponse(byte@NotNull[] data_out, int bytes_to_read, IntRef bytes_read, CefCallback callback) {
+    public boolean readResponse(byte[] data_out, int bytes_to_read, IntRef bytes_read, CefCallback callback) {
         try {
             int availableSize = myInputStream.available();
             if (availableSize > 0) {

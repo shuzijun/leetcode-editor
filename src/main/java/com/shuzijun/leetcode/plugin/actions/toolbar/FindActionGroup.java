@@ -41,13 +41,11 @@ public class FindActionGroup extends ActionGroup implements DumbAware {
             for (Tag tag : tags) {
                 if (tag.isSelect()) {
                     e.getPresentation().setIcon(LeetCodeEditorIcons.FILTER);
-                    navigatorAction.updateUI();
                     return;
                 }
             }
         }
         e.getPresentation().setIcon(null);
-        navigatorAction.updateUI();
     }
 
 
@@ -102,6 +100,6 @@ public class FindActionGroup extends ActionGroup implements DumbAware {
 
     @Override
     public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return  ActionUpdateThread.BGT;
+        return  ActionUpdateThread.EDT;
     }
 }

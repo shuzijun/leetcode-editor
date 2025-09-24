@@ -6,7 +6,6 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
 import com.shuzijun.leetcode.plugin.model.Submission;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -69,7 +68,7 @@ public class SubmissionsPanel extends DialogWrapper {
     }
 
     @Override
-    protected Action @NotNull [] createActions() {
+    protected Action[] createActions() {
         return new Action[]{getCancelAction()};
     }
 

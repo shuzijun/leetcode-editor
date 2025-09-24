@@ -50,7 +50,7 @@ public class TestcasePanel extends DialogWrapper {
     }
 
     @Override
-    protected Action @NotNull [] createActions() {
+    protected Action [] createActions() {
         return new Action[]{new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
