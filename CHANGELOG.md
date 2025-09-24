@@ -8,164 +8,92 @@
 [![捐赠][badge:donate-zh]][shuzijun-donate]
 [![内推][badge:referrals]][shuzijun-referrals]
 
-## 2024.1.5
+## Unreleased
 
-### Added
-
-### Changed
-
-### Deprecated
+## 2024.1.6
 
 ### Fixed
+
+- fix [#756](https://github.com/shuzijun/leetcode-editor/issues/756)
+
+## 2024.1.5
+
+### Fixed
+
 - fix [#726](https://github.com/shuzijun/leetcode-editor/issues/726)
-
-### Removed
-
 
 ## 2024.1.4
 
-### Added
-
-### Changed
-
-### Deprecated
-
 ### Fixed
-- fix [#719](https://github.com/shuzijun/leetcode-editor/issues/719)
 
-### Removed
+- fix [#719](https://github.com/shuzijun/leetcode-editor/issues/719)
 
 ## 2024.1.3
 
 ### Added
+
 - Code Type: Pandas & PostgreSQL enhancement [#709](https://github.com/shuzijun/leetcode-editor/issues/709)
 - 希望点击搜索按钮时可以自动聚焦到搜索框 [#713](https://github.com/shuzijun/leetcode-editor/issues/713)
 
-### Changed
-
-### Deprecated
-
 ### Fixed
+
 - fix [#708](https://github.com/shuzijun/leetcode-editor/issues/708)
 - fix [#712](https://github.com/shuzijun/leetcode-editor/issues/712)
 
-### Removed
-
 ## 2024.1.2
 
-### Added
-
-### Changed
-
-### Deprecated
-
 ### Fixed
+
 - fix [#701](https://github.com/shuzijun/leetcode-editor/issues/701)
-
-### Removed
-
-
 
 ## 2024.1.1
 
-### Added
-
-### Changed
-
-### Deprecated
-
 ### Fixed
+
 - fix [#697](https://github.com/shuzijun/leetcode-editor/issues/697)
-
-### Removed
-
 
 ## 2023.1.3
 
-### Added
-
-### Changed
-
-### Deprecated
-
 ### Fixed
-- fix [#682](https://github.com/shuzijun/leetcode-editor/issues/682)
 
-### Removed
+- fix [#682](https://github.com/shuzijun/leetcode-editor/issues/682)
 
 ## 2023.1.2
 
-### Added
-
-### Changed
-
-### Deprecated
-
 ### Fixed
+
 - fix [#636](https://github.com/shuzijun/leetcode-editor/issues/636)
 - fix [#638](https://github.com/shuzijun/leetcode-editor/issues/638)
 
-### Removed
-
 ## 2023.1.1
-
-### Added
 
 ### Changed
 
 - 优化操作响应时间
 - Optimize operation response time
-
-### Deprecated
-
-### Fixed
-
-### Removed
 
 ## 2023.1.0
 
-### Added
-
 ### Changed
 
 - 优化操作响应时间
 - Optimize operation response time
-
-### Deprecated
 
 ### Fixed
 
 - fix [#613](https://github.com/shuzijun/leetcode-editor/issues/613)
 
-### Removed
-
 ## 2022.2.8
-
-### Added
-
-### Changed
-
-### Deprecated
 
 ### Fixed
 
 - fix [#601](https://github.com/shuzijun/leetcode-editor/issues/601)
 
-### Removed
-
 ## 2022.2.7
-
-### Added
-
-### Changed
-
-### Deprecated
 
 ### Fixed
 
 - fix [#598](https://github.com/shuzijun/leetcode-editor/issues/598)
-
-### Removed
 
 ## 2022.2.6
 
@@ -181,12 +109,6 @@
 - 修改插件图标.
 - Modify plugin icon.
 
-### Deprecated
-
-### Fixed
-
-### Removed
-
 ## 2022.2.5
 
 ### Added
@@ -195,14 +117,6 @@
 - Extension protocol, support opening questions through the browser plugin [Leetcode Editoe Extension](https://github.com/shuzijun/leetcode-editor-extension)
 - 增加描述文件加载动画
 - Add description file loading animation
-
-### Changed
-
-### Deprecated
-
-### Fixed
-
-### Removed
 
 ## 2022.2.4
 
@@ -234,8 +148,6 @@
 - 新的通知样式
 - Change notification style
 
-### Deprecated
-
 ### Fixed
 
 - 修复中国站进度问题
@@ -244,15 +156,7 @@
 - Fix table width [#issues/567](https://github.com/shuzijun/leetcode-editor/issues/567)
 - Fix bugs
 
-### Removed
-
 ## 2022.2.3
-
-### Added
-
-### Changed
-
-### Deprecated
 
 ### Fixed
 
@@ -260,21 +164,11 @@
 - fix Acceptance Width
 - fix bugs
 
-### Removed
-
 ## 2022.2.2
-
-### Added
-
-### Changed
-
-### Deprecated
 
 ### Fixed
 
 - fix bugs
-
-### Removed
 
 ## 2022.2.1
 
@@ -283,15 +177,9 @@
 - 增加数据统计信息存储,可配合[action](https://github.com/shuzijun/leetcode-editor/blob/master/action/README_ZH.md)生成勋章
 - Increase the storage of data statistics, you can use [action](https://github.com/shuzijun/leetcode-editor/tree/master/action) to generate medals
 
-### Changed
-
-### Deprecated
-
 ### Fixed
 
 - fix bugs
-
-### Removed
 
 ## 2022.2.0
 
@@ -305,18 +193,12 @@
 - domain name change
 - 修改域名
 
-### Deprecated
-
-### Fixed
-
-### Removed
-
-[badge:en-doc]: https://img.shields.io/badge/Docs-English%20Document-blue?logo=docs&style=flat-square
-[badge:zh-doc]: https://img.shields.io/badge/Docs-中文文档-blue?logo=docs&style=flat-square
-[badge:donate]: https://img.shields.io/badge/Docs-donate-ff69c4?logo=docs&style=flat-square
-[badge:donate-zh]: https://img.shields.io/badge/Docs-捐赠-ff69c4?logo=docs&style=flat-square
-[badge:referrals]: https://img.shields.io/badge/Docs-内推-ff69c4?logo=docs&style=flat-square
-[gh:en-doc]: https://github.com/shuzijun/leetcode-editor/blob/master/README.md
-[gh:zh-doc]: https://github.com/shuzijun/leetcode-editor/blob/master/README_ZH.md
-[shuzijun-donate]: https://shuzijun.cn/donate.html
 [shuzijun-referrals]: https://shuzijun.cn/referrals.html
+[shuzijun-donate]: https://shuzijun.cn/donate.html
+[gh:zh-doc]: https://github.com/shuzijun/leetcode-editor/blob/master/README_ZH.md
+[gh:en-doc]: https://github.com/shuzijun/leetcode-editor/blob/master/README.md
+[badge:zh-doc]: https://img.shields.io/badge/Docs-中文文档-blue?logo=docs&style=flat-square
+[badge:referrals]: https://img.shields.io/badge/Docs-内推-ff69c4?logo=docs&style=flat-square
+[badge:en-doc]: https://img.shields.io/badge/Docs-English%20Document-blue?logo=docs&style=flat-square
+[badge:donate-zh]: https://img.shields.io/badge/Docs-捐赠-ff69c4?logo=docs&style=flat-square
+[badge:donate]: https://img.shields.io/badge/Docs-donate-ff69c4?logo=docs&style=flat-square
