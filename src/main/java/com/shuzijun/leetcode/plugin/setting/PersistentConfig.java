@@ -52,20 +52,37 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
     @Nullable
     public Config getInitConfig() {
         Config config = initConfig.get(INITNAME);
-        if (config != null && config.getVersion() != null && config.getVersion() < Constant.PLUGIN_CONFIG_VERSION_3) {
-            if (URLUtils.leetcodecnOld.equals(config.getUrl())) {
-                config.setUrl(URLUtils.leetcodecn);
-            }
-            Iterator<String> iterator = config.getUserCookie().keySet().iterator();
-            while (iterator.hasNext()) {
-                String key = iterator.next();
-                String value = config.getCookie(key);
-                if (StringUtils.isBlank(value) || key.startsWith(URLUtils.leetcodecnOld)) {
-                    iterator.remove();
+        if (config != null && config.getVersion() != null) {
+            if (config.getVersion() < Constant.PLUGIN_CONFIG_VERSION_3) {
+                if (URLUtils.leetcodecnOld.equals(config.getUrl())) {
+                    config.setUrl(URLUtils.leetcodecn);
                 }
+                Iterator<String> iterator = config.getUserCookie().keySet().iterator();
+                while (iterator.hasNext()) {
+                    String key = iterator.next();
+                    String value = config.getCookie(key);
+                    if (StringUtils.isBlank(value) || key.startsWith(URLUtils.leetcodecnOld)) {
+                        iterator.remove();
+                    }
+                }
+                config.setVersion(Constant.PLUGIN_CONFIG_VERSION_3);
+                setInitConfig(config);
             }
-            config.setVersion(Constant.PLUGIN_CONFIG_VERSION_3);
-            setInitConfig(config);
+            if (config.getVersion() < Constant.PLUGIN_CONFIG_VERSION_4) {
+                System.out.println("1 version < 4");
+                config.printLangCustomTemplate();
+
+                String codeType = config.getCodeType();
+                System.out.println("2 version < 4");
+                String legacy = config.getCustomTemplate();
+                System.out.println("3 version < 4");
+                config.setLangCustomTemplate(codeType,legacy);
+                System.out.println("4 version < 4");
+                config.setVersion(Constant.PLUGIN_CONFIG_VERSION_4);
+                System.out.println("5 version < 4");
+                setInitConfig(config);
+                config.printLangCustomTemplate();
+            }
         }
         return config;
     }

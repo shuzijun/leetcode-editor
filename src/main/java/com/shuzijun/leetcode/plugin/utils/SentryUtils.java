@@ -73,7 +73,7 @@ public class SentryUtils {
             userConfig.put("proxy", config.getProxy());
             userConfig.put("customCode", config.getCustomCode());
             userConfig.put("customFileName", config.getCustomFileName());
-            userConfig.put("customTemplate", config.getCustomTemplate());
+            userConfig.put("customTemplate", config.getLangCustomTemplate(config.getCodeType()));
             userBuilder.setData(userConfig);
             context.setUser(userBuilder.build());
 
