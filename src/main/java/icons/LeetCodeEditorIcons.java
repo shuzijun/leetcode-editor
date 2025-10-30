@@ -8,7 +8,7 @@ import javax.swing.*;
  * @author shuzijun
  */
 public interface LeetCodeEditorIcons {
-    
+
     Icon LEETCODE_TOOL_WINDOW = IconLoader.getIcon("/icons/LeetCode.svg");
     Icon EMPEROR_NEW_CLOTHES = IconLoader.getIcon("/icons/emperor_new_clothes.svg");
 
@@ -30,6 +30,7 @@ public interface LeetCodeEditorIcons {
     Icon PROGRESS = IconLoader.getIcon("/icons/progress.svg");
     Icon QUESTION = IconLoader.getIcon("/icons/question.svg");
     Icon RANDOM = IconLoader.getIcon("/icons/random.svg");
+    Icon DAILY = IconLoader.getIcon("/icons/daily.svg");
     Icon REFRESH = IconLoader.getIcon("/icons/refresh.svg");
     Icon RUN = IconLoader.getIcon("/icons/run.svg");
     Icon SOLUTION = IconLoader.getIcon("/icons/solution.svg");
