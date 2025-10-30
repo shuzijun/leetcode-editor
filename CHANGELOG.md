@@ -10,6 +10,12 @@
 
 ## Unreleased
 
+## 2024.1.7
+
+### Fixed
+
+- fix [#760](https://github.com/shuzijun/leetcode-editor/issues/760)
+
 ## 2024.1.6
 
 ### Fixed
