@@ -51,7 +51,7 @@ public class CodeManager {
             try{
                 question.setLangSlug(codeTypeEnum.getLangSlug());
                 question.setContent(CommentUtils.createComment(content, codeTypeEnum, config));
-                FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
+                FileUtils.saveFile(file, VelocityUtils.convert(config.getLangCustomTemplate(config.getCodeType()), question));
                 FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, true);
             }finally {
                 question.setContent(content);
