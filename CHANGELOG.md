@@ -7,6 +7,19 @@
 [![捐赠][badge:donate-zh]][shuzijun-donate]
 [![内推][badge:referrals]][shuzijun-referrals]
 
+## 8.16.0
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+- fix [#760](https://github.com/shuzijun/leetcode-editor/issues/760)
+### Removed
+
+
 ## 8.15.0
 
 ### Added

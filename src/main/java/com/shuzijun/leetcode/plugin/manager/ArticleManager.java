@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * @author shuzijun
@@ -80,33 +81,58 @@ public class ArticleManager {
 
     public static List<Solution> getSolutionList(String titleSlug, Project project) {
         List<Solution> solutionList = new ArrayList<>();
-
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
         try {
-            HttpResponse response = Graphql.builder().cn(URLUtils.isCn()).operationName("questionSolutionArticles").
-                    variables("questionSlug", titleSlug).variables("first", 200).variables("skip", 0).variables("orderBy", "DEFAULT").request();
-            if (response.getStatusCode() == 200) {
-                JSONArray edges = JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONObject("questionSolutionArticles").getJSONArray("edges");
-                for (int i = 0; i < edges.size(); i++) {
-                    JSONObject node = edges.getJSONObject(i).getJSONObject("node");
-                    Solution solution = new Solution();
-                    solution.setTitle(node.getString("title"));
-                    solution.setSlug(node.getString("slug"));
-                    solution.setSummary(node.getString("summary"));
+            int pageCount = 4;
+            CountDownLatch latch = new CountDownLatch(pageCount);
+            List<Solution>[] results = new List[pageCount];
 
-                    StringBuilder tagsSb = new StringBuilder();
-                    JSONArray tags = node.getJSONArray("tags");
-                    for (int j = 0; j < tags.size(); j++) {
-                        tagsSb.append("[").append(tags.getJSONObject(j).getString("name")).append("] ");
+            for (int i = 0; i < pageCount; i++) {
+                int pageIndex = i;
+                int skip = pageIndex * 30;
+                executorService.submit(() -> {
+                    try {
+                        List<Solution> solutions = new ArrayList<>();
+                        HttpResponse response = Graphql.builder().cn(URLUtils.isCn()).operationName("questionSolutionArticles").
+                                variables("questionSlug", titleSlug).variables("first", 30).variables("skip", skip).variables("orderBy", "DEFAULT").request();
+                        if (response.getStatusCode() == 200) {
+                            JSONArray edges = JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONObject("questionSolutionArticles").getJSONArray("edges");
+                            for (int j = 0; j < edges.size(); j++) {
+                                JSONObject node = edges.getJSONObject(j).getJSONObject("node");
+                                Solution solution = new Solution();
+                                solution.setTitle(node.getString("title"));
+                                solution.setSlug(node.getString("slug"));
+                                solution.setSummary(node.getString("summary"));
+
+                                StringBuilder tagsSb = new StringBuilder();
+                                JSONArray tags = node.getJSONArray("tags");
+                                for (int k = 0; k < tags.size(); k++) {
+                                    tagsSb.append("[").append(tags.getJSONObject(k).getString("name")).append("] ");
+                                }
+                                solution.setTags(tagsSb.toString());
+                                solutions.add(solution);
+                            }
+                            results[pageIndex] = solutions;
+                        } else {
+                            MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
+                        }
+                    } finally {
+                        latch.countDown();
                     }
-                    solution.setTags(tagsSb.toString());
-                    solutionList.add(solution);
+                });
+            }
+
+            latch.await();
+            for (List<Solution> pageResult : results) {
+                if (pageResult != null) {
+                    solutionList.addAll(pageResult);
                 }
-            } else {
-                MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
             }
         } catch (Exception e) {
             LogUtils.LOG.error("solutionList acquisition failed", e);
             MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
+        } finally {
+            executorService.shutdown();
         }
         return solutionList;
 
