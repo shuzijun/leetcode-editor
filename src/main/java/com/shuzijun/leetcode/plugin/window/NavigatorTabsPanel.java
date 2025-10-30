@@ -99,6 +99,8 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
 
         setContent(tabs);
 
+        NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.put(id, this);
+
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
             User user = getUser();
             if (user.isSignedIn()) {
@@ -148,9 +150,6 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
                 Disposer.register(this, (Disposable) n);
             }
         }
-
-        NAVIGATOR_TABS_PANEL_DISPOSABLE_MAP.put(id, this);
-
     }
 
     public void toggle() {
