@@ -21,6 +21,8 @@ public class Config implements Cloneable {
 
     private String id;
 
+    private String study_plan;
+
     /**
      * 配置名称
      */
@@ -148,6 +150,14 @@ public class Config implements Cloneable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getStudyPlan() {
+        return study_plan;
+    }
+
+    public void setStudyPlan(String studyPlan) {
+        this.study_plan = studyPlan;
     }
 
     public String getLoginName() {

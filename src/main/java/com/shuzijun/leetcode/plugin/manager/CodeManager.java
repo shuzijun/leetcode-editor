@@ -97,6 +97,7 @@ public class CodeManager {
             JSONObject arg = new JSONObject();
             arg.put("question_id", question.getQuestionId());
             arg.put("lang", codeTypeEnum.getLangSlug());
+            arg.put("study_plan_slug", config.getStudyPlan());
             arg.put("typed_code", code);
             HttpResponse response = HttpRequest.builderPost(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/submit/", "application/json")
                     .addHeader("Accept", "application/json").body(arg.toJSONString()).request();
