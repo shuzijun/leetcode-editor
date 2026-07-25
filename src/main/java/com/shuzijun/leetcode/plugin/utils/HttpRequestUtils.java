@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author shuzijun
@@ -37,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 public class HttpRequestUtils {
 
     private static final Cache<String, HttpResponse> httpResponseCache = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).build();
+    private static final AtomicBoolean edtRequestWarningLogged = new AtomicBoolean();
 
     private static MyExecutorHttp executorHttp = new MyExecutorHttp();
     private static LcClient enLcClient = LcClient.builder(HttpClient.SiteEnum.EN).executorHttp(executorHttp).build();
@@ -155,8 +157,18 @@ public class HttpRequestUtils {
         public static HttpResponse processor(HttpRequest httpRequest, HttpRequestUtils.Callable<HttpResponse> callable) {
 
             String key = httpRequest.hashCode() + "";
-            if (httpRequest.isCache() && httpResponseCache.getIfPresent(key) != null) {
-                return httpResponseCache.getIfPresent(key);
+            HttpResponse cachedResponse = httpRequest.isCache() ? httpResponseCache.getIfPresent(key) : null;
+            if (cachedResponse != null) {
+                return cachedResponse;
+            }
+            Application application = ApplicationManager.getApplication();
+            if (application != null && application.isDispatchThread()) {
+                if (edtRequestWarningLogged.compareAndSet(false, true)) {
+                    LogUtils.LOG.warn("Blocked a LeetCode network request on the IDEA UI thread");
+                }
+                HttpResponse rejectedResponse = new HttpResponse();
+                rejectedResponse.setStatusCode(-1);
+                return rejectedResponse;
             }
             if (httpRequest.isCache()) {
                 synchronized (key.intern()) {
@@ -184,14 +196,31 @@ public class HttpRequestUtils {
 
 
     private static class MyExecutorHttp extends DefaultExecutoHttp {
+
+        private static final long CONNECT_TIMEOUT_SECONDS = 8;
+        private static final long READ_WRITE_TIMEOUT_SECONDS = 25;
+        private static final long CALL_TIMEOUT_SECONDS = 30;
+
+        private final OkHttpClient requestClient;
+
+        private MyExecutorHttp() {
+            requestClient = super.getRequestClient().newBuilder()
+                    .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .writeTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .readTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .callTimeout(CALL_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .retryOnConnectionFailure(true)
+                    .build();
+        }
+
         @Override
         public OkHttpClient getRequestClient() {
             final HttpConfigurable httpConfigurable = HttpConfigurable.getInstance();
             if (!httpConfigurable.USE_HTTP_PROXY && !httpConfigurable.USE_PROXY_PAC) {
-                return super.getRequestClient();
+                return requestClient;
             }
             final IdeaWideProxySelector ideaWideProxySelector = new IdeaWideProxySelector(httpConfigurable);
-            OkHttpClient.Builder builder = super.getRequestClient().newBuilder().proxySelector(ideaWideProxySelector);
+            OkHttpClient.Builder builder = requestClient.newBuilder().proxySelector(ideaWideProxySelector);
             if (httpConfigurable.PROXY_AUTHENTICATION) {
                 final MyAuthenticator ideaWideAuthenticator = new MyAuthenticator(httpConfigurable);
                 final okhttp3.Authenticator proxyAuthenticator = getProxyAuthenticator(ideaWideAuthenticator);
@@ -294,4 +323,3 @@ public class HttpRequestUtils {
         }
     }
 }
-

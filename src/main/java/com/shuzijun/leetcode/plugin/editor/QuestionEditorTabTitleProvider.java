@@ -29,17 +29,20 @@ public class QuestionEditorTabTitleProvider implements EditorTabTitleProvider {
             LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getEditor(file.getPath(), config.getUrl());
             if (leetcodeEditor == null || StringUtils.isBlank(leetcodeEditor.getContentPath())) {
                 return null;
-            } else {
-                Question question = QuestionManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), project);
-                if (question == null) {
-                    return null;
-                } else {
-                    return question.getFormTitle();
-                }
             }
+
+            // IDEA calls tab title providers while restoring editors during startup. This
+            // callback must stay local: waiting for LeetCode here freezes the whole IDE.
+            Question question = QuestionManager.getCachedQuestionByTitleSlug(
+                    leetcodeEditor.getTitleSlug(), leetcodeEditor.getHost());
+            return resolveLocalTitle(question, file.getNameWithoutExtension());
         } catch (Throwable e) {
-            LogUtils.LOG.error("QuestionEditorIconProvider -> patchIcon", e);
+            LogUtils.LOG.error("QuestionEditorTabTitleProvider -> getEditorTabTitle", e);
             return null;
         }
+    }
+
+    static String resolveLocalTitle(@Nullable Question cachedQuestion, @NotNull String fallbackTitle) {
+        return cachedQuestion == null ? fallbackTitle : cachedQuestion.getFormTitle();
     }
 }

@@ -26,7 +26,6 @@ import com.shuzijun.leetcode.plugin.window.navigator.TopNavigatorPanel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -218,19 +217,23 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
     public static synchronized void loadUser(boolean login) {
         User user = null;
         if (login) {
-            for (int i = 0; i <= 50; i++) {
+            final int maxAttempts = 3;
+            for (int i = 0; i < maxAttempts; i++) {
                 user = QuestionManager.getUser();
-                if (!user.isSignedIn()) {
-                    try {
-                        Thread.sleep(500 + (i / 10 * 100));
-                    } catch (InterruptedException ignore) {
-                    }
-                } else {
+                if (user.isSignedIn()) {
                     break;
                 }
-                if(i == 50){
-                    LogUtils.LOG.warn("User data is not synchronized");
+                if (i < maxAttempts - 1) {
+                    try {
+                        Thread.sleep(500L * (i + 1));
+                    } catch (InterruptedException ignore) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
                 }
+            }
+            if (user == null || !user.isSignedIn()) {
+                LogUtils.LOG.warn("User data is not synchronized after " + maxAttempts + " attempts");
             }
         } else {
             user = new User();
@@ -241,17 +244,12 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
         }
     }
 
-    public static class DisposableMap<K, V> extends HashMap implements Disposable {
-        @Override
-        public synchronized Object put(Object key, Object value) {
-            return super.put(key,value);
-        }
-
-        public synchronized K getOtherKey(K key){
+    public static class DisposableMap<K, V> extends ConcurrentHashMap<K, V> implements Disposable {
+        public K getOtherKey(K key){
             K otherKey = null;
-            for (Object k : this.keySet()) {
+            for (K k : this.keySet()) {
                 if (!k.equals(key)) {
-                    otherKey = key;
+                    otherKey = k;
                     break;
                 }
             }

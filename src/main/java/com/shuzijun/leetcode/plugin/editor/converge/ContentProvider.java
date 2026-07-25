@@ -1,6 +1,5 @@
 package com.shuzijun.leetcode.plugin.editor.converge;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -25,12 +24,14 @@ public class ContentProvider extends LCVProvider {
     @Override
     public @NotNull FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
         LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getEditor(file.getPath());
-
-        VirtualFile contentVf;
-        try {
-            contentVf = ApplicationManager.getApplication().executeOnPooledThread(() -> LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(leetcodeEditor.getContentPath()))).get();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (leetcodeEditor == null || leetcodeEditor.getContentPath() == null) {
+            throw new IllegalStateException("Missing LeetCode editor metadata for " + file.getPath());
+        }
+        // Generated content is refreshed when it is created. Avoid waiting on a background Future
+        // from the editor-creation path, which is normally invoked on the UI thread.
+        VirtualFile contentVf = LocalFileSystem.getInstance().findFileByIoFile(new File(leetcodeEditor.getContentPath()));
+        if (contentVf == null) {
+            throw new IllegalStateException("LeetCode content file is not available in VFS: " + leetcodeEditor.getContentPath());
         }
         return super.createEditor(project, contentVf);
     }

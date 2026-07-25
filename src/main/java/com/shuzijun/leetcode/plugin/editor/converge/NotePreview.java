@@ -21,6 +21,7 @@ import com.shuzijun.leetcode.plugin.manager.NoteManager;
 import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.utils.FileEditorProviderReflection;
+import com.shuzijun.leetcode.plugin.utils.AsyncUiUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -68,12 +69,17 @@ public class NotePreview extends UserDataHolderBase implements FileEditor {
         ApplicationManager.getApplication().invokeLater(() -> {
             JBLabel loadingLabel = new JBLabel("Loading......");
             myComponent.addToCenter(loadingLabel);
-            try {
-                File file = ApplicationManager.getApplication().executeOnPooledThread(() -> NoteManager.show(leetcodeEditor.getTitleSlug(), project, false)).get();
-                if (file == null || !file.exists()) {
+            AsyncUiUtils.load(project, this, () -> {
+                File file = NoteManager.show(leetcodeEditor.getTitleSlug(), project, false);
+                return file == null || !file.exists()
+                        ? null
+                        : LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+            }, (vf, error) -> {
+                if (error != null) {
+                    myComponent.addToCenter(new JBLabel(error.getMessage()));
+                } else if (vf == null) {
                     myComponent.addToCenter(new JBLabel("No note"));
                 } else {
-                    VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
                     FileEditorProvider[] editorProviders = FileEditorProviderReflection.getProviders(project, vf);
 
                     if (editorProviders != null && editorProviders.length > 0) {
@@ -85,13 +91,11 @@ public class NotePreview extends UserDataHolderBase implements FileEditor {
                     }
                     myComponent.addToCenter(fileEditor.getComponent());
                     myComponent.addToTop(createToolbarWrapper(fileEditor.getComponent()));
-
                 }
-            } catch (Exception e) {
-                myComponent.addToCenter(new JBLabel(e.getMessage()));
-            } finally {
                 myComponent.remove(loadingLabel);
-            }
+                myComponent.revalidate();
+                myComponent.repaint();
+            });
         });
     }
 
@@ -150,7 +154,7 @@ public class NotePreview extends UserDataHolderBase implements FileEditor {
 
     @Override
     public boolean isValid() {
-        return false;
+        return !project.isDisposed();
     }
 
     @Override
@@ -170,9 +174,7 @@ public class NotePreview extends UserDataHolderBase implements FileEditor {
 
     @Override
     public void dispose() {
-        if (fileEditor != null) {
-            Disposer.dispose(fileEditor);
-        }
+        fileEditor = null;
     }
 
     @Override

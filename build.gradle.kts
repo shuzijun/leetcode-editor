@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
@@ -112,6 +113,10 @@ changelog {
 
 
 tasks {
+    withType<JavaCompile>().configureEach {
+        options.encoding = "UTF-8"
+    }
+
     wrapper {
         gradleVersion = providers.gradleProperty("gradleVersion").get()
     }

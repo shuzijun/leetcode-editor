@@ -6,6 +6,7 @@ import okhttp3.Authenticator;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.List;
 public class HttpTest {
 
     @Test
+    @Ignore("requires a local authenticated proxy on 127.0.0.1:8888")
     public void testVerify() throws LcException, IOException {
 
         DefaultExecutoHttp defaultExecutoHttp = new DefaultExecutoHttp();

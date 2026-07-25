@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -321,25 +320,34 @@ public class QuestionManager {
         return getQuestionByTitleSlug(titleSlug,project, false);
     }
 
+    public static Question getCachedQuestionByTitleSlug(String titleSlug, String host) {
+        if (StringUtils.isBlank(titleSlug) || StringUtils.isBlank(host)) {
+            return null;
+        }
+        return questionCache.getIfPresent(host + titleSlug);
+    }
+
     public static Question getQuestionByTitleSlug(String titleSlug, Project project, boolean readOnlyCache) {
 
         if (StringUtils.isBlank(titleSlug)) {
             return null;
         }
         String key = URLUtils.getLeetcodeHost() + titleSlug;
+        Question cachedQuestion = questionCache.getIfPresent(key);
+        if (cachedQuestion != null || readOnlyCache) {
+            return cachedQuestion;
+        }
+        if (ApplicationManager.getApplication().isDispatchThread()) {
+            LogUtils.LOG.warn("Skipped loading question on the IDEA UI thread: " + titleSlug);
+            return null;
+        }
         if (questionCache.getIfPresent(key) == null) {
             synchronized (key.intern()) {
                 if (questionCache.getIfPresent(key) == null) {
                     try {
                         Question question = new Question();
                         question.setTitleSlug(titleSlug);
-                        Future<Boolean> questionFuture = ApplicationManager.getApplication().executeOnPooledThread(() -> {
-                            return getQuestion(question, project);
-                        });
-                        if (readOnlyCache) {
-                            return null;
-                        }
-                        if (questionFuture.get()) {
+                        if (getQuestion(question, project)) {
                             questionCache.put(key, question);
                         } else {
                             return null;
