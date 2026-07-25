@@ -43,6 +43,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.intellij.openapi.actionSystem.ActionPlaces.TEXT_EDITOR_WITH_PREVIEW;
 
@@ -68,6 +69,7 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
 
     private JBSplitter mySplitter;
     private SplitFileEditor.SplitEditorLayout myLayout = SplitFileEditor.SplitEditorLayout.FIRST;
+    private final AtomicInteger submissionRequestId = new AtomicInteger();
 
     public SubmissionsPreview(Project project, LeetcodeEditor leetcodeEditor) {
         this.project = project;
@@ -190,6 +192,7 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
             return;
         }
         String titleSlug = question.getTitleSlug();
+        int requestId = submissionRequestId.incrementAndGet();
         mySplitter.setSecondComponent(new JBLabel("Loading......"));
         AsyncUiUtils.load(project, this, () -> {
             File file = SubmissionManager.openSubmission(submission, titleSlug, project, false);
@@ -197,6 +200,9 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
                     ? null
                     : LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
         }, (vf, error) -> {
+            if (requestId != submissionRequestId.get()) {
+                return;
+            }
             if (error != null) {
                 mySplitter.setSecondComponent(new JBLabel(error.getMessage()));
             } else if (vf == null) {

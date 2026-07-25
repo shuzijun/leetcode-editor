@@ -19,7 +19,7 @@ public class ProjectConfigTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
-    public void prunesMissingSourceAndContentFiles() throws Exception {
+    public void prunesMissingSourceFilesOnly() throws Exception {
         Path project = temporaryFolder.newFolder("project").toPath();
         Path liveSource = Files.write(project.resolve("live.java"), "code".getBytes(StandardCharsets.UTF_8));
         Path liveContent = Files.write(project.resolve("live.lcv"), "content".getBytes(StandardCharsets.UTF_8));
@@ -36,10 +36,10 @@ public class ProjectConfigTest {
         ProjectConfig config = new ProjectConfig();
         config.loadState(state);
 
-        assertEquals(2, config.pruneStaleEntries(project.toString()));
+        assertEquals(1, config.pruneStaleEntries(project.toString()));
         assertSame(live, config.getEditor(live.getPath()));
         assertNull(config.getEditor(missingSource.getPath()));
-        assertNull(config.getEditor(missingContent.getPath() + "-mapping"));
+        assertSame(missingContent, config.getEditor(missingContent.getPath() + "-mapping"));
         assertSame(live, config.getDefEditor("1"));
     }
 
@@ -65,6 +65,23 @@ public class ProjectConfigTest {
         Path project = temporaryFolder.newFolder("macro-project").toPath();
         assertEquals(project.resolve("src").resolve("answer.java").toAbsolutePath().normalize(),
                 ProjectConfig.resolveLocalPath("$PROJECT_DIR$/src/answer.java", project.toString()));
+    }
+
+    @Test
+    public void removesEditorWithProjectDirectoryMacro() throws Exception {
+        Path project = temporaryFolder.newFolder("remove-macro-project").toPath();
+        Path source = Files.write(project.resolve("answer.java"), "code".getBytes(StandardCharsets.UTF_8));
+        LeetcodeEditor editor = editor("1", source, null);
+        editor.setPath("$PROJECT_DIR$/answer.java");
+
+        ProjectConfig.InnerState state = new ProjectConfig.InnerState();
+        state.projectConfig.put(editor.getPath(), editor);
+
+        ProjectConfig config = new ProjectConfig();
+        config.loadState(state);
+
+        assertEquals(true, config.removeEditor(source.toString(), project.toString()));
+        assertEquals(0, config.getState().projectConfig.size());
     }
 
     private static LeetcodeEditor editor(String id, Path source, Path content) {

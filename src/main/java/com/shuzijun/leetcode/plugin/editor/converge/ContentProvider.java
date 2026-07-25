@@ -1,6 +1,7 @@
 package com.shuzijun.leetcode.plugin.editor.converge;
 
 import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -24,14 +25,21 @@ public class ContentProvider extends LCVProvider {
     @Override
     public @NotNull FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
         LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getEditor(file.getPath());
-        if (leetcodeEditor == null || leetcodeEditor.getContentPath() == null) {
+        if (leetcodeEditor == null) {
             throw new IllegalStateException("Missing LeetCode editor metadata for " + file.getPath());
+        }
+        if (leetcodeEditor.getContentPath() == null) {
+            return new PsiAwareTextEditorProvider().createEditor(project, file);
         }
         // Generated content is refreshed when it is created. Avoid waiting on a background Future
         // from the editor-creation path, which is normally invoked on the UI thread.
-        VirtualFile contentVf = LocalFileSystem.getInstance().findFileByIoFile(new File(leetcodeEditor.getContentPath()));
+        File contentFile = new File(leetcodeEditor.getContentPath());
+        VirtualFile contentVf = LocalFileSystem.getInstance().findFileByIoFile(contentFile);
+        if (contentVf == null && contentFile.isFile()) {
+            contentVf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(contentFile);
+        }
         if (contentVf == null) {
-            throw new IllegalStateException("LeetCode content file is not available in VFS: " + leetcodeEditor.getContentPath());
+            return new PsiAwareTextEditorProvider().createEditor(project, file);
         }
         return super.createEditor(project, contentVf);
     }

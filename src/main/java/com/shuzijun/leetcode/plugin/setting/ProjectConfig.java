@@ -98,10 +98,8 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Inn
             LeetcodeEditor editor = entry.getValue();
             String editorPath = StringUtils.defaultIfBlank(editor.getPath(), entry.getKey());
             Path localPath = resolveLocalPath(editorPath, projectBasePath);
-            Path contentPath = resolveLocalPath(editor.getContentPath(), projectBasePath);
             boolean sourceMissing = localPath != null && !Files.isRegularFile(localPath);
-            boolean contentMissing = contentPath != null && !Files.isRegularFile(contentPath);
-            if ((sourceMissing || contentMissing)
+            if (sourceMissing
                     && innerState.projectConfig.remove(entry.getKey(), editor)) {
                 idProjectConfig.remove(editor.getFrontendQuestionId(), editor);
                 removed++;
@@ -122,13 +120,17 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Inn
     }
 
     public boolean removeEditor(String path) {
+        return removeEditor(path, null);
+    }
+
+    public boolean removeEditor(String path, @Nullable String projectBasePath) {
         LeetcodeEditor editor = innerState.projectConfig.remove(path);
         if (editor == null) {
-            Path target = resolveLocalPath(path, null);
+            Path target = resolveLocalPath(path, projectBasePath);
             if (target != null) {
                 for (Map.Entry<String, LeetcodeEditor> entry : innerState.projectConfig.entrySet()) {
                     String editorPath = StringUtils.defaultIfBlank(entry.getValue().getPath(), entry.getKey());
-                    if (target.equals(resolveLocalPath(editorPath, null))
+                    if (target.equals(resolveLocalPath(editorPath, projectBasePath))
                             && innerState.projectConfig.remove(entry.getKey(), entry.getValue())) {
                         editor = entry.getValue();
                         break;

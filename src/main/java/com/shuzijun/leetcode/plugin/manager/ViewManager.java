@@ -36,6 +36,7 @@ public class ViewManager {
                 navigatorAction.getFind().addFilter(Constant.FIND_TYPE_LISTS, FindManager.getLists(project));
             });
         }
+        ApplicationManager.getApplication().executeOnPooledThread(() -> QuestionManager.getQuestionAllService(project, false));
 
         navigatorAction.loadData(selectTitleSlug);
     }

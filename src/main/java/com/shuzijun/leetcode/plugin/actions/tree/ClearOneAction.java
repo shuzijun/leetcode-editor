@@ -47,7 +47,7 @@ public class ClearOneAction extends AbstractTreeAction {
                 Files.deleteIfExists(file.toPath());
                 ProjectConfig projectConfig = ProjectConfig.getInstance(anActionEvent.getProject());
                 if (projectConfig != null) {
-                    projectConfig.removeEditor(file.getPath());
+                    projectConfig.removeEditor(file.getPath(), anActionEvent.getProject().getBasePath());
                 }
                 if (vf != null && vf.getParent() != null) {
                     vf.getParent().refresh(true, false);

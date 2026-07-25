@@ -217,7 +217,7 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
     public static synchronized void loadUser(boolean login) {
         User user = null;
         if (login) {
-            final int maxAttempts = 3;
+            final int maxAttempts = 10;
             for (int i = 0; i < maxAttempts; i++) {
                 user = QuestionManager.getUser();
                 if (user.isSignedIn()) {
@@ -225,7 +225,7 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
                 }
                 if (i < maxAttempts - 1) {
                     try {
-                        Thread.sleep(500L * (i + 1));
+                        Thread.sleep(Math.min(3000L, 500L * (i + 1)));
                     } catch (InterruptedException ignore) {
                         Thread.currentThread().interrupt();
                         break;
@@ -234,6 +234,7 @@ public class NavigatorTabsPanel extends SimpleToolWindowPanel implements Disposa
             }
             if (user == null || !user.isSignedIn()) {
                 LogUtils.LOG.warn("User data is not synchronized after " + maxAttempts + " attempts");
+                return;
             }
         } else {
             user = new User();
