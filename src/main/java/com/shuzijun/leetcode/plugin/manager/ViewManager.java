@@ -21,7 +21,6 @@ public class ViewManager {
     }
 
     public static void loadServiceData(NavigatorAction navigatorAction, Project project, String selectTitleSlug) {
-        QuestionManager.getQuestionAllService(project, false);
         PageInfo pageInfo = QuestionManager.getQuestionViewList(project, navigatorAction.getPageInfo());
         if ((pageInfo.getRows() == null || pageInfo.getRows().isEmpty()) && pageInfo.getRowTotal() != 0) {
             MessageUtils.getInstance(project).showErrorMsg("error", PropertiesUtils.getInfo("response.question"));

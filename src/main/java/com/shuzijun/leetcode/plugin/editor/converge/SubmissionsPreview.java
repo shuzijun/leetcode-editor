@@ -26,6 +26,7 @@ import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Submission;
 import com.shuzijun.leetcode.plugin.utils.FileEditorProviderReflection;
+import com.shuzijun.leetcode.plugin.utils.AsyncUiUtils;
 import com.shuzijun.leetcode.plugin.window.dialog.SubmissionsPanel;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -103,15 +104,23 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
     private void initComponent(String defaultId) {
         isLoad = true;
         ApplicationManager.getApplication().invokeLater(() -> {
-            JBLabel loadingLabel = new JBLabel("Loading......");
-            mySplitter.setFirstComponent(loadingLabel);
-            try {
-                question = QuestionManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), project);
-
+            mySplitter.setFirstComponent(new JBLabel("Loading......"));
+            AsyncUiUtils.load(project, this, () -> {
+                Question loadedQuestion = QuestionManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), project);
+                List<Submission> loadedSubmissions = loadedQuestion == null
+                        ? null
+                        : SubmissionManager.getSubmissionService(loadedQuestion.getTitleSlug(), project);
+                return new InitialData(loadedQuestion, loadedSubmissions);
+            }, (data, error) -> {
+                if (error != null) {
+                    mySplitter.setFirstComponent(new JBLabel(error.getMessage()));
+                    return;
+                }
+                question = data.question;
+                submissionList = data.submissions;
                 if (question == null) {
                     mySplitter.setFirstComponent(new JBLabel("No question"));
                 } else {
-                    submissionList = ApplicationManager.getApplication().executeOnPooledThread(() -> SubmissionManager.getSubmissionService(question.getTitleSlug(), project)).get();
                     if (CollectionUtils.isNotEmpty(submissionList)) {
                         table = new JBTable(new SubmissionsPanel.TableModel(submissionList));
                         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -160,11 +169,7 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
                         mySplitter.setFirstComponent(new JBLabel("No login or no submissions"));
                     }
                 }
-            } catch (Exception e) {
-                mySplitter.setFirstComponent(new JBLabel(e.getMessage()));
-            } finally {
-                mySplitter.remove(loadingLabel);
-            }
+            });
         });
 
     }
@@ -180,13 +185,28 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
         }
     }
 
-    private void openSubmission(Submission submission) throws InterruptedException, java.util.concurrent.ExecutionException {
-        File file = ApplicationManager.getApplication().executeOnPooledThread(() -> SubmissionManager.openSubmission(submission, question.getTitleSlug(), project, false)).get();
-        if (file == null || !file.exists()) {
-            mySplitter.setSecondComponent(new JBLabel("no submission"));
-        } else {
-            VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+    private void openSubmission(Submission submission) {
+        if (question == null) {
+            return;
+        }
+        String titleSlug = question.getTitleSlug();
+        mySplitter.setSecondComponent(new JBLabel("Loading......"));
+        AsyncUiUtils.load(project, this, () -> {
+            File file = SubmissionManager.openSubmission(submission, titleSlug, project, false);
+            return file == null || !file.exists()
+                    ? null
+                    : LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+        }, (vf, error) -> {
+            if (error != null) {
+                mySplitter.setSecondComponent(new JBLabel(error.getMessage()));
+            } else if (vf == null) {
+                mySplitter.setSecondComponent(new JBLabel("no submission"));
+            } else {
             FileEditorProvider[] editorProviders = FileEditorProviderReflection.getProviders(project, vf);
+            if (editorProviders == null || editorProviders.length == 0) {
+                mySplitter.setSecondComponent(new JBLabel("No editor available for submission"));
+                return;
+            }
             FileEditor newEditor = editorProviders[0].createEditor(project, vf);
             if (newEditor == fileEditor) {
                 return;
@@ -201,7 +221,8 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
             BorderLayoutPanel secondComponent = JBUI.Panels.simplePanel(fileEditor.getComponent());
             secondComponent.addToTop(createToolbarWrapper(fileEditor.getComponent()));
             mySplitter.setSecondComponent(secondComponent);
-        }
+            }
+        });
     }
 
     private SplitEditorToolbar createToolbarWrapper(JComponent targetComponentForActions) {
@@ -283,7 +304,7 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
 
     @Override
     public boolean isValid() {
-        return false;
+        return !project.isDisposed();
     }
 
     @Override
@@ -303,9 +324,7 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
 
     @Override
     public void dispose() {
-        if (fileEditor != null) {
-            Disposer.dispose(fileEditor);
-        }
+        fileEditor = null;
     }
 
     @Override
@@ -314,6 +333,16 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
             return fileEditor.getFile();
         } else {
             return null;
+        }
+    }
+
+    private static class InitialData {
+        private final Question question;
+        private final List<Submission> submissions;
+
+        private InitialData(Question question, List<Submission> submissions) {
+            this.question = question;
+            this.submissions = submissions;
         }
     }
 }

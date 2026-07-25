@@ -182,6 +182,10 @@ public class LoginPanel extends DialogWrapper {
                 @Override
                 public void onLoadingStateChange(CefBrowser browser, boolean isLoading, boolean canGoBack, boolean canGoForward) {
 
+                    if (isLoading || successDispose) {
+                        return;
+                    }
+
                     getJBCefCookieManager().getCefCookieManager().visitAllCookies(new CefCookieVisitor() {
 
                         private List<HttpCookie> cookieList = new ArrayList<>();
@@ -196,8 +200,7 @@ public class LoginPanel extends DialogWrapper {
                                 cookieList.add(cookie);
                             }
                             if (count == total - 1) {
-                                if (cookieList.stream().anyMatch(cookie -> cookie.getName().equals("LEETCODE_SESSION")) &&
-                                        !HttpRequestUtils.isLogin(project)) {
+                                if (cookieList.stream().anyMatch(cookie -> cookie.getName().equals("LEETCODE_SESSION"))) {
                                     HttpRequestUtils.setCookie(cookieList);
                                     if (HttpRequestUtils.isLogin(project)) {
                                         HttpLogin.loginSuccess(project, cookieList);

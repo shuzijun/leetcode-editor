@@ -18,8 +18,6 @@ import com.shuzijun.leetcode.plugin.utils.LogUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-
 /**
  * @author shuzijun
  */
@@ -38,10 +36,6 @@ public class QuestionEditorProvider extends SplitTextEditorProvider {
             }
             LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getEditor(file.getPath());
             if (leetcodeEditor == null || StringUtils.isBlank(leetcodeEditor.getContentPath())) {
-                return false;
-            }
-            File contentFile = new File(leetcodeEditor.getContentPath());
-            if (!contentFile.exists()) {
                 return false;
             }
         } catch (Throwable e) {

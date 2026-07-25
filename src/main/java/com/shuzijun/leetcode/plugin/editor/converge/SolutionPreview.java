@@ -21,6 +21,7 @@ import com.shuzijun.leetcode.plugin.manager.ArticleManager;
 import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.utils.FileEditorProviderReflection;
+import com.shuzijun.leetcode.plugin.utils.AsyncUiUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
@@ -87,11 +88,23 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
     private void initComponent(String defaultSlug) {
         isLoad = true;
         ApplicationManager.getApplication().invokeLater(() -> {
-            JBLabel loadingLabel = new JBLabel("Loading......");
-            mySplitter.setFirstComponent(loadingLabel);
-            try {
-                question = QuestionManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), project);
-
+            mySplitter.setFirstComponent(new JBLabel("Loading......"));
+            AsyncUiUtils.load(project, this, () -> {
+                Question loadedQuestion = QuestionManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), project);
+                List<Solution> loadedSolutions = null;
+                if (loadedQuestion != null && Constant.ARTICLE_LIVE_LIST.equals(loadedQuestion.getArticleLive())) {
+                    loadedSolutions = ArticleManager.getSolutionList(loadedQuestion.getTitleSlug(), project);
+                }
+                return new InitialData(loadedQuestion, loadedSolutions);
+            }, (data, error) -> {
+                if (error != null) {
+                    myLayout = SplitFileEditor.SplitEditorLayout.FIRST;
+                    adjustEditorsVisibility();
+                    mySplitter.setFirstComponent(new JBLabel(error.getMessage()));
+                    return;
+                }
+                question = data.question;
+                solutionList = data.solutions;
                 if (question == null || Constant.ARTICLE_LIVE_NONE.equals(question.getArticleLive())) {
                     mySplitter.setFirstComponent(new JBLabel("No question or no solution"));
                 } else if (Constant.ARTICLE_LIVE_ONE.equals(question.getArticleLive())) {
@@ -99,7 +112,6 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
                     myLayout = SplitFileEditor.SplitEditorLayout.SECOND;
                     adjustEditorsVisibility();
                 } else if (Constant.ARTICLE_LIVE_LIST.equals(question.getArticleLive())) {
-                    solutionList = ApplicationManager.getApplication().executeOnPooledThread(() -> ArticleManager.getSolutionList(question.getTitleSlug(), project)).get();
                     if (CollectionUtils.isEmpty(solutionList)) {
                         mySplitter.setFirstComponent(new JBLabel("no solution"));
                     } else {
@@ -145,13 +157,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
                 } else {
                     mySplitter.setFirstComponent(new JBLabel("no solution"));
                 }
-            } catch (Exception e) {
-                myLayout = SplitFileEditor.SplitEditorLayout.FIRST;
-                adjustEditorsVisibility();
-                mySplitter.setFirstComponent(new JBLabel(e.getMessage()));
-            } finally {
-                mySplitter.remove(loadingLabel);
-            }
+            });
         });
     }
 
@@ -169,15 +175,29 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
         }
     }
 
-    private void openArticle() throws InterruptedException, java.util.concurrent.ExecutionException {
-        File file = ApplicationManager.getApplication().executeOnPooledThread(() -> {
-            return ArticleManager.openArticle(question.getTitleSlug(), question.getArticleSlug(), project, false);
-        }).get();
-        if (file == null || !file.exists()) {
-            mySplitter.setSecondComponent(new JBLabel("no solution"));
-        } else {
-            VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+    private void openArticle() {
+        if (question == null) {
+            return;
+        }
+        String titleSlug = question.getTitleSlug();
+        String articleSlug = question.getArticleSlug();
+        mySplitter.setSecondComponent(new JBLabel("Loading......"));
+        AsyncUiUtils.load(project, this, () -> {
+            File file = ArticleManager.openArticle(titleSlug, articleSlug, project, false);
+            return file == null || !file.exists()
+                    ? null
+                    : LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+        }, (vf, error) -> {
+            if (error != null) {
+                mySplitter.setSecondComponent(new JBLabel(error.getMessage()));
+            } else if (vf == null) {
+                mySplitter.setSecondComponent(new JBLabel("no solution"));
+            } else {
             FileEditorProvider[] editorProviders = FileEditorProviderReflection.getProviders(project, vf);
+            if (editorProviders == null || editorProviders.length == 0) {
+                mySplitter.setSecondComponent(new JBLabel("No editor available for solution"));
+                return;
+            }
             FileEditor newEditor = editorProviders[0].createEditor(project, vf);
             if (newEditor == fileEditor) {
                 return;
@@ -194,7 +214,8 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
                 secondComponent.addToTop(createToolbarWrapper(fileEditor.getComponent()));
             }
             mySplitter.setSecondComponent(secondComponent);
-        }
+            }
+        });
     }
 
     private SplitEditorToolbar createToolbarWrapper(JComponent targetComponentForActions) {
@@ -278,7 +299,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
 
     @Override
     public boolean isValid() {
-        return false;
+        return !project.isDisposed();
     }
 
     @Override
@@ -298,9 +319,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
 
     @Override
     public void dispose() {
-        if (fileEditor != null) {
-            Disposer.dispose(fileEditor);
-        }
+        fileEditor = null;
     }
 
     @Override
@@ -346,6 +365,16 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
         @Override
         public String getColumnName(int column) {
             return columnNames[column];
+        }
+    }
+
+    private static class InitialData {
+        private final Question question;
+        private final List<Solution> solutions;
+
+        private InitialData(Question question, List<Solution> solutions) {
+            this.question = question;
+            this.solutions = solutions;
         }
     }
 }

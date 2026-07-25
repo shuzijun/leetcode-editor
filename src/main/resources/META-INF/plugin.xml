@@ -22,7 +22,6 @@
     </application-components>
 
     <extensions defaultExtensionNs="com.intellij">
-        <postStartupActivity  implementation = "com.shuzijun.leetcode.plugin.listener.RegisterPluginInstallerStateListener"/>
         <errorHandler implementation="com.shuzijun.leetcode.plugin.listener.ErrorReportHandler"/>
         <toolWindow id="Leetcode" secondary="false" icon="LeetCodeEditorIcons.LEETCODE_TOOL_WINDOW" anchor="left"
                     factoryClass="com.shuzijun.leetcode.plugin.window.WindowFactory" />
@@ -62,6 +61,7 @@
         <fileEditorProvider implementation="com.shuzijun.leetcode.plugin.editor.LCVProvider"/>
         <httpRequestHandler implementation="com.shuzijun.leetcode.plugin.editor.PreviewStaticServer"/>
         <postStartupActivity implementation="com.shuzijun.leetcode.plugin.listener.SupportCheck"/>
+        <postStartupActivity implementation="com.shuzijun.leetcode.plugin.listener.ProjectConfigCleanupActivity"/>
     </extensions>
 
     <actions>

@@ -9,11 +9,15 @@ import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
+import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
+import com.shuzijun.leetcode.plugin.utils.LogUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.VelocityUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  * @author shuzijun
@@ -33,13 +37,26 @@ public class ClearOneAction extends AbstractTreeAction {
 
         File file = new File(filePath);
         if (file.exists()) {
+            VirtualFile vf = LocalFileSystem.getInstance().findFileByIoFile(file);
             ApplicationManager.getApplication().invokeAndWait(() -> {
-                VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-                if (FileEditorManager.getInstance(anActionEvent.getProject()).isFileOpen(vf)) {
+                if (vf != null && FileEditorManager.getInstance(anActionEvent.getProject()).isFileOpen(vf)) {
                     FileEditorManager.getInstance(anActionEvent.getProject()).closeFile(vf);
                 }
-                file.delete();
             });
+            try {
+                Files.deleteIfExists(file.toPath());
+                ProjectConfig projectConfig = ProjectConfig.getInstance(anActionEvent.getProject());
+                if (projectConfig != null) {
+                    projectConfig.removeEditor(file.getPath());
+                }
+                if (vf != null && vf.getParent() != null) {
+                    vf.getParent().refresh(true, false);
+                }
+            } catch (IOException e) {
+                LogUtils.LOG.error("Error deleting generated LeetCode file", e);
+                MessageUtils.getInstance(anActionEvent.getProject()).showErrorMsg(question.getFormTitle(), PropertiesUtils.getInfo("clear.failed"));
+                return;
+            }
         }
         MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg(question.getFormTitle(), PropertiesUtils.getInfo("clear.success"));
 
