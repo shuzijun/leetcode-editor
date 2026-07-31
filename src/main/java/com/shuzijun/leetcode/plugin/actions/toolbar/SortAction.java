@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 public class SortAction extends AbstractAction implements DumbAware {
 
     @Override
+    @SuppressWarnings("removal")
     public boolean displayTextInToolbar() {
         return true;
     }

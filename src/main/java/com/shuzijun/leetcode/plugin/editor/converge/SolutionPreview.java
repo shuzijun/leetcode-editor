@@ -4,6 +4,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.*;
+import com.intellij.openapi.fileEditor.ex.FileEditorProviderManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -20,9 +21,7 @@ import com.shuzijun.leetcode.plugin.editor.SplitFileEditor;
 import com.shuzijun.leetcode.plugin.manager.ArticleManager;
 import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.model.*;
-import com.shuzijun.leetcode.plugin.utils.FileEditorProviderReflection;
 import com.shuzijun.leetcode.plugin.utils.AsyncUiUtils;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -114,7 +113,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
                     myLayout = SplitFileEditor.SplitEditorLayout.SECOND;
                     adjustEditorsVisibility();
                 } else if (Constant.ARTICLE_LIVE_LIST.equals(question.getArticleLive())) {
-                    if (CollectionUtils.isEmpty(solutionList)) {
+                    if (solutionList == null || solutionList.isEmpty()) {
                         mySplitter.setFirstComponent(new JBLabel("no solution"));
                     } else {
                         table = new JBTable(new TableModel(solutionList));
@@ -199,12 +198,12 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
             } else if (vf == null) {
                 mySplitter.setSecondComponent(new JBLabel("no solution"));
             } else {
-            FileEditorProvider[] editorProviders = FileEditorProviderReflection.getProviders(project, vf);
-            if (editorProviders == null || editorProviders.length == 0) {
+            List<FileEditorProvider> editorProviders = FileEditorProviderManager.getInstance().getProviderList(project, vf);
+            if (editorProviders.isEmpty()) {
                 mySplitter.setSecondComponent(new JBLabel("No editor available for solution"));
                 return;
             }
-            FileEditor newEditor = editorProviders[0].createEditor(project, vf);
+            FileEditor newEditor = editorProviders.get(0).createEditor(project, vf);
             if (newEditor == fileEditor) {
                 return;
             }
@@ -280,7 +279,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
             String slug = ((ConvergePreview.TabSelectFileEditorState) state).getChildrenState();
             if (!isLoad) {
                 initComponent(slug);
-            } else if (CollectionUtils.isNotEmpty(solutionList)) {
+            } else if (solutionList != null && !solutionList.isEmpty()) {
                 for (int i = 0; i < solutionList.size(); i++) {
                     if (solutionList.get(i).getSlug().equals(slug)) {
                         openSelectedQuestion(solutionList, i);

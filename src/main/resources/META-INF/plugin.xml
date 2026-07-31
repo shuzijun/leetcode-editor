@@ -16,6 +16,7 @@
          on how to target different products -->
     <!-- uncomment to enable plugin in all products -->
     <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.jcef</depends>
 
     <application-components>
 
@@ -221,34 +222,37 @@
 
         <group id="leetcode.editor.group">
             <action id="leetcode.editor.RunCodeAction" class="com.shuzijun.leetcode.plugin.actions.editor.RunCodeAction"
-                    text="Run Code" description="Run Code(editor)" icon="LeetCodeEditorIcons.RUN">
+                    text="Run Code" description="Run the current solution" icon="LeetCodeEditorIcons.RUN">
             </action>
             <action id="leetcode.editor.TestcaseAction"
-                    class="com.shuzijun.leetcode.plugin.actions.editor.TestcaseAction"
-                    text="Testcase" description="Test case(editor)" icon="LeetCodeEditorIcons.EDIT_DOC">
+                    class="com.shuzijun.leetcode.plugin.actions.editor.TestcaseAction" text="Testcase"
+                    description="Edit and run a custom testcase" icon="LeetCodeEditorIcons.EDIT_DOC">
             </action>
-            <separator/>
             <action id="leetcode.editor.SubmitAction" class="com.shuzijun.leetcode.plugin.actions.editor.SubmitAction"
-                    text="Submit" description="Submit(editor)" icon="LeetCodeEditorIcons.SUBMIT">
-            </action>
-            <action id="leetcode.editor.SubmissionsAction"
-                    class="com.shuzijun.leetcode.plugin.actions.editor.SubmissionsAction"
-                    text="Submissions" description="Submissions(editor)" icon="LeetCodeEditorIcons.HISTORY">
+                    text="Submit" description="Submit the current solution" icon="LeetCodeEditorIcons.SUBMIT">
             </action>
             <separator/>
-            <action id="leetcode.editor.OpenContentAction"
-                    class="com.shuzijun.leetcode.plugin.actions.editor.OpenContentAction"
-                    text="open content" description="open content(editor)" icon="LeetCodeEditorIcons.DESC">
-            </action>
-            <action id="leetcode.editor.OpenSolutionAction" class="com.shuzijun.leetcode.plugin.actions.editor.OpenSolutionAction"
-                    text="open solution" description="open solution" icon="LeetCodeEditorIcons.SOLUTION">
-            </action>
-            <action id="leetcode.editor.OpenInWebAction"
-                    class="com.shuzijun.leetcode.plugin.actions.editor.OpenInWebAction"
-                    text="open in web" description="open in web(editor)" icon="LeetCodeEditorIcons.POPUP">
-            </action>
-            <separator/>
-            <reference id="leetcode.positionAction"/>
+            <group id="leetcode.editor.view" popup="true" text="View" description="Open question resources"
+                   icon="LeetCodeEditorIcons.DESC">
+                <action id="leetcode.editor.SubmissionsAction"
+                        class="com.shuzijun.leetcode.plugin.actions.editor.SubmissionsAction"
+                        text="Submissions" description="Open submission history" icon="LeetCodeEditorIcons.HISTORY">
+                </action>
+                <action id="leetcode.editor.OpenContentAction"
+                        class="com.shuzijun.leetcode.plugin.actions.editor.OpenContentAction"
+                        text="Question" description="Open the question description" icon="LeetCodeEditorIcons.DESC">
+                </action>
+                <action id="leetcode.editor.OpenSolutionAction"
+                        class="com.shuzijun.leetcode.plugin.actions.editor.OpenSolutionAction"
+                        text="Solution" description="Open the official solution" icon="LeetCodeEditorIcons.SOLUTION">
+                </action>
+                <action id="leetcode.editor.OpenInWebAction"
+                        class="com.shuzijun.leetcode.plugin.actions.editor.OpenInWebAction"
+                        text="Open in Browser" description="Open this question in a browser" icon="LeetCodeEditorIcons.POPUP">
+                </action>
+                <separator/>
+                <reference id="leetcode.positionAction"/>
+            </group>
             <group id="leetcode.editor.note" popup="true" text="note" description="note" icon="LeetCodeEditorIcons.NOTE">
                 <action id="leetcode.editor.ShowNote"
                         class="com.shuzijun.leetcode.plugin.actions.editor.ShowNoteAction"

@@ -1,32 +1,25 @@
 package com.shuzijun.leetcode.plugin.utils;
 
-import com.intellij.ide.plugins.PluginManagerCore;
-import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.util.SystemInfo;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.io.HttpRequests;
 import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import org.apache.http.client.utils.URIBuilder;
 
 import java.awt.*;
 import java.net.URI;
-import java.util.Calendar;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author shuzijun
  */
 public class MTAUtils {
 
-    private static String URL = "https://hm.baidu.com/hm.gif";
-    private static String SID = "153b08575197a6f136f1fe02dd507c1e";
-    private static String SI = String.valueOf(System.currentTimeMillis() / 1000);
-    private static String version = null;
-    private static String userAgent = null;
-
-    private static ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+    private static final String URL = "https://hm.baidu.com/hm.gif";
+    private static final String SID = "153b08575197a6f136f1fe02dd507c1e";
+    private static final String SI = String.valueOf(System.currentTimeMillis() / 1000);
+    private static volatile String version;
+    private static volatile String userAgent;
 
     public static String getI(String prefix) {
         int[] b = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -44,7 +37,7 @@ public class MTAUtils {
     }
 
     public static void click(String actionsId, Config config) {
-        cachedThreadPool.execute(new ClickTask(config, actionsId));
+        AppExecutorUtil.getAppExecutorService().execute(new ClickTask(config, actionsId));
     }
 
     private static class ClickTask implements Runnable {
@@ -60,8 +53,11 @@ public class MTAUtils {
         @Override
         public void run() {
             try {
+                if (GraphicsEnvironment.isHeadless()) {
+                    return;
+                }
                 if (version == null) {
-                    version = PluginManagerCore.getPlugin(PluginId.getId(PluginConstant.PLUGIN_ID)).getVersion();
+                    version = PluginVersionUtils.getVersion();
                 }
                 if (userAgent == null) {
                     if (SystemInfo.OS_NAME.toUpperCase().contains("MAC")) {
@@ -73,7 +69,6 @@ public class MTAUtils {
                     }
                 }
                 Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
-                Calendar calendar = Calendar.getInstance();
                 URI uri = new URIBuilder(URL)
                         .setParameter("hca", config.getId())
                         .setParameter("cc", "1")
@@ -101,7 +96,8 @@ public class MTAUtils {
                     connection.addRequestProperty("Cookie", "HMACCOUNT=" + config.getId() + ";" + "HMACCOUNT_BFESS" + config.getId());
                 }).tryConnect();
 
-            } catch (Exception e) {
+            } catch (Exception exception) {
+                LogUtils.LOG.debug("Analytics request failed", exception);
             }
         }
     }

@@ -13,7 +13,6 @@ import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.JBColor;
@@ -34,9 +33,9 @@ import java.util.Date;
 @Service
 public final class MessageUtils implements Disposable {
 
-    public static String FLAG = "\033";
+    public static final String FLAG = "\033";
 
-    private Project project;
+    private final Project project;
     private ConsoleView consoleView;
     private ToolWindow toolWindow;
 
@@ -63,42 +62,34 @@ public final class MessageUtils implements Disposable {
     }
 
     public void showInfoMsg(String title, String body) {
-        showConsole(() -> {
-            printTitle(title, ConsoleViewContentType.NORMAL_OUTPUT);
-            printBody(body, ConsoleViewContentType.NORMAL_OUTPUT);
-            consoleView.print("\n", ConsoleViewContentType.NORMAL_OUTPUT);
-        });
+        showConsole(MessageLevel.INFO, title, body);
     }
 
     public void showWarnMsg(String title, String body) {
-        showConsole(() -> {
-            printTitle(title, ConsoleViewContentType.LOG_INFO_OUTPUT);
-            printBody(body, ConsoleViewContentType.LOG_INFO_OUTPUT);
-            consoleView.print("\n", ConsoleViewContentType.LOG_INFO_OUTPUT);
-        });
+        showConsole(MessageLevel.WARNING, title, body);
     }
 
     public void showErrorMsg(String title, String body) {
-        showConsole(() -> {
-            printTitle(title, ConsoleViewContentType.ERROR_OUTPUT);
-            printBody(body, ConsoleViewContentType.ERROR_OUTPUT);
-            consoleView.print("\n", ConsoleViewContentType.ERROR_OUTPUT);
-        });
+        showConsole(MessageLevel.ERROR, title, body);
     }
 
-    private void printTitle(String title, ConsoleViewContentType contentType) {
-        if (title.equals("info") || title.equals("warning") || title.equals("error")) {
-            consoleView.print("> " + DateFormatUtils.format(new Date(), "yyyy/MM/dd' 'HH:mm:ss") + "\n", contentType);
-        } else {
-            consoleView.print("> " + DateFormatUtils.format(new Date(), "yyyy/MM/dd' 'HH:mm:ss") + "\t" + title + "\n", contentType);
-        }
+    private void printTitle(MessageLevel level, String title) {
+        consoleView.print(
+                DateFormatUtils.format(new Date(), "HH:mm:ss") + "  " + level.label + "  ",
+                level.contentType
+        );
+        consoleView.print(
+                isGenericTitle(title) ? level.defaultTitle : title.trim(),
+                ConsoleViewContentType.NORMAL_OUTPUT
+        );
+        consoleView.print("\n", ConsoleViewContentType.NORMAL_OUTPUT);
     }
 
     private void printBody(String body, ConsoleViewContentType contentType) {
-        String[] bodys = body.split("\n");
+        String[] bodys = StringUtils.defaultString(body).split("\n", -1);
         for (String s : bodys) {
             if (s.contains(FLAG)) {
-                String[] sc = s.split(FLAG);
+                String[] sc = s.split(FLAG, -1);
                 for (int i = 0; i < sc.length; i++) {
                     if (i % 2 == 0) {
                         consoleView.print(sc[i], contentType);
@@ -121,6 +112,13 @@ public final class MessageUtils implements Disposable {
             }
 
         }
+    }
+
+    private boolean isGenericTitle(String title) {
+        return StringUtils.isBlank(title)
+                || "info".equalsIgnoreCase(title)
+                || "warning".equalsIgnoreCase(title)
+                || "error".equalsIgnoreCase(title);
     }
 
     public static void showAllWarnMsg(String title, String body) {
@@ -175,8 +173,11 @@ public final class MessageUtils implements Disposable {
         }
     }
 
-    private void showConsole(Runnable runnable) {
+    private void showConsole(MessageLevel level, String title, String body) {
         ApplicationManager.getApplication().invokeLater(() -> {
+            if (project.isDisposed()) {
+                return;
+            }
             if (toolWindow == null) {
                 toolWindow = ToolWindowManager.getInstance(project).getToolWindow(ConsoleWindowFactory.ID);
             }
@@ -186,23 +187,54 @@ public final class MessageUtils implements Disposable {
             if (!toolWindow.isAvailable()) {
                 toolWindow.setAvailable(true);
             }
-            if (!toolWindow.isActive()) {
-                toolWindow.activate(null);
-            }
             if (consoleView == null) {
-                this.consoleView = ConsoleWindowFactory.getDataContext(project).getData(DataKeys.LEETCODE_CONSOLE_VIEW);
+                toolWindow.show(() -> appendToConsole(level, title, body));
+                return;
             }
+            appendToConsole(level, title, body);
+        }, ignored -> project.isDisposed());
+    }
+
+    private void appendToConsole(MessageLevel level, String title, String body) {
+        if (project.isDisposed()) {
+            return;
+        }
+        if (consoleView == null) {
+            this.consoleView = ConsoleWindowFactory.getConsoleView(project);
+        }
+        if (consoleView == null) {
+            return;
+        }
+        if (level == MessageLevel.ERROR && !toolWindow.isActive()) {
+            toolWindow.activate(null);
+        }
+        printTitle(level, title);
+        printBody(body, level.contentType);
+        consoleView.print("\n", ConsoleViewContentType.NORMAL_OUTPUT);
+        if (toolWindow.isVisible()) {
             consoleView.requestScrollingToEnd();
-            runnable.run();
-        });
-
-
+        }
     }
 
     @Override
     public void dispose() {
-        if (consoleView != null) {
-            Disposer.dispose(consoleView);
+        consoleView = null;
+        toolWindow = null;
+    }
+
+    private enum MessageLevel {
+        INFO("INFO", "LeetCode result", ConsoleViewContentType.NORMAL_OUTPUT),
+        WARNING("WARNING", "LeetCode warning", ConsoleViewContentType.LOG_WARNING_OUTPUT),
+        ERROR("ERROR", "LeetCode error", ConsoleViewContentType.ERROR_OUTPUT);
+
+        private final String label;
+        private final String defaultTitle;
+        private final ConsoleViewContentType contentType;
+
+        MessageLevel(String label, String defaultTitle, ConsoleViewContentType contentType) {
+            this.label = label;
+            this.defaultTitle = defaultTitle;
+            this.contentType = contentType;
         }
     }
 }

@@ -3,9 +3,9 @@ package com.shuzijun.leetcode.plugin.manager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.plugin.utils.LogUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -21,24 +21,59 @@ public class ViewManager {
     }
 
     public static void loadServiceData(NavigatorAction navigatorAction, Project project, String selectTitleSlug) {
-        PageInfo pageInfo = QuestionManager.getQuestionViewList(project, navigatorAction.getPageInfo());
+        long requestVersion = NavigatorRequestTracker.begin(navigatorAction);
+        if (ApplicationManager.getApplication().isDispatchThread()) {
+            ApplicationManager.getApplication().executeOnPooledThread(
+                    () -> loadServiceData(navigatorAction, project, selectTitleSlug, requestVersion));
+            return;
+        }
+        loadServiceData(navigatorAction, project, selectTitleSlug, requestVersion);
+    }
+
+    private static void loadServiceData(NavigatorAction navigatorAction, Project project, String selectTitleSlug,
+                                        long requestVersion) {
+        if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
+            return;
+        }
+        logPageState("loadServiceData:start", navigatorAction.getPageInfo(), selectTitleSlug);
+        PageInfo pageInfo = QuestionManager.getQuestionViewList(project, copyPageInfo(navigatorAction.getPageInfo()));
+        if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
+            return;
+        }
+        logPageState("loadServiceData:question-list-loaded", pageInfo, selectTitleSlug);
         if ((pageInfo.getRows() == null || pageInfo.getRows().isEmpty()) && pageInfo.getRowTotal() != 0) {
+            LogUtils.navigatorTrace("loadServiceData:unexpected-empty-page rowTotal=" + pageInfo.getRowTotal());
             MessageUtils.getInstance(project).showErrorMsg("error", PropertiesUtils.getInfo("response.question"));
             return;
         }
 
         if (navigatorAction.getFind().getFilter().isEmpty()) {
             ApplicationManager.getApplication().executeOnPooledThread(() -> {
-                navigatorAction.getFind().addFilter(Constant.FIND_TYPE_CATEGORY, FindManager.getCategory());
-                navigatorAction.getFind().addFilter(Constant.FIND_TYPE_DIFFICULTY, FindManager.getDifficulty());
-                navigatorAction.getFind().addFilter(Constant.FIND_TYPE_STATUS, FindManager.getStatus());
-                navigatorAction.getFind().addFilter(Constant.FIND_TYPE_TAGS, FindManager.getTags());
-                navigatorAction.getFind().addFilter(Constant.FIND_TYPE_LISTS, FindManager.getLists(project));
+                List<Tag> categories = FindManager.getCategory();
+                List<Tag> difficulties = FindManager.getDifficulty();
+                List<Tag> statuses = FindManager.getStatus();
+                List<Tag> tags = FindManager.getTags();
+                List<Tag> lists = FindManager.getLists(project);
+                if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)
+                        || !navigatorAction.getFind().getFilter().isEmpty()) {
+                    return;
+                }
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)
+                            || !navigatorAction.getFind().getFilter().isEmpty()) {
+                        return;
+                    }
+                    navigatorAction.getFind().addFilter(Constant.FIND_TYPE_CATEGORY, categories);
+                    navigatorAction.getFind().addFilter(Constant.FIND_TYPE_DIFFICULTY, difficulties);
+                    navigatorAction.getFind().addFilter(Constant.FIND_TYPE_STATUS, statuses);
+                    navigatorAction.getFind().addFilter(Constant.FIND_TYPE_TAGS, tags);
+                    navigatorAction.getFind().addFilter(Constant.FIND_TYPE_LISTS, lists);
+                }, ignored -> project.isDisposed());
             });
         }
-        ApplicationManager.getApplication().executeOnPooledThread(() -> QuestionManager.getQuestionAllService(project, false));
 
-        navigatorAction.loadData(selectTitleSlug);
+        publishPageInfo(navigatorAction, project, selectTitleSlug, requestVersion, pageInfo);
+        logPageState("loadServiceData:refresh-queued", pageInfo, selectTitleSlug);
     }
 
     public static void pick(Project project, PageInfo pageInfo) {
@@ -53,38 +88,61 @@ public class ViewManager {
     }
 
     public static void loadAllServiceData(NavigatorAction navigatorAction, Project project, String selectTitleSlug, boolean reset) {
+        long requestVersion = NavigatorRequestTracker.begin(navigatorAction);
+        PageInfo<QuestionView> pageInfo = copyPageInfo(navigatorAction.getPageInfo());
+        Map<String, List<Tag>> filterData = copyFilterData(navigatorAction.getFind());
+        if (ApplicationManager.getApplication().isDispatchThread()) {
+            ApplicationManager.getApplication().executeOnPooledThread(
+                    () -> loadAllServiceData(navigatorAction, project, selectTitleSlug, reset, requestVersion,
+                            pageInfo, filterData));
+            return;
+        }
+        loadAllServiceData(navigatorAction, project, selectTitleSlug, reset, requestVersion, pageInfo, filterData);
+    }
+
+    private static void loadAllServiceData(NavigatorAction navigatorAction, Project project, String selectTitleSlug,
+                                           boolean reset, long requestVersion, PageInfo<QuestionView> pageInfo,
+                                           Map<String, List<Tag>> filterData) {
+        if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
+            return;
+        }
         List<QuestionView> questionViews = QuestionManager.getQuestionAllService(project, reset);
-        if (CollectionUtils.isEmpty(questionViews)) {
+        if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
+            return;
+        }
+        if (questionViews == null || questionViews.isEmpty()) {
             MessageUtils.getInstance(project).showErrorMsg("error", PropertiesUtils.getInfo("response.question"));
             return;
         }
 
-        if (navigatorAction.getFind().getFilter().isEmpty()) {
-            navigatorAction.getFind().addFilter(Constant.FIND_TYPE_CATEGORY, FindManager.getCategory());
-            navigatorAction.getFind().addFilter(Constant.FIND_TYPE_DIFFICULTY, FindManager.getDifficulty());
-            navigatorAction.getFind().addFilter(Constant.FIND_TYPE_STATUS, FindManager.getStatus());
-            navigatorAction.getFind().addFilter(Constant.FIND_TYPE_TAGS, FindManager.getTags());
-            navigatorAction.getFind().addFilter(Constant.FIND_TYPE_LISTS, FindManager.getLists(project));
+        if (filterData.isEmpty()) {
+            filterData.put(Constant.FIND_TYPE_CATEGORY.toLowerCase(), FindManager.getCategory());
+            filterData.put(Constant.FIND_TYPE_DIFFICULTY.toLowerCase(), FindManager.getDifficulty());
+            filterData.put(Constant.FIND_TYPE_STATUS.toLowerCase(), FindManager.getStatus());
+            filterData.put(Constant.FIND_TYPE_TAGS.toLowerCase(), FindManager.getTags());
+            filterData.put(Constant.FIND_TYPE_LISTS.toLowerCase(), FindManager.getLists(project));
         }
 
         Set<String> conformSet = questionViews.stream().map(QuestionView::getQuestionId).collect(Collectors.toSet());
-        PageInfo<QuestionView> pageInfo = navigatorAction.getPageInfo();
         PageInfo.Filters filters = pageInfo.getFilters();
         if (StringUtils.isNotBlank(filters.getListId())) {
-            List<Tag> tagList = navigatorAction.getFind().getFilter(Constant.FIND_TYPE_LISTS);
-            Optional<Tag> optional = tagList.stream().filter(t -> t.getSlug().equalsIgnoreCase(filters.getListId())).findAny();
+            List<Tag> tagList = filterData.get(Constant.FIND_TYPE_LISTS.toLowerCase());
+            Optional<Tag> optional = tagList == null ? Optional.empty()
+                    : tagList.stream().filter(t -> t.getSlug().equalsIgnoreCase(filters.getListId())).findAny();
             if (optional.isPresent()){
                 Tag tag = optional.get();
                 conformSet.retainAll(tag.getQuestions());
             }
         }
-        if (CollectionUtils.isNotEmpty(filters.getTags())) {
-            List<Tag> tagList = navigatorAction.getFind().getFilter(Constant.FIND_TYPE_TAGS);
+        if (filters.getTags() != null && !filters.getTags().isEmpty()) {
+            List<Tag> tagList = filterData.get(Constant.FIND_TYPE_TAGS.toLowerCase());
             Set<String> tagQuestions = new HashSet<>();
             Set<String> tagSlugs = filters.getTags().stream().collect(Collectors.toSet());
-            for (Tag tag : tagList) {
-                if (tagSlugs.contains(tag.getSlug())) {
-                    tagQuestions.addAll(tag.getQuestions());
+            if (tagList != null) {
+                for (Tag tag : tagList) {
+                    if (tagSlugs.contains(tag.getSlug())) {
+                        tagQuestions.addAll(tag.getQuestions());
+                    }
                 }
             }
             conformSet.retainAll(tagQuestions);
@@ -94,6 +152,7 @@ public class ViewManager {
         boolean searchKeywords = StringUtils.isNotBlank(filters.getSearchKeywords());
         boolean difficulty = StringUtils.isNotBlank(filters.getDifficulty());
         boolean status = StringUtils.isNotBlank(filters.getStatus());
+        int difficultyLevel = difficulty ? difficultyLevel(filters.getDifficulty()) : 0;
 
         List<QuestionView> conformList = new ArrayList<>();
         QuestionView dayQuestion = QuestionManager.questionOfToday();
@@ -112,9 +171,7 @@ public class ViewManager {
                 continue;
             }
             if (difficulty) {
-                List<String> difficultyList = FindManager.getDifficulty().stream().map(t -> t.getSlug()).collect(Collectors.toList());
-                Integer level = difficultyList.indexOf(filters.getDifficulty()) + 1;
-                if (!questionView.getLevel().equals(level)) {
+                if (!questionView.getLevel().equals(difficultyLevel)) {
                     continue;
                 }
             }
@@ -154,8 +211,84 @@ public class ViewManager {
             });
         }
 
-        navigatorAction.getPageInfo().setRows(conformList);
-        navigatorAction.getPageInfo().setRowTotal(conformList.size());
-        navigatorAction.loadData(selectTitleSlug);
+        pageInfo.setRows(conformList);
+        pageInfo.setRowTotal(conformList.size());
+        publishAllPageInfo(navigatorAction, project, selectTitleSlug, requestVersion, pageInfo, filterData);
+    }
+
+    private static int difficultyLevel(String difficulty) {
+        if (Constant.DIFFICULTY_EASY.equalsIgnoreCase(difficulty)) {
+            return 1;
+        }
+        if (Constant.DIFFICULTY_MEDIUM.equalsIgnoreCase(difficulty)) {
+            return 2;
+        }
+        return Constant.DIFFICULTY_HARD.equalsIgnoreCase(difficulty) ? 3 : 0;
+    }
+
+    private static <T> void publishPageInfo(NavigatorAction<T> navigatorAction, Project project,
+                                            String selectTitleSlug, long requestVersion, PageInfo<T> pageInfo) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
+                return;
+            }
+            applyPageInfo(navigatorAction.getPageInfo(), pageInfo);
+            navigatorAction.loadData(selectTitleSlug);
+        }, ignored -> project.isDisposed());
+    }
+
+    private static void publishAllPageInfo(NavigatorAction<QuestionView> navigatorAction, Project project,
+                                           String selectTitleSlug, long requestVersion, PageInfo<QuestionView> pageInfo,
+                                           Map<String, List<Tag>> filterData) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
+                return;
+            }
+            if (navigatorAction.getFind().getFilter().isEmpty()) {
+                filterData.forEach(navigatorAction.getFind()::addFilter);
+            }
+            applyPageInfo(navigatorAction.getPageInfo(), pageInfo);
+            navigatorAction.loadData(selectTitleSlug);
+        }, ignored -> project.isDisposed());
+    }
+
+    private static Map<String, List<Tag>> copyFilterData(Find find) {
+        Map<String, List<Tag>> copy = new HashMap<>();
+        find.getFilter().forEach((key, tags) -> copy.put(key, tags == null ? Collections.emptyList() : new ArrayList<>(tags)));
+        return copy;
+    }
+
+    private static <T> PageInfo<T> copyPageInfo(PageInfo<T> pageInfo) {
+        PageInfo<T> copy = new PageInfo<>(pageInfo.getPageIndex(), pageInfo.getPageSize());
+        copy.setRowTotal(pageInfo.getRowTotal());
+        copy.setCategorySlug(pageInfo.getCategorySlug());
+        PageInfo.Filters sourceFilters = pageInfo.getFilters();
+        PageInfo.Filters targetFilters = copy.getFilters();
+        targetFilters.setSearchKeywords(sourceFilters.getSearchKeywords());
+        targetFilters.setOrderBy(sourceFilters.getOrderBy());
+        targetFilters.setSortOrder(sourceFilters.getSortOrder());
+        targetFilters.setDifficulty(sourceFilters.getDifficulty());
+        targetFilters.setStatus(sourceFilters.getStatus());
+        targetFilters.setListId(sourceFilters.getListId());
+        targetFilters.setTags(sourceFilters.getTags() == null ? null : new ArrayList<>(sourceFilters.getTags()));
+        return copy;
+    }
+
+    private static <T> void applyPageInfo(PageInfo<T> target, PageInfo<T> source) {
+        target.setRowTotal(source.getRowTotal());
+        target.setRows(source.getRows());
+    }
+
+    private static void logPageState(String event, PageInfo<?> pageInfo, String selectTitleSlug) {
+        int rowCount = pageInfo.getRows() == null ? 0 : pageInfo.getRows().size();
+        LogUtils.navigatorTrace(event
+                + " page=" + pageInfo.getPageIndex()
+                + " skip=" + pageInfo.getSkip()
+                + " pageSize=" + pageInfo.getPageSize()
+                + " rowTotal=" + pageInfo.getRowTotal()
+                + " rows=" + rowCount
+                + " category=" + pageInfo.getCategorySlug()
+                + " filters=" + pageInfo.getFilters()
+                + " selectSlug=" + selectTitleSlug);
     }
 }

@@ -13,102 +13,95 @@
 [![捐赠][badge:donate]][shuzijun-donate]
 [![内推][badge:referrals]][shuzijun-referrals]  
 
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/blog-comment@v0.0.1/doc/leetcode-demo.gif" alt="demo" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p align="center"><img src="doc/leetcode-demo.svg" alt="LeetCode Editor 总览" width="860"></p>
 
 ---
 
-## 简介  
-  在IDE中解决LeetCode问题,支持`leetcode.com`与`leetcode.cn`,满足做题和调试的需求。  
-  理论上支持: **IntelliJ IDEA**,**PhpStorm**,**WebStorm**,**PyCharm**,**RubyMine**,**AppCode**,**CLion**,**GoLand**,**DataGrip**,**Rider MPS**,**Android Studio**。  
+## 简介
 
-  - [English Document][gh:en-doc]
-  - [中文文档][gh:zh-doc]
+无需离开 IDE 即可完成 LeetCode 刷题。插件支持 `leetcode.com` 与
+`leetcode.cn`，覆盖题目浏览、本地调试和提交等常用流程。
 
-  - 有用的链接
-    - [登录帮助][gh:login-help]
-    - [自定义代码生成][gh:custom-code-zh] ([示例][gh:leetcode-question])
-    
-  - **更开放的功能**: [shuzijun/lc-sdk](https://github.com/shuzijun/lc-sdk)
+理论上支持 **IntelliJ IDEA**、**PhpStorm**、**WebStorm**、**PyCharm**、
+**RubyMine**、**AppCode**、**CLion**、**GoLand**、**DataGrip**、**Rider**、
+**MPS** 和 **Android Studio** 等 JetBrains IDE。
+
+- [English documentation][gh:en-doc]
+- [中文文档][gh:zh-doc]
+- [登录帮助][gh:login-help]
+- [自定义代码生成][gh:custom-code-zh]（[示例][gh:leetcode-question]）
+- 更多开放能力：[shuzijun/lc-sdk](https://github.com/shuzijun/lc-sdk)
 
 
-##  开始使用 
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/leetcode-editor-3.0.gif" alt="start" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+## 开始使用
+<p align="center"><img src="doc/leetcode-editor-3.0.svg" alt="浏览、编写、运行和提交工作流" width="860"></p>
  
 
 ## 本地调试  
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/customConfig-100.gif" alt="loacl" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p align="center"><img src="doc/customConfig-100.svg" alt="自定义模板和本地调试工作流" width="860"></p>
 
 
-### 安装([help][managing-plugins])  
-- **通过插件库安装** [leetcode-editor][plugin-homepage]  
-- **下载文件安装** [releases][gh:releases]  
-- **如果您想捐助此项目,可以选择Pro版本** [leetcode-editor-pro][plugin-homepage-pro]
+### 安装（[帮助][managing-plugins]）
 
-### 配置(第一次安装需要先配置)  
+- 从 [JetBrains 插件市场][plugin-homepage] 安装。
+- 从 [GitHub Releases][gh:releases] 下载并安装。
+- 可通过 [LeetCode Editor Pro][plugin-homepage-pro] 支持项目。
 
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/config-3.0.jpg" alt="config" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+### 配置
 
- 
-- **配置路径**: `File` -> `settings`->`tools`->`leetcode plugin`  
-  - **`URL可选项`**: `leetcode.com`与`leetcode.cn`  
-  - **`Code Type`**: `Java`,`Python`,`C++`,`Python3`,`C`,`C#`,`JavaScript`,`Ruby`,`Swift`,`Go` ,`Scala`,`Kotlin`,`Rust`,`PHP`,`Bash`,`SQL`   
-  - **`LoginName`**: 登录用户名
-  - **`Password`**: 登录密码  
-  - **`Temp File Path`**: 临时文件存放目录  
-  - **`proxy(HTTP Proxy)`**: 使用http代理,配置路径:`File` -> `settings`->`Appearance & Behavior`->`System Settings`->`HTTP Proxy`
-  - **`Custom code template`**: 自定义代码生成模板 ([详细介绍][gh:custom-code-zh])([示例][gh:leetcode-question])  
-  - **`LevelColour`**: 自定义题目难度颜色,重启后生效  
-  - **`English Content`**: 题目显示英文描述  
+<p align="center"><img src="doc/config-3.0.svg" alt="LeetCode Editor 配置页面" width="860"></p>
+
+- **路径：**`File` → `Settings` → `Tools` → `LeetCode Plugin`
+- **`URL 可选项`：**选择 `leetcode.com` 或 `leetcode.cn`。
+- **`Code Type`：**Java、Python、C++、Python 3、C、C#、JavaScript、Ruby、Swift、Go、Scala、Kotlin、Rust、PHP、Bash 或 SQL。
+- **`LoginName` / `Password`：**当前网站的登录凭据。
+- **`Temp File Path`：**生成临时文件的存放目录。
+- **`proxy (HTTP Proxy)`：**在 `File` → `Settings` → `Appearance & Behavior` → `System Settings` → `HTTP Proxy` 中配置。
+- **`Custom code template`：**自定义代码生成模板（[详细介绍][gh:custom-code-zh]、[示例][gh:leetcode-question]）。
+- **`LevelColour`：**自定义题目难度颜色；修改后需重启 IDE 生效。
+- **`English Content`：**以英文显示题目描述。
   
-### 窗口    
+### 题目导航窗口
 
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/window-3.0.jpg" alt="window" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p> 
+<p align="center"><img src="doc/window-3.0.svg" alt="LeetCode Editor 题目导航窗口" width="860"></p>
   
-- **工具栏**:  
-  - ![login][icon:login]**`登录`**:两个网站的登录帐号不互通，切换网站需配置对应的用户  
-  - ![logout][icon:logout]**`退出`**:退出当前账户,如遇到登录错误,尝试先进行退出  
-  - ![refresh][icon:refresh]**`刷新`**:在未登录的情况下也可查看刷新加载题目，但是无法提交  
-  - ![pick][icon:pick]**`随机`**:随机一个题目
-  - ![find][icon:find]**`查找`**:打开筛选面板,可以进行搜索、过滤或者排序.  
-  - ![progress][icon:progress]**`会话`**:打开进度面板,可以查看或者切换进度.
-  - ![toggle][icon:toggle]**`切换列表`**:切换到其他列表窗口,包括"所有题目列表"、"分页题目列表"、"CodeTop题目列表".
-  - ![config][icon:config]**`配置`**:快捷跳转到配置界面  
-  - ![clear][icon:clear]**`清理`**:清理配置的缓存目录下的文件，两个网站对应的缓存目录不同，只会清理当前配置的网站下的。部分题目未提交的情况下慎重清理  
+- **工具栏**
+  - ![login][icon:login] **登录：**为当前网站配置账号；两个网站的账号互不共享。
+  - ![logout][icon:logout] **退出：**退出当前账号；登录异常时可先尝试退出。
+  - ![refresh][icon:refresh] **刷新：**未登录也可以加载题目，但提交仍需登录。
+  - ![pick][icon:pick] **随机：**随机打开一个题目。
+  - ![find][icon:find] **查找：**打开搜索、筛选和排序面板。
+  - ![progress][icon:progress] **会话：**查看或切换会话。
+  - ![toggle][icon:toggle] **切换列表：**切换“所有题目列表”“分页题目列表”和“CodeTop 题目列表”。
+  - ![config][icon:config] **配置：**快捷打开配置页面。
+  - ![clear][icon:clear] **清理：**清理当前网站配置的缓存目录。未提交题目时请谨慎操作。
 
-### 菜单  
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/menu-3.0.jpg" alt="menu" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+### 右键菜单
+<p align="center"><img src="doc/menu-3.0.svg" alt="LeetCode Editor 操作菜单" width="860"></p>
    
 
-- **菜单(在题目上右击出现)**:  
-  - **`open question`**:打开题目,在题目上双击也可以打开  
-  - **`open content`**:查看描述，包含图片(依赖 Markdown)  
-  - **`Submit`**:提交题目  
-  - **`Submissions`**:查看提交记录,在弹出的窗口上选择记录查看详情(`Show detail`)  
-  - **`Run Code`**:运行代码,默认使用题目的测试用例  
-  - **`Testcase`**:自定义测试用例  
-  - **`favorite`**:添加或移除收藏
-  - **`Clear cache`**:清理当前题目  
-  - **`Timer`**:计时器,开启后在右下角状态栏提示解题时间    
-
-<br>  
-
-- **Editor菜单(在Editor上右击出现)**:  
-  功能同上  
-
-<br>  
-
-- **问题编辑器**:
-  - **`Content`**:查看描述，包含图片
-  - **`Solution`**:查看解答
-  - **`Submissions`**:查看提交记录
-  - **`Note`**:查看笔记
+- **题目菜单：**在题目上右击可使用以下操作：
+  - **Open question：**打开题目；双击题目也可打开。
+  - **Open content：**查看题目描述和图片（依赖 Markdown）。
+  - **Open solution：**查看题解。
+  - **Open in web：**在浏览器中打开题目。
+  - **Submit：**提交当前解答。
+  - **Submissions：**查看提交记录，并在弹窗中通过 **Show detail** 查看详情。
+  - **Run Code：**使用题目默认测试用例运行代码。
+  - **Testcase：**自定义测试用例。
+  - **Favorite：**添加或移除收藏。
+  - **Note：**打开题目笔记。
+  - **Timer：**在状态栏记录解题时间。
+  - **Clear cache：**清理当前题目的缓存文件。
+- **Editor 菜单：**在编辑器中右击可使用相同功能。
+- **问题编辑器页签：** **Content** 查看题目描述和图片，**Solution** 查看题解，**Submissions** 查看提交记录，**Note** 查看笔记。
   
 ### 常见问题  
   [常见问题][gh:question] 
 
-### 支持和捐赠
-* [捐赠][shuzijun-donate]
-* [内推][shuzijun-referrals]
+### 支持
+
+- [捐赠][shuzijun-donate]
 
 
 [plugin-logo]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/META-INF/pluginIcon.svg

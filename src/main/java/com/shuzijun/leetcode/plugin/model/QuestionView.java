@@ -2,6 +2,7 @@ package com.shuzijun.leetcode.plugin.model;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -166,13 +167,15 @@ public class QuestionView {
 
     }
 
-    private static Map<Character, Integer> SORT = new HashMap<>();
+    private static final Map<Character, Integer> SORT;
 
     static {
+        Map<Character, Integer> sortOrder = new HashMap<>();
         String sortStr = "剑面";
         for (int i = 0; i < sortStr.length(); i++) {
-            SORT.put(sortStr.charAt(i), i);
+            sortOrder.put(sortStr.charAt(i), i);
         }
+        SORT = Collections.unmodifiableMap(sortOrder);
     }
 
     public int frontendQuestionIdCompareTo(QuestionView questionView) {

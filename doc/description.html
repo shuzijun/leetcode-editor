@@ -1,128 +1,91 @@
-<div>
-    <p>Support for leetcode.com and leetcode.cn, can test and submit questions.
-        More tutorial please visit： <a href="https://github.com/shuzijun/leetcode-editor">here</a></p>
-</div>
-<br>
-<div>
-    <h2>Introduction</h2>
-    <br>
-    <ul>
-        <li>Support for leetcode.com and leetcode.cn, can test and submit questions</li>
-        <li>More tutorial please visit： <a href="https://github.com/shuzijun/leetcode-editor">here</a></li>
-    </ul>
-    <ul>
-        <li>支持leetcode.com和leetcode.cn,可测试与提交问题</li>
-        <li>更多的插件使用教程： <a href="https://github.com/shuzijun/leetcode-editor">插件使用介绍</a></li>
-    </ul>
-</div>
-<br>
-<h2 >Getting Started</h2>
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@v8.6/doc/leetcode-editor-3.0.gif"
-                       alt="start" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p>
+    Solve LeetCode problems without leaving your IDE. LeetCode Editor supports
+    <code>leetcode.com</code> and <code>leetcode.cn</code> for problem browsing,
+    local debugging, and submissions.
+    See the <a href="https://github.com/shuzijun/leetcode-editor">project documentation</a>
+    for the complete guide.
+</p>
+<p>
+    无需离开 IDE 即可完成 LeetCode 刷题。LeetCode Editor 支持
+    <code>leetcode.com</code> 与 <code>leetcode.cn</code>，覆盖题目浏览、
+    本地调试和提交等常用流程。
+    更多使用说明请查看
+    <a href="https://github.com/shuzijun/leetcode-editor/blob/master/README_ZH.md">中文文档</a>。
+</p>
 
-<h2 >Local debugging</h2>
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@v8.6/doc/customConfig-100.gif"
-                       alt="loacl" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<h2>Getting Started</h2>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/leetcode-editor-3.0.svg"
+                       alt="Browse, write code, run, and submit" style="max-width: 90%; height: auto;"></p>
 
-<h3 >Configuration (configuration for first installation)</h3>
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@v8.6/doc/config-3.0.jpg" alt="config"
-                       style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<h2>Local Debugging</h2>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/customConfig-100.svg"
+                       alt="Custom template and local debugging workflow" style="max-width: 90%; height: auto;"></p>
+
+<h3>Configuration</h3>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/config-3.0.svg"
+                       alt="LeetCode Editor settings" style="max-width: 90%; height: auto;"></p>
 
 <ul>
     <li><strong>Configuration path</strong>: <code>File</code> -&gt;
-        <code>settings</code>-&gt;<code>tools</code>-&gt;<code>leetcode plugin</code>
+        <code>Settings</code> -&gt; <code>Tools</code> -&gt; <code>LeetCode Plugin</code>
         <ul>
-            <li><strong><code>URL options</code></strong>: <code>leetcode.com</code>OR<code>leetcode.cn</code></li>
-            <li><strong><code>Code Type</code></strong>: <code>Java</code>,<code>Python</code>,<code>C++</code>,<code>Python3</code>,<code>C</code>,<code>C#</code>,<code>JavaScript</code>,<code>Ruby</code>,<code>Swift</code>,<code>Go</code>
-                ,<code>Scala</code>,<code>Kotlin</code>,<code>Rust</code>,<code>PHP</code>,<code>Bash</code>,<code>SQL</code>
+            <li><strong><code>URL options</code></strong>: Choose <code>leetcode.com</code> or <code>leetcode.cn</code>.</li>
+            <li><strong><code>Code Type</code></strong>: Java, Python, C++, Python 3, C, C#, JavaScript, Ruby, Swift, Go, Scala, Kotlin, Rust, PHP, Bash, or SQL.
             </li>
-            <li><strong><code>LoginName</code></strong>: Login Username</li>
-            <li><strong><code>Password</code></strong>: Login password</li>
-            <li><strong><code>Temp File Path</code></strong>: Temporary file storage catalogue</li>
-            <li><strong><code>proxy(HTTP Proxy)</code></strong>: HTTP Proxy,config path:<code>File</code> -&gt; <code>settings</code>-&gt;<code>Appearance
-                &amp; Behavior</code>-&gt;<code>System Settings</code>-&gt;<code>HTTP Proxy</code></li>
-            <li><strong><code>Custom code template</code></strong>: Custom code template (<a
-                    href="https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md">details</a>) (<a
-                    href="https://github.com/shuzijun/leetcode-question">demo</a>)
+            <li><strong><code>LoginName</code> / <code>Password</code></strong>: Credentials for the selected site.</li>
+            <li><strong><code>Temp File Path</code></strong>: Directory for generated temporary files.</li>
+            <li><strong><code>HTTP Proxy</code></strong>: Configure it in <code>File</code> -&gt; <code>Settings</code> -&gt; <code>Appearance &amp; Behavior</code> -&gt; <code>System Settings</code> -&gt; <code>HTTP Proxy</code>.</li>
+            <li><strong><code>Custom code template</code></strong>: Customize generated code (<a
+                    href="https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md">details</a>, <a
+                    href="https://github.com/shuzijun/leetcode-question">example</a>).
             </li>
-            <li><strong><code>LevelColour</code></strong>: Customize the difficulty color of the question, it will take
-                effect after restart
-            </li>
+            <li><strong><code>LevelColour</code></strong>: Customize problem-difficulty colors; restart the IDE after changing it.</li>
         </ul>
     </li>
 </ul>
-<h3 >Window</h3>
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@v8.6/doc/window-3.0.jpg" alt="window"
-                       style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<h3>Problem Navigator</h3>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/window-3.0.svg"
+                       alt="LeetCode Editor problem navigator" style="max-width: 90%; height: auto;"></p>
 
 <ul>
     <li><strong>Toolbar</strong>:
         <ul>
-            <li><strong><code>Sign in</code></strong>:The login accounts of the two websites are not
-                interoperable and the corresponding users need to be configured when switching websites.
-            </li>
-            <li><strong><code>Sign out</code></strong>:Exit the current account, if you encounter a
-                login error, try to exit first.
-            </li>
-            <li><strong><code>Refresh</code></strong>:You can also refresh and load questions if you
-                are not logged in, but you cannot submit it.
-            </li>
-            <li><strong><code>pick</code></strong>:Open a problem randomly.
-            </li>
-            <li><<strong><code>Find</code></strong>:Open filter panel. You can search, filter and sort.
-            </li>
-            <li><strong><code>Session</code></strong>:Open the Session panel. You can view or switch
-                sessions.
-            </li>
-            <li><strong><code>Toggle List</code></strong>:Switch to other list windows, including "All
-                Problem List" , "Paginated Problem List" , "CodeTop Problem List".
-            </li>
-            <li><strong><code>Settings</code></strong>:Quick jump to the configuration page.
-            </li>
-            <li><strong><code>Clear</code></strong>:Clean up the files in the configured cache
-                directories. The cache directories of the two websites are different and only the current configured
-                websites are cleaned up. Carefully clean up cases without submitting.
-            </li>
+            <li><strong><code>Sign in</code></strong>: Configure an account for the selected website. Accounts for the two sites are independent.</li>
+            <li><strong><code>Sign out</code></strong>: Exit the current account. If sign-in fails, try signing out first.</li>
+            <li><strong><code>Refresh</code></strong>: Load problems without signing in; submitting still requires an account.</li>
+            <li><strong><code>Pick</code></strong>: Open a random problem.</li>
+            <li><strong><code>Find</code></strong>: Open the panel for searching, filtering, and sorting.</li>
+            <li><strong><code>Session</code></strong>: View or switch sessions.</li>
+            <li><strong><code>Toggle List</code></strong>: Switch between All Problem List, Paginated Problem List, and CodeTop Problem List.</li>
+            <li><strong><code>Settings</code></strong>: Open the configuration page.</li>
+            <li><strong><code>Clear</code></strong>: Remove files from the cache directory for the current website. Use it carefully when work has not been submitted.</li>
         </ul>
     </li>
 </ul>
-<h3 >Menu</h3>
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@v8.6/doc/menu-3.0.jpg" alt="menu"
-                       style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<h3>Context Menu</h3>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/menu-3.0.svg"
+                       alt="LeetCode Editor action menu" style="max-width: 90%; height: auto;"></p>
 
 
 <ul>
     <li><strong>Menu (right-click on the questions)</strong>:
         <ul>
-            <li><strong><code>open question</code></strong>:Open the question or double click on the question</li>
-            <li><strong><code>open content</code></strong>:Show content(Rely on Markdown)</li>
-            <li><strong><code>Submit</code></strong>:Submit the question</li>
-            <li><strong><code>Submissions</code></strong>:View the submission record, select the record details in the
-                pop-up window(<code>Show detail</code>)
-            </li>
-            <li><strong><code>Run Code</code></strong>:Run the code, the test case for the question is used by default
-            </li>
-            <li><strong><code>Testcase</code></strong>:Customize test cases</li>
-            <li><strong><code>favorite</code></strong>:Add or remove favorite</li>
-            <li><strong><code>Clear cache</code></strong>:Clean up the current question</li>
-            <li><strong><code>Timer</code></strong>:Timer, when it is turned on, it will prompt the problem solving time
-                in the status bar in the lower right corner
-            </li>
+            <li><strong><code>Open question</code></strong>: Open the problem; double-clicking a problem does the same.</li>
+            <li><strong><code>Open content</code></strong>: Show the description and images (requires Markdown support).</li>
+            <li><strong><code>Open solution</code></strong>: Show the official solution.</li>
+            <li><strong><code>Open in web</code></strong>: Open the problem in a browser.</li>
+            <li><strong><code>Submit</code></strong>: Submit the current solution.</li>
+            <li><strong><code>Submissions</code></strong>: View submission records and select <code>Show detail</code> in the pop-up window.</li>
+            <li><strong><code>Run Code</code></strong>: Run the default test case for the problem.</li>
+            <li><strong><code>Testcase</code></strong>: Create custom test cases.</li>
+            <li><strong><code>Favorite</code></strong>: Add or remove the problem from favorites.</li>
+            <li><strong><code>Note</code></strong>: Open notes for the problem.</li>
+            <li><strong><code>Timer</code></strong>: Track solving time in the status bar.</li>
+            <li><strong><code>Clear cache</code></strong>: Remove cached files for the current problem.</li>
         </ul>
     </li>
 </ul>
-<p><br></p>
-<ul>
-    <li><strong>Editor Menu(Right-click on Editor to appear)</strong>:<br>Function as above</li>
-</ul>
-<p><br></p>
-<ul>
-    <li><strong>Question Editor</strong>:
-        <ul>
-            <li><strong><code>Content</code></strong>:Show content(Rely on Markdown)</li>
-            <li><strong><code>Solution</code></strong>:show solution</li>
-            <li><strong><code>Submissions</code></strong>:View the submission record</li>
-            <li><strong><code>Note</code></strong>:Show note</li>
-        </ul>
-    </li>
-</ul>
+<p><strong>Editor menu:</strong> Right-click in the editor to access the same actions.</p>
+<p><strong>Question editor tabs:</strong> <code>Content</code> shows the description and images,
+    <code>Solution</code> shows the solution, <code>Submissions</code> shows submission records,
+    and <code>Note</code> shows notes.</p>

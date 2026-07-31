@@ -26,12 +26,9 @@ public class FavoriteManager {
             HttpResponse response = Graphql.builder().operationName("addQuestionToFavorite")
                     .variables("favoriteIdHash", tag.getSlug()).variables("questionId", question.getQuestionId()).request();
             if (response.getStatusCode() == 200) {
-                String body = response.getBody();
-                JSONObject object = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("addQuestionToFavorite");
-                if (object.getBoolean("ok")) {
-                    tag.getQuestions().add(question.getFrontendQuestionId());
-                } else {
-                    MessageUtils.getInstance(project).showWarnMsg("info", object.getString("error"));
+                String error = applyFavoriteResponse(tag, question, response.getBody(), true);
+                if (error != null) {
+                    MessageUtils.getInstance(project).showWarnMsg("info", error);
                 }
             } else {
                 MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
@@ -55,12 +52,9 @@ public class FavoriteManager {
             HttpResponse response = Graphql.builder().operationName("removeQuestionFromFavorite")
                     .variables("favoriteIdHash", tag.getSlug()).variables("questionId", question.getQuestionId()).request();
             if (response.getStatusCode() == 200) {
-                String body = response.getBody();
-                JSONObject object = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("removeQuestionFromFavorite");
-                if (object.getBoolean("ok")) {
-                    tag.getQuestions().remove(question.getFrontendQuestionId());
-                } else {
-                    MessageUtils.getInstance(project).showWarnMsg("info", object.getString("error"));
+                String error = applyFavoriteResponse(tag, question, response.getBody(), false);
+                if (error != null) {
+                    MessageUtils.getInstance(project).showWarnMsg("info", error);
                 }
             } else {
                 MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
@@ -68,5 +62,19 @@ public class FavoriteManager {
         } catch (Exception io) {
             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
         }
+    }
+
+    static String applyFavoriteResponse(Tag tag, Question question, String body, boolean add) {
+        String operation = add ? "addQuestionToFavorite" : "removeQuestionFromFavorite";
+        JSONObject object = JSONObject.parseObject(body).getJSONObject("data").getJSONObject(operation);
+        if (!object.getBooleanValue("ok")) {
+            return object.getString("error");
+        }
+        if (add) {
+            tag.getQuestions().add(question.getFrontendQuestionId());
+        } else {
+            tag.getQuestions().remove(question.getFrontendQuestionId());
+        }
+        return null;
     }
 }

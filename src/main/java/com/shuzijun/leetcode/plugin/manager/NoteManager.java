@@ -53,11 +53,7 @@ public class NoteManager {
 
             HttpResponse response = Graphql.builder().operationName("getNote").variables("titleSlug",question.getTitleSlug()).request();
             if (response.getStatusCode() == 200) {
-
-                String body = response.getBody();
-
-                JSONObject jsonObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("question");
-                FileUtils.saveFile(filePath, jsonObject.getString("note"));
+                FileUtils.saveFile(filePath, extractNote(response.getBody()));
                 return Boolean.TRUE;
             } else {
                 MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
@@ -68,6 +64,10 @@ public class NoteManager {
             MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.failed"));
         }
         return Boolean.FALSE;
+    }
+
+    static String extractNote(String body) {
+        return JSONObject.parseObject(body).getJSONObject("data").getJSONObject("question").getString("note");
     }
 
     public static void push(String titleSlug, Project project) {

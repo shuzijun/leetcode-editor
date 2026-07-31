@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title description">
+  <title id="title">Custom template code generation and local debugging</title>
+  <desc id="description">Configure a custom filename and code template, generate a local problem file, then run or debug helper code outside the protected LeetCode submission region.</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="120%"><feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#020617" flood-opacity=".48"/></filter>
+    <clipPath id="window"><rect x="28" y="22" width="1144" height="576" rx="12"/></clipPath>
+    <symbol id="icon-leetcode" viewBox="0 0 13 13">
+      <g transform="scale(.086666)">
+        <g transform="translate(0 150) scale(.1 -.1)" fill="#B4B2B1"><path d="M658 736c-33-12-48-44-48-101 0-37 5-48 29-66 28-21 36-21 362-20 321 2 334 3 352 22 42 45 27 148-23 164-33 10-643 11-672 1z"/></g>
+        <g transform="translate(0 150) scale(.1 -.1)" fill="#F89F1C"><path d="M841 1202c-18-6-194-182-188-188 2-2 21 2 43 9 83 27 117 12 229-99 53-52 108-97 122-100 35-9 95 23 107 57 16 47-2 80-102 180-95 95-181 152-211 141z"/><path d="M947 382c-50-49-106-97-124-106-40-20-100-21-147-1-36 15-37 15-27-4 35-64-18-140-86-126l-28 6 23-20c75-66 227-79 336-28 80 37 266 220 266 261 0 54-31 92-84 101-35 7-39 5-129-83z"/></g>
+        <g transform="translate(0 150) scale(.1 -.1)" fill="#DDDDDD"><path d="M559 1173c-331-331-355-360-379-468-13-58-6-117 22-195 18-47 44-78 177-213 144-145 159-157 192-157 67 0 111 57 88 117-5 15-68 86-138 158-71 72-134 141-140 153-19 36-17 127 3 157 22 33 224 243 446 461 171 169 175 173 175 214 0 54-38 90-93 90-35 0-52-16-353-317z"/></g>
+      </g>
+    </symbol>
+    <style>
+      .configuration { animation: configuration 15s ease-in-out infinite; }
+      .generated { animation: generated 15s ease-in-out infinite; }
+      .debug-menu { animation: debug-menu 15s ease-in-out infinite; }
+      .run-result { animation: run-result 15s ease-in-out infinite; }
+      .progress-one { animation: progress-one 15s ease-in-out infinite; }
+      .progress-two { animation: progress-two 15s ease-in-out infinite; }
+      .progress-three { animation: progress-three 15s ease-in-out infinite; }
+      @keyframes configuration { 0%,4% { opacity:0; } 6%,28% { opacity:1; } 31%,100% { opacity:0; } }
+      @keyframes generated { 0%,33% { opacity:.28; } 36%,61% { opacity:1; } 64%,100% { opacity:.38; } }
+      @keyframes debug-menu { 0%,67% { opacity:0; } 70%,95% { opacity:1; } 98%,100% { opacity:0; } }
+      @keyframes run-result { 0%,80% { opacity:0; } 84%,95% { opacity:1; } 98%,100% { opacity:0; } }
+      @keyframes progress-one { 0%,4% { opacity:0; } 6%,28% { opacity:1; } 31%,100% { opacity:.34; } }
+      @keyframes progress-two { 0%,33% { opacity:0; } 36%,61% { opacity:1; } 64%,100% { opacity:.34; } }
+      @keyframes progress-three { 0%,69% { opacity:0; } 71%,95% { opacity:1; } 98%,100% { opacity:0; } }
+      @media (prefers-reduced-motion:reduce) { .configuration,.generated,.debug-menu,.run-result,.progress-one,.progress-two,.progress-three { animation:none; } }
+    </style>
+  </defs>
+  <g filter="url(#shadow)">
+    <rect x="28" y="22" width="1144" height="576" rx="12" fill="#1d2024"/>
+    <g clip-path="url(#window)">
+      <rect x="28" y="22" width="1144" height="31" fill="#2b3036"/>
+      <circle cx="52" cy="37.5" r="7" fill="#ff5f57"/><circle cx="74" cy="37.5" r="7" fill="#febc2e"/><circle cx="96" cy="37.5" r="7" fill="#28c840"/>
+      <rect x="28" y="53" width="31" height="545" fill="#2b3036"/>
+      <rect x="33" y="103" width="22" height="23" rx="4" fill="#356fc3"/>
+      <use href="#icon-leetcode" x="37.5" y="108" width="13" height="13"/>
+
+      <rect x="59" y="53" width="326" height="545" fill="#202327"/>
+      <rect x="59" y="53" width="326" height="32" fill="#292d32"/>
+      <text x="72" y="74" fill="#d1d9e2" font-family="Arial,sans-serif" font-size="13" font-weight="700">Project</text>
+      <g font-family="Arial,sans-serif" font-size="12">
+        <rect x="65" y="96" width="314" height="26" rx="3" fill="#2a3139"/>
+        <path d="m76 105 5 5-5 5" fill="none" stroke="#aeb7c2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M89 103h9l3 3v8H89z" fill="#6e9ed5"/><text x="108" y="114" fill="#e2e8f0" font-weight="700">leetcode-question</text>
+        <path d="m76 137 5 5-5 5" fill="none" stroke="#aeb7c2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M89 135h9l3 3v8H89z" fill="#8095aa"/><text x="108" y="145" fill="#d1d9e2">src</text>
+        <path d="m96 157 5 5-5 5" fill="none" stroke="#aeb7c2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M109 155h9l3 3v8h-12z" fill="#8095aa"/><text x="128" y="165" fill="#d1d9e2">main</text>
+        <path d="m116 177 5 5-5 5" fill="none" stroke="#aeb7c2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M129 175h9l3 3v8h-12z" fill="#5c9c73"/><text x="148" y="185" fill="#d1d9e2">java</text>
+        <text x="148" y="208" fill="#aeb7c2">com.shuzijun.leetcode</text>
+        <path d="m136 228 5 5-5 5" fill="none" stroke="#b6d5ff" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M149 226h9l3 3v8h-12z" fill="#5c9c73"/><text x="168" y="236" fill="#d9eaff" font-weight="700">editor</text>
+        <g fill="#73a4e7">
+          <circle cx="160" cy="256" r="4"/><circle cx="160" cy="278" r="4"/><circle cx="160" cy="300" r="4"/><circle cx="160" cy="322" r="4"/><circle cx="160" cy="344" r="4"/><circle cx="160" cy="366" r="4"/><circle cx="160" cy="388" r="4"/><circle cx="160" cy="410" r="4"/>
+        </g>
+        <text x="172" y="260" fill="#c9d0d9">AddTwoNumbers.java</text><text x="172" y="282" fill="#c9d0d9">ContainerWithMostWater.java</text><text x="172" y="304" fill="#c9d0d9">GenerateParentheses.java</text><text x="172" y="326" fill="#c9d0d9">LongestSubstring.java</text><text x="172" y="348" fill="#c9d0d9">ThreeSum.java</text><text x="172" y="370" fill="#c9d0d9">TwoSum.java</text><text x="172" y="392" fill="#c9d0d9">ValidParentheses.java</text><text x="172" y="414" fill="#c9d0d9">ZigzagConversion.java</text>
+      </g>
+
+      <rect x="386" y="53" width="786" height="433" fill="#1e1f22"/>
+      <rect x="386" y="53" width="786" height="32" fill="#292d32"/>
+      <rect x="386" y="85" width="786" height="31" fill="#202327"/>
+      <rect x="400" y="91" width="114" height="20" rx="4" fill="#25292e" stroke="#4a5159"/>
+      <text x="409" y="106" fill="#d0d8e2" font-family="Arial,sans-serif" font-size="12">TwoSum.java</text>
+      <g font-family="monospace" font-size="13">
+        <text x="414" y="146" fill="#737b86">1</text><text x="438" y="146" fill="#c886e8">package</text><text x="494" y="146" fill="#d7dee8"> com.shuzijun.leetcode.editor.en;</text>
+        <text x="414" y="171" fill="#737b86">2</text><text x="438" y="171" fill="#c886e8">import</text><text x="486" y="171" fill="#d7dee8"> java.util.HashMap;</text>
+        <text x="414" y="196" fill="#737b86">3</text><text x="438" y="196" fill="#c886e8">import</text><text x="486" y="196" fill="#d7dee8"> java.util.Map;</text>
+        <text x="414" y="234" fill="#737b86">4</text><text x="438" y="234" fill="#c886e8">public class</text><text x="530" y="234" fill="#d7dee8"> TwoSum {</text>
+        <text x="414" y="259" fill="#737b86">5</text><text x="438" y="259" fill="#5db4f5">  public static void</text><text x="566" y="259" fill="#d7dee8"> main(String[] args) {</text>
+        <text x="414" y="284" fill="#737b86">6</text><text x="438" y="284" fill="#d7dee8">    Solution solution = new TwoSum().new Solution();</text>
+        <text x="414" y="309" fill="#737b86">7</text><text x="438" y="309" fill="#d7dee8">    solution.twoSum(new int[] {2, 7, 11, 15}, 9);</text>
+        <text x="414" y="334" fill="#737b86">8</text><text x="438" y="334" fill="#d7dee8">  }</text>
+        <rect x="431" y="346" width="430" height="18" rx="3" fill="#4a3b20"/>
+        <text x="438" y="360" fill="#f4c56b">// BEGIN: LeetCode submission region</text>
+        <text x="408" y="385" fill="#737b86">9</text><text x="438" y="385" fill="#c886e8">  class</text><text x="480" y="385" fill="#d7dee8"> Solution {</text>
+        <text x="408" y="410" fill="#737b86">10</text><text x="438" y="410" fill="#5db4f5">    public int[]</text><text x="530" y="410" fill="#d7dee8"> twoSum(int[] nums, int target) {</text>
+        <text x="408" y="435" fill="#737b86">11</text><text x="438" y="435" fill="#d7dee8">      // solution code submitted to LeetCode</text>
+      </g>
+      <rect x="59" y="486" width="1113" height="112" fill="#1d1f22" stroke="#303338"/>
+      <text x="70" y="507" fill="#d1d9e2" font-family="Arial,sans-serif" font-size="12" font-weight="700">Run</text>
+      <text x="72" y="536" fill="#d59c43" font-family="monospace" font-size="12">›  Running TwoSum.main()</text>
+      <text class="run-result" x="72" y="559" fill="#72c878" font-family="monospace" font-size="12">✓ Process finished with exit code 0</text>
+      <text class="run-result" x="72" y="580" fill="#d7dee8" font-family="monospace" font-size="12">Input: [2, 7, 11, 15], target = 9  →  Output: [0, 1]</text>
+
+      <g class="configuration" transform="translate(-20 18)">
+        <rect x="404" y="74" width="720" height="418" rx="8" fill="#2b2f35" stroke="#606975"/>
+        <rect x="404" y="74" width="720" height="34" rx="8" fill="#363b42"/>
+        <circle cx="426" cy="91" r="6" fill="#ff5f57"/><circle cx="444" cy="91" r="6" fill="#febc2e"/><circle cx="462" cy="91" r="6" fill="#28c840"/>
+        <text x="712" y="96" fill="#e5eaf0" font-family="Arial,sans-serif" font-size="13" font-weight="700">LeetCode Plugin Settings</text>
+        <text x="432" y="137" fill="#d8e0e9" font-family="Arial,sans-serif" font-size="13" font-weight="700">Custom code template</text>
+        <rect x="432" y="151" width="14" height="14" rx="2" fill="#3d7edb"/><path d="m435 158 3 3 5-6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="454" y="163" fill="#e5eaf0" font-family="Arial,sans-serif" font-size="12">Enable custom template</text>
+        <text x="432" y="201" fill="#aeb7c2" font-family="Arial,sans-serif" font-size="12">Temp file path</text>
+        <rect x="574" y="183" width="514" height="28" rx="4" fill="#202327" stroke="#4d5661"/>
+        <text x="586" y="202" fill="#d1d9e2" font-family="monospace" font-size="11">/path/to/leetcode-question/src/main/java</text>
+        <text x="432" y="239" fill="#aeb7c2" font-family="Arial,sans-serif" font-size="12">Code file name</text>
+        <rect x="574" y="221" width="514" height="28" rx="4" fill="#202327" stroke="#7a4ba6"/>
+        <text x="586" y="240" fill="#f1e8ff" font-family="monospace" font-size="11">$!velocityTool.camelCaseName(${question.titleSlug})</text>
+        <text x="432" y="277" fill="#aeb7c2" font-family="Arial,sans-serif" font-size="12">Code template</text>
+        <rect x="432" y="289" width="656" height="141" rx="4" fill="#202327" stroke="#7a4ba6"/>
+        <g font-family="monospace" font-size="11"><text x="446" y="313" fill="#c886e8">package</text><text x="496" y="313" fill="#d7dee8"> com.shuzijun.leetcode.editor.en;</text><text x="446" y="336" fill="#c886e8">public class</text><text x="525" y="336" fill="#d7dee8"> $!velocityTool.camelCaseName(${question.titleSlug}) {</text><text x="462" y="359" fill="#5db4f5">public static void</text><text x="566" y="359" fill="#d7dee8"> main(String[] args) {</text><text x="478" y="382" fill="#d7dee8">Solution solution = new Solution();</text><text x="462" y="405" fill="#a774e6">${question.code}</text></g>
+        <text x="432" y="458" fill="#aeb7c2" font-family="Arial,sans-serif" font-size="11">Variables: ${question.title} · ${question.titleSlug} · ${question.content} · ${question.code}</text>
+        <rect x="1012" y="448" width="76" height="28" rx="4" fill="#356fc3"/><text x="1034" y="467" fill="#fff" font-family="Arial,sans-serif" font-size="12" font-weight="700">Apply</text>
+      </g>
+
+      <g class="debug-menu">
+        <rect x="904" y="255" width="224" height="133" rx="5" fill="#35383d" stroke="#626973"/>
+        <text x="922" y="282" fill="#f0f3f7" font-family="Arial,sans-serif" font-size="13">▶  Run 'TwoSum.main()'</text>
+        <rect x="912" y="292" width="208" height="25" rx="3" fill="#276b3c"/>
+        <text x="922" y="310" fill="#e5fae8" font-family="Arial,sans-serif" font-size="13" font-weight="700">▹  Debug 'TwoSum.main()'</text>
+        <line x1="916" y1="328" x2="1116" y2="328" stroke="#555b63"/>
+        <text x="922" y="351" fill="#f0f3f7" font-family="Arial,sans-serif" font-size="13">↥  Submit</text>
+        <text x="922" y="375" fill="#aeb7c2" font-family="Arial,sans-serif" font-size="12">Only the marked region is submitted</text>
+      </g>
+      <g font-family="Arial,sans-serif" font-size="11" font-weight="700">
+        <g class="progress-one"><rect x="400" y="53" width="150" height="20" rx="10" fill="#5b367d" stroke="#caa1ff"/><text x="418" y="67" fill="#f2e8ff">1  Custom template</text></g>
+        <g class="progress-two"><rect x="560" y="53" width="146" height="20" rx="10" fill="#315a91" stroke="#8fbcff"/><text x="578" y="67" fill="#e8f1ff">2  Generate code</text></g>
+        <g class="progress-three"><rect x="716" y="53" width="144" height="20" rx="10" fill="#276b3c" stroke="#90e49e"/><text x="734" y="67" fill="#e5fae8">3  Debug locally</text></g>
+      </g>
+    </g>
+    <rect x="28" y="22" width="1144" height="576" rx="12" fill="none" stroke="#3c4249"/>
+  </g>
+</svg>

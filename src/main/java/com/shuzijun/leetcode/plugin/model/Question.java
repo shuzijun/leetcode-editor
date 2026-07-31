@@ -1,7 +1,5 @@
 package com.shuzijun.leetcode.plugin.model;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import java.util.List;
 
 /**
@@ -90,7 +88,7 @@ public class Question extends QuestionView {
     }
 
     public String getCode() {
-        if (CollectionUtils.isEmpty(codeSnippets)) {
+        if (codeSnippets == null || codeSnippets.isEmpty()) {
             return "Subscribe to unlock.";
         }
         CodeTypeEnum codeType = CodeTypeEnum.getCodeTypeEnumByLangSlug(langSlug);

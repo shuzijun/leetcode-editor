@@ -1,11 +1,10 @@
 package com.shuzijun.leetcode.plugin.setting;
 
-import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
-import com.intellij.openapi.editor.impl.EditorImpl;
+import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -16,7 +15,9 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
-import com.intellij.util.net.HttpConfigurable;
+import com.intellij.util.net.HttpProxyConfigurable;
+import com.intellij.util.net.ProxyConfiguration;
+import com.intellij.util.net.ProxySettings;
 import com.shuzijun.leetcode.plugin.listener.ColorListener;
 import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
 import com.shuzijun.leetcode.plugin.listener.DonateListener;
@@ -25,6 +26,7 @@ import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
+import com.shuzijun.leetcode.plugin.utils.BrowserUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -93,26 +95,23 @@ public class SettingUI {
         });
 
         customCodeBox.addActionListener(new DonateListener(customCodeBox));
-        proxyCheckBox.setSelected(HttpConfigurable.getInstance().USE_HTTP_PROXY || HttpConfigurable.getInstance().USE_PROXY_PAC);
-        proxyCheckBox.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (HttpConfigurable.editConfigurable(mainPanel)) {
-                    proxyCheckBox.setSelected(HttpConfigurable.getInstance().USE_HTTP_PROXY || HttpConfigurable.getInstance().USE_PROXY_PAC);
-                }
+        refreshProxyState();
+        proxyCheckBox.addActionListener(event -> {
+            if (HttpProxyConfigurable.editConfigurable(mainPanel)) {
+                refreshProxyState();
             }
         });
 
         templateConfigHelp.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                BrowserUtil.browse("https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md");
+                BrowserUtils.browse("https://github.com/shuzijun/leetcode-editor/blob/master/doc/CustomCode.md");
             }
         });
 
         fileNameEditor = EditorFactory.getInstance().createEditor(EditorFactory.getInstance().createDocument(""), null, FileTypeManager.getInstance().getFileTypeByExtension("vm"), false);
         EditorSettings settings = fileNameEditor.getSettings();
-        ((EditorImpl) fileNameEditor).setOneLineMode(true);
+        ((EditorEx) fileNameEditor).setOneLineMode(true);
         //额外的行
         settings.setAdditionalLinesCount(0);
         //额外的列
@@ -225,6 +224,10 @@ public class SettingUI {
 
     }
 
+    private void refreshProxyState() {
+        proxyCheckBox.setSelected(!(ProxySettings.getInstance().getProxyConfiguration() instanceof ProxyConfiguration.DirectProxy));
+    }
+
     public JPanel getContentPane() {
         return mainPanel;
     }
@@ -237,7 +240,7 @@ public class SettingUI {
             Config currentState = new Config();
             process(currentState);
             if (currentState.isModified(config)) {
-                if (passwordField.getText() != null && passwordField.getText().equals(PersistentConfig.getInstance().getPassword(config.getLoginName()))) {
+                if (String.valueOf(passwordField.getPassword()).equals(PersistentConfig.getInstance().getPassword(config.getLoginName()))) {
                     return false;
                 } else {
                     return true;
@@ -263,7 +266,7 @@ public class SettingUI {
             file.mkdirs();
         }
         PersistentConfig.getInstance().setInitConfig(config);
-        PersistentConfig.getInstance().savePassword(passwordField.getText(), config.getLoginName());
+        PersistentConfig.getInstance().savePassword(String.valueOf(passwordField.getPassword()), config.getLoginName());
         Config finalOldConfig = oldConfig;
         Config finalConfig = config;
         ProgressManager.getInstance().run(new Task.Backgroundable(null, PluginConstant.PLUGIN_NAME + " Apply Config", false) {

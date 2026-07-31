@@ -26,13 +26,13 @@ import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.NavigatorPanelAction;
 import com.shuzijun.leetcode.plugin.window.NavigatorTableData;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,7 +41,7 @@ import java.util.Map;
 public class AllNavigatorPanel extends SimpleToolWindowPanel implements NavigatorPanelAction, Disposable {
 
 
-    private Map<String, Find> findMap = new HashedMap();
+    private final Map<String, Find> findMap = new HashMap<>();
     private JPanel queryPanel;
     private JTextField queryField;
     private AllNavigatorTable navigatorTable;
@@ -237,7 +237,7 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
                     return true;
                 }
                 navigatorTable.getPageInfo().clearFilter();
-                navigatorTable.getPageInfo().getFilters().setSearchKeywords("");
+                navigatorTable.getPageInfo().getFilters().setSearchKeywords(null);
                 queryField.setText("");
 
                 getFind().clearFilter();
@@ -245,11 +245,6 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
                 return selectedRow(slug);
             }
         };
-    }
-
-    @Override
-    public Object getData(String dataId) {
-        return super.getData(dataId);
     }
 
     @Override

@@ -19,9 +19,9 @@ import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.NavigatorPanelAction;
 import com.shuzijun.leetcode.plugin.window.NavigatorTableData;
-import org.apache.commons.collections.map.HashedMap;
 
 import javax.swing.*;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class TopNavigatorPanel extends SimpleToolWindowPanel implements NavigatorPanelAction, Disposable {
 
-    private Map<String, Find> findMap = new HashedMap();
+    private final Map<String, Find> findMap = new HashMap<>();
     private JPanel queryPanel;
     private TopNavigatorTable topNavigatorTable;
     private ActionToolbar findToolbar;
@@ -182,11 +182,6 @@ public class TopNavigatorPanel extends SimpleToolWindowPanel implements Navigato
                 }
             }
         };
-    }
-
-    @Override
-    public Object getData(String dataId) {
-        return super.getData(dataId);
     }
 
     private void initFind() {

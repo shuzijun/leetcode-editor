@@ -43,7 +43,7 @@ public class FavoriteActionGroup extends ActionGroup implements DumbAware {
 
     @Override
     public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return  ActionUpdateThread.BGT;
+        return ActionUpdateThread.EDT;
     }
 
 }

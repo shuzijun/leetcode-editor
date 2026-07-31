@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
 import com.shuzijun.leetcode.plugin.actions.AbstractAction;
-import com.shuzijun.leetcode.plugin.listener.LoginNotifier;
 import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.HttpRequest;
@@ -38,9 +37,10 @@ public class LoginAction extends AbstractAction implements DumbAware {
         } else {
             if (HttpRequestUtils.isLogin(anActionEvent.getProject())) {
                 MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("info", PropertiesUtils.getInfo("login.exist"));
-                NavigatorTabsPanel.loadUser(true);
                 if (navigatorAction.getPageInfo().getRowTotal() == 0) {
-                    ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(anActionEvent.getProject(), config.getUrl());
+                    HttpLogin.notifyLoginAfterUserLoaded(anActionEvent.getProject(), config.getUrl());
+                } else {
+                    NavigatorTabsPanel.loadUser(true);
                 }
                 return;
             }
@@ -56,8 +56,7 @@ public class LoginAction extends AbstractAction implements DumbAware {
             HttpRequestUtils.setCookie(cookieList);
             if (HttpRequestUtils.isLogin(anActionEvent.getProject())) {
                 MessageUtils.getInstance(anActionEvent.getProject()).showInfoMsg("login", PropertiesUtils.getInfo("login.success"));
-                NavigatorTabsPanel.loadUser(true);
-                ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(anActionEvent.getProject(), config.getUrl());
+                HttpLogin.notifyLoginAfterUserLoaded(anActionEvent.getProject(), config.getUrl());
                 return;
             } else {
                 config.addCookie(config.getUrl() + config.getLoginName(), null);

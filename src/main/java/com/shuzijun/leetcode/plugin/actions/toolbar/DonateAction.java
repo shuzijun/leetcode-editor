@@ -1,8 +1,8 @@
 package com.shuzijun.leetcode.plugin.actions.toolbar;
 
-import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.shuzijun.leetcode.plugin.utils.BrowserUtils;
 
 
 /**
@@ -11,7 +11,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 public class DonateAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
-        BrowserUtil.browse("https://shuzijun.cn/donate.html");
+        BrowserUtils.browse("https://shuzijun.cn/donate.html");
     }
 
 }

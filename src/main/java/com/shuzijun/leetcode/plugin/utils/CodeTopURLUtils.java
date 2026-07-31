@@ -1,5 +1,7 @@
 package com.shuzijun.leetcode.plugin.utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * @author shuzijun
  */
@@ -15,14 +17,22 @@ public class CodeTopURLUtils {
     private static String questions = "/api/questions/";
 
     public static String getTags() {
-        return codetopUrl + codetop + tags;
+        return getCodeTopUrl() + tags;
     }
 
     public static String getCompanies(){
-        return codetopUrl + codetop + companies;
+        return getCodeTopUrl() + companies;
     }
 
     public static String getQuestions() {
-        return codetopUrl + codetop + questions;
+        return getCodeTopUrl() + questions;
+    }
+
+    private static String getCodeTopUrl() {
+        String testBaseUrl = System.getProperty("leetcode.test.base.url");
+        if (StringUtils.isNotBlank(testBaseUrl)) {
+            return StringUtils.removeEnd(testBaseUrl, "/");
+        }
+        return codetopUrl + codetop;
     }
 }

@@ -4,6 +4,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.*;
+import com.intellij.openapi.fileEditor.ex.FileEditorProviderManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -25,10 +26,8 @@ import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Submission;
-import com.shuzijun.leetcode.plugin.utils.FileEditorProviderReflection;
 import com.shuzijun.leetcode.plugin.utils.AsyncUiUtils;
 import com.shuzijun.leetcode.plugin.window.dialog.SubmissionsPanel;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -123,7 +122,7 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
                 if (question == null) {
                     mySplitter.setFirstComponent(new JBLabel("No question"));
                 } else {
-                    if (CollectionUtils.isNotEmpty(submissionList)) {
+                    if (submissionList != null && !submissionList.isEmpty()) {
                         table = new JBTable(new SubmissionsPanel.TableModel(submissionList));
                         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                         table.getTableHeader().setReorderingAllowed(false);
@@ -208,12 +207,12 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
             } else if (vf == null) {
                 mySplitter.setSecondComponent(new JBLabel("no submission"));
             } else {
-            FileEditorProvider[] editorProviders = FileEditorProviderReflection.getProviders(project, vf);
-            if (editorProviders == null || editorProviders.length == 0) {
+            List<FileEditorProvider> editorProviders = FileEditorProviderManager.getInstance().getProviderList(project, vf);
+            if (editorProviders.isEmpty()) {
                 mySplitter.setSecondComponent(new JBLabel("No editor available for submission"));
                 return;
             }
-            FileEditor newEditor = editorProviders[0].createEditor(project, vf);
+            FileEditor newEditor = editorProviders.get(0).createEditor(project, vf);
             if (newEditor == fileEditor) {
                 return;
             }
@@ -282,7 +281,7 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
             String id = ((ConvergePreview.TabSelectFileEditorState) state).getChildrenState();
             if (!isLoad) {
                 initComponent(id);
-            } else if (CollectionUtils.isNotEmpty(submissionList)) {
+            } else if (submissionList != null && !submissionList.isEmpty()) {
                 for (int i = 0; i < submissionList.size(); i++) {
                     if (submissionList.get(i).getId().equals(id)) {
                         openSelectedQuestion(submissionList, i);

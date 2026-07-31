@@ -35,6 +35,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author shuzijun
@@ -44,9 +45,9 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
 
     protected static volatile Color defColor = null;
 
-    protected Color Level1 = new Color(92, 184, 92);
-    protected Color Level2 = new Color(240, 173, 78);
-    protected Color Level3 = new Color(217, 83, 79);
+    protected Color Level1 = new Color(106, 171, 115);
+    protected Color Level2 = new Color(217, 164, 65);
+    protected Color Level3 = new Color(199, 84, 80);
 
     private final MyJBTable<T> myTable;
     private final MyTableModel<T> myTableModel;
@@ -55,6 +56,7 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
     private final PageInfo<T> myPageInfo;
     private final PagePanel myPagePanel;
     private final JComponent firstToolTip;
+    private final AtomicBoolean disposed = new AtomicBoolean();
     private boolean first = true;
 
     public NavigatorTableData(Project project) {
@@ -121,11 +123,21 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
         ApplicationManager.getApplication().invokeLater(() -> {
             this.myTableModel.updateData(myList);
             setColumnWidth(myTable);
-        });
+        }, ignored -> project.isDisposed() || disposed.get());
     }
 
     public void refreshData(String selectTitleSlug) {
+        LogUtils.navigatorTrace("refreshData:queued"
+                + " page=" + myPageInfo.getPageIndex()
+                + " rowTotal=" + myPageInfo.getRowTotal()
+                + " sourceRows=" + rowCount(myPageInfo.getRows())
+                + " selectSlug=" + selectTitleSlug);
         ApplicationManager.getApplication().invokeLater(() -> {
+            LogUtils.navigatorTrace("refreshData:started-on-edt"
+                    + " page=" + myPageInfo.getPageIndex()
+                    + " sourceRows=" + rowCount(myPageInfo.getRows())
+                    + " first=" + first
+                    + " selectSlug=" + selectTitleSlug);
             if (first) {
                 this.remove(firstToolTip);
                 this.add(new JBScrollPane(myTable, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
@@ -137,9 +149,20 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
             this.myList = myPageInfo.getRows();
             this.myTableModel.updateData(myList);
             setColumnWidth(myTable);
+            revalidate();
+            repaint();
+            LogUtils.navigatorTrace("refreshData:table-updated"
+                    + " page=" + myPageInfo.getPageIndex()
+                    + " sourceRows=" + rowCount(myList)
+                    + " tableRows=" + myTable.getRowCount()
+                    + " selectedSlug=" + selectTitleSlug);
             myTable.requestFocusInWindow();
             if (selectTitleSlug != null) {
-                selectedRow(selectTitleSlug);
+                boolean selected = selectedRow(selectTitleSlug);
+                LogUtils.navigatorTrace("refreshData:selection-requested"
+                        + " slug=" + selectTitleSlug
+                        + " selected=" + selected
+                        + " page=" + myPageInfo.getPageIndex());
             }
             if (myPagePanel != null) {
                 if (myPageInfo.getPageTotal() != this.myPagePanel.page.getItemCount()) {
@@ -150,8 +173,12 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
                 }
                 this.myPagePanel.page.setSelectedItem(myPageInfo.getPageIndex());
             }
-        });
+        }, ignored -> project.isDisposed() || disposed.get());
 
+    }
+
+    private static int rowCount(List<?> rows) {
+        return rows == null ? 0 : rows.size();
     }
 
     public boolean selectedRow(String titleSlug) {
@@ -164,7 +191,7 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
                 ApplicationManager.getApplication().invokeLater(() -> {
                     myTable.setRowSelectionInterval(finalI, finalI);
                     myTable.scrollRectToVisible(myTable.getCellRect(finalI, 0, true));
-                });
+                }, ignored -> project.isDisposed() || disposed.get());
 
                 return true;
             }
@@ -184,6 +211,7 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
 
     @Override
     public void dispose() {
+        disposed.set(true);
     }
 
     protected JTextPane createTip(String type, List<Icon> icons, List<MyStyle> styleList) {
@@ -264,6 +292,9 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
         public MyJBTable(MyTableModel<T> model) {
             super(model);
             this.myTableModel = model;
+            setCellSelectionEnabled(false);
+            setColumnSelectionAllowed(false);
+            setRowSelectionAllowed(true);
         }
 
         @Override
@@ -293,7 +324,9 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
         @Override
         public @NotNull Component prepareRenderer(@NotNull TableCellRenderer renderer, int row, int column) {
             Component component = super.prepareRenderer(renderer, row, column);
-            if (defColor == null) {
+            boolean selected = isRowSelected(row);
+            Color selectionForeground = component.getForeground();
+            if (defColor == null && !selected) {
                 synchronized (TopNavigatorTable.class) {
                     if (defColor == null) {
                         defColor = component.getForeground();
@@ -303,6 +336,9 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
             DefaultTableModel model = (DefaultTableModel) this.getModel();
             Object value = model.getValueAt(row, column);
             prepareRenderer(component, value, row, column);
+            if (selected) {
+                component.setForeground(selectionForeground);
+            }
             return component;
         }
 
@@ -338,6 +374,10 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
                 if (page.getItemCount() <= 0 || (int) page.getSelectedItem() < 2) {
                 } else {
                     pageInfo.setPageIndex((int) page.getSelectedItem() - 1);
+                    LogUtils.navigatorTrace("page:previous-clicked"
+                            + " targetPage=" + pageInfo.getPageIndex()
+                            + " pageSize=" + pageInfo.getPageSize()
+                            + " rowTotal=" + pageInfo.getRowTotal());
                     ProgressManager.getInstance().run(new Task.Backgroundable(project, "Previous", false) {
                         @Override
                         public void run(@NotNull ProgressIndicator progressIndicator) {
@@ -357,6 +397,10 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
                     return;
                 } else {
                     pageInfo.setPageIndex((int) page.getSelectedItem() + 1);
+                    LogUtils.navigatorTrace("page:next-clicked"
+                            + " targetPage=" + pageInfo.getPageIndex()
+                            + " pageSize=" + pageInfo.getPageSize()
+                            + " rowTotal=" + pageInfo.getRowTotal());
                     ProgressManager.getInstance().run(new Task.Backgroundable(project, "Next", false) {
                         @Override
                         public void run(@NotNull ProgressIndicator progressIndicator) {
@@ -379,6 +423,10 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
                     return;
                 } else {
                     pageInfo.setPageIndex((int) page.getSelectedItem());
+                    LogUtils.navigatorTrace("page:go-clicked"
+                            + " targetPage=" + pageInfo.getPageIndex()
+                            + " pageSize=" + pageInfo.getPageSize()
+                            + " rowTotal=" + pageInfo.getRowTotal());
                     ProgressManager.getInstance().run(new Task.Backgroundable(project, "Go to", false) {
                         @Override
                         public void run(@NotNull ProgressIndicator progressIndicator) {

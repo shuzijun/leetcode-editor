@@ -26,6 +26,7 @@ public class FindActionGroup extends ActionGroup implements DumbAware {
     private int i = 0;
 
     @Override
+    @SuppressWarnings("removal")
     public boolean displayTextInToolbar() {
         return true;
     }

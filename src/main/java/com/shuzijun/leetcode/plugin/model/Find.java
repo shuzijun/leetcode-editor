@@ -1,7 +1,6 @@
 package com.shuzijun.leetcode.plugin.model;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -70,7 +69,7 @@ public class Find {
     }
 
     public void resetFilterData(String key, List<Tag> tags) {
-        if (CollectionUtils.isNotEmpty(getFilter(key))) {
+        if (getFilter(key) != null && !getFilter(key).isEmpty()) {
             Map<String, Tag> oldListsMap = Maps.uniqueIndex(getFilter(key), tag -> tag.getSlug());
             Map<String, Tag> newListsMap = Maps.uniqueIndex(tags, tag -> tag.getSlug());
             newListsMap.forEach((s, tag) -> {

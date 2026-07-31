@@ -1,20 +1,16 @@
 package com.shuzijun.leetcode.plugin.editor;
 
-import com.intellij.ide.BrowserUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.colors.impl.EditorColorsSchemeImpl;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.FileTypes;
-import com.intellij.openapi.fileTypes.ex.FileTypeChooser;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -25,8 +21,8 @@ import com.intellij.util.Url;
 import com.intellij.util.Urls;
 import com.intellij.util.io.HttpRequests;
 import com.intellij.util.io.URLUtil;
-import com.intellij.util.ui.UIUtil;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.utils.BrowserUtils;
 import com.shuzijun.leetcode.plugin.utils.FileUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -39,6 +35,7 @@ import org.cef.network.CefRequest;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.ide.BuiltInServerManager;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -171,19 +168,11 @@ public class LCVPanel extends JCEFHtmlPanel {
             } else {
                 ApplicationManager.getApplication().invokeLater(() -> {
                     VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-                    FileEditor[] editors = FileEditorManager.getInstance(project).openFile(vf, false);
-                    if (editors == null || editors.length == 0) {
-                        FileType fileType = FileTypeChooser.getKnownFileTypeOrAssociate(vf, project);
-                        if (fileType == null || fileType == FileTypes.UNKNOWN) {
-                            return;
-                        } else {
-                            FileEditorManager.getInstance(project).openFile(vf, false);
-                        }
-                    }
+                    FileEditorManager.getInstance(project).openFile(vf, false);
                 });
             }
         } else {
-            BrowserUtil.browse(url);
+            BrowserUtils.browse(url);
         }
     }
 
@@ -199,7 +188,7 @@ public class LCVPanel extends JCEFHtmlPanel {
                     .replace("{{serverToken}}", org.apache.commons.lang3.StringUtils.isNotBlank(servicePath.getParameters()) ? servicePath.getParameters().substring(1) : "")
                     .replace("{{fileValue}}", text)
                     .replace("{{Lang}}", PropertiesUtils.getInfo("Lang"))
-                    .replace("{{darcula}}", UIUtil.isUnderDarcula() + "")
+                    .replace("{{darcula}}", isDarkTheme() + "")
                     .replace("{{ideStyle}}", getStyle(true))
                     ;
         } catch (IOException e) {
@@ -216,14 +205,14 @@ public class LCVPanel extends JCEFHtmlPanel {
 
     private String getStyle(boolean isTag) {
         try {
-            EditorColorsSchemeImpl editorColorsScheme = (EditorColorsSchemeImpl) EditorColorsManager.getInstance().getGlobalScheme();
+            EditorColorsScheme editorColorsScheme = EditorColorsManager.getInstance().getGlobalScheme();
             Color defaultBackground = editorColorsScheme.getDefaultBackground();
 
-            Color scrollbarThumbColor = EditorColors.SCROLLBAR_THUMB_COLOR.getDefaultColor();
-            if (editorColorsScheme.getColor(EditorColors.SCROLLBAR_THUMB_COLOR) != null) {
-                scrollbarThumbColor = editorColorsScheme.getColor(EditorColors.SCROLLBAR_THUMB_COLOR);
+            Color scrollbarThumbColor = UIManager.getColor("ScrollBar.thumb");
+            if (scrollbarThumbColor == null) {
+                scrollbarThumbColor = JBColor.GRAY;
             }
-            TextAttributes textAttributes = editorColorsScheme.getDirectlyDefinedAttributes().get("TEXT");
+            TextAttributes textAttributes = editorColorsScheme.getAttributes(TextAttributesKey.find("TEXT"));
             Color text = null;
             if (textAttributes != null) {
                 text = textAttributes.getForegroundColor();
@@ -232,7 +221,7 @@ public class LCVPanel extends JCEFHtmlPanel {
                     "\"Hiragino Sans GB\",\"Microsoft Yahei\",sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\",\"Noto Color Emoji\",\"Segoe UI Symbol\"," +
                     "\"Android Emoji\",\"EmojiSymbols\";";
             StringBuilder sb = new StringBuilder(isTag ? "<style id=\"ideaStyle\">" : "");
-            sb.append(UIUtil.isUnderDarcula() ? ".vditor--dark" : ".vditor").append("{--panel-background-color:").append(toHexColor(defaultBackground))
+            sb.append(isBright(defaultBackground) ? ".vditor" : ".vditor--dark").append("{--panel-background-color:").append(toHexColor(defaultBackground))
                     .append(";--textarea-background-color:").append(toHexColor(defaultBackground)).append(";");
             sb.append("--toolbar-background-color:").append(toHexColor(JBColor.background())).append(";");
             sb.append("}");
@@ -261,9 +250,17 @@ public class LCVPanel extends JCEFHtmlPanel {
         return String.format("rgba(%s,%s,%s,%s)", color.getRed(), color.getGreen(), color.getBlue(), df.format(color.getAlpha() / (float) 255));
     }
 
+    private boolean isDarkTheme() {
+        return !isBright(EditorColorsManager.getInstance().getGlobalScheme().getDefaultBackground());
+    }
+
+    static boolean isBright(Color color) {
+        return color.getRed() * 299 + color.getGreen() * 587 + color.getBlue() * 114 >= 128_000;
+    }
+
     public void updateStyle() {
         String style = getStyle(false);
         getCefBrowser().executeJavaScript(
-                "updateStyle('" + style + "'," + UIUtil.isUnderDarcula() + ");", getCefBrowser().getURL(), 0);
+                "updateStyle('" + style + "'," + isDarkTheme() + ");", getCefBrowser().getURL(), 0);
     }
 }

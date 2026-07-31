@@ -99,7 +99,7 @@ public class FindManager {
                 LogUtils.LOG.error("Request CardInfo exception", e1);
             }
         } else {
-            LogUtils.LOG.error("Request CardInfo failed, status:" + response.getStatusCode() + "body:" + response.getBody());
+            LogUtils.LOG.warn("Request CardInfo failed, status:" + response.getStatusCode());
         }
         return tags;
     }

@@ -1,5 +1,6 @@
 package com.shuzijun.leetcode.plugin.actions.tree;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -26,6 +27,11 @@ import java.util.List;
  * @author shuzijun
  */
 public class OpenSolutionAction extends AbstractTreeAction {
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
+    }
 
     @Override
     public void update(@NotNull AnActionEvent anActionEvent) {

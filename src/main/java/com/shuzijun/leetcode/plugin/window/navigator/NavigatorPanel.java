@@ -23,16 +23,17 @@ import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
 import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.plugin.utils.LogUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import com.shuzijun.leetcode.plugin.window.NavigatorPanelAction;
 import com.shuzijun.leetcode.plugin.window.NavigatorTableData;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,7 +42,7 @@ import java.util.Map;
 public class NavigatorPanel extends SimpleToolWindowPanel implements NavigatorPanelAction, Disposable {
 
 
-    private Map<String, Find> findMap = new HashedMap();
+    private final Map<String, Find> findMap = new HashMap<>();
     private JPanel queryPanel;
     private JTextField queryField;
     private NavigatorTable navigatorTable;
@@ -232,23 +233,51 @@ public class NavigatorPanel extends SimpleToolWindowPanel implements NavigatorPa
                 if (StringUtils.isBlank(slug)) {
                     return true;
                 }
+                LogUtils.navigatorTrace("position:start"
+                        + " slug=" + slug
+                        + " page=" + navigatorTable.getPageInfo().getPageIndex()
+                        + " rows=" + rowCount());
                 if (selectedRow(slug)) {
+                    LogUtils.navigatorTrace("position:already-visible slug=" + slug);
                     return true;
                 }
                 QuestionIndex questionIndex = QuestionManager.getQuestionIndex(slug);
                 if (questionIndex == null) {
+                    QuestionManager.getQuestionAllService(myProject, false);
+                    questionIndex = QuestionManager.getQuestionIndex(slug);
+                }
+                if (questionIndex == null) {
+                    LogUtils.navigatorTrace("position:index-not-found slug=" + slug);
                     return false;
                 }
+                LogUtils.navigatorTrace("position:index-found"
+                        + " slug=" + slug
+                        + " index=" + questionIndex.getIndex()
+                        + " currentPage=" + navigatorTable.getPageInfo().getPageIndex());
                 getFind().operationType("");
                 getFind().clearFilter();
                 navigatorTable.getPageInfo().clear();
 
-                navigatorTable.getPageInfo().getFilters().setSearchKeywords("");
+                navigatorTable.getPageInfo().getFilters().setSearchKeywords(null);
                 queryField.setText("");
 
                 navigatorTable.getPageInfo().setPageIndex((questionIndex.getIndex() / navigatorTable.getPageInfo().getPageSize()) + 1);
+                LogUtils.navigatorTrace("position:page-calculated"
+                        + " slug=" + slug
+                        + " targetPage=" + navigatorTable.getPageInfo().getPageIndex()
+                        + " targetSkip=" + navigatorTable.getPageInfo().getSkip());
                 ViewManager.loadServiceData(this, myProject, slug);
-                return selectedRow(slug);
+                boolean selected = selectedRow(slug);
+                LogUtils.navigatorTrace("position:load-returned"
+                        + " slug=" + slug
+                        + " page=" + navigatorTable.getPageInfo().getPageIndex()
+                        + " rows=" + rowCount()
+                        + " selected=" + selected);
+                return selected;
+            }
+
+            private int rowCount() {
+                return navigatorTable.getPageInfo().getRows() == null ? 0 : navigatorTable.getPageInfo().getRows().size();
             }
         };
     }

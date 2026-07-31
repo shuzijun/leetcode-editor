@@ -1,7 +1,6 @@
 package com.shuzijun.leetcode.plugin.window;
 
-import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -32,10 +31,19 @@ public class ConsoleWindowFactory implements ToolWindowFactory, DumbAware {
         }
     }
 
-    public static DataContext getDataContext(@NotNull Project project) {
+    public static ConsoleView getConsoleView(@NotNull Project project) {
         ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
-        ConsolePanel consolePanel = (ConsolePanel) leetcodeToolWindows.getContentManager().getContent(0).getComponent();
-        return DataManager.getInstance().getDataContext(consolePanel);
+        if (leetcodeToolWindows == null) {
+            return null;
+        }
+        if (leetcodeToolWindows.getContentManagerIfCreated() == null) {
+            return null;
+        }
+        Content content = leetcodeToolWindows.getContentManagerIfCreated().getContent(0);
+        if (content == null || !(content.getComponent() instanceof ConsolePanel)) {
+            return null;
+        }
+        return ((ConsolePanel) content.getComponent()).getConsoleView();
     }
 
     @Override

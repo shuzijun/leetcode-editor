@@ -1,6 +1,8 @@
 package com.shuzijun.leetcode.plugin.model;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -49,14 +51,18 @@ public enum CodeTypeEnum {
         this.multiLineComment = multiLineComment;
     }
 
-    private static Map<String, CodeTypeEnum> MAP = new HashMap<String, CodeTypeEnum>();
-    private static Map<String, CodeTypeEnum> LANGSLUGMAP = new HashMap<String, CodeTypeEnum>();
+    private static final Map<String, CodeTypeEnum> MAP;
+    private static final Map<String, CodeTypeEnum> LANGSLUGMAP;
 
     static {
+        Map<String, CodeTypeEnum> codeTypes = new HashMap<String, CodeTypeEnum>();
+        Map<String, CodeTypeEnum> langSlugs = new HashMap<String, CodeTypeEnum>();
         for (CodeTypeEnum c : CodeTypeEnum.values()) {
-            MAP.put(c.getType().toUpperCase(), c);
-            LANGSLUGMAP.put(c.langSlug.toUpperCase(), c);
+            codeTypes.put(c.getType().toUpperCase(Locale.ROOT), c);
+            langSlugs.put(c.langSlug.toUpperCase(Locale.ROOT), c);
         }
+        MAP = Collections.unmodifiableMap(codeTypes);
+        LANGSLUGMAP = Collections.unmodifiableMap(langSlugs);
     }
 
     public String getType() {
@@ -72,11 +78,11 @@ public enum CodeTypeEnum {
     }
 
     public static CodeTypeEnum getCodeTypeEnum(String type) {
-        return MAP.get(type.toUpperCase());
+        return type == null ? null : MAP.get(type.toUpperCase(Locale.ROOT));
     }
 
     public static CodeTypeEnum getCodeTypeEnumByLangSlug(String langSlug) {
-        return LANGSLUGMAP.get(langSlug.toUpperCase());
+        return langSlug == null ? null : LANGSLUGMAP.get(langSlug.toUpperCase(Locale.ROOT));
     }
 
     public String getComment() {

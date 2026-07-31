@@ -6,47 +6,30 @@ on:
       - master
 
 jobs:
-  greet:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    
-    - name: Set LD_VERSION
-      run: echo "LD_VERSION=0.0" >> $GITHUB_ENV
-    
-    - name: Set up JDK 17
-      uses: actions/setup-java@v1
-      with:
-        java-version: 17
-    
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    
-    - name: Build the plugin
-      run: ./gradlew buildPlugin
-      env:
-        LD_VERSION: ${{ env.LD_VERSION }} 
-    
-    #- name: Verify plugin
-    #  id: verify
-    #  uses: ChrisCarini/intellij-platform-plugin-verifier-action@latest
-    #  with:
-    #    ide-versions: |
-    #      ideaIC:2019.3
-    #      ideaIC:2020.1
-    #      ideaIC:2020.2
-    #      ideaIC:LATEST-EAP-SNAPSHOT
-    
-    #- name: Print verify contents
-    #  run: |
-    #    echo "The log file path is: ${{steps.verify.outputs.verification-output-log-filename}}" ;
-    #    cat ${{steps.verify.outputs.verification-output-log-filename}}
-    
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        # TODO: This uploads a zip called `distributions`; see what we can do to just upload the produced plugin itself.
-        name: leetcode-editor-snapshot
-        path: build/distributions/leetcode-editor-${{ env.LD_VERSION }}.zip
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build the plugin
+        run: ./gradlew buildPlugin --no-daemon --stacktrace
+        env:
+          LD_VERSION: '0.0'
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: leetcode-editor-snapshot
+          path: build/distributions/leetcode-editor-0.0.zip
+          if-no-files-found: error

@@ -53,6 +53,10 @@ public class URLUtils {
     }
 
     public static String getLeetcodeUrl() {
+        String testBaseUrl = System.getProperty("leetcode.test.base.url");
+        if (StringUtils.isNotBlank(testBaseUrl)) {
+            return StringUtils.removeEnd(testBaseUrl, "/");
+        }
         return leetcodeUrl + getLeetcodeHost();
     }
 

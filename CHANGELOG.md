@@ -7,6 +7,30 @@
 [![捐赠][badge:donate-zh]][shuzijun-donate]
 [![内推][badge:referrals]][shuzijun-referrals]
 
+## 9.0.0
+
+### Added
+- add startup integration tests and broader regression coverage for core plugin workflows / 为插件启动和核心操作流程新增集成测试，并扩大回归测试覆盖范围
+
+### Changed
+- require IntelliJ IDEA 2026.2 (build 262) or later and upgrade the runtime baseline to Java 25 / 最低兼容版本调整为 IntelliJ IDEA 2026.2（build 262），运行和构建基线升级至 Java 25
+- move network requests, question loading, preview rendering, and cache cleanup away from the IDE UI thread to reduce freezes ([#767](https://github.com/shuzijun/leetcode-editor/pull/767)) / 将网络请求、题目加载、预览渲染和缓存清理移出 IDE UI 线程，减少界面卡顿
+- reorganize editor actions into a clearer View submenu and refresh action names and descriptions / 将编辑器操作重新组织到更清晰的 View 子菜单，并更新操作名称和说明
+- refresh the question navigator, result console, difficulty colors, and plugin icons / 更新题目导航、运行结果控制台、默认难度颜色和插件图标
+- show update information as an IDE notification with a link to the changelog / 版本升级后通过 IDE 通知展示更新提示，并提供更新日志链接
+- keep informational output in the console without forcing it to the foreground; errors still activate the console / 普通信息输出不再强制激活控制台，错误信息仍会主动显示控制台
+- update documentation and release workflows for the new platform baseline / 更新项目文档和发布流程以适配新的平台基线
+
+### Fixed
+- fix question pagination, filtering, table refreshes, and stale asynchronous navigator results / 修复题目分页、筛选、列表刷新以及异步请求结果过期导致的导航异常
+- fix favorites by consistently using frontend question IDs / 统一使用前端题目 ID，修复收藏状态异常
+- fix editor and JCEF preview initialization on IntelliJ IDEA 2026.2 / 修复 IntelliJ IDEA 2026.2 中编辑器和 JCEF 预览初始化失败的问题
+- migrate HTTP proxy integration to the IntelliJ IDEA 2026.2 proxy APIs / 将 HTTP 代理集成迁移至 IntelliJ IDEA 2026.2 的代理 API
+- fix plugin description metadata shown by the IDE / 修复 IDE 插件详情页中的插件描述元数据
+- fix stale account email-verification warnings after login / 修复登录后仍显示过期邮箱验证警告的问题
+- suppress expected JCEF login redirect load-error notifications / 屏蔽 JCEF 登录重定向过程中预期发生的页面加载错误提示
+- fix regressions introduced by the asynchronous UI work, including preview loading, project state cleanup, and action registration / 修复异步 UI 改造引入的回归问题，包括预览加载、项目状态清理和操作注册异常
+
 ## 8.16.0
 
 ### Added
