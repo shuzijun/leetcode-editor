@@ -16,7 +16,8 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
+    timeout-minutes: 45
 
     steps:
       - name: Checkout
@@ -50,9 +51,21 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run release quality gate
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" ./gradlew qualityGate --no-daemon --stacktrace
+        run: ./gradlew qualityGate --no-daemon --stacktrace
         env:
           LD_VERSION: ${{ steps.version.outputs.version }}
+
+      - name: Upload quality gate reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-quality-gate-reports-${{ steps.version.outputs.version }}
+          path: |
+            build/reports/
+            build/test-results/
+            out/ide-tests/tests/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Publish the plugin
         run: ./gradlew publishPlugin --no-daemon --stacktrace
