@@ -15,9 +15,12 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    runs-on: macos-latest
+  quality-gate:
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
 
     steps:
       - name: Checkout
@@ -50,8 +53,20 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Install virtual display
+        shell: bash
+        run: |
+          if ! command -v xvfb-run >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y xvfb
+          fi
+
       - name: Run release quality gate
-        run: ./gradlew qualityGate --no-daemon --stacktrace
+        run: |
+          xvfb-run \
+            --auto-servernum \
+            --server-args="-screen 0 1920x1080x24 -ac +extension RANDR" \
+            ./gradlew qualityGate --no-daemon --stacktrace
         env:
           LD_VERSION: ${{ steps.version.outputs.version }}
 
@@ -67,18 +82,36 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+  release:
+    needs: quality-gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Publish the plugin
         run: ./gradlew publishPlugin --no-daemon --stacktrace
         env:
-          LD_VERSION: ${{ steps.version.outputs.version }}
+          LD_VERSION: ${{ needs.quality-gate.outputs.version }}
           PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
 
       - name: Create draft GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.version.outputs.tag }}
-          name: ${{ steps.version.outputs.tag }}
+          tag_name: ${{ needs.quality-gate.outputs.tag }}
+          name: ${{ needs.quality-gate.outputs.tag }}
           draft: true
-          prerelease: ${{ contains(steps.version.outputs.version, '-') }}
-          files: build/distributions/leetcode-editor-${{ steps.version.outputs.version }}.zip
+          prerelease: ${{ contains(needs.quality-gate.outputs.version, '-') }}
+          files: build/distributions/leetcode-editor-${{ needs.quality-gate.outputs.version }}.zip
           fail_on_unmatched_files: true
