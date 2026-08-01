@@ -485,9 +485,9 @@ class LeetCodeEditorStartupIntegrationTest {
                     !service(DumbService::class, singleProject()).isDumb()
                 }
                 openLeetcodeToolWindow()
-                val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
                 val questionListRequests = graphqlServer.requestCount("problemsetQuestionList")
                 invokeActionWithRetries("leetcode.RefreshAction")
+                val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
                 waitUntil("the editor action scenario displays mocked questions") {
                     graphqlServer.requestCount("problemsetQuestionList") > questionListRequests &&
                         questionTable.rowCount() == 51
