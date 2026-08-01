@@ -181,6 +181,7 @@ intellijPlatformTesting {
                 classpath = integrationTestSourceSet.runtimeClasspath
                 dependsOn(tasks.buildPlugin)
                 systemProperty("path.to.build.plugin", tasks.buildPlugin.flatMap { it.archiveFile })
+                jvmArgs("--enable-native-access=ALL-UNNAMED")
                 useJUnitPlatform {
                     excludeEngines("junit-vintage")
                 }

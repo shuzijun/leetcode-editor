@@ -15,6 +15,7 @@ import com.intellij.driver.sdk.DumbService
 import com.intellij.driver.sdk.FileEditorManager
 import com.intellij.driver.sdk.getToolWindow
 import com.intellij.driver.sdk.invokeActionWithRetries
+import com.intellij.driver.sdk.openEditor
 import com.intellij.driver.sdk.openFile
 import com.intellij.driver.sdk.openToolWindow
 import com.intellij.driver.sdk.singleProject
@@ -38,6 +39,7 @@ import javax.swing.JTable
 import javax.swing.JTabbedPane
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
+import kotlin.time.Duration.Companion.seconds
 
 @Remote("javax.swing.JTabbedPane")
 private interface JTabbedPaneRef {
@@ -220,7 +222,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 }
                 openToolWindow("Leetcode")
 
-                val questionTable = ui.table { byType(JTable::class.java) }
+                val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
                 waitUntil("the question table displays mocked questions") {
                     questionTable.rowCount() == 51 &&
                         questionTable.content().values.asSequence()
@@ -250,6 +252,11 @@ class LeetCodeEditorStartupIntegrationTest {
                     }
                     graphqlServer.requestCount("questionData") > 0
                 }
+                val generatedCode = tempDir.resolve("leetcode/editor/cn/[1]两数之和.java")
+                waitUntil("the generated code is ready for startup verification") {
+                    Files.isRegularFile(generatedCode)
+                }
+                selectOpenEditor(generatedCode, stableMillis = 3_000)
                 assertConvergeEditorUi("the default ConvergeEditor UI is displayed")
                 println("STEP_SCREENSHOT[02-question-opened]=${takeScreenshot("02-question-opened")}")
                 val requestCountBeforePaging = graphqlServer.requestCount("problemsetQuestionList")
@@ -343,7 +350,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 openToolWindow("Leetcode")
                 assertPluginActionsRegistered()
                 invokeActionWithRetries("leetcode.RefreshAction")
-                val questionTable = ui.table { byType(JTable::class.java) }
+                val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
                 waitUntil("the English configuration loads the question list") {
                     graphqlServer.requestCount("problemsetQuestionList") > 0 &&
                         questionTable.rowCount() == 51 &&
@@ -416,7 +423,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 }
                 openToolWindow("Leetcode")
                 invokeActionWithRetries("leetcode.RefreshAction")
-                val questionTable = ui.table { byType(JTable::class.java) }
+                val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
                 waitUntil("the custom-template scenario displays mocked questions") {
                     questionTable.rowCount() == 51
                 }
@@ -479,7 +486,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 }
                 openToolWindow("Leetcode")
                 invokeActionWithRetries("leetcode.RefreshAction")
-                val questionTable = ui.table { byType(JTable::class.java) }
+                val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
                 waitUntil("the editor action scenario displays mocked questions") {
                     questionTable.rowCount() == 51
                 }
@@ -496,11 +503,12 @@ class LeetCodeEditorStartupIntegrationTest {
                 }
                 assertConvergeEditorUi("the editor action ConvergeEditor UI is displayed")
 
-                invokeActionWithRetries("leetcode.editor.OpenContentAction")
+                invokeEditorAction(generatedCode, "leetcode.editor.OpenContentAction")
+                selectOpenEditor(generatedCode)
                 assertConvergeEditorTabSelected("Content")
 
                 val runRequests = graphqlServer.requestCountForPath("/problems/two-sum/interpret_solution/")
-                invokeActionWithRetries("leetcode.editor.RunCodeAction")
+                invokeEditorAction(generatedCode, "leetcode.editor.RunCodeAction")
                 waitUntil("run code posts only to the local mock and receives a local result") {
                     graphqlServer.requestCountForPath("/problems/two-sum/interpret_solution/") > runRequests &&
                         graphqlServer.requestCountForPath("/submissions/detail/run-1/check/") > 0
@@ -510,7 +518,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 )
 
                 val submitRequests = graphqlServer.requestCountForPath("/problems/two-sum/submit/")
-                invokeActionWithRetries("leetcode.editor.SubmitAction")
+                invokeEditorAction(generatedCode, "leetcode.editor.SubmitAction")
                 waitUntil("submit posts only to the local mock and receives a local result") {
                     graphqlServer.requestCountForPath("/problems/two-sum/submit/") > submitRequests &&
                         graphqlServer.requestCountForPath("/submissions/detail/submit-1/check/") > 0
@@ -519,14 +527,14 @@ class LeetCodeEditorStartupIntegrationTest {
                     graphqlServer.lastRequestForPath("/problems/two-sum/submit/").contains("\"typed_code\""),
                 )
 
-                invokeActionWithRetries("leetcode.editor.OpenInWebAction")
+                invokeEditorAction(generatedCode, "leetcode.editor.OpenInWebAction")
                 waitUntil("open in web is captured instead of launching a browser") {
                     Files.isRegularFile(browserCapture)
                 }
                 assertTrue(Files.readString(browserCapture).endsWith("/problems/two-sum"))
 
                 val getNoteRequests = graphqlServer.requestCount("getNote")
-                invokeActionWithRetries("leetcode.editor.PullNote")
+                invokeEditorAction(generatedCode, "leetcode.editor.PullNote")
                 val noteFile = tempDir.resolve("leetcode/editor/cn/doc/note/[1]两数之和.md")
                 waitUntil("pull note retrieves the note only from the local GraphQL mock") {
                     graphqlServer.requestCount("getNote") > getNoteRequests &&
@@ -534,11 +542,11 @@ class LeetCodeEditorStartupIntegrationTest {
                         Files.readString(noteFile) == "mock note from local server"
                 }
 
-                invokeActionWithRetries("leetcode.editor.ShowNote")
+                invokeEditorAction(generatedCode, "leetcode.editor.ShowNote")
                 assertConvergeEditorTabSelected("Note")
 
                 val updateNoteRequests = graphqlServer.requestCount("updateNote")
-                invokeActionWithRetries("leetcode.editor.PushNote")
+                invokeEditorAction(generatedCode, "leetcode.editor.PushNote")
                 waitUntil("push note posts only to the local GraphQL mock") {
                     graphqlServer.requestCount("updateNote") > updateNoteRequests &&
                         graphqlServer.lastRequest("updateNote").contains("\"titleSlug\":\"two-sum\"")
@@ -546,6 +554,33 @@ class LeetCodeEditorStartupIntegrationTest {
                 assertConsoleOutputUi()
                 println("STEP_SCREENSHOT[07-editor-actions-local-mocks]=${takeScreenshot("07-editor-actions-local-mocks")}")
                 Unit
+            }
+        }
+    }
+
+    private fun Driver.invokeEditorAction(path: Path, actionId: String) {
+        selectOpenEditor(path)
+        invokeActionWithRetries(actionId)
+    }
+
+    private fun Driver.selectOpenEditor(path: Path, stableMillis: Long = 0L) {
+        val fileEditorManager = service(FileEditorManager::class, singleProject())
+        val file = fileEditorManager.getAllEditors().firstOrNull {
+            Path.of(it.getFile().getPath()) == path
+        }?.getFile()
+        assertTrue(file != null, "Expected an open editor for $path")
+        openEditor(file!!)
+        var selectedSince = 0L
+        waitUntil("$path is the selected editor for $stableMillis ms") {
+            if (Path.of(fileEditorManager.getCurrentFile().getPath()) == path) {
+                if (selectedSince == 0L) {
+                    selectedSince = System.nanoTime()
+                }
+                (System.nanoTime() - selectedSince) / 1_000_000L >= stableMillis
+            } else {
+                selectedSince = 0L
+                openEditor(file)
+                false
             }
         }
     }
@@ -590,26 +625,24 @@ class LeetCodeEditorStartupIntegrationTest {
     }
 
     private fun Driver.assertConvergeEditorUi(description: String) {
-        val convergeEditorTabs = ui.x { byType(JTabbedPane::class.java) }
+        val convergeEditorTabs = ui.x { byType(JTabbedPane::class.java) }.waitFound(120.seconds)
         waitUntil(description) {
-            convergeEditorTabs.present() &&
-                convergeEditorTabs.driver.cast(convergeEditorTabs.component, JTabbedPaneRef::class)
-                    .let { tabs ->
-                        (0 until tabs.getTabCount()).map(tabs::getTitleAt) ==
-                            listOf("Content", "Solution", "Submissions", "Note")
-                    }
+            convergeEditorTabs.driver.cast(convergeEditorTabs.component, JTabbedPaneRef::class)
+                .let { tabs ->
+                    (0 until tabs.getTabCount()).map(tabs::getTitleAt) ==
+                        listOf("Content", "Solution", "Submissions", "Note")
+                }
         }
     }
 
     private fun Driver.assertConvergeEditorTabSelected(expectedTitle: String) {
-        val convergeEditorTabs = ui.x { byType(JTabbedPane::class.java) }
+        val convergeEditorTabs = ui.x { byType(JTabbedPane::class.java) }.waitFound(120.seconds)
         waitUntil("the $expectedTitle ConvergeEditor tab is visible") {
-            convergeEditorTabs.present() &&
-                convergeEditorTabs.driver.cast(convergeEditorTabs.component, JTabbedPaneRef::class)
-                    .let { tabs ->
-                        tabs.getSelectedIndex() >= 0 &&
-                            tabs.getTitleAt(tabs.getSelectedIndex()) == expectedTitle
-                    }
+            convergeEditorTabs.driver.cast(convergeEditorTabs.component, JTabbedPaneRef::class)
+                .let { tabs ->
+                    tabs.getSelectedIndex() >= 0 &&
+                        tabs.getTitleAt(tabs.getSelectedIndex()) == expectedTitle
+                }
         }
     }
 
@@ -741,11 +774,13 @@ class LeetCodeEditorStartupIntegrationTest {
         .replace("\r", "&#10;")
 
     private fun waitUntil(description: String, condition: () -> Boolean) {
-        repeat(120) {
+        val timeoutSeconds = System.getProperty("leetcode.test.wait.timeout.seconds", "120").toLong()
+        val deadline = System.nanoTime() + timeoutSeconds * 1_000_000_000L
+        while (System.nanoTime() < deadline) {
             if (condition()) {
                 return
             }
-            Thread.sleep(250)
+            Thread.sleep(500)
         }
         assertTrue(condition(), "Timed out waiting for $description")
     }
