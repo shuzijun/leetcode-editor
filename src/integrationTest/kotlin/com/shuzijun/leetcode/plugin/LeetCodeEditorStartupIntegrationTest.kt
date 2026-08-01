@@ -87,6 +87,7 @@ class LeetCodeEditorStartupIntegrationTest {
                         addSystemProperty("user.language", "en")
                         addSystemProperty("user.country", "US")
                         addSystemProperty("sun.java2d.metal", "false")
+                        addSystemProperty("sun.java2d.opengl", "false")
                         addSystemProperty("leetcode.test.base.url", graphqlServer.baseUrl)
                     }
                     writeTestConfiguration(paths.configDir, projectDir)
@@ -158,6 +159,7 @@ class LeetCodeEditorStartupIntegrationTest {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
                     addSystemProperty("sun.java2d.metal", "false")
+                    addSystemProperty("sun.java2d.opengl", "false")
                     addSystemProperty("leetcode.test.base.url", graphqlServer.baseUrl)
                 }
                 writeTestConfiguration(paths.configDir, tempDir)
@@ -206,6 +208,7 @@ class LeetCodeEditorStartupIntegrationTest {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
                     addSystemProperty("sun.java2d.metal", "false")
+                    addSystemProperty("sun.java2d.opengl", "false")
                     addSystemProperty("leetcode.test.base.url", graphqlServer.baseUrl)
                 }
                 writeTestConfiguration(paths.configDir, tempDir)
@@ -219,13 +222,13 @@ class LeetCodeEditorStartupIntegrationTest {
                 openToolWindow("Leetcode")
                 assertTrue(getToolWindow("Leetcode").isVisible())
                 assertPluginActionsRegistered()
+                val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
                 invokeActionWithRetries("leetcode.RefreshAction")
                 waitUntil("the refresh request reaches the local GraphQL server") {
                     graphqlServer.requestCount("problemsetQuestionList") > 0
                 }
                 openToolWindow("Leetcode")
 
-                val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
                 waitUntil("the question table displays mocked questions") {
                     questionTable.rowCount() == 51 &&
                         questionTable.content().values.asSequence()
@@ -332,6 +335,7 @@ class LeetCodeEditorStartupIntegrationTest {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
                     addSystemProperty("sun.java2d.metal", "false")
+                    addSystemProperty("sun.java2d.opengl", "false")
                     addSystemProperty("leetcode.test.base.url", graphqlServer.baseUrl)
                 }
                 writeTestConfiguration(
@@ -353,8 +357,8 @@ class LeetCodeEditorStartupIntegrationTest {
                 }
                 openToolWindow("Leetcode")
                 assertPluginActionsRegistered()
-                invokeActionWithRetries("leetcode.RefreshAction")
                 val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
+                invokeActionWithRetries("leetcode.RefreshAction")
                 waitUntil("the English configuration loads the question list") {
                     graphqlServer.requestCount("problemsetQuestionList") > 0 &&
                         questionTable.rowCount() == 51 &&
@@ -403,6 +407,7 @@ class LeetCodeEditorStartupIntegrationTest {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
                     addSystemProperty("sun.java2d.metal", "false")
+                    addSystemProperty("sun.java2d.opengl", "false")
                     addSystemProperty("leetcode.test.base.url", graphqlServer.baseUrl)
                 }
                 writeTestConfiguration(
@@ -427,8 +432,8 @@ class LeetCodeEditorStartupIntegrationTest {
                     !service(DumbService::class, singleProject()).isDumb()
                 }
                 openToolWindow("Leetcode")
-                invokeActionWithRetries("leetcode.RefreshAction")
                 val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
+                invokeActionWithRetries("leetcode.RefreshAction")
                 waitUntil("the custom-template scenario displays mocked questions") {
                     questionTable.rowCount() == 51
                 }
@@ -479,6 +484,7 @@ class LeetCodeEditorStartupIntegrationTest {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
                     addSystemProperty("sun.java2d.metal", "false")
+                    addSystemProperty("sun.java2d.opengl", "false")
                     addSystemProperty("leetcode.test.base.url", graphqlServer.baseUrl)
                     addSystemProperty("leetcode.test.browser.capture.file", browserCapture.toString())
                 }
@@ -491,8 +497,8 @@ class LeetCodeEditorStartupIntegrationTest {
                     !service(DumbService::class, singleProject()).isDumb()
                 }
                 openToolWindow("Leetcode")
-                invokeActionWithRetries("leetcode.RefreshAction")
                 val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
+                invokeActionWithRetries("leetcode.RefreshAction")
                 waitUntil("the editor action scenario displays mocked questions") {
                     questionTable.rowCount() == 51
                 }
