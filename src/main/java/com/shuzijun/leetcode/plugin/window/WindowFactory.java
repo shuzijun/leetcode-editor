@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -57,8 +58,16 @@ public class WindowFactory implements ToolWindowFactory, DumbAware {
 
 
     @NotNull
-    public static PluginDataContext getDataContext(@NotNull Project project) {
-        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
+    public static PluginDataContext getDataContext(@Nullable Project project) {
+        Project contextProject = project;
+        if (contextProject == null) {
+            Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
+            if (openProjects.length != 1) {
+                return PluginDataContext.EMPTY;
+            }
+            contextProject = openProjects[0];
+        }
+        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(contextProject).getToolWindow(ID);
         if (leetcodeToolWindows == null) {
             return PluginDataContext.EMPTY;
         }

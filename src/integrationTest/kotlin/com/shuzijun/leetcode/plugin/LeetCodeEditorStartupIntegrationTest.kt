@@ -86,6 +86,7 @@ class LeetCodeEditorStartupIntegrationTest {
                     this.applyVMOptionsPatch {
                         addSystemProperty("user.language", "en")
                         addSystemProperty("user.country", "US")
+                        addSystemProperty("sun.java2d.metal", "false")
                         addSystemProperty("leetcode.test.base.url", graphqlServer.baseUrl)
                     }
                     writeTestConfiguration(paths.configDir, projectDir)
@@ -156,6 +157,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 this.applyVMOptionsPatch {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
+                    addSystemProperty("sun.java2d.metal", "false")
                     addSystemProperty("leetcode.test.base.url", graphqlServer.baseUrl)
                 }
                 writeTestConfiguration(paths.configDir, tempDir)
@@ -203,6 +205,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 this.applyVMOptionsPatch {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
+                    addSystemProperty("sun.java2d.metal", "false")
                     addSystemProperty("leetcode.test.base.url", graphqlServer.baseUrl)
                 }
                 writeTestConfiguration(paths.configDir, tempDir)
@@ -328,6 +331,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 this.applyVMOptionsPatch {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
+                    addSystemProperty("sun.java2d.metal", "false")
                     addSystemProperty("leetcode.test.base.url", graphqlServer.baseUrl)
                 }
                 writeTestConfiguration(
@@ -398,6 +402,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 this.applyVMOptionsPatch {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
+                    addSystemProperty("sun.java2d.metal", "false")
                     addSystemProperty("leetcode.test.base.url", graphqlServer.baseUrl)
                 }
                 writeTestConfiguration(
@@ -473,6 +478,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 this.applyVMOptionsPatch {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
+                    addSystemProperty("sun.java2d.metal", "false")
                     addSystemProperty("leetcode.test.base.url", graphqlServer.baseUrl)
                     addSystemProperty("leetcode.test.browser.capture.file", browserCapture.toString())
                 }
@@ -565,11 +571,17 @@ class LeetCodeEditorStartupIntegrationTest {
 
     private fun Driver.selectOpenEditor(path: Path, stableMillis: Long = 0L) {
         val fileEditorManager = service(FileEditorManager::class, singleProject())
-        val file = fileEditorManager.getAllEditors().firstOrNull {
+        var file = fileEditorManager.getAllEditors().firstOrNull {
             Path.of(it.getFile().getPath()) == path
         }?.getFile()
-        assertTrue(file != null, "Expected an open editor for $path")
-        openEditor(file!!)
+        waitUntil("$path appears in the open editors") {
+            file = fileEditorManager.getAllEditors().firstOrNull {
+                Path.of(it.getFile().getPath()) == path
+            }?.getFile()
+            file != null
+        }
+        val openFile = checkNotNull(file) { "Expected an open editor for $path" }
+        openEditor(openFile)
         var selectedSince = 0L
         waitUntil("$path is the selected editor for $stableMillis ms") {
             if (Path.of(fileEditorManager.getCurrentFile().getPath()) == path) {
@@ -579,7 +591,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 (System.nanoTime() - selectedSince) / 1_000_000L >= stableMillis
             } else {
                 selectedSince = 0L
-                openEditor(file)
+                openEditor(openFile)
                 false
             }
         }
