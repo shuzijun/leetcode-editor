@@ -53,6 +53,15 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Restore IDEA Starter downloads
+        id: idea-starter-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: out/ide-tests/cache
+          key: idea-starter-${{ runner.os }}-${{ runner.arch }}-2026.2-${{ hashFiles('gradle.properties', 'gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties', 'build.gradle.kts', 'settings.gradle.kts') }}
+          restore-keys: |
+            idea-starter-${{ runner.os }}-${{ runner.arch }}-2026.2-
+
       - name: Install virtual display
         shell: bash
         run: |
@@ -69,6 +78,13 @@ jobs:
             ./gradlew qualityGate --no-daemon --stacktrace
         env:
           LD_VERSION: ${{ steps.version.outputs.version }}
+
+      - name: Save IDEA Starter downloads
+        if: ${{ !cancelled() && steps.idea-starter-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: out/ide-tests/cache
+          key: ${{ steps.idea-starter-cache.outputs.cache-primary-key }}
 
       - name: Upload quality gate reports
         if: failure()

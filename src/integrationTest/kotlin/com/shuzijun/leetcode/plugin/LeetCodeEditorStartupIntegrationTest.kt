@@ -13,6 +13,7 @@ import com.intellij.driver.model.OnDispatcher
 import com.intellij.driver.sdk.ActionManager
 import com.intellij.driver.sdk.DumbService
 import com.intellij.driver.sdk.FileEditorManager
+import com.intellij.driver.sdk.WaitForException
 import com.intellij.driver.sdk.getToolWindow
 import com.intellij.driver.sdk.invokeActionWithRetries
 import com.intellij.driver.sdk.openEditor
@@ -595,12 +596,25 @@ class LeetCodeEditorStartupIntegrationTest {
 
     private fun Driver.openLeetcodeToolWindow() {
         val leetcodeToolWindow = getToolWindow("Leetcode")
-        openToolWindow("Leetcode")
         val activatableToolWindow = cast(leetcodeToolWindow, ActivatableToolWindowRef::class)
-        withContext(OnDispatcher.EDT) {
-            activatableToolWindow.activate(null)
+        repeat(12) {
+            openToolWindow("Leetcode")
+            withContext(OnDispatcher.EDT) {
+                activatableToolWindow.activate(null)
+            }
+            try {
+                ui.x {
+                    componentWithChild(
+                        byType("com.intellij.toolWindow.InternalDecoratorImpl"),
+                        byType("com.shuzijun.leetcode.plugin.window.NavigatorTabsPanel"),
+                    )
+                }.waitFound(5.seconds)
+                assertTrue(leetcodeToolWindow.isVisible(), "The Leetcode tool window must be visible")
+                return
+            } catch (_: WaitForException) {
+            }
         }
-        assertTrue(leetcodeToolWindow.isVisible(), "The Leetcode tool window must be visible")
+        ui.x { byType("com.shuzijun.leetcode.plugin.window.NavigatorTabsPanel") }.waitFound(5.seconds)
     }
 
     private fun Driver.assertConsoleOutputUi() {
