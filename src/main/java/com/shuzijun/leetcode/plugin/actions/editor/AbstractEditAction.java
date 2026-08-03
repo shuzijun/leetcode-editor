@@ -67,7 +67,7 @@ abstract class AbstractEditAction extends AbstractAction {
                 ApplicationManager.getApplication().invokeLater(() -> {
                     convergePreview.setState(state);
                     if ((questionEditorWithPreview.getLayout() == TextEditorWithPreview.Layout.SHOW_PREVIEW && PersistentConfig.getInstance().getInitConfig().isLeftQuestionEditor()) || (questionEditorWithPreview.getLayout() == TextEditorWithPreview.Layout.SHOW_EDITOR && !PersistentConfig.getInstance().getInitConfig().isLeftQuestionEditor())) {
-                        questionEditorWithPreview.setState(new TextEditorWithPreview.MyFileEditorState(TextEditorWithPreview.Layout.SHOW_EDITOR_AND_PREVIEW, null, null));
+                        questionEditorWithPreview.setLayout(TextEditorWithPreview.Layout.SHOW_EDITOR_AND_PREVIEW);
                     }
                 });
                 return true;

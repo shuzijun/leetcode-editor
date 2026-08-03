@@ -43,7 +43,11 @@ public class FavoriteAction extends ToggleAction implements DumbAware {
         if (cacheQuestion == null) {
             return false;
         }
-        return tag.getQuestions().contains(cacheQuestion.getQuestionId());
+        return isQuestionFavorite(tag, cacheQuestion);
+    }
+
+    static boolean isQuestionFavorite(Tag tag, Question question) {
+        return tag.getQuestions().contains(question.getFrontendQuestionId());
     }
 
     @Override
@@ -69,6 +73,6 @@ public class FavoriteAction extends ToggleAction implements DumbAware {
 
     @Override
     public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return  ActionUpdateThread.BGT;
+        return ActionUpdateThread.EDT;
     }
 }

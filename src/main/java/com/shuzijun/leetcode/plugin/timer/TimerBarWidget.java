@@ -35,9 +35,11 @@ public class TimerBarWidget implements CustomStatusBarWidget {
 
     public TimerBarWidget(Project project) {
         this.project = project;
-        loaColor(PersistentConfig.getInstance().getInitConfig());
-        MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
-        messageBusConnection.subscribe(ConfigNotifier.TOPIC, (oldConfig, newConfig) -> loaColor(newConfig));
+        if (ApplicationManager.getApplication() != null) {
+            loaColor(PersistentConfig.getInstance().getInitConfig());
+            MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
+            messageBusConnection.subscribe(ConfigNotifier.TOPIC, (oldConfig, newConfig) -> loaColor(newConfig));
+        }
     }
 
     private void loaColor(Config config) {
@@ -106,6 +108,7 @@ public class TimerBarWidget implements CustomStatusBarWidget {
             this.name = name;
             this.second = 0L;
         }
+        label.setText(time());
         timer.start();
         if (!label.isVisible()) {
             label.setVisible(true);
@@ -120,6 +123,7 @@ public class TimerBarWidget implements CustomStatusBarWidget {
     public void reset() {
         this.name = "";
         this.second = 0L;
+        label.setText(time());
         timer.stop();
         label.setVisible(false);
     }

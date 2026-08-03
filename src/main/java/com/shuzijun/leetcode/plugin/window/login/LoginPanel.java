@@ -1,6 +1,5 @@
 package com.shuzijun.leetcode.plugin.window.login;
 
-import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -133,7 +132,7 @@ public class LoginPanel extends DialogWrapper {
         Action helpAction = new AbstractAction("help") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                BrowserUtil.browse("https://github.com/shuzijun/leetcode-editor/blob/master/doc/LoginHelp.md");
+                BrowserUtils.browse("https://github.com/shuzijun/leetcode-editor/blob/master/doc/LoginHelp.md");
             }
 
         };
@@ -174,7 +173,8 @@ public class LoginPanel extends DialogWrapper {
 
                 @Override
                 public void onLoadError(CefBrowser browser, CefFrame frame, CefLoadHandler.ErrorCode errorCode, String errorText, String failedUrl) {
-                    if (!successDispose) {
+                    if (!successDispose && frame.isMain() && errorCode != CefLoadHandler.ErrorCode.ERR_ABORTED) {
+                        LogUtils.LOG.warn("Failed to load LeetCode login page: " + failedUrl + ", " + errorCode + ", " + errorText);
                         MessageUtils.getInstance(project).showWarnMsg("", "The page failed to load, please check the network and open it again");
                     }
                 }

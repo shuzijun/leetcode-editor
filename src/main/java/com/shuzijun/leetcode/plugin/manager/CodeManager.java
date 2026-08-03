@@ -11,18 +11,24 @@ import com.shuzijun.leetcode.plugin.listener.QuestionStatusNotifier;
 import com.shuzijun.leetcode.plugin.listener.QuestionSubmitNotifier;
 import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
+import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.function.BiConsumer;
 
 /**
  * @author shuzijun
  */
 public class CodeManager {
+
+    private static final int MAX_POLL_ATTEMPTS = 100;
+    private static final long POLL_INTERVAL_MILLIS = 300L;
+    private static final long CANCELLATION_CHECK_INTERVAL_MILLIS = 50L;
 
     public static void openCode(String titleSlug, Project project) {
         Config config = PersistentConfig.getInstance().getInitConfig();
@@ -35,6 +41,7 @@ public class CodeManager {
         if (question == null) {
             return;
         }
+        ProjectConfig.getInstance(project).setLastOpenedQuestionTitleSlug(question.getTitleSlug());
 
         if (config.isShowQuestionEditor()) {
             openContent(titleSlug, project, false);
@@ -94,10 +101,7 @@ public class CodeManager {
         }
 
         try {
-            JSONObject arg = new JSONObject();
-            arg.put("question_id", question.getQuestionId());
-            arg.put("lang", codeTypeEnum.getLangSlug());
-            arg.put("typed_code", code);
+            JSONObject arg = createSubmitRequest(question, codeTypeEnum, code);
             HttpResponse response = HttpRequest.builderPost(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/submit/", "application/json")
                     .addHeader("Accept", "application/json").body(arg.toJSONString()).request();
             if (response.getStatusCode() == 200) {
@@ -131,12 +135,7 @@ public class CodeManager {
             return;
         }
         try {
-            JSONObject arg = new JSONObject();
-            arg.put("question_id", question.getQuestionId());
-            arg.put("data_input", question.getTestCase());
-            arg.put("lang", codeTypeEnum.getLangSlug());
-            arg.put("judge_type", "large");
-            arg.put("typed_code", code);
+            JSONObject arg = createRunRequest(question, codeTypeEnum, code);
             HttpResponse response = HttpRequest.builderPost(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/interpret_solution/", "application/json")
                     .addHeader("Accept", "application/json").body(arg.toJSONString()).request();
             if (response.getStatusCode() == 200) {
@@ -154,6 +153,21 @@ public class CodeManager {
         } catch (Exception i) {
             MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("response.code"));
         }
+    }
+
+    static JSONObject createSubmitRequest(Question question, CodeTypeEnum codeTypeEnum, String code) {
+        JSONObject request = new JSONObject();
+        request.put("question_id", question.getQuestionId());
+        request.put("lang", codeTypeEnum.getLangSlug());
+        request.put("typed_code", code);
+        return request;
+    }
+
+    static JSONObject createRunRequest(Question question, CodeTypeEnum codeTypeEnum, String code) {
+        JSONObject request = createSubmitRequest(question, codeTypeEnum, code);
+        request.put("data_input", question.getTestCase());
+        request.put("judge_type", "large");
+        return request;
     }
 
     private static String getCodeText(Question question, Config config, CodeTypeEnum codeTypeEnum, Project project) {
@@ -203,8 +217,8 @@ public class CodeManager {
         @Override
         public void run(@NotNull ProgressIndicator progressIndicator) {
             String key = returnObj.getString("submission_id");
-            for (int i = 0; i < 100; i++) {
-                if (progressIndicator.isCanceled()) {
+            for (int i = 0; i < MAX_POLL_ATTEMPTS; i++) {
+                if (isCanceled(progressIndicator, project)) {
                     MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.cancel"));
                     return;
                 }
@@ -217,9 +231,9 @@ public class CodeManager {
                             if (jsonObject.getBoolean("run_success")) {
                                 if (Integer.valueOf(10).equals(jsonObject.getInteger("status_code"))) {
                                     String runtime = jsonObject.getString("status_runtime");
-                                    String runtimePercentile = jsonObject.getBigDecimal("runtime_percentile").setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+                                    String runtimePercentile = jsonObject.getBigDecimal("runtime_percentile").setScale(2, RoundingMode.HALF_UP).toString();
                                     String memory = jsonObject.getString("status_memory");
-                                    String memoryPercentile = jsonObject.getBigDecimal("memory_percentile").setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+                                    String memoryPercentile = jsonObject.getBigDecimal("memory_percentile").setScale(2, RoundingMode.HALF_UP).toString();
 
                                     MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("submit.success", runtime, runtimePercentile, codeTypeEnum.getType(), memory, memoryPercentile, codeTypeEnum.getType()));
                                     question.setStatus("ac");
@@ -258,13 +272,19 @@ public class CodeManager {
                         }
 
                     }
-                    Thread.sleep(300L);
+                    if (!waitForNextPoll(progressIndicator, project)) {
+                        MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.cancel"));
+                        return;
+                    }
                 } catch (Exception e) {
                     LogUtils.LOG.error("提交出错", e);
                     MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.failed"));
                     return;
                 }
 
+            }
+            if (project.isDisposed()) {
+                return;
             }
             ApplicationManager.getApplication().getMessageBus().syncPublisher(QuestionSubmitNotifier.TOPIC).submit(URLUtils.getLeetcodeHost(), question.getTitleSlug());
             MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("response.timeout"));
@@ -304,8 +324,8 @@ public class CodeManager {
             if (StringUtils.isBlank(key)) {
                 key = returnObj.getString("interpret_id");
             }
-            for (int i = 0; i < 100; i++) {
-                if (progressIndicator.isCanceled()) {
+            for (int i = 0; i < MAX_POLL_ATTEMPTS; i++) {
+                if (isCanceled(progressIndicator, project)) {
                     MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.cancel"));
                     return;
                 }
@@ -351,7 +371,10 @@ public class CodeManager {
                         }
 
                     }
-                    Thread.sleep(300L);
+                    if (!waitForNextPoll(progressIndicator, project)) {
+                        MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.cancel"));
+                        return;
+                    }
                 } catch (Exception e) {
                     LogUtils.LOG.error("提交出错，body:" + body + ",returnObj:" + returnObj.toJSONString(), e);
                     MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.failed"));
@@ -361,5 +384,30 @@ public class CodeManager {
             }
             MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("response.timeout"));
         }
+    }
+
+    static boolean waitForNextPoll(@NotNull ProgressIndicator progressIndicator) {
+        return waitForNextPoll(progressIndicator, null);
+    }
+
+    static boolean waitForNextPoll(@NotNull ProgressIndicator progressIndicator, Project project) {
+        long deadline = System.nanoTime() + POLL_INTERVAL_MILLIS * 1_000_000L;
+        while (!isCanceled(progressIndicator, project)) {
+            long remainingMillis = (deadline - System.nanoTime()) / 1_000_000L;
+            if (remainingMillis <= 0L) {
+                return true;
+            }
+            try {
+                Thread.sleep(Math.min(remainingMillis, CANCELLATION_CHECK_INTERVAL_MILLIS));
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isCanceled(@NotNull ProgressIndicator progressIndicator, Project project) {
+        return progressIndicator.isCanceled() || project != null && project.isDisposed();
     }
 }

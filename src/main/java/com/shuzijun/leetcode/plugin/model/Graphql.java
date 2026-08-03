@@ -3,11 +3,12 @@ package com.shuzijun.leetcode.plugin.model;
 import com.alibaba.fastjson.JSONObject;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.shuzijun.leetcode.plugin.utils.*;
-import org.apache.commons.collections.map.HashedMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -17,11 +18,11 @@ public class Graphql {
 
     private String operationName;
 
-    private Map variables;
+    private final Map<String, Object> variables;
 
-    private String query;
+    private final String query;
 
-    private Graphql(String operationName, Map variables, String query) {
+    private Graphql(String operationName, Map<String, Object> variables, String query) {
         this.operationName = operationName;
         this.variables = variables;
         this.query = query;
@@ -31,7 +32,7 @@ public class Graphql {
         return operationName;
     }
 
-    public Map getVariables() {
+    public Map<String, Object> getVariables() {
         return variables;
     }
 
@@ -57,7 +58,7 @@ public class Graphql {
 
         private String operationName;
 
-        private Map variables = new HashedMap();
+        private final Map<String, Object> variables = new LinkedHashMap<>();
 
         private String query;
 
@@ -100,7 +101,7 @@ public class Graphql {
                 if (inputStream == null) {
                     LogUtils.LOG.error(PATH + operationName + suffix + " Path is empty");
                 } else {
-                    this.query = new String(FileUtilRt.loadBytes(inputStream));
+                    this.query = new String(FileUtilRt.loadBytes(inputStream), StandardCharsets.UTF_8);
                 }
             } catch (IOException e) {
                 LogUtils.LOG.error(PATH + operationName + suffix + " Loading exception", e);

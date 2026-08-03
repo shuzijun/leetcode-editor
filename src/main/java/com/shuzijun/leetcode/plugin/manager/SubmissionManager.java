@@ -31,19 +31,7 @@ public class SubmissionManager {
             if (response != null && response.getStatusCode() == 200) {
                 String body = response.getBody();
                 if (StringUtils.isNotBlank(body)) {
-
-                    JSONArray jsonArray = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("submissionList").getJSONArray("submissions");
-                    for (int i = 0; i < jsonArray.size(); i++) {
-                        JSONObject object = jsonArray.getJSONObject(i);
-                        Submission submission = new Submission();
-                        submission.setId(object.getString("id"));
-                        submission.setStatus(object.getString("statusDisplay"));
-                        submission.setLang(object.getString("lang"));
-                        submission.setRuntime(object.getString("runtime"));
-                        submission.setTime(object.getString("timestamp"));
-                        submission.setMemory(object.getString("memory"));
-                        submissionList.add(submission);
-                    }
+                    submissionList.addAll(parseSubmissions(body));
                    /* if (submissionList.size() == 0) {
                         MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("submission.empty"));
                     }*/
@@ -56,6 +44,69 @@ public class SubmissionManager {
             MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("request.failed"));
         }
         return submissionList;
+    }
+
+    static List<Submission> parseSubmissions(String body) {
+        List<Submission> submissions = new ArrayList<>();
+        JSONArray jsonArray = JSONObject.parseObject(body).getJSONObject("data")
+                .getJSONObject("submissionList").getJSONArray("submissions");
+        for (int index = 0; index < jsonArray.size(); index++) {
+            JSONObject object = jsonArray.getJSONObject(index);
+            Submission submission = new Submission();
+            submission.setId(object.getString("id"));
+            submission.setStatus(object.getString("statusDisplay"));
+            submission.setLang(object.getString("lang"));
+            submission.setRuntime(object.getString("runtime"));
+            submission.setTime(object.getString("timestamp"));
+            submission.setMemory(object.getString("memory"));
+            submissions.add(submission);
+        }
+        return submissions;
+    }
+
+    static String formatSubmission(String code, JSONObject submissionData, Submission submission,
+                                   CodeTypeEnum codeTypeEnum) {
+        StringBuilder result = new StringBuilder();
+        result.append(code.replace("\\u000A", "\n")).append("\n");
+
+        if ("Accepted".equals(submission.getStatus())) {
+            append(result, codeTypeEnum, "runtime", submissionData.getString("runtime"));
+            append(result, codeTypeEnum, "memory", submissionData.getString("memory"));
+        } else if ("Wrong Answer".equals(submission.getStatus())) {
+            append(result, codeTypeEnum, "total_testcases", submissionData.getString("total_testcases"));
+            append(result, codeTypeEnum, "total_correct", submissionData.getString("total_correct"));
+            append(result, codeTypeEnum, "input_formatted", submissionData.getString("input_formatted"));
+            append(result, codeTypeEnum, "expected_output", submissionData.getString("expected_output"));
+            append(result, codeTypeEnum, "code_output", submissionData.getString("code_output"));
+            append(result, codeTypeEnum, "last_testcase", submissionData.getString("last_testcase"));
+        } else if ("Runtime Error".equals(submission.getStatus())) {
+            append(result, codeTypeEnum, "runtime_error", submissionData.getString("runtime_error"));
+            append(result, codeTypeEnum, "last_testcase", oneLine(submissionData.getString("last_testcase")));
+        } else if ("Compile Error".equals(submission.getStatus())) {
+            append(result, codeTypeEnum, "total_correct", submissionData.getString("total_correct"));
+            append(result, codeTypeEnum, "compile_error", submissionData.getString("compile_error"));
+        } else {
+            append(result, codeTypeEnum, "runtime", submissionData.getString("runtime"));
+            append(result, codeTypeEnum, "memory", submissionData.getString("memory"));
+            append(result, codeTypeEnum, "total_testcases", submissionData.getString("total_testcases"));
+            append(result, codeTypeEnum, "total_correct", submissionData.getString("total_correct"));
+            append(result, codeTypeEnum, "input_formatted", submissionData.getString("input_formatted"));
+            append(result, codeTypeEnum, "expected_output", submissionData.getString("expected_output"));
+            append(result, codeTypeEnum, "code_output", submissionData.getString("code_output"));
+            append(result, codeTypeEnum, "runtime_error", submissionData.getString("runtime_error"));
+            if (submissionData.containsKey("last_testcase")) {
+                append(result, codeTypeEnum, "last_testcase", oneLine(submissionData.getString("last_testcase")));
+            }
+        }
+        return result.toString();
+    }
+
+    private static void append(StringBuilder result, CodeTypeEnum codeTypeEnum, String key, String value) {
+        result.append(codeTypeEnum.getComment()).append(key).append(":").append(value).append("\n");
+    }
+
+    private static String oneLine(String value) {
+        return value == null ? null : value.replaceAll("(\\r|\\r\\n|\\n\\r|\\n)", " ");
     }
 
     public static File openSubmission(Submission submission, String titleSlug, Project project, Boolean isOpenEditor) {
@@ -88,41 +139,8 @@ public class SubmissionManager {
                     return file;
                 }
 
-                StringBuffer sb = new StringBuffer();
-
-                sb.append(jsonObject.getString("submissionCode").replaceAll("\\u000A", "\n")).append("\n");
-
-                JSONObject submissionData = jsonObject.getJSONObject("submissionData");
-                if ("Accepted".equals(submission.getStatus())) {
-                    sb.append(codeTypeEnum.getComment()).append("runtime:").append(submissionData.getString("runtime")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("memory:").append(submissionData.getString("memory")).append("\n");
-                } else if ("Wrong Answer".equals(submission.getStatus())) {
-                    sb.append(codeTypeEnum.getComment()).append("total_testcases:").append(submissionData.getString("total_testcases")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("total_correct:").append(submissionData.getString("total_correct")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("input_formatted:").append(submissionData.getString("input_formatted")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("expected_output:").append(submissionData.getString("expected_output")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("code_output:").append(submissionData.getString("code_output")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("last_testcase:").append(submissionData.getString("last_testcase")).append("\n");
-                } else if ("Runtime Error".equals(submission.getStatus())) {
-                    sb.append(codeTypeEnum.getComment()).append("runtime_error:").append(submissionData.getString("runtime_error")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("last_testcase:").append(submissionData.getString("last_testcase").replaceAll("(\\r|\\r\\n|\\n\\r|\\n)", " ")).append("\n");
-                } else if ("Compile Error".equals(submission.getStatus())) {
-                    sb.append(codeTypeEnum.getComment()).append("total_correct:").append(submissionData.getString("total_correct")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("compile_error:").append(submissionData.getString("compile_error")).append("\n");
-                } else {
-                    sb.append(codeTypeEnum.getComment()).append("runtime:").append(submissionData.getString("runtime")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("memory:").append(submissionData.getString("memory")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("total_testcases:").append(submissionData.getString("total_testcases")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("total_correct:").append(submissionData.getString("total_correct")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("input_formatted:").append(submissionData.getString("input_formatted")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("expected_output:").append(submissionData.getString("expected_output")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("code_output:").append(submissionData.getString("code_output")).append("\n");
-                    sb.append(codeTypeEnum.getComment()).append("runtime_error:").append(submissionData.getString("runtime_error")).append("\n");
-                    if (submissionData.containsKey("last_testcase")) {
-                        sb.append(codeTypeEnum.getComment()).append("last_testcase:").append(submissionData.getString("last_testcase").replaceAll("(\\r|\\r\\n|\\n\\r|\\n)", " ")).append("\n");
-                    }
-                }
-                FileUtils.saveFile(file, sb.toString());
+                FileUtils.saveFile(file, formatSubmission(jsonObject.getString("submissionCode"),
+                        jsonObject.getJSONObject("submissionData"), submission, codeTypeEnum));
                 if (isOpenEditor) {
                     FileUtils.openFileEditor(file, project);
                 }

@@ -7,11 +7,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.pom.Navigatable;
-import com.intellij.ui.tabs.TabInfo;
-import com.intellij.ui.tabs.TabsListener;
-import com.intellij.ui.tabs.impl.JBEditorTabs;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.JBUI;
 import com.shuzijun.leetcode.plugin.listener.LoginNotifier;
@@ -32,12 +28,13 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
     private final Project project;
     private final FileEditor[] fileEditors;
     private final String[] names;
-    private final TabInfo[] tabInfos;
+    private final JComponent[] tabComponents;
+    private final boolean[] tabComponentsInitialized;
     private final VirtualFile file;
 
 
     private JComponent myComponent;
-    private JBEditorTabs jbEditorTabs;
+    private JTabbedPane editorTabs;
 
     private LeetcodeEditor leetcodeEditor;
 
@@ -45,7 +42,8 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
         this.project = project;
         this.fileEditors = fileEditors;
         this.names = names;
-        this.tabInfos = new TabInfo[names.length];
+        this.tabComponents = new JComponent[names.length];
+        this.tabComponentsInitialized = new boolean[names.length];
         this.file = file;
 
         this.leetcodeEditor = ProjectConfig.getInstance(project).getEditor(file.getPath());
@@ -57,7 +55,7 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
             public void login(Project project, String host) {
                 if (host.equals(leetcodeEditor.getHost())) {
                     for (int i = 0; i < names.length; i++) {
-                        fileEditors[i].setState(LoginState.getState(true, tabInfos[i] == jbEditorTabs.getSelectedInfo()));
+                        fileEditors[i].setState(LoginState.getState(true, isSelected(i)));
                     }
                 }
             }
@@ -66,7 +64,7 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
             public void logout(Project project, String host) {
                 if (host.equals(leetcodeEditor.getHost())) {
                     for (int i = 0; i < names.length; i++) {
-                        fileEditors[i].setState(LoginState.getState(false, tabInfos[i] == jbEditorTabs.getSelectedInfo()));
+                        fileEditors[i].setState(LoginState.getState(false, isSelected(i)));
                     }
                 }
             }
@@ -76,29 +74,38 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
     @Override
     public @NotNull JComponent getComponent() {
         if (myComponent == null) {
-            jbEditorTabs = new JBEditorTabs(project, IdeFocusManager.getInstance(project), this);
+            editorTabs = new JTabbedPane();
             for (int i = 0; i < fileEditors.length; i++) {
-                TabInfo tabInfo = new TabInfo(fileEditors[i].getComponent());
-                tabInfo.setText(names[i]);
-                tabInfos[i] = tabInfo;
-                jbEditorTabs.addTab(tabInfo);
+                editorTabs.addTab(names[i], new JPanel());
             }
-            jbEditorTabs.addListener(new TabsListener() {
-                @Override
-                public void selectionChanged(TabInfo oldSelection, TabInfo newSelection) {
-                    for (int i = 0; i < names.length; i++) {
-                        if (newSelection.getText().equals(names[i])) {
-                            fileEditors[i].setState(TabFileEditorState.TabFileEditorLoadState);
-                            break;
-                        }
-                    }
+            getTabComponent(0);
+            editorTabs.addChangeListener(event -> {
+                int selectedIndex = editorTabs.getSelectedIndex();
+                if (selectedIndex >= 0) {
+                    getTabComponent(selectedIndex);
+                    fileEditors[selectedIndex].setState(TabFileEditorState.TabFileEditorLoadState);
                 }
             });
 
 
-            myComponent = JBUI.Panels.simplePanel(jbEditorTabs);
+            myComponent = JBUI.Panels.simplePanel(editorTabs);
         }
         return myComponent;
+    }
+
+    private boolean isSelected(int index) {
+        return editorTabs != null && editorTabs.getSelectedIndex() == index;
+    }
+
+    private JComponent getTabComponent(int index) {
+        if (!tabComponentsInitialized[index]) {
+            tabComponents[index] = fileEditors[index].getComponent();
+            tabComponentsInitialized[index] = true;
+            if (editorTabs != null) {
+                editorTabs.setComponentAt(index, tabComponents[index]);
+            }
+        }
+        return tabComponents[index];
     }
 
     @Override
@@ -114,12 +121,13 @@ public class ConvergePreview extends UserDataHolderBase implements TextEditor {
     @Override
     public void setState(@NotNull FileEditorState state) {
         if (state instanceof TabSelectFileEditorState) {
-            if (jbEditorTabs != null) {
+            if (editorTabs != null) {
                 String name = ((TabSelectFileEditorState) state).getName();
                 for (int i = 0; i < names.length; i++) {
                     if (name.equals(names[i])) {
+                        getTabComponent(i);
                         fileEditors[i].setState(state);
-                        jbEditorTabs.select(tabInfos[i], true);
+                        editorTabs.setSelectedIndex(i);
                     }
                 }
             }

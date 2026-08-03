@@ -31,6 +31,7 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Inn
     private static final String PROJECT_DIR_MACRO = "$PROJECT_DIR$";
 
     private final ConcurrentMap<String, LeetcodeEditor> idProjectConfig = new ConcurrentHashMap<>();
+    private volatile String lastOpenedQuestionTitleSlug;
 
     @Nullable
     public static ProjectConfig getInstance(Project project) {
@@ -85,6 +86,15 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Inn
         } else {
             return null;
         }
+    }
+
+    @Nullable
+    public String getLastOpenedQuestionTitleSlug() {
+        return lastOpenedQuestionTitleSlug;
+    }
+
+    public void setLastOpenedQuestionTitleSlug(@Nullable String titleSlug) {
+        this.lastOpenedQuestionTitleSlug = titleSlug;
     }
 
     /**

@@ -77,7 +77,8 @@ public class Constant {
     /**
      * 默认题目颜色
      */
-    public static final String LEVEL_COLOUR = "#5CB85C;#F0AD4E;#D9534F";
+    public static final String LEVEL_COLOUR = "#6AAB73;#D9A441;#C75450";
+    public static final String LEGACY_LEVEL_COLOUR = "#5CB85C;#F0AD4E;#D9534F";
 
     /**
      * 文章类型

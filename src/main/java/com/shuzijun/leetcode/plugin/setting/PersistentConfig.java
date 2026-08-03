@@ -3,6 +3,7 @@ package com.shuzijun.leetcode.plugin.setting;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.shuzijun.leetcode.plugin.model.Config;
@@ -34,7 +35,7 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
 
 
     public static PersistentConfig getInstance() {
-        return ServiceManager.getService(PersistentConfig.class);
+        return ApplicationManager.getApplication().getService(PersistentConfig.class);
     }
 
     @Nullable
@@ -94,12 +95,12 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
         if (username == null || password == null) {
             return;
         }
-        PasswordSafe.getInstance().set(new CredentialAttributes(PluginConstant.PLUGIN_ID, username, this.getClass()), new Credentials(username, password));
+        PasswordSafe.getInstance().set(new CredentialAttributes(PluginConstant.PLUGIN_ID, username), new Credentials(username, password));
     }
 
     public String getPassword(String username) {
         if (getConfig().getVersion() != null && username != null) {
-            return PasswordSafe.getInstance().getPassword(new CredentialAttributes(PluginConstant.PLUGIN_ID, username, this.getClass()));
+            return PasswordSafe.getInstance().getPassword(new CredentialAttributes(PluginConstant.PLUGIN_ID, username));
         }
         return null;
 

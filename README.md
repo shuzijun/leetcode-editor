@@ -13,96 +13,89 @@
 [![捐赠][badge:donate]][shuzijun-donate]
 [![内推][badge:referrals]][shuzijun-referrals]
 
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/blog-comment@v0.0.1/doc/leetcode-demo.gif" alt="demo" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p align="center"><img src="doc/leetcode-demo.svg" alt="LeetCode Editor overview" width="860"></p>
 
 ---
 
-## Introduction  
-  Do Leetcode exercises in IDE, support `leetcode.com` and `leetcode.cn`, meet the needs of problem solving and debugging.
-  Support theoretically: **IntelliJ IDEA**,**PhpStorm**,**WebStorm**,**PyCharm**,**RubyMine**,**AppCode**,**CLion**,**GoLand**,**DataGrip**,**Rider MPS**,**Android Studio**.  
+## Introduction
 
-  - [English Document][gh:en-doc]
-  - [中文文档][gh:zh-doc]
+Solve LeetCode problems without leaving your IDE. LeetCode Editor supports
+`leetcode.com` and `leetcode.cn` for problem browsing, local debugging, and submissions.
 
-    - Useful Links
-      - [Login Help][gh:login-help]
-      - [Custom Code][gh:custom-code] ([demo][gh:leetcode-question])  
-      
-  - **More open functions**: [shuzijun/lc-sdk](https://github.com/shuzijun/lc-sdk)
+It is designed for JetBrains IDEs, including **IntelliJ IDEA**, **PhpStorm**,
+**WebStorm**, **PyCharm**, **RubyMine**, **AppCode**, **CLion**, **GoLand**,
+**DataGrip**, **Rider**, **MPS**, and **Android Studio**.
+
+- [English documentation][gh:en-doc]
+- [中文文档][gh:zh-doc]
+- [Login Help][gh:login-help]
+- [Custom Code][gh:custom-code] ([example][gh:leetcode-question])
+- More open functionality: [shuzijun/lc-sdk](https://github.com/shuzijun/lc-sdk)
   
 ## Getting Started  
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/leetcode-editor-3.0.gif" alt="start" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p align="center"><img src="doc/leetcode-editor-3.0.svg" alt="Browse, code, run, and submit workflow" width="860"></p>
  
 
 ## Local debugging  
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/customConfig-100.gif" alt="loacl" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+<p align="center"><img src="doc/customConfig-100.svg" alt="Custom template and local debugging workflow" width="860"></p>
   
 
-### Installation([help][managing-plugins])  
-- **Install via plug-in library** [leetcode-editor][plugin-homepage]  
-- **Install by downloading the file** [releases][gh:releases]    
-- **If you are willing to donate to this project, you can choose the pro version** [leetcode-editor-pro][plugin-homepage-pro]  
+### Installation ([help][managing-plugins])
 
-### Configuration (configuration for first installation)  
+- Install from the [JetBrains Marketplace][plugin-homepage].
+- Download a package from [GitHub Releases][gh:releases].
+- Support the project with [LeetCode Editor Pro][plugin-homepage-pro].
 
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/config-3.0.jpg" alt="config" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+### Configuration
 
- 
-- **Configuration path**: `File` -> `settings`->`tools`->`leetcode plugin`  
-  - **`URL options`**: `leetcode.com`OR`leetcode.cn`  
-  - **`Code Type`**: `Java`,`Python`,`C++`,`Python3`,`C`,`C#`,`JavaScript`,`Ruby`,`Swift`,`Go` ,`Scala`,`Kotlin`,`Rust`,`PHP`,`Bash`,`SQL`   
-  - **`LoginName`**: Login Username
-  - **`Password`**: Login password  
-  - **`Temp File Path`**: Temporary file storage catalogue  
-  - **`proxy(HTTP Proxy)`**: HTTP Proxy,config path:`File` -> `settings`->`Appearance & Behavior`->`System Settings`->`HTTP Proxy`
-  - **`Custom code template`**: Custom code template ([details][gh:custom-code]) ([demo][gh:leetcode-question])  
-  - **`LevelColour`**: Customize the difficulty color of the question, it will take effect after restart
-  
-### Window    
+<p align="center"><img src="doc/config-3.0.svg" alt="LeetCode Editor settings" width="860"></p>
 
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/window-3.0.jpg" alt="window" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>  
-  
-- **Toolbar**:  
-  - ![login][icon:login]**`Sign in`**:The login accounts of the two websites are not interoperable and the corresponding users need to be configured when switching websites.  
-  - ![logout][icon:logout]**`Sign out`**:Exit the current account, if you encounter a login error, try to exit first.  
-  - ![refresh][icon:refresh]**`Refresh`**:You can also refresh and load questions if you are not logged in, but you cannot submit it.  
-  - ![pick][icon:pick]**`pick`**:Open a problem randomly.  
-  - ![find][icon:find]**`Find`**:Open filter panel. You can search, filter and sort.   
-  - ![progress][icon:progress]**`Session`**:Open the Session panel. You can view or switch sessions.  
-  - ![toggle][icon:toggle]**`Toggle List`**:Switch to other list windows, including "All Problem List" , "Paginated Problem List" , "CodeTop Problem List".  
-  - ![config][icon:config]**`Settings`**:Quick jump to the configuration page.  
-  - ![clear][icon:clear]**`Clear`**:Clean up the files in the configured cache directories. The cache directories of the two websites are different and only the current configured websites are cleaned up. Carefully clean up cases without submitting.  
+- **Path:** `File` → `Settings` → `Tools` → `LeetCode Plugin`
+- **`URL options`:** Choose `leetcode.com` or `leetcode.cn`.
+- **`Code Type`:** Java, Python, C++, Python 3, C, C#, JavaScript, Ruby, Swift, Go, Scala, Kotlin, Rust, PHP, Bash, or SQL.
+- **`LoginName` / `Password`:** Credentials for the selected site.
+- **`Temp File Path`:** Directory for generated temporary files.
+- **`proxy (HTTP Proxy)`:** Configure at `File` → `Settings` → `Appearance & Behavior` → `System Settings` → `HTTP Proxy`.
+- **`Custom code template`:** Customize generated code ([details][gh:custom-code], [example][gh:leetcode-question]).
+- **`LevelColour`:** Customize problem-difficulty colors; restart the IDE after changing it.
 
-### Menu  
-<p align="center"><img src="https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/doc/menu-3.0.jpg" alt="menu" style="width: auto;height: auto;max-width: 90%; max-height: 90%;"></p>
+### Problem Navigator
 
+<p align="center"><img src="doc/window-3.0.svg" alt="LeetCode Editor problem navigator" width="860"></p>
 
-- **Menu (right-click on the questions)**:  
-  - **`open question`**:Open the question or double click on the question  
-  - **`open content`**:Show content(Rely on Markdown)  
-  - **`Submit`**:Submit the question  
-  - **`Submissions`**:View the submission record, select the record details in the pop-up window(`Show detail`)  
-  - **`Run Code`**:Run the code, the test case for the question is used by default  
-  - **`Testcase`**:Customize test cases  
-  - **`favorite`**:Add or remove favorite
-  - **`Clear cache`**:Clean up the current question  
-  - **`Timer`**:Timer, when it is turned on, it will prompt the problem solving time in the status bar in the lower right corner    
+- **Toolbar**
+  - ![login][icon:login] **Sign in:** Configure an account for the selected website. Accounts for the two sites are independent.
+  - ![logout][icon:logout] **Sign out:** Exit the current account. If sign-in fails, try signing out first.
+  - ![refresh][icon:refresh] **Refresh:** Load problems without signing in; submitting still requires an account.
+  - ![pick][icon:pick] **Pick:** Open a random problem.
+  - ![find][icon:find] **Find:** Open the panel for searching, filtering, and sorting.
+  - ![progress][icon:progress] **Session:** View or switch sessions.
+  - ![toggle][icon:toggle] **Toggle List:** Switch between All Problem List, Paginated Problem List, and CodeTop Problem List.
+  - ![config][icon:config] **Settings:** Open the configuration page.
+  - ![clear][icon:clear] **Clear:** Remove files from the cache directory for the current website. Use it carefully when work has not been submitted.
 
-<br> 
+### Context Menu
+<p align="center"><img src="doc/menu-3.0.svg" alt="LeetCode Editor action menu" width="860"></p>
 
-- **Editor Menu(Right-click on Editor to appear)**:  
-  Function as above  
+- **Problem menu:** Right-click a problem to use the following actions:
+  - **Open question:** Open the problem; double-clicking a problem does the same.
+  - **Open content:** Show the description and images (requires Markdown support).
+  - **Open solution:** Show the official solution.
+  - **Open in web:** Open the problem in a browser.
+  - **Submit:** Submit the current solution.
+  - **Submissions:** View submission records and select **Show detail** in the pop-up window.
+  - **Run Code:** Run the default test case for the problem.
+  - **Testcase:** Create custom test cases.
+  - **Favorite:** Add or remove the problem from favorites.
+  - **Note:** Open notes for the problem.
+  - **Timer:** Track solving time in the status bar.
+  - **Clear cache:** Remove cached files for the current problem.
+- **Editor menu:** Right-click in the editor to access the same actions.
+- **Question editor tabs:** **Content** shows the description and images, **Solution** shows the solution, **Submissions** shows submission records, and **Note** shows notes.
 
-<br>  
+### Support
 
-- **Question Editor**:
-  - **`Content`**:Show content(Rely on Markdown)
-  - **`Solution`**:show solution
-  - **`Submissions`**:View the submission record
-  - **`Note`**:Show note 
-
-### Support and Donations
-* [donate][shuzijun-donate]
+- [Donate][shuzijun-donate]
 
 
 [plugin-logo]: https://cdn.jsdelivr.net/gh/shuzijun/leetcode-editor@master/src/main/resources/META-INF/pluginIcon.svg

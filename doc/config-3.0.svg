@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="780" viewBox="0 0 1200 780" role="img" aria-labelledby="title description">
+  <title id="title">LeetCode Editor preferences</title>
+  <desc id="description">The LeetCode Plugin preferences page with website, code type, temporary file path, custom code template, and template variables.</desc>
+  <defs>
+    <filter id="shadow" x="-6%" y="-6%" width="112%" height="116%"><feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#020617" flood-opacity=".45"/></filter>
+    <style>
+      .template-focus { animation: template-focus 7s ease-in-out infinite; }
+      .template-dot { animation: template-dot 2s ease-in-out infinite; }
+      @keyframes template-focus { 0%,100% { stroke:#6e4b94; } 45%,65% { stroke:#a774e6; } }
+      @keyframes template-dot { 0%,100% { opacity:.5; } 50% { opacity:1; } }
+      @media (prefers-reduced-motion:reduce) { .template-focus,.template-dot { animation:none; } }
+    </style>
+  </defs>
+  <g filter="url(#shadow)">
+    <rect x="24" y="18" width="1152" height="744" rx="12" fill="#1f2022"/>
+    <rect x="24" y="18" width="1152" height="40" rx="12" fill="#25272a"/>
+    <circle cx="47" cy="38" r="7" fill="#ff5f57"/><circle cx="69" cy="38" r="7" fill="#34363a"/><circle cx="91" cy="38" r="7" fill="#28c840"/>
+    <text x="554" y="43" fill="#d6d9de" font-family="Arial,sans-serif" font-size="16" font-weight="700">Preferences</text>
+    <line x1="24" y1="58" x2="1176" y2="58" stroke="#383b3f"/>
+
+    <rect x="24" y="58" width="270" height="662" fill="#26282b"/>
+    <rect x="34" y="71" width="246" height="28" rx="4" fill="#202225" stroke="#464a50"/>
+    <circle cx="49" cy="85" r="5" fill="none" stroke="#adb6c0" stroke-width="1.4"/><path d="m53 89 5 5" fill="none" stroke="#adb6c0" stroke-width="1.4" stroke-linecap="round"/>
+    <text x="61" y="125" fill="#d0d4da" font-family="Arial,sans-serif" font-size="14" font-weight="700">Tools</text>
+    <path d="m44 119 4 4 4-4" fill="none" stroke="#aeb7c2" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#c4c9d0" font-family="Arial,sans-serif" font-size="13">
+      <text x="82" y="156">Space</text><text x="82" y="187">Actions on Save</text><text x="82" y="218">Web Browsers and Preview</text><text x="82" y="249">External Tools</text><text x="82" y="280">Terminal</text>
+    </g>
+    <rect x="25" y="298" width="268" height="29" fill="#294b7e"/>
+    <text x="82" y="318" fill="#f1f5fb" font-family="Arial,sans-serif" font-size="14">LeetCode Plugin</text>
+
+    <rect x="294" y="58" width="882" height="662" fill="#1f2022"/>
+    <text x="322" y="91" fill="#e0e5eb" font-family="Arial,sans-serif" font-size="15" font-weight="700">Tools  ›  LeetCode Plugin</text>
+    <text x="1056" y="91" fill="#5c9df2" font-family="Arial,sans-serif" font-size="14" font-weight="700">Reset</text>
+    <g fill="#d5dae1" font-family="Arial,sans-serif" font-size="14">
+      <text x="326" y="150">URL:</text><text x="760" y="150">CodeType:</text>
+      <text x="326" y="190">LoginName:</text><text x="760" y="190">Password:</text>
+      <text x="326" y="230">TempFilePath:</text>
+    </g>
+    <g fill="#202225" stroke="#4d5157">
+      <rect x="449" y="130" width="260" height="29" rx="3"/><rect x="856" y="130" width="250" height="29" rx="3"/>
+      <rect x="449" y="170" width="260" height="29" rx="3"/><rect x="856" y="170" width="250" height="29" rx="3"/>
+      <rect x="449" y="210" width="693" height="29" rx="3"/>
+    </g>
+    <g fill="#d5dae1" font-family="Arial,sans-serif" font-size="13">
+      <text x="462" y="150">leetcode.com</text><text x="870" y="150">Java</text><text x="462" y="190">shuzijun0109@gmail.com</text><text x="462" y="230">/path/to/leetcode-question/src/main/java/com/example</text>
+    </g>
+    <path d="m688 142 5 6 5-6M1084 142l5 6 5-6" fill="none" stroke="#9ca5b0" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <g font-family="Arial,sans-serif" font-size="14">
+      <rect x="329" y="263" width="16" height="16" rx="2" fill="#3d7edb"/><path d="m333 271 3 3 5-6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="353" y="276" fill="#e0e5eb">Custom Template</text>
+      <text x="554" y="276" fill="#c8cdd5">LevelColour:</text><text x="763" y="276" fill="#72c878">Easy</text><text x="892" y="276" fill="#e6a33d">Medium</text><text x="1040" y="276" fill="#d66b67">Hard</text>
+      <rect x="329" y="296" width="16" height="16" rx="2" fill="#3d7edb"/><path d="m333 304 3 3 5-6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="353" y="309" fill="#e0e5eb">Show Tool icon</text>
+      <rect x="558" y="296" width="16" height="16" rx="2" fill="#3d7edb"/><path d="m562 304 3 3 5-6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="582" y="309" fill="#e0e5eb">Plugin Update</text>
+      <rect x="789" y="296" width="16" height="16" rx="2" fill="#27292c" stroke="#50545a"/><text x="814" y="309" fill="#c8cdd5">Cookie</text>
+      <rect x="326" y="327" width="16" height="16" rx="2" fill="#3d7edb"/><path d="m330 335 3 3 5-6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="353" y="340" fill="#e0e5eb">Show Topics</text>
+      <rect x="558" y="327" width="16" height="16" rx="2" fill="#27292c" stroke="#50545a"/><text x="582" y="340" fill="#c8cdd5">English Content</text>
+      <rect x="790" y="327" width="16" height="16" rx="2" fill="#3d7edb"/><path d="m794 335 3 3 5-6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="814" y="340" fill="#e0e5eb">Multiline</text>
+      <text x="672" y="374" fill="#5c9df2">CustomConfig (help)</text>
+    </g>
+
+    <g font-family="Arial,sans-serif" font-size="14" fill="#d5dae1">
+      <text x="326" y="403">Code</text><text x="326" y="422">FileName:</text><text x="326" y="452">Code</text><text x="326" y="471">Template:</text><text x="326" y="620">Template</text><text x="326" y="639">Constant:</text>
+    </g>
+    <rect x="412" y="383" width="730" height="39" rx="3" fill="#202225"/>
+    <text x="427" y="408" fill="#c7b1e5" font-family="monospace" font-size="13">$!velocityTool.camelCaseName(${question.titleSlug})</text>
+    <rect x="412" y="433" width="730" height="168" rx="3" fill="#191a1c"/>
+    <g font-family="monospace" font-size="13">
+      <text x="429" y="457" fill="#727b87">1</text><text x="454" y="457" fill="#c886e8">package</text><text x="510" y="457" fill="#d7dee8"> com.shuzijun.leetcode.editor.en;</text>
+      <text x="429" y="482" fill="#727b87">2</text><text x="454" y="482" fill="#c886e8">public class</text><text x="546" y="482" fill="#d7dee8"> $!velocityTool.camelCaseName(${question.titleSlug}) {</text>
+      <text x="429" y="507" fill="#727b87">3</text><text x="470" y="507" fill="#5db4f5">public static void</text><text x="574" y="507" fill="#d7dee8"> main(String[] args) {</text>
+      <text x="429" y="532" fill="#727b87">4</text><text x="486" y="532" fill="#d7dee8">Solution solution = new Solution();</text>
+      <text x="429" y="557" fill="#727b87">5</text><text x="470" y="557" fill="#a774e6">${question.code}</text>
+      <text x="429" y="582" fill="#727b87">6</text><text x="454" y="582" fill="#d7dee8">}</text>
+    </g>
+    <rect x="412" y="610" width="730" height="93" rx="3" fill="#191a1c"/>
+    <g font-family="monospace" font-size="12" fill="#b7bdc7">
+      <text x="422" y="641">${question.title}</text><text x="622" y="641">question title</text><text x="866" y="641">ex: Two Sum</text>
+      <text x="422" y="664">${question.titleSlug}</text><text x="622" y="664">question title slug</text><text x="866" y="664">ex: two-sum</text>
+      <text x="422" y="687">${question.frontendQuestionId}</text><text x="622" y="687">question serial number</text>
+    </g>
+    <circle class="template-dot" cx="1134" cy="372" r="4" fill="#a774e6"/>
+
+    <rect x="24" y="720" width="1152" height="42" rx="0 0 12 12" fill="#25272a"/>
+    <circle cx="47" cy="741" r="12" fill="none" stroke="#87909c"/><text x="43.5" y="746" fill="#87909c" font-family="Arial,sans-serif" font-size="15">?</text>
+    <rect x="890" y="733" width="81" height="27" rx="4" fill="#292b2f" stroke="#50545a"/><text x="912" y="752" fill="#d8dde4" font-family="Arial,sans-serif" font-size="13">Cancel</text>
+    <rect x="986" y="733" width="81" height="27" rx="4" fill="#292b2f" stroke="#50545a"/><text x="1011" y="752" fill="#d8dde4" font-family="Arial,sans-serif" font-size="13">Apply</text>
+    <rect x="1081" y="733" width="82" height="27" rx="4" fill="#356fc3"/><text x="1110" y="752" fill="#fff" font-family="Arial,sans-serif" font-size="13" font-weight="700">OK</text>
+    <rect x="24" y="18" width="1152" height="744" rx="12" fill="none" stroke="#3b3e43"/>
+  </g>
+</svg>

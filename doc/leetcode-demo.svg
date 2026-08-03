@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" role="img" aria-labelledby="title description">
+  <title id="title">LeetCode Editor for JetBrains IDEs</title>
+  <desc id="description">LeetCode Editor brings problem browsing, coding, local debugging, and submissions into JetBrains IDEs for leetcode.com and leetcode.cn.</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="120%"><feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#020617" flood-opacity=".48"/></filter>
+    <filter id="card-shadow" x="-8%" y="-12%" width="116%" height="130%"><feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#020617" flood-opacity=".34"/></filter>
+    <clipPath id="window"><rect x="28" y="22" width="1144" height="576" rx="12"/></clipPath>
+    <!-- Paths are inlined from src/main/resources/icons/*_dark.svg. -->
+    <symbol id="icon-leetcode" viewBox="0 0 13 13">
+      <g transform="scale(.086666)">
+        <g transform="translate(0 150) scale(.1 -.1)" fill="#B4B2B1"><path d="M658 736c-33-12-48-44-48-101 0-37 5-48 29-66 28-21 36-21 362-20 321 2 334 3 352 22 42 45 27 148-23 164-33 10-643 11-672 1z"/></g>
+        <g transform="translate(0 150) scale(.1 -.1)" fill="#F89F1C"><path d="M841 1202c-18-6-194-182-188-188 2-2 21 2 43 9 83 27 117 12 229-99 53-52 108-97 122-100 35-9 95 23 107 57 16 47-2 80-102 180-95 95-181 152-211 141z"/><path d="M947 382c-50-49-106-97-124-106-40-20-100-21-147-1-36 15-37 15-27-4 35-64-18-140-86-126l-28 6 23-20c75-66 227-79 336-28 80 37 266 220 266 261 0 54-31 92-84 101-35 7-39 5-129-83z"/></g>
+        <g transform="translate(0 150) scale(.1 -.1)" fill="#DDDDDD"><path d="M559 1173c-331-331-355-360-379-468-13-58-6-117 22-195 18-47 44-78 177-213 144-145 159-157 192-157 67 0 111 57 88 117-5 15-68 86-138 158-71 72-134 141-140 153-19 36-17 127 3 157 22 33 224 243 446 461 171 169 175 173 175 214 0 54-38 90-93 90-35 0-52-16-353-317z"/></g>
+      </g>
+    </symbol>
+    <symbol id="icon-refresh" viewBox="0 0 1024 1024"><path fill="#AFB1B3" d="M899 595.4c0 1.8-.2 3-.5 3.6-22.2 93.1-68.8 168.5-139.6 226.3-70.9 57.8-153.8 86.8-249 86.8-50.7 0-99.8-9.5-147.1-28.7-47.4-19.1-89.7-46.3-126.9-81.7l-67.2 67.2c-6.6 6.6-14.5 9.9-23.4 9.9s-16.9-3.3-23.4-9.9c-6.6-6.6-9.9-14.5-9.9-23.4V612c0-9 3.3-16.9 9.9-23.4 6.6-6.6 14.4-9.9 23.4-9.9h233.3c9 0 16.9 3.3 23.4 9.9s9.9 14.5 9.9 23.4-3.3 16.9-9.9 23.4l-71.3 71.3c24.6 22.9 52.6 40.6 83.9 53.1 31.2 12.5 63.8 18.7 97.4 18.7 46.6 0 89.9-11.3 130.2-33.8 40.3-22.6 72.5-53.7 96.8-93.2 3.8-5.9 13-26.2 27.6-60.9 2.7-8 8-11.9 15.7-11.9h100c4.5 0 8.4 1.6 11.7 4.9 3.3 3.3 5 7.3 5 11.8zm13-416.7V412c0 9-3.3 16.9-9.9 23.4s-14.5 9.9-23.4 9.9H645.4c-9 0-16.9-3.3-23.4-9.9s-9.9-14.4-9.9-23.4c0-9 3.3-16.9 9.9-23.4l71.9-71.9c-51.5-47.5-112.1-71.3-181.8-71.3-46.6 0-89.9 11.3-130.2 33.8s-72.6 53.7-96.8 93.2c-3.8 5.9-13 26.2-27.6 60.9-2.7 8-8 11.9-15.7 11.9H138c-4.5 0-8.4-1.6-11.7-4.9-3.3-3.3-4.9-7.2-4.9-11.7V425c22.6-93 69.5-168.5 140.7-226.3 71.2-57.8 154.6-86.8 250-86.8 50.7 0 100 9.6 147.9 28.9s90.5 46.4 127.6 81.5l67.7-67.2c6.6-6.6 14.4-9.9 23.4-9.9 9 0 16.9 3.3 23.4 9.9 6.5 6.8 9.9 14.6 9.9 23.6z"/></symbol>
+    <symbol id="icon-find" viewBox="0 0 1024 1024"><path fill="#AFB1B3" d="M912 850.5c0 16.7-6.1 31-18.3 43.3-12.1 12.1-26.6 18.3-43.3 18.3-17.3 0-31.8-6.1-43.3-18.3L642.3 729.2C585 769 520.9 788.9 450.5 788.9c-45.8 0-89.7-8.9-131.5-26.7-41.9-17.8-77.9-41.9-108.2-72.1-30.3-30.3-54.3-66.3-72.1-108.2S112 496.2 112 450.4s8.9-89.7 26.7-131.5c17.8-41.9 41.9-77.9 72.1-108.2s66.3-54.3 108.2-72.1 85.7-26.7 131.5-26.7 89.7 8.9 131.5 26.7c41.9 17.8 77.9 41.9 108.2 72.1 30.3 30.3 54.3 66.3 72.1 108.2S789 404.6 789 450.4c0 70.5-19.9 134.5-59.7 191.8l165 164.9c11.9 11.9 17.7 26.4 17.7 43.4zM602.7 602.6c42.2-42.2 63.2-92.8 63.2-152.2 0-59.3-21-110-63.2-152.2C560.5 256 509.9 235 450.5 235c-59.3 0-110 21-152.2 63.2s-63.2 92.8-63.2 152.2c0 59.3 21 110 63.2 152.2 42.2 42.2 92.8 63.2 152.2 63.2s110.1-21.1 152.2-63.2z"/></symbol>
+    <symbol id="icon-filter" viewBox="0 0 1024 1024"><path fill="#AFB1B3" d="M908.6 134.7c6.5 15.5 3.8 28.8-8 39.7L620.9 454.1V875c0 15.8-7.4 27.1-22.1 33.5-4.9 2-9.7 2.9-14.2 2.9-10.3 0-18.7-3.6-25.5-10.7L413.8 755.2c-7.2-7.2-10.7-15.7-10.7-25.5V454.1L123.4 174.4c-11.7-11-14.3-24.2-8-39.7 6.5-14.8 17.5-22.1 33.5-22.1H875c16-.1 27.2 7.3 33.6 22.1z"/></symbol>
+    <symbol id="icon-config" viewBox="0 0 1024 1024"><path fill="#AFB1B3" d="M912 455.1v115.6c0 4.2-1.4 8.2-4.2 11.9-2.7 3.8-6.3 6-10.4 6.8L801 604c-6.6 18.7-13.4 34.5-20.3 47.4 12.2 17.4 30.8 41.3 55.8 71.9 3.5 4.2 5.3 8.5 5.3 13.1 0 4.5-1.5 8.5-4.8 11.9-9.4 12.9-26.5 31.6-51.5 56.3-25 24.6-41.3 37.1-48.9 37.1-4.2 0-8.6-1.5-13.6-4.8l-71.9-56.3c-15.3 8-31.1 14.6-47.4 19.8-5.6 47.2-10.6 79.5-15.1 96.8-2.4 9.7-8.6 14.6-18.7 14.6H454.2c-4.9 0-9.1-1.5-12.7-4.4-3.6-2.9-5.7-6.7-6-11.1l-14.7-96c-17-5.6-32.6-11.9-46.9-19.2l-73.4 55.8c-3.5 3.1-7.8 4.8-13.1 4.8-4.9 0-9.2-1.8-13.1-5.7-43.7-39.5-72.4-68.8-86-87.5-2.4-3.5-3.6-7.5-3.6-11.9 0-4.2 1.4-8.1 4.2-11.9 5.3-7.3 14-18.8 26.5-34.6s21.9-28 28.1-36.7c-9.4-17.3-16.5-34.5-21.4-51.5l-95.3-14c-4.5-.6-8.2-2.8-10.9-6.5-2.7-3.6-4.2-7.8-4.2-12.3v-116c0-4.2 1.4-8.1 4.2-11.9s6-6 9.8-6.8l96.8-14.6c4.9-16 11.6-32 20.3-47.9-13.9-19.8-32.4-43.7-55.8-71.9-3.5-4.2-5.3-8.3-5.3-12.5 0-3.5 1.5-7.5 4.8-11.9 9-12.5 26-31.1 51.2-56s41.6-37.3 49.2-37.3c4.5 0 9 1.7 13.6 5.3l71.9 55.8c15.2-8 31.1-14.6 47.4-19.8 5.6-47.2 10.6-79.5 15.1-96.8 2.4-9.7 8.6-14.6 18.7-14.6h115.6c4.9 0 9.1 1.5 12.7 4.4 3.6 2.9 5.6 6.7 6 11.1l14.6 95.8c17 5.6 32.6 11.9 46.9 19.2l73.9-55.8c3.1-3.1 7.3-4.8 12.5-4.8 4.5 0 8.9 1.7 13.1 5.3 44.8 41.3 73.4 70.9 86 88.5 2.4 2.7 3.6 6.6 3.6 11.5 0 4.2-1.4 8.2-4.2 11.9-5.3 7.3-14 18.8-26.5 34.6s-21.9 28-28.1 36.7c9 17.4 16.1 34.4 21.4 51l95.3 14.6c4.5.6 8.1 2.8 10.9 6.5 3.2 3.9 4.7 7.9 4.7 12.4zM606.3 606.2c26-26 39.1-57.5 39.1-94.3s-13.1-68.2-39.1-94.3c-26-25.9-57.5-39-94.3-39s-68.2 13.1-94.3 39.1-39.1 57.5-39.1 94.3 13.1 68.2 39.1 94.3 57.5 39.1 94.3 39.1c36.8-.2 68.2-13.2 94.3-39.2z"/></symbol>
+    <symbol id="icon-help" viewBox="0 0 1024 1024"><path fill="#AFB1B3" d="M800.9 361.7c0 22.5-3.3 43.5-9.7 63.1s-13.8 35.5-21.8 47.9c-8.2 12.4-19.6 24.7-34.5 37.2-14.9 12.5-26.8 21.6-35.9 27.2-9.2 5.7-21.8 13-38.1 22.2-17.1 9.6-31.4 23.1-42.9 40.6-11.4 17.5-17.2 31.4-17.2 42 0 7.1-2.5 13.8-7.5 20.4-5 6.4-10.8 9.7-17.5 9.7h-150c-6.3 0-11.6-3.8-15.9-11.6-4.3-7.8-6.6-15.5-6.6-23.4v-28c0-34.6 13.5-67.2 40.6-97.8 27.1-30.6 56.9-53.3 89.4-67.9 24.6-11.3 42.1-22.9 52.5-35s15.7-27.9 15.7-47.5c0-17.5-9.7-32.9-29.1-46.3-19.3-13.3-41.8-20-67.2-20-27.1 0-49.6 6-67.6 18.1-14.6 10.4-37 34.5-66.9 71.9-5.4 6.7-11.8 10-19.3 10-5 0-10.3-1.7-15.7-5l-102.6-78.1c-5.4-4.2-8.7-9.3-9.7-15.7-1.1-6.3.1-12.1 3.4-17.5C293.5 167.5 390.3 112 517 112c33.4 0 66.9 6.4 100.7 19.3s64.2 30.2 91.3 51.9c27.1 21.7 49.2 48.3 66.3 79.7 17.1 31.2 25.6 64.3 25.6 98.8zM603.4 737v150c0 6.7-2.5 12.5-7.5 17.5s-10.8 7.5-17.5 7.5H428.3c-6.7 0-12.5-2.5-17.5-7.5s-7.5-10.8-7.5-17.5V737c0-6.7 2.5-12.5 7.5-17.5s10.8-7.5 17.5-7.5h150.1c6.7 0 12.5 2.5 17.5 7.5s7.5 10.7 7.5 17.5z"/></symbol>
+    <symbol id="icon-favorite" viewBox="0 0 1024 1024"><path fill="#AFB1B3" d="M752 939.2c-9.6 0-20.8-3.2-30.4-8l-208-104-209.6 104c-20.8 11.2-48 9.6-67.2-4.8-19.2-14.4-30.4-40-25.6-64l43.2-224L89.6 484.8C72 467.2 65.6 440 72 417.6c8-24 27.2-41.6 52.8-44.8l228.8-41.6 102.4-208c11.2-22.4 33.6-36.8 57.6-36.8s48 14.4 57.6 36.8l102.4 208 228.8 40c24 3.2 44.8 20.8 51.2 44.8 8 24 1.6 49.6-16 67.2L772.8 638.4l41.6 224c4.8 25.6-6.4 49.6-25.6 64-9.6 8-22.4 12.8-36.8 12.8z"/></symbol>
+    <style>
+      .select { animation: select 5s ease-in-out infinite; }
+      .cursor { animation: blink 1s step-end infinite; }
+      .console { animation: console 5s ease-in-out infinite; }
+      .status-dot { animation: status-dot 2s ease-in-out infinite; }
+      .feature-tag { animation: feature-tag 10s ease-in-out infinite; }
+      .feature-tag-text { animation: feature-tag-text 10s ease-in-out infinite; }
+      .feature-tag:nth-of-type(2) { animation-delay:-8s; }
+      .feature-tag:nth-of-type(3) { animation-delay:-6s; }
+      .feature-tag:nth-of-type(4) { animation-delay:-4s; }
+      .feature-tag:nth-of-type(5) { animation-delay:-2s; }
+      .feature-tag-text:nth-of-type(2) { animation-delay:-8s; }
+      .feature-tag-text:nth-of-type(3) { animation-delay:-6s; }
+      .feature-tag-text:nth-of-type(4) { animation-delay:-4s; }
+      .feature-tag-text:nth-of-type(5) { animation-delay:-2s; }
+      @keyframes select { 0%,100% { fill:#295a9f; } 50% { fill:#3673c1; } }
+      @keyframes blink { 0%,46% { opacity:1; } 47%,100% { opacity:0; } }
+      @keyframes console { 0%,42% { opacity:.32; } 56%,100% { opacity:1; } }
+      @keyframes status-dot { 0%,100% { opacity:.5; } 50% { opacity:1; } }
+      @keyframes feature-tag { 0%,18% { fill:#1d3b57; stroke:#346b9c; } 25%,100% { fill:#292d32; stroke:#454b54; } }
+      @keyframes feature-tag-text { 0%,18% { fill:#c9e5ff; } 25%,100% { fill:#d1d9e2; } }
+      @media (prefers-reduced-motion:reduce) { .select,.cursor,.console,.status-dot,.feature-tag,.feature-tag-text { animation:none; } }
+    </style>
+  </defs>
+  <rect width="1280" height="800" fill="#101318"/>
+  <circle cx="1172" cy="87" r="268" fill="#173252" opacity=".38"/>
+  <circle cx="44" cy="714" r="230" fill="#402d17" opacity=".28"/>
+  <text x="64" y="69" fill="#f5f7fa" font-family="Arial,sans-serif" font-size="32" font-weight="700">LeetCode Editor</text>
+  <line x1="333" y1="47" x2="333" y2="75" stroke="#4a515a"/>
+  <text x="354" y="67" fill="#aeb7c2" font-family="Arial,sans-serif" font-size="17">Solve LeetCode without leaving your IDE</text>
+  <g filter="url(#card-shadow)">
+    <rect class="feature-tag" x="64" y="94" width="178" height="28" rx="14" fill="#1d3b57" stroke="#346b9c"/>
+    <text class="feature-tag-text" x="84" y="113" fill="#c9e5ff" font-family="Arial,sans-serif" font-size="12" font-weight="700">JetBrains IDE plugin</text>
+    <rect class="feature-tag" x="254" y="94" width="142" height="28" rx="14" fill="#292d32" stroke="#454b54"/>
+    <text class="feature-tag-text" x="274" y="113" fill="#d1d9e2" font-family="Arial,sans-serif" font-size="12">Browse problems</text>
+    <rect class="feature-tag" x="408" y="94" width="106" height="28" rx="14" fill="#292d32" stroke="#454b54"/>
+    <text class="feature-tag-text" x="428" y="113" fill="#d1d9e2" font-family="Arial,sans-serif" font-size="12">Write code</text>
+    <rect class="feature-tag" x="526" y="94" width="120" height="28" rx="14" fill="#292d32" stroke="#454b54"/>
+    <text class="feature-tag-text" x="546" y="113" fill="#d1d9e2" font-family="Arial,sans-serif" font-size="12">Debug locally</text>
+    <rect class="feature-tag" x="658" y="94" width="132" height="28" rx="14" fill="#292d32" stroke="#454b54"/>
+    <text class="feature-tag-text" x="678" y="113" fill="#d1d9e2" font-family="Arial,sans-serif" font-size="12">Submit solutions</text>
+  </g>
+  <g transform="translate(64 146) scale(1)">
+  <g filter="url(#shadow)">
+    <rect x="28" y="22" width="1144" height="576" rx="12" fill="#1d2024"/>
+    <g clip-path="url(#window)">
+      <rect x="28" y="22" width="1144" height="31" fill="#2b3036"/>
+      <circle cx="52" cy="37.5" r="7" fill="#ff5f57"/><circle cx="74" cy="37.5" r="7" fill="#febc2e"/><circle cx="96" cy="37.5" r="7" fill="#28c840"/>
+      <rect x="28" y="53" width="31" height="545" fill="#2b3036"/>
+      <rect x="33" y="103" width="22" height="23" rx="4" fill="#356fc3"/><use href="#icon-leetcode" x="37.5" y="108" width="13" height="13"/>
+      <rect x="59" y="53" width="326" height="433" fill="#202327"/><rect x="59" y="53" width="326" height="31" fill="#292d32"/>
+      <text x="70" y="74" fill="#d1d9e2" font-family="Arial,sans-serif" font-size="13" font-weight="700">Leetcode</text>
+      <g><use href="#icon-refresh" x="68" y="93" width="16" height="16"/><use href="#icon-find" x="94" y="93" width="16" height="16"/><use href="#icon-filter" x="120" y="93" width="16" height="16"/><use href="#icon-config" x="146" y="93" width="16" height="16"/><use href="#icon-help" x="172" y="93" width="16" height="16"/><use href="#icon-favorite" x="198" y="93" width="16" height="16"/></g>
+      <g font-family="Arial,sans-serif" font-size="12"><text x="83" y="132" fill="#aeb7c2">S</text><text x="135" y="132" fill="#aeb7c2">Title</text><text x="247" y="132" fill="#aeb7c2">AC</text><text x="299" y="132" fill="#aeb7c2">D</text></g>
+      <rect class="select" x="63" y="145" width="318" height="19" fill="#295a9f"/><g font-family="Arial,sans-serif" font-size="12"><text x="72" y="159" fill="#e2e8f0">[1] Two Sum</text><text x="247" y="159" fill="#d6deea">50.0%</text><text x="299" y="159" fill="#70c77a">Easy</text><text x="72" y="178" fill="#c9d0d9">[2] Add Two Numbers</text><text x="247" y="178" fill="#c9d0d9">50.0%</text><text x="299" y="178" fill="#e6a33d">Medium</text><text x="72" y="197" fill="#c9d0d9">[3] Longest Substring</text><text x="247" y="197" fill="#c9d0d9">50.0%</text><text x="299" y="197" fill="#d66b67">Hard</text><text x="72" y="216" fill="#c9d0d9">[15] 3Sum</text><text x="247" y="216" fill="#c9d0d9">50.0%</text><text x="299" y="216" fill="#e6a33d">Medium</text><text x="72" y="235" fill="#c9d0d9">[20] Valid Parentheses</text><text x="247" y="235" fill="#c9d0d9">50.0%</text><text x="299" y="235" fill="#70c77a">Easy</text><text x="72" y="254" fill="#c9d0d9">[49] Group Anagrams</text><text x="247" y="254" fill="#c9d0d9">50.0%</text><text x="299" y="254" fill="#e6a33d">Medium</text><text x="72" y="273" fill="#c9d0d9">[70] Climbing Stairs</text><text x="247" y="273" fill="#c9d0d9">50.0%</text><text x="299" y="273" fill="#70c77a">Easy</text></g>
+      <rect x="63" y="454" width="316" height="28" fill="#25292e"/>
+      <g fill="#aeb7c2" font-family="Arial,sans-serif" font-size="12"><text x="71" y="472">50</text><path d="m101 466 3 3 3-3" fill="none" stroke="#aeb7c2" stroke-linecap="round" stroke-linejoin="round"/><path d="m151 469 4-4v8z"/><text x="190" y="472">1</text><path d="m344 465 4 4-4 4z"/><text x="358" y="472">Go</text></g>
+      <rect x="386" y="53" width="786" height="433" fill="#1e1f22"/><rect x="386" y="53" width="786" height="32" fill="#292d32"/><rect x="400" y="60" width="78" height="20" rx="4" fill="#25292e" stroke="#494f57"/><text x="408" y="75" fill="#d0d8e2" font-family="Arial,sans-serif" font-size="12">1 Two Sum</text>
+      <rect x="386" y="85" width="786" height="31" fill="#202327"/><rect x="398" y="91" width="49" height="21" rx="4" fill="#315a91"/><text x="405" y="105" fill="#e5edf8" font-family="Arial,sans-serif" font-size="11">Content</text><text x="460" y="105" fill="#c1c9d2" font-family="Arial,sans-serif" font-size="11">Solution</text><text x="518" y="105" fill="#c1c9d2" font-family="Arial,sans-serif" font-size="11">Submissions</text><text x="603" y="105" fill="#c1c9d2" font-family="Arial,sans-serif" font-size="11">Note</text>
+      <line x1="741" y1="116" x2="741" y2="486" stroke="#34373b"/><g font-family="Arial,sans-serif"><text x="411" y="150" fill="#e6edf5" font-size="18" font-weight="700">1. Two Sum</text><rect x="412" y="162" width="42" height="19" rx="9" fill="#295c37"/><text x="422" y="176" fill="#8cdb96" font-size="11">Easy</text><text x="467" y="176" fill="#9aa6b2" font-size="12">Array  ·  Hash Table</text><text x="411" y="211" fill="#c5cdd7" font-size="13">Given nums and a target, return the indices</text><text x="411" y="234" fill="#c5cdd7" font-size="13">of two values that add up to the target.</text><text x="411" y="257" fill="#c5cdd7" font-size="13">Each input has exactly one solution.</text><text x="411" y="301" fill="#eef2f7" font-size="14" font-weight="700">Example 1:</text><rect x="411" y="313" width="296" height="80" rx="4" fill="#282b30"/><text x="425" y="336" fill="#c9d0d9" font-size="12" font-family="monospace">Input: nums = [2,7,11,15], target = 9</text><text x="425" y="360" fill="#c9d0d9" font-size="12" font-family="monospace">Output: [0,1]</text><text x="425" y="384" fill="#c9d0d9" font-size="12" font-family="monospace">Explanation: nums[0] + nums[1] == 9</text></g>
+      <g font-family="monospace" font-size="13"><text x="758" y="143" fill="#737b86">1</text><text x="780" y="143" fill="#85909d">// @leetcode submit region begin</text><text x="758" y="166" fill="#737b86">2</text><text x="780" y="166" fill="#c886e8">class</text><text x="820" y="166" fill="#d7dee8"> Solution {</text><text x="758" y="189" fill="#737b86">3</text><text x="780" y="189" fill="#5db4f5">  public int[]</text><text x="873" y="189" fill="#d7dee8"> twoSum(int[] nums, int target) {</text><text x="758" y="212" fill="#737b86">4</text><text x="780" y="212" fill="#d7dee8">    return new int[] {0, 1};</text><text x="758" y="235" fill="#737b86">5</text><text x="780" y="235" fill="#d7dee8">  }</text><text x="758" y="258" fill="#737b86">6</text><text x="780" y="258" fill="#d7dee8">}</text><rect class="cursor" x="798" y="242" width="7" height="16" fill="#efc461"/></g>
+      <rect x="59" y="486" width="1113" height="112" fill="#1d1f22" stroke="#303338"/><text x="70" y="507" fill="#d1d9e2" font-family="Arial,sans-serif" font-size="12" font-weight="700">LeetCode Console</text><text x="72" y="536" fill="#d59c43" font-family="monospace" font-size="12">›  2026/08/01 00:00:00</text><text class="console" x="72" y="558" fill="#d7dee8" font-family="monospace" font-size="12">Success: Runtime: 1 ms, faster than 50.00% of Java online submissions.</text><text class="console" x="72" y="579" fill="#d7dee8" font-family="monospace" font-size="12">Memory Usage: 10 MB, less than 50.00% of Java online submissions.</text>
+    </g>
+    <rect x="28" y="22" width="1144" height="576" rx="12" fill="none" stroke="#3c4249"/>
+  </g>
+  </g>
+</svg>

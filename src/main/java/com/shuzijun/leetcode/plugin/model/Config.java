@@ -280,9 +280,12 @@ public class Config implements Cloneable {
     @Transient
     public Color[] getFormatLevelColour() {
         Color[] formatColors = new Color[3];
-        formatColors[0] = new Color(92, 184, 92);
-        formatColors[1] = new Color(240, 173, 78);
-        formatColors[2] = new Color(217, 83, 79);
+        formatColors[0] = new Color(106, 171, 115);
+        formatColors[1] = new Color(217, 164, 65);
+        formatColors[2] = new Color(199, 84, 80);
+        if (Constant.LEGACY_LEVEL_COLOUR.equalsIgnoreCase(getLevelColour())) {
+            return formatColors;
+        }
         String[] colors = getLevelColour().split(";");
         if (colors.length > 0) {
             try {

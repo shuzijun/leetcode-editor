@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 /**
  * @author shuzijun
@@ -26,10 +27,20 @@ public class QuestionManager {
     private static final Cache<String, QuestionView> dayMap = CacheBuilder.newBuilder().maximumSize(5).expireAfterWrite(2, TimeUnit.DAYS).build();
     private static final Cache<String, Question> questionCache = CacheBuilder.newBuilder().maximumSize(30).build();
     private static final Cache<String, List<QuestionView>> questionAllCache = CacheBuilder.newBuilder().expireAfterWrite(2, TimeUnit.DAYS).build();
-    private static final Map<String, Map<String, Integer>> questionIndexCache = Maps.newLinkedHashMap();
+    private static final Map<String, Map<String, Integer>> questionIndexCache = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final com.google.common.util.concurrent.Striped<Lock> questionAllLocks =
+            com.google.common.util.concurrent.Striped.lazyWeakLock(16);
+    private static final com.google.common.util.concurrent.Striped<Lock> questionLocks =
+            com.google.common.util.concurrent.Striped.lazyWeakLock(64);
 
 
     public static PageInfo<QuestionView> getQuestionViewList(Project project, PageInfo<QuestionView> pageInfo) {
+        LogUtils.navigatorTrace("getQuestionViewList:request"
+                + " page=" + pageInfo.getPageIndex()
+                + " skip=" + pageInfo.getSkip()
+                + " limit=" + pageInfo.getPageSize()
+                + " category=" + pageInfo.getCategorySlug()
+                + " filters=" + pageInfo.getFilters());
         boolean isPremium = false;
         User user = WindowFactory.getDataContext(project).getData(DataKeys.LEETCODE_PROJECTS_TABS).getUser();
         if (user != null) {
@@ -51,7 +62,17 @@ public class QuestionManager {
             Integer total = JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONObject("problemsetQuestionList").getInteger("total");
             pageInfo.setRowTotal(total);
             pageInfo.setRows(questionList);
+            LogUtils.navigatorTrace("getQuestionViewList:response"
+                    + " status=" + response.getStatusCode()
+                    + " page=" + pageInfo.getPageIndex()
+                    + " total=" + total
+                    + " questionRows=" + (dayQuestion == null ? questionList.size() : questionList.size() - 1)
+                    + " dailyQuestion=" + (dayQuestion != null)
+                    + " displayedRows=" + questionList.size());
         } else {
+            LogUtils.navigatorTrace("getQuestionViewList:failed status=" + response.getStatusCode()
+                    + " page=" + pageInfo.getPageIndex()
+                    + " skip=" + pageInfo.getSkip());
             LogUtils.LOG.error("Request question list failed, status:" + response.getStatusCode());
             throw new RuntimeException("Request question list failed");
         }
@@ -68,7 +89,9 @@ public class QuestionManager {
         }
         if (questionAllCache.getIfPresent(URLUtils.getLeetcodeHost()) == null || reset) {
             String key = URLUtils.getLeetcodeHost() + "getQuestionAll";
-            synchronized (key.intern()) {
+            Lock questionAllLock = questionAllLocks.get(key);
+            questionAllLock.lock();
+            try {
                 if (questionAllCache.getIfPresent(URLUtils.getLeetcodeHost()) == null || reset) {
                     HttpResponse response = Graphql.builder().cn(URLUtils.isCn()).operationName("allQuestions")
                             .cacheParam(WindowFactory.getDataContext(project).getData(DataKeys.LEETCODE_PROJECTS_TABS).getUser().getUsername()).request();
@@ -105,22 +128,42 @@ public class QuestionManager {
                         questionIndexCache.remove(URLUtils.getLeetcodeHost());
                     }
                 }
+            } finally {
+                questionAllLock.unlock();
             }
         }
         return questionAllCache.getIfPresent(URLUtils.getLeetcodeHost());
     }
 
     public static QuestionIndex getQuestionIndex(String titleSlug) {
-        if (questionAllCache.getIfPresent(URLUtils.getLeetcodeHost()) == null) {
-            return null;
-        } else if (!questionIndexCache.get(URLUtils.getLeetcodeHost()).containsKey(titleSlug)) {
+        String host = URLUtils.getLeetcodeHost();
+        List<QuestionView> questionViews = questionAllCache.getIfPresent(host);
+        Map<String, Integer> questionIndexes = questionIndexCache.get(host);
+        if (questionViews == null || questionIndexes == null || !questionIndexes.containsKey(titleSlug)) {
             return null;
         } else {
             QuestionIndex questionIndex = new QuestionIndex();
-            questionIndex.setIndex(questionIndexCache.get(URLUtils.getLeetcodeHost()).get(titleSlug));
-            questionIndex.setQuestionView(questionAllCache.getIfPresent(URLUtils.getLeetcodeHost()).get(questionIndex.getIndex()));
+            questionIndex.setIndex(questionIndexes.get(titleSlug));
+            questionIndex.setQuestionView(questionViews.get(questionIndex.getIndex()));
             return questionIndex;
         }
+    }
+
+    public static void invalidateCaches() {
+        dayMap.invalidateAll();
+        questionCache.invalidateAll();
+        questionAllCache.invalidateAll();
+        questionIndexCache.clear();
+    }
+
+    public static void invalidateCaches(String host) {
+        if (StringUtils.isBlank(host)) {
+            return;
+        }
+        dayMap.asMap().keySet().removeIf(key -> key.startsWith(host));
+        questionCache.asMap().keySet().removeIf(key -> key.startsWith(host));
+        questionAllCache.invalidate(host);
+        questionIndexCache.remove(host);
     }
 
     private static List<QuestionView> parseQuestion(String str, Boolean isPremium) {
@@ -342,7 +385,9 @@ public class QuestionManager {
             return null;
         }
         if (questionCache.getIfPresent(key) == null) {
-            synchronized (key.intern()) {
+            Lock questionLock = questionLocks.get(key);
+            questionLock.lock();
+            try {
                 if (questionCache.getIfPresent(key) == null) {
                     try {
                         Question question = new Question();
@@ -356,6 +401,8 @@ public class QuestionManager {
                         return null;
                     }
                 }
+            } finally {
+                questionLock.unlock();
             }
         }
         return questionCache.getIfPresent(key);

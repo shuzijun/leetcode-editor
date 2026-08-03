@@ -12,13 +12,13 @@ import java.util.Properties;
  */
 public class VelocityUtils {
 
-    private static String VM_LOG_TAG = "Leetcode VelocityUtils";
-    private static String VM_CONTEXT = "question";
-    private static VelocityEngine engine;
+    private static final String VM_LOG_TAG = "Leetcode VelocityUtils";
+    private static final String VM_CONTEXT = "question";
+    private static final VelocityEngine ENGINE;
 
 
     static {
-        engine = new VelocityEngine();
+        VelocityEngine engine = new VelocityEngine();
         engine.setProperty(RuntimeConstants.PARSER_POOL_SIZE, 20);
         engine.setProperty(RuntimeConstants.INPUT_ENCODING, "UTF-8");
         //engine.setProperty(RuntimeConstants.OUTPUT_ENCODING, "UTF-8");
@@ -29,6 +29,7 @@ public class VelocityUtils {
         props.put("runtime.log.logsystem.log4j.logger", "velocity");
 
         engine.init(props);
+        ENGINE = engine;
     }
 
     public static String convert(String template, Object data) {
@@ -38,10 +39,7 @@ public class VelocityUtils {
         velocityContext.put(VM_CONTEXT, data);
         velocityContext.put("velocityTool", new VelocityTool());
         velocityContext.put("vt", new VelocityTool());
-        boolean isSuccess = engine.evaluate(velocityContext, writer, VM_LOG_TAG, template);
-        if (!isSuccess) {
-
-        }
+        ENGINE.evaluate(velocityContext, writer, VM_LOG_TAG, template);
         return writer.toString();
     }
 }

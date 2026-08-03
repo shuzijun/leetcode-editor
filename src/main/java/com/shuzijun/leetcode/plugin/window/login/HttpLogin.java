@@ -9,6 +9,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.plugin.listener.LoginNotifier;
 import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
+import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.HttpRequest;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
@@ -61,8 +62,7 @@ public class HttpLogin {
                     JSONArray jsonArray = jsonObject.getJSONObject("form").getJSONArray("errors");
                     if (jsonArray.isEmpty()) {
                         MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                        NavigatorTabsPanel.loadUser(true);
-                        ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(project, config.getUrl());
+                        notifyLoginAfterUserLoaded(project, config.getUrl());
                         examineEmail(project);
                         return Boolean.TRUE;
                     } else {
@@ -71,8 +71,7 @@ public class HttpLogin {
                     }
                 } else if (StringUtils.isBlank(body)) {
                     MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                    NavigatorTabsPanel.loadUser(true);
-                    ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(project, config.getUrl());
+                    notifyLoginAfterUserLoaded(project, config.getUrl());
                     examineEmail(project);
                     return Boolean.TRUE;
                 } else {
@@ -108,16 +107,20 @@ public class HttpLogin {
             @Override
             public void run() {
                 try {
-                    User user = WindowFactory.getDataContext(project).getData(DataKeys.LEETCODE_PROJECTS_TABS).getUser();
-                    if (user.isVerified() || user.isPhoneVerified()) {
+                    User user = QuestionManager.getUser();
+                    if (!shouldWarnUnverifiedUser(user)) {
                         return;
                     }
                     MessageUtils.getInstance(project).showWarnMsg("info", PropertiesUtils.getInfo("user.email"));
                 } catch (Exception i) {
-                    LogUtils.LOG.error("验证邮箱错误");
+                    LogUtils.LOG.error("Failed to check email verification status", i);
                 }
             }
         });
+    }
+
+    static boolean shouldWarnUnverifiedUser(User user) {
+        return user != null && user.isSignedIn() && !user.isVerified() && !user.isPhoneVerified();
     }
 
     public static void loginSuccess(Project project, List<HttpCookie> cookieList) {
@@ -128,9 +131,19 @@ public class HttpLogin {
                 config.addCookie(config.getUrl() + config.getLoginName(), CookieUtils.httpCookieToJSONString(cookieList));
                 PersistentConfig.getInstance().setInitConfig(config);
                 MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                NavigatorTabsPanel.loadUser(true);
-                ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(project, config.getUrl());
+                notifyLoginAfterUserLoaded(project, config.getUrl());
                 examineEmail(project);
+            }
+        });
+    }
+
+    public static void notifyLoginAfterUserLoaded(Project project, String host) {
+        NavigatorTabsPanel.loadUser(true).whenComplete((user, throwable) -> {
+            if (throwable != null) {
+                LogUtils.LOG.warn("Failed to synchronize user data after login", throwable);
+            }
+            if (!project.isDisposed()) {
+                ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(project, host);
             }
         });
     }

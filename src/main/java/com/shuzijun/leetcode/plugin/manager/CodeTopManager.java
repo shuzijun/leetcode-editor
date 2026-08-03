@@ -3,6 +3,7 @@ package com.shuzijun.leetcode.plugin.manager;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.utils.*;
@@ -21,19 +22,75 @@ public class CodeTopManager {
     }
 
     public static void loadServiceData(NavigatorAction navigatorAction, Project project, String selectTitleSlug) {
+        long requestVersion = NavigatorRequestTracker.begin(navigatorAction);
+        PageInfo<CodeTopQuestionView> pageInfo = copyPageInfo(navigatorAction.getPageInfo());
+        boolean needsFilters = navigatorAction.getFind().getFilter().isEmpty();
+        if (ApplicationManager.getApplication().isDispatchThread()) {
+            ApplicationManager.getApplication().executeOnPooledThread(
+                    () -> loadServiceData(navigatorAction, project, selectTitleSlug, requestVersion, pageInfo, needsFilters));
+            return;
+        }
+        loadServiceData(navigatorAction, project, selectTitleSlug, requestVersion, pageInfo, needsFilters);
+    }
+
+    private static void loadServiceData(NavigatorAction navigatorAction, Project project, String selectTitleSlug,
+                                        long requestVersion, PageInfo<CodeTopQuestionView> pageInfo, boolean needsFilters) {
+        if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
+            return;
+        }
         QuestionManager.getQuestionAllService(project, false);
-        PageInfo pageInfo = CodeTopManager.getQuestionService(project, navigatorAction.getPageInfo());
-        if ((pageInfo.getRows() == null || pageInfo.getRows().isEmpty()) && pageInfo.getRowTotal() != 0) {
+        if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
+            return;
+        }
+        PageInfo<CodeTopQuestionView> loadedPageInfo = CodeTopManager.getQuestionService(project, pageInfo);
+        if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
+            return;
+        }
+        if ((loadedPageInfo.getRows() == null || loadedPageInfo.getRows().isEmpty()) && loadedPageInfo.getRowTotal() != 0) {
             MessageUtils.getInstance(project).showErrorMsg("error", PropertiesUtils.getInfo("response.question"));
             return;
         }
 
-        if (navigatorAction.getFind().getFilter().isEmpty()) {
-            navigatorAction.getFind().addFilter(Constant.CODETOP_FIND_TYPE_DIFFICULTY, CodeTopManager.getDifficulty());
-            navigatorAction.getFind().addFilter(Constant.CODETOP_FIND_TYPE_TAGS, CodeTopManager.getTags());
-            navigatorAction.getFind().addFilter(Constant.CODETOP_FIND_TYPE_COMPANY, CodeTopManager.getCompany());
+        List<Tag> difficulties = null;
+        List<Tag> tags = null;
+        List<Tag> companies = null;
+        if (needsFilters) {
+            difficulties = CodeTopManager.getDifficulty();
+            tags = CodeTopManager.getTags();
+            companies = CodeTopManager.getCompany();
         }
-        navigatorAction.loadData(selectTitleSlug);
+        List<Tag> finalDifficulties = difficulties;
+        List<Tag> finalTags = tags;
+        List<Tag> finalCompanies = companies;
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
+                return;
+            }
+            if (needsFilters && navigatorAction.getFind().getFilter().isEmpty()) {
+                navigatorAction.getFind().addFilter(Constant.CODETOP_FIND_TYPE_DIFFICULTY, finalDifficulties);
+                navigatorAction.getFind().addFilter(Constant.CODETOP_FIND_TYPE_TAGS, finalTags);
+                navigatorAction.getFind().addFilter(Constant.CODETOP_FIND_TYPE_COMPANY, finalCompanies);
+            }
+            applyPageInfo(navigatorAction.getPageInfo(), loadedPageInfo);
+            navigatorAction.loadData(selectTitleSlug);
+        }, ignored -> project.isDisposed());
+    }
+
+    private static PageInfo<CodeTopQuestionView> copyPageInfo(PageInfo<CodeTopQuestionView> pageInfo) {
+        PageInfo<CodeTopQuestionView> copy = new PageInfo<>(pageInfo.getPageIndex(), pageInfo.getPageSize());
+        PageInfo.Filters sourceFilters = pageInfo.getFilters();
+        PageInfo.Filters targetFilters = copy.getFilters();
+        targetFilters.setOrderBy(sourceFilters.getOrderBy());
+        targetFilters.setSortOrder(sourceFilters.getSortOrder());
+        targetFilters.setDifficulty(sourceFilters.getDifficulty());
+        targetFilters.setListId(sourceFilters.getListId());
+        targetFilters.setTags(sourceFilters.getTags() == null ? null : new ArrayList<>(sourceFilters.getTags()));
+        return copy;
+    }
+
+    private static void applyPageInfo(PageInfo<CodeTopQuestionView> target, PageInfo<CodeTopQuestionView> source) {
+        target.setRowTotal(source.getRowTotal());
+        target.setRows(source.getRows());
     }
 
     private static List<Tag> getCompany() {

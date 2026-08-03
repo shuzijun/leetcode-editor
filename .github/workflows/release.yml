@@ -6,74 +6,128 @@ on:
       version:
         description: 'Release version'
         required: true
+        type: string
   push:
     tags:
       - 'v*.*'
 
+permissions:
+  contents: write
+
 jobs:
-  greet:
-    runs-on: ubuntu-latest
+  quality-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Set LD_VERSION
-      if: ${{ github.event_name == 'push'}}
-      run: echo "LD_VERSION=${GITHUB_REF#refs/*/v}" >> $GITHUB_ENV
-    - name: Set LD_VERSION
-      if: ${{ github.event_name == 'workflow_dispatch'}}
-      run: echo "LD_VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
-    - name: Set PUBLISH_TOKEN
-      run: echo "PUBLISH_TOKEN=${{ secrets.PUBLISH_TOKEN }}" >> $GITHUB_ENV
+      - name: Resolve release version
+        id: version
+        shell: bash
+        env:
+          DISPATCH_VERSION: ${{ inputs.version }}
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version="${DISPATCH_VERSION#v}"
+          fi
+          if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Invalid release version: ${version}"
+            exit 1
+          fi
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+          echo "tag=v${version}" >> "${GITHUB_OUTPUT}"
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v1
-      with:
-        java-version: 17
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
 
-    - name: Build the plugin
-      run:  ./gradlew publishPlugin
-      env:
-        LD_VERSION: ${{ env.LD_VERSION }}
-        PUBLISH_TOKEN: ${{ env.PUBLISH_TOKEN }}
+      - name: Restore IDEA Starter downloads
+        id: idea-starter-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: out/ide-tests/cache
+          key: idea-starter-${{ runner.os }}-${{ runner.arch }}-2026.2-${{ hashFiles('gradle.properties', 'gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties', 'build.gradle.kts', 'settings.gradle.kts') }}
+          restore-keys: |
+            idea-starter-${{ runner.os }}-${{ runner.arch }}-2026.2-
 
-        #     - name: Verify plugin
-        #       id: verify
-        #       uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.0.5
-        #       with:
-        #         failure-levels: |
-        #           INVALID_PLUGIN
-        #         ide-versions: |
-        #           ideaIC:2020.3
-        #           ideaIC:LATEST-EAP-SNAPSHOT
+      - name: Install virtual display
+        shell: bash
+        run: |
+          if ! command -v xvfb-run >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y xvfb
+          fi
 
-        #     - name: Print verify contents
-        #       run: |
-        #         echo "The log file path is: ${{steps.verify.outputs.verification-output-log-filename}}" ;
-        #         cat ${{steps.verify.outputs.verification-output-log-filename}}
+      - name: Run release quality gate
+        run: |
+          xvfb-run \
+            --auto-servernum \
+            --server-args="-screen 0 1920x1080x24 -ac +extension RANDR" \
+            ./gradlew qualityGate --no-daemon --stacktrace
+        env:
+          LD_VERSION: ${{ steps.version.outputs.version }}
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ env.LD_VERSION }}
-        release_name: v${{ env.LD_VERSION }}
-        draft: true
-        prerelease: false
+      - name: Save IDEA Starter downloads
+        if: ${{ !cancelled() && steps.idea-starter-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: out/ide-tests/cache
+          key: ${{ steps.idea-starter-cache.outputs.cache-primary-key }}
 
-    - name: Upload Release Asset
-      id: upload-release-asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: ./build/distributions/leetcode-editor-${{ env.LD_VERSION }}.zip
-        asset_name: leetcode-editor-${{ env.LD_VERSION }}.zip
-        asset_content_type: application/zip
+      - name: Upload quality gate reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-quality-gate-reports-${{ steps.version.outputs.version }}
+          path: |
+            build/reports/
+            build/test-results/
+            out/ide-tests/tests/
+          if-no-files-found: warn
+          retention-days: 7
+
+  release:
+    needs: quality-gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Publish the plugin
+        run: ./gradlew publishPlugin --no-daemon --stacktrace
+        env:
+          LD_VERSION: ${{ needs.quality-gate.outputs.version }}
+          PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+
+      - name: Create draft GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.quality-gate.outputs.tag }}
+          name: ${{ needs.quality-gate.outputs.tag }}
+          draft: true
+          prerelease: ${{ contains(needs.quality-gate.outputs.version, '-') }}
+          files: build/distributions/leetcode-editor-${{ needs.quality-gate.outputs.version }}.zip
+          fail_on_unmatched_files: true

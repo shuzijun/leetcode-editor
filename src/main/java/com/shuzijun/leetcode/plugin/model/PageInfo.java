@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import org.apache.commons.lang3.StringUtils;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,33 +88,7 @@ public class PageInfo<T> {
     }
 
     public void disposeFilters(String key, String value, boolean select) {
-        Field[] fields = filters.getClass().getDeclaredFields();
-        for (Field field : fields) {
-            if (field.getName().equalsIgnoreCase(key)) {
-                field.setAccessible(true);
-                try {
-                    if (List.class.isAssignableFrom(field.getType())) {
-                        List list = (List) field.get(filters);
-                        if (list == null && select) {
-                            list = new ArrayList();
-                        }
-                        if (select) {
-                            list.add(value);
-                        } else if (list != null) {
-                            list.remove(value);
-                            if (list.isEmpty()) {
-                                list = null;
-                            }
-                        }
-                        field.set(filters, list);
-                    } else {
-                        field.set(filters, select ? value : null);
-                    }
-                } catch (IllegalAccessException e) {
-                }
-                break;
-            }
-        }
+        filters.update(key, value, select);
     }
 
     public void clear() {
@@ -216,25 +189,45 @@ public class PageInfo<T> {
         }
         @JSONField(serialize = false)
         public boolean isNoFilter() {
-            Field[] fields = this.getClass().getDeclaredFields();
-            for (Field field : fields) {
-                field.setAccessible(true);
-                try {
-                    if (List.class.isAssignableFrom(field.getType())) {
-                        List list = (List) field.get(this);
-                        if (list != null && !list.isEmpty()) {
-                            return false;
-                        }
-                    } else {
-                        String str = (String) field.get(this);
-                        if (StringUtils.isNotBlank(str)) {
-                            return false;
-                        }
-                    }
-                } catch (IllegalAccessException e) {
+            return StringUtils.isBlank(searchKeywords)
+                    && StringUtils.isBlank(orderBy)
+                    && StringUtils.isBlank(sortOrder)
+                    && StringUtils.isBlank(difficulty)
+                    && StringUtils.isBlank(status)
+                    && StringUtils.isBlank(listId)
+                    && (tags == null || tags.isEmpty());
+        }
+
+        private void update(String key, String value, boolean select) {
+            if ("searchKeywords".equalsIgnoreCase(key)) {
+                searchKeywords = select ? value : null;
+            } else if ("orderBy".equalsIgnoreCase(key)) {
+                orderBy = select ? value : null;
+            } else if ("sortOrder".equalsIgnoreCase(key)) {
+                sortOrder = select ? value : null;
+            } else if ("difficulty".equalsIgnoreCase(key)) {
+                difficulty = select ? value : null;
+            } else if ("status".equalsIgnoreCase(key)) {
+                status = select ? value : null;
+            } else if ("listId".equalsIgnoreCase(key)) {
+                listId = select ? value : null;
+            } else if ("tags".equalsIgnoreCase(key)) {
+                updateTags(value, select);
+            }
+        }
+
+        private void updateTags(String value, boolean select) {
+            if (select) {
+                if (tags == null) {
+                    tags = new ArrayList<>();
+                }
+                tags.add(value);
+            } else if (tags != null) {
+                tags.remove(value);
+                if (tags.isEmpty()) {
+                    tags = null;
                 }
             }
-            return true;
         }
 
         @Override

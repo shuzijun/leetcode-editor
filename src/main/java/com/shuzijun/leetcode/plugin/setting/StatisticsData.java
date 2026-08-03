@@ -10,7 +10,6 @@ import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Session;
 import com.shuzijun.leetcode.plugin.model.Statistics;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
-import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,7 +48,7 @@ public class StatisticsData implements PersistentStateComponent<StatisticsData.I
     public static void refresh(Project project) {
         StatisticsData statisticsData = StatisticsData.getInstance(project);
         List<Session> sessionList = SessionManager.getSession(project, true);
-        if (CollectionUtils.isEmpty(sessionList)) {
+        if (statisticsData == null || sessionList == null || sessionList.isEmpty()) {
             return;
         }
         Session session = sessionList.get(0);
