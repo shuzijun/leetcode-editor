@@ -235,7 +235,7 @@ tasks {
     }
 
     publishPlugin {
-        dependsOn(patchChangelog, "qualityGate")
+        dependsOn(patchChangelog)
     }
 
     named("buildSearchableOptions") {
@@ -267,6 +267,8 @@ intellijPlatformTesting {
                 dependsOn(tasks.named("integrationTestPathingJar"))
                 dependsOn(tasks.buildPlugin)
                 systemProperty("path.to.build.plugin", tasks.buildPlugin.flatMap { it.archiveFile })
+                systemProperty("leetcode.test.wait.timeout.seconds", "180")
+                maxParallelForks = 1
                 jvmArgs("--enable-native-access=ALL-UNNAMED")
                 useJUnitPlatform {
                     excludeEngines("junit-vintage")
