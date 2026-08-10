@@ -1,3 +1,0 @@
-query randomQuestion($categorySlug: String!, $filters: QuestionListFilterInput) {
-    randomQuestion: problemsetRandomFilteredQuestion(categorySlug: $categorySlug, filters: $filters)
-}

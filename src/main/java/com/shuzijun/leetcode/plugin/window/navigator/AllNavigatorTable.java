@@ -6,7 +6,7 @@ import com.shuzijun.leetcode.plugin.listener.TreeMouseListener;
 import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.model.PageInfo;
 import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.model.QuestionView;
+import com.shuzijun.lc.model.QuestionView;
 import com.shuzijun.leetcode.plugin.window.NavigatorTableData;
 import icons.LeetCodeEditorIcons;
 

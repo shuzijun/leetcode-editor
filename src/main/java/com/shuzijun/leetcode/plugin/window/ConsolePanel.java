@@ -1,5 +1,6 @@
 package com.shuzijun.leetcode.plugin.window;
 
+import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.Disposable;
@@ -14,6 +15,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.product.ProductServices;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,7 +29,9 @@ public class ConsolePanel extends SimpleToolWindowPanel implements Disposable {
 
     public ConsolePanel(ToolWindow toolWindow, Project project) {
         super(Boolean.FALSE, Boolean.TRUE);
-        this.consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
+        TextConsoleBuilder consoleBuilder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
+        ProductServices.consolePresenter().configure(consoleBuilder);
+        this.consoleView = consoleBuilder.getConsole();
         setContent(createContent());
         final DefaultActionGroup consoleGroup = new DefaultActionGroup(consoleView.createConsoleActions());
         ActionToolbar consoleToolbar = ActionManager.getInstance().createActionToolbar(PluginConstant.ACTION_PREFIX + " ConsoleToolbar", consoleGroup, true);

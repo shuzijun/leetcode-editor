@@ -2,6 +2,7 @@ package com.shuzijun.leetcode.plugin.actions.editor;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.utils.BrowserUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -12,7 +13,12 @@ import com.shuzijun.leetcode.plugin.utils.URLUtils;
 public class OpenInWebAction extends AbstractEditAction {
 
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
+    public void actionPerformed(
+            AnActionEvent anActionEvent,
+            Config config,
+            LeetcodeEditor leetcodeEditor,
+            Question question
+    ) {
         BrowserUtils.browse(URLUtils.getLeetcodeProblems() + question.getTitleSlug());
     }
 }

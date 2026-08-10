@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.shuzijun.leetcode.plugin.application.LanguageTemplateService;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
@@ -13,7 +14,6 @@ import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.utils.LogUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
-import com.shuzijun.leetcode.plugin.utils.VelocityUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,9 @@ public class ClearOneAction extends AbstractTreeAction {
             return;
         }
 
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + VelocityUtils.convert(config.getCustomFileName(), question) + codeTypeEnum.getSuffix();
+        String filePath = PersistentConfig.getInstance().getTempFilePath()
+                + LanguageTemplateService.fileName(codeTypeEnum.getLangSlug(), question)
+                + codeTypeEnum.getSuffix();
 
         File file = new File(filePath);
         if (file.exists()) {

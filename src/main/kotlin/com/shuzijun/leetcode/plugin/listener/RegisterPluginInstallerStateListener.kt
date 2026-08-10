@@ -6,8 +6,9 @@ import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.startup.StartupActivity
+import com.intellij.openapi.startup.ProjectActivity
 import com.shuzijun.leetcode.plugin.model.PluginConstant
+import com.shuzijun.leetcode.plugin.product.ProductProfiles
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig
 import com.shuzijun.leetcode.plugin.utils.BrowserUtils
 import com.shuzijun.leetcode.plugin.utils.PluginVersionUtils
@@ -15,8 +16,8 @@ import com.shuzijun.leetcode.plugin.utils.PluginVersionUtils
 /**
  * @author shuzijun
  */
-class RegisterPluginInstallerStateListener : StartupActivity {
-    override fun runActivity(project: Project) {
+class RegisterPluginInstallerStateListener : ProjectActivity {
+    override suspend fun execute(project: Project) {
         val newVersion = PluginVersionUtils.getVersion()
         val config = PersistentConfig.getInstance().initConfig
         val oldVersion: String?
@@ -36,22 +37,21 @@ class RegisterPluginInstallerStateListener : StartupActivity {
     }
 
     private fun openChangelog(project: Project) {
+        val profile = ProductProfiles.current()
         val notification = Notification(
-            PluginConstant.NOTIFICATION_GROUP,
-            "What's New in ${PluginConstant.PLUGIN_ID}",
+            profile.notificationGroup(),
+            "What's New in ${profile.pluginId()}",
             "A new version is available.",
             NotificationType.INFORMATION
         )
         notification.addAction(NotificationAction.createSimple("View changelog") {
-            BrowserUtils.browse(CHANGELOGURL)
+            BrowserUtils.browse(profile.changelogUrl())
         })
         Notifications.Bus.notify(notification, project)
     }
 
     companion object {
-        private const val ShowNewHTMLEditorKey = PluginConstant.PLUGIN_ID + "ShowNewHTMLEditor"
-
-        private const val CHANGELOGURL = "https://github.com/shuzijun/leetcode-editor/blob/master/CHANGELOG.md"
+        private val ShowNewHTMLEditorKey = PluginConstant.PLUGIN_ID + "ShowNewHTMLEditor"
     }
 
 }

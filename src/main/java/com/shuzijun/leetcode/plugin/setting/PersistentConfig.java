@@ -3,12 +3,14 @@ package com.shuzijun.leetcode.plugin.setting;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Constant;
+import com.shuzijun.leetcode.plugin.model.CustomCode;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.product.ProductServices;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -24,7 +26,6 @@ import java.util.Map;
 /**
  * @author shuzijun
  */
-@State(name = "PersistentConfig" + PluginConstant.ACTION_SUFFIX, storages = {@Storage(value = PluginConstant.ACTION_PREFIX + "-config.xml", roamingType = RoamingType.DISABLED)})
 public class PersistentConfig implements PersistentStateComponent<PersistentConfig> {
 
     public static String PATH = "leetcode" + File.separator + "editor";
@@ -35,7 +36,7 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
 
 
     public static PersistentConfig getInstance() {
-        return ApplicationManager.getApplication().getService(PersistentConfig.class);
+        return ProductServices.persistentConfig();
     }
 
     @Nullable
@@ -68,7 +69,29 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
             config.setVersion(Constant.PLUGIN_CONFIG_VERSION_3);
             setInitConfig(config);
         }
+        if (config != null && config.getVersion() != null && config.getVersion() < Constant.PLUGIN_CONFIG_VERSION_4) {
+            migrateLanguageTemplate(config);
+            config.setVersion(Constant.PLUGIN_CONFIG_VERSION_4);
+            setInitConfig(config);
+        }
         return config;
+    }
+
+    private static void migrateLanguageTemplate(Config config) {
+        if (StringUtils.isBlank(config.getCodeType())) {
+            return;
+        }
+        CodeTypeEnum codeType = CodeTypeEnum.getCodeTypeEnum(config.getCodeType());
+        if (codeType == null) {
+            return;
+        }
+        String langSlug = codeType.getLangSlug();
+        CustomCode customCode = new CustomCode(
+                langSlug,
+                config.getCustomFileName(),
+                config.getCustomTemplate()
+        );
+        config.addCustomCode(langSlug, customCode);
     }
 
     @NotNull
@@ -95,15 +118,30 @@ public class PersistentConfig implements PersistentStateComponent<PersistentConf
         if (username == null || password == null) {
             return;
         }
-        PasswordSafe.getInstance().set(new CredentialAttributes(PluginConstant.PLUGIN_ID, username), new Credentials(username, password));
+        PasswordSafe.getInstance().set(passwordAttributes(username), new Credentials(username, password));
     }
 
     public String getPassword(String username) {
         if (getConfig().getVersion() != null && username != null) {
-            return PasswordSafe.getInstance().getPassword(new CredentialAttributes(PluginConstant.PLUGIN_ID, username));
+            String password = PasswordSafe.getInstance().getPassword(passwordAttributes(username));
+            if (password == null) {
+                password = PasswordSafe.getInstance().getPassword(legacyPasswordAttributes(username));
+                if (password != null) {
+                    savePassword(password, username);
+                }
+            }
+            return password;
         }
         return null;
 
+    }
+
+    static CredentialAttributes passwordAttributes(String username) {
+        return new CredentialAttributes(PluginConstant.PLUGIN_ID, username);
+    }
+
+    static CredentialAttributes legacyPasswordAttributes(String username) {
+        return new CredentialAttributes(PluginConstant.PLUGIN_ID, username, PersistentConfig.class);
     }
 
 }

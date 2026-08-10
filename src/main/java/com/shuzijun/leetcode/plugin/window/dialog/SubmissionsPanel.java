@@ -5,7 +5,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
-import com.shuzijun.leetcode.plugin.model.Submission;
+import com.shuzijun.lc.model.Submission;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -31,18 +31,27 @@ public class SubmissionsPanel extends DialogWrapper {
         super(project, true);
         jpanel = new JBPanel(new BorderLayout());
         jpanel.setMinimumSize(new Dimension(400, 400));
-        jpanel.setPreferredSize(new Dimension(400, 400));
+        jpanel.setPreferredSize(new Dimension(600, 400));
         table = new JBTable(tableModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
         table.setRowSelectionAllowed(true);
+        table.setFillsViewportHeight(true);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         table.setRowSelectionInterval(0, 0);
         table.getColumnModel().getColumn(0).setPreferredWidth(350);
         table.getColumnModel().getColumn(1).setPreferredWidth(200);
         table.getColumnModel().getColumn(2).setPreferredWidth(100);
         table.getColumnModel().getColumn(3).setPreferredWidth(200);
         table.getColumnModel().getColumn(4).setPreferredWidth(100);
-        jpanel.add(new JBScrollPane(table, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER),  BorderLayout.CENTER);
+        JBScrollPane scrollPane = new JBScrollPane(
+                table,
+                JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+        );
+        scrollPane.setMinimumSize(new Dimension(400, 400));
+        scrollPane.setPreferredSize(new Dimension(600, 400));
+        jpanel.add(scrollPane, BorderLayout.CENTER);
 
         setModal(true);
         init();

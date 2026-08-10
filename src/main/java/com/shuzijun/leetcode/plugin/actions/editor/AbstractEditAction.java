@@ -50,12 +50,17 @@ abstract class AbstractEditAction extends AbstractAction {
             return;
         }
 
-        actionPerformed(anActionEvent, config, question);
+        actionPerformed(anActionEvent, config, leetcodeEditor, question);
 
 
     }
 
-    public abstract void actionPerformed(AnActionEvent anActionEvent, Config config, Question question);
+    public abstract void actionPerformed(
+            AnActionEvent anActionEvent,
+            Config config,
+            LeetcodeEditor leetcodeEditor,
+            Question question
+    );
 
     protected boolean openConvergeEditor(AnActionEvent anActionEvent, ConvergePreview.TabSelectFileEditorState state) {
         FileEditor fileEditor = FileEditorManager.getInstance(anActionEvent.getProject()).getSelectedEditor();

@@ -13,7 +13,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
-import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.product.ProductProfiles;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import icons.LeetCodeEditorIcons;
@@ -27,7 +27,10 @@ import javax.swing.*;
  */
 public class WindowFactory implements ToolWindowFactory, DumbAware {
 
-    public static String ID = PluginConstant.TOOL_WINDOW_ID;
+    @NotNull
+    public static String id() {
+        return ProductProfiles.current().toolWindowId();
+    }
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
@@ -67,7 +70,7 @@ public class WindowFactory implements ToolWindowFactory, DumbAware {
             }
             contextProject = openProjects[0];
         }
-        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(contextProject).getToolWindow(ID);
+        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(contextProject).getToolWindow(id());
         if (leetcodeToolWindows == null) {
             return PluginDataContext.EMPTY;
         }
@@ -87,7 +90,7 @@ public class WindowFactory implements ToolWindowFactory, DumbAware {
     }
 
     public static void updateTitle(@NotNull Project project, String userName) {
-        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
+        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(id());
         ApplicationManager.getApplication().invokeLater(() -> {
             if (project.isDisposed() || leetcodeToolWindows == null) {
                 return;
@@ -102,8 +105,10 @@ public class WindowFactory implements ToolWindowFactory, DumbAware {
     }
 
     public static void activateToolWindow(@NotNull Project project) {
-        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(ID);
-        leetcodeToolWindows.activate(null);
+        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(id());
+        if (!project.isDisposed() && leetcodeToolWindows != null) {
+            leetcodeToolWindows.activate(null);
+        }
     }
 
     public static class PluginDataContext {

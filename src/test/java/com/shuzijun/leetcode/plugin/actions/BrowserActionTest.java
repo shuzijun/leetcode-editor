@@ -1,6 +1,5 @@
 package com.shuzijun.leetcode.plugin.actions;
 
-import com.shuzijun.leetcode.plugin.actions.toolbar.DonateAction;
 import com.shuzijun.leetcode.plugin.actions.toolbar.HelpAction;
 import com.shuzijun.leetcode.plugin.actions.toolbar.ShareAction;
 import com.shuzijun.leetcode.plugin.model.Question;
@@ -34,9 +33,6 @@ public class BrowserActionTest {
         new HelpAction().actionPerformed(null);
         assertEquals("https://github.com/shuzijun/leetcode-editor", openedUrl.get());
 
-        new DonateAction().actionPerformed(null);
-        assertEquals("https://shuzijun.cn/donate.html", openedUrl.get());
-
         new ShareAction().actionPerformed(null, null);
         assertEquals("https://codetop.cc/?utm_source=leetcode_editor", openedUrl.get());
     }
@@ -51,7 +47,7 @@ public class BrowserActionTest {
         assertEquals("http://127.0.0.1:8080/problems/two-sum", openedUrl.get());
 
         new com.shuzijun.leetcode.plugin.actions.editor.OpenInWebAction()
-                .actionPerformed(null, null, question);
+                .actionPerformed(null, null, null, question);
         assertEquals("http://127.0.0.1:8080/problems/two-sum", openedUrl.get());
     }
 }

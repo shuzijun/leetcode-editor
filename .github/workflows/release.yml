@@ -116,8 +116,20 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Install virtual display
+        shell: bash
+        run: |
+          if ! command -v xvfb-run >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y xvfb
+          fi
+
       - name: Publish the plugin
-        run: ./gradlew publishPlugin --no-daemon --stacktrace
+        run: |
+          xvfb-run \
+            --auto-servernum \
+            --server-args="-screen 0 1920x1080x24 -ac +extension RANDR" \
+            ./gradlew publishPlugin --no-daemon --stacktrace
         env:
           LD_VERSION: ${{ needs.quality-gate.outputs.version }}
           PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}

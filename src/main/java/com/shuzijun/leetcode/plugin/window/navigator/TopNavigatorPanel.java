@@ -1,7 +1,6 @@
 package com.shuzijun.leetcode.plugin.window.navigator;
 
 
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -15,9 +14,15 @@ import com.shuzijun.leetcode.plugin.listener.AllQuestionNotifier;
 import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
 import com.shuzijun.leetcode.plugin.manager.CodeTopManager;
 import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
+import com.shuzijun.lc.model.CodeMetaData;
+import com.shuzijun.lc.model.CodeSnippet;
+import com.shuzijun.lc.model.QuestionView;
+import com.shuzijun.lc.model.Session;
+import com.shuzijun.lc.model.Solution;
+import com.shuzijun.lc.model.Submission;
+import com.shuzijun.lc.model.User;
 import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
-import com.shuzijun.leetcode.plugin.window.NavigatorPanelAction;
 import com.shuzijun.leetcode.plugin.window.NavigatorTableData;
 
 import javax.swing.*;
@@ -27,7 +32,7 @@ import java.util.Map;
 /**
  * @author shuzijun
  */
-public class TopNavigatorPanel extends SimpleToolWindowPanel implements NavigatorPanelAction, Disposable {
+public class TopNavigatorPanel extends NavigatorPanel {
 
     private final Map<String, Find> findMap = new HashMap<>();
     private JPanel queryPanel;
@@ -132,7 +137,7 @@ public class TopNavigatorPanel extends SimpleToolWindowPanel implements Navigato
 
             @Override
             public Find getFind() {
-                return findMap.get(URLUtils.getLeetcodeHost());
+                return findMap.get(URLUtils.isCn() ? URLUtils.leetcodecn : URLUtils.leetcode);
             }
 
             @Override

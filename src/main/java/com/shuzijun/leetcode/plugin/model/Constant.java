@@ -73,6 +73,8 @@ public class Constant {
     public static final Integer PLUGIN_CONFIG_VERSION_2 = 2;
     //第三版本，域名更新，需要将cookie更改一下域名
     public static final Integer PLUGIN_CONFIG_VERSION_3 = 3;
+    //第四版本，自定义模板按语言存储
+    public static final Integer PLUGIN_CONFIG_VERSION_4 = 4;
 
     /**
      * 默认题目颜色

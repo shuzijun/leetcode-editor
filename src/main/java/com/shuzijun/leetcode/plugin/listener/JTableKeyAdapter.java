@@ -5,8 +5,11 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.shuzijun.leetcode.plugin.manager.CodeManager;
+import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
+import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
-import com.shuzijun.leetcode.plugin.model.QuestionView;
+import com.shuzijun.lc.model.QuestionView;
+import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.window.NavigatorTableData;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,7 +37,9 @@ public class JTableKeyAdapter extends KeyAdapter {
                 ProgressManager.getInstance().run(new Task.Backgroundable(project, PluginConstant.LEETCODE_EDITOR_OPEN_CODE, false) {
                     @Override
                     public void run(@NotNull ProgressIndicator progressIndicator) {
-                        CodeManager.openCode(question.getTitleSlug(), project);
+                        Config config = PersistentConfig.getInstance().getConfig();
+                        CodeTypeEnum codeTypeEnum = CodeTypeEnum.getCodeTypeEnum(config.getCodeType());
+                        CodeManager.openCode(question.getTitleSlug(), project, codeTypeEnum);
                     }
                 });
             }

@@ -18,6 +18,8 @@ import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
+import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.utils.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,6 +35,8 @@ public class LCVPreview extends UserDataHolderBase implements FileEditor {
     private final Project myProject;
     private final VirtualFile myFile;
     private final Document myDocument;
+    private final QuestionPreviewRenderMode renderMode;
+    private final QuestionPreviewPerformanceTracker.Trace performanceTrace;
 
     private BorderLayoutPanel myHtmlPanelWrapper;
     private LCVPanel myPanel;
@@ -40,9 +44,24 @@ public class LCVPreview extends UserDataHolderBase implements FileEditor {
     private boolean isPresentableUrl;
 
     public LCVPreview(@NotNull Project project, @NotNull VirtualFile file) {
+        this(project, file, QuestionPreviewRenderMode.MARKDOWN);
+    }
+
+    public LCVPreview(@NotNull Project project, @NotNull VirtualFile file, QuestionPreviewRenderMode renderMode) {
         myProject = project;
         myFile = file;
         myDocument = FileDocumentManager.getInstance().getDocument(myFile);
+        this.renderMode = renderMode;
+        QuestionPreviewPerformanceTracker tracker = QuestionPreviewPerformanceTracker.getInstance(project);
+        LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getEditor(file.getPath());
+        QuestionPreviewPerformanceTracker.Trace pathTrace = tracker.latestForContentPath(file.getPath());
+        performanceTrace = pathTrace != null
+                ? pathTrace
+                : leetcodeEditor == null ? null : tracker.latest(leetcodeEditor.getTitleSlug());
+        if (performanceTrace != null) {
+            tracker.activate(performanceTrace);
+            performanceTrace.mark(QuestionPreviewPerformanceTracker.Milestone.EDITOR_OPEN_REQUESTED);
+        }
         MessageBusConnection settingsConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
         settingsConnection.subscribe(EditorColorsManager.TOPIC, scheme -> {
             if (myPanel != null) {
@@ -59,13 +78,15 @@ public class LCVPreview extends UserDataHolderBase implements FileEditor {
 
             JBLabel loadingLabel = new JBLabel("Loading......");
             myHtmlPanelWrapper.addToCenter(loadingLabel);
-            String url = UrlEscapers.urlFragmentEscaper().escape(URLUtil.FILE_PROTOCOL + URLUtil.SCHEME_SEPARATOR + FileUtils.separator() + myFile.getPath());
+            String url = UrlEscapers.urlFragmentEscaper().escape(
+                    URLUtil.FILE_PROTOCOL + URLUtil.SCHEME_SEPARATOR + FileUtils.separator() + myFile.getPath()
+            );
             LCVPanel tempPanel = null;
             try {
                 try {
-                    tempPanel = new LCVPanel(url, myProject, myDocument.getText());
+                    tempPanel = new LCVPanel(url, myProject, myDocument.getText(), performanceTrace, renderMode);
                 } catch (IllegalArgumentException e) {
-                    tempPanel = new LCVPanel(url, myProject, myDocument.getText(), true);
+                    tempPanel = new LCVPanel(url, myProject, myDocument.getText(), performanceTrace, renderMode, true);
                 }
                 myHtmlPanelWrapper.addToCenter(tempPanel.getComponent());
 

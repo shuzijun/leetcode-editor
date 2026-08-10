@@ -6,8 +6,10 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.annotations.MapAnnotation;
+import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.product.ProductServices;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +26,6 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * @author shuzijun
  */
-@State(name = "LeetcodeEditor" + PluginConstant.ACTION_SUFFIX, storages = {@Storage(value = PluginConstant.ACTION_PREFIX + "/editor.xml")})
 public class ProjectConfig implements PersistentStateComponent<ProjectConfig.InnerState> {
 
     private static final Logger LOG = Logger.getInstance(ProjectConfig.class);
@@ -35,7 +36,7 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Inn
 
     @Nullable
     public static ProjectConfig getInstance(Project project) {
-        return project.getService(ProjectConfig.class);
+        return ProductServices.projectConfig(project);
     }
 
     private volatile InnerState innerState = new InnerState();
@@ -59,17 +60,41 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Inn
                 leetcodeEditor.setHost(URLUtils.leetcodecn);
                 leetcodeEditor.setFrontendQuestionId(leetcodeEditor.getFrontendQuestionId().replace(URLUtils.leetcodecnOld, URLUtils.leetcodecn));
             }
-            idProjectConfig.put(leetcodeEditor.getFrontendQuestionId(), leetcodeEditor);
+            if (StringUtils.isBlank(leetcodeEditor.getLangSlug())) {
+                leetcodeEditor.setLangSlug(inferLanguageSlug(editorPath(leetcodeEditor, key)));
+            }
+            idProjectConfig.put(editorKey(leetcodeEditor), leetcodeEditor);
         });
     }
 
 
     public LeetcodeEditor getDefEditor(String frontendQuestionId) {
-        return idProjectConfig.computeIfAbsent(frontendQuestionId, key -> new LeetcodeEditor());
+        return getDefEditor(frontendQuestionId, null);
+    }
+
+    public LeetcodeEditor getDefEditor(String frontendQuestionId, @Nullable String langSlug) {
+        String key = editorKey(frontendQuestionId, langSlug);
+        LeetcodeEditor editor = idProjectConfig.get(key);
+        if (editor != null) {
+            return editor;
+        }
+        if (StringUtils.isBlank(langSlug)) {
+            for (LeetcodeEditor candidate : idProjectConfig.values()) {
+                if (frontendQuestionId.equals(candidate.getFrontendQuestionId())) {
+                    return candidate;
+                }
+            }
+        }
+        return idProjectConfig.computeIfAbsent(key, ignored -> {
+            LeetcodeEditor created = new LeetcodeEditor();
+            created.setFrontendQuestionId(frontendQuestionId);
+            created.setLangSlug(langSlug);
+            return created;
+        });
     }
 
     public void addLeetcodeEditor(LeetcodeEditor leetcodeEditor) {
-        idProjectConfig.put(leetcodeEditor.getFrontendQuestionId(), leetcodeEditor);
+        idProjectConfig.put(editorKey(leetcodeEditor), leetcodeEditor);
         if (StringUtils.isNotBlank(leetcodeEditor.getPath())) {
             innerState.projectConfig.put(leetcodeEditor.getPath(), leetcodeEditor);
         }
@@ -111,7 +136,7 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Inn
             boolean sourceMissing = localPath != null && !Files.isRegularFile(localPath);
             if (sourceMissing
                     && innerState.projectConfig.remove(entry.getKey(), editor)) {
-                idProjectConfig.remove(editor.getFrontendQuestionId(), editor);
+                idProjectConfig.remove(editorKey(editor), editor);
                 removed++;
             }
         }
@@ -120,7 +145,7 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Inn
         // value after removals without an O(n²) search for every stale entry.
         innerState.projectConfig.values().forEach(editor -> {
             if (StringUtils.isNotBlank(editor.getFrontendQuestionId())) {
-                idProjectConfig.put(editor.getFrontendQuestionId(), editor);
+                idProjectConfig.put(editorKey(editor), editor);
             }
         });
         if (removed > 0) {
@@ -149,10 +174,32 @@ public class ProjectConfig implements PersistentStateComponent<ProjectConfig.Inn
             }
         }
         if (editor != null) {
-            idProjectConfig.remove(editor.getFrontendQuestionId(), editor);
+            idProjectConfig.remove(editorKey(editor), editor);
             return true;
         }
         return false;
+    }
+
+    @Nullable
+    private static String inferLanguageSlug(String editorPath) {
+        for (CodeTypeEnum codeType : CodeTypeEnum.values()) {
+            if (StringUtils.endsWith(editorPath, codeType.getSuffix())) {
+                return codeType.getLangSlug();
+            }
+        }
+        return null;
+    }
+
+    private static String editorPath(LeetcodeEditor editor, String persistedKey) {
+        return StringUtils.defaultIfBlank(editor.getPath(), persistedKey);
+    }
+
+    private static String editorKey(LeetcodeEditor editor) {
+        return editorKey(editor.getFrontendQuestionId(), editor.getLangSlug());
+    }
+
+    private static String editorKey(String frontendQuestionId, @Nullable String langSlug) {
+        return StringUtils.defaultString(langSlug) + '\u0000' + frontendQuestionId;
     }
 
     @Nullable

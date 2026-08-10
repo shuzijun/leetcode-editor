@@ -4,6 +4,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
+import com.intellij.ui.JBColor;
 import com.intellij.util.messages.MessageBusConnection;
 import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
 import com.shuzijun.leetcode.plugin.model.Config;
@@ -29,9 +30,9 @@ public class TimerBarWidget implements CustomStatusBarWidget {
     private Project project;
 
 
-    private static Color Level1 = new Color(92, 184, 92);
-    private static Color Level2 = new Color(240, 173, 78);
-    private static Color Level3 = new Color(217, 83, 79);
+    private static Color Level1 = new JBColor(new Color(92, 184, 92), new Color(92, 184, 92));
+    private static Color Level2 = new JBColor(new Color(240, 173, 78), new Color(240, 173, 78));
+    private static Color Level3 = new JBColor(new Color(217, 83, 79), new Color(217, 83, 79));
 
     public TimerBarWidget(Project project) {
         this.project = project;

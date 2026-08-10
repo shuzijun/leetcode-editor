@@ -1,9 +1,9 @@
 package com.shuzijun.leetcode.plugin.manager;
 
-import com.alibaba.fastjson.JSONObject;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
-import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.lc.model.CodeExecutionResult;
+import com.shuzijun.lc.model.RunCodeCheckResult;
+import com.shuzijun.lc.model.SubmitCheckResult;
 import org.junit.Test;
 
 import java.lang.reflect.Proxy;
@@ -14,28 +14,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class CodeManagerRequestTest {
-
-    @Test
-    public void createsSubmitPayloadWithQuestionLanguageAndCode() {
-        JSONObject request = CodeManager.createSubmitRequest(question(), CodeTypeEnum.JAVA,
-                "class Solution {}");
-
-        assertEquals("1", request.getString("question_id"));
-        assertEquals("java", request.getString("lang"));
-        assertEquals("class Solution {}", request.getString("typed_code"));
-        assertFalse(request.containsKey("data_input"));
-    }
-
-    @Test
-    public void createsRunPayloadWithTestCaseAndLargeJudge() {
-        JSONObject request = CodeManager.createRunRequest(question(), CodeTypeEnum.JAVA,
-                "class Solution {}");
-
-        assertEquals("[2,7,11,15]\n9", request.getString("data_input"));
-        assertEquals("large", request.getString("judge_type"));
-        assertEquals("java", request.getString("lang"));
-        assertEquals("class Solution {}", request.getString("typed_code"));
-    }
 
     @Test
     public void stopsPollingPromptlyWhenCanceled() {
@@ -68,11 +46,26 @@ public class CodeManagerRequestTest {
         assertTrue("cancellation should not wait for the full poll interval", elapsedMillis < 200L);
     }
 
-    private static Question question() {
-        Question question = new Question();
-        question.setQuestionId("1");
-        question.setTestCase("[2,7,11,15]\n9");
-        return question;
+    @Test
+    public void submitCompileErrorFallsBackToStatusWhenDetailsAreMissing() {
+        SubmitCheckResult submitResult = new SubmitCheckResult();
+        submitResult.setStatusMsg("Compile Error");
+
+        assertEquals(
+                "Compile Error",
+                CodeManager.buildErrorMsg(CodeExecutionResult.fromSubmit(submitResult))
+        );
+    }
+
+    @Test
+    public void runRuntimeErrorFallsBackToStatusWhenDetailsAreMissing() {
+        RunCodeCheckResult runResult = new RunCodeCheckResult();
+        runResult.setStatusMsg("Runtime Error");
+
+        assertEquals(
+                "Runtime Error",
+                CodeManager.buildErrorMsg(CodeExecutionResult.fromRun(runResult))
+        );
     }
 
     private static Object defaultValue(Class<?> type) {

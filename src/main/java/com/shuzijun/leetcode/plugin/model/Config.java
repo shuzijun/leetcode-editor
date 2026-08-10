@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.annotations.Transient;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import java.awt.*;
@@ -134,6 +135,11 @@ public class Config implements Cloneable {
      */
     private boolean showQuestionEditorSign = true;
 
+    /**
+     * 按语言保存的自定义模板
+     */
+    private Map<String, CustomCode> customCodes = new HashMap<>();
+
     public String getId() {
         return id;
     }
@@ -222,6 +228,7 @@ public class Config implements Cloneable {
         this.customCode = customCode;
     }
 
+    @Deprecated
     public String getCustomFileName() {
         if (!customCode) {
             return Constant.CUSTOM_FILE_NAME;
@@ -230,16 +237,33 @@ public class Config implements Cloneable {
         }
     }
 
+    public String getCustomFileName(String langSlug) {
+        if (!customCode) {
+            return Constant.CUSTOM_FILE_NAME;
+        }
+        return StringUtils.trim(getCustomCode(langSlug).getFileName());
+    }
+
     public void setCustomFileName(String customFileName) {
         this.customFileName = customFileName;
     }
 
+    @Deprecated
     public String getCustomTemplate() {
         if (!customCode) {
             return Constant.CUSTOM_TEMPLATE;
         } else {
             return customTemplate;
         }
+    }
+
+    public String getCustomTemplate(String langSlug) {
+        if (!customCode) {
+            return "note".equals(langSlug) || "content".equals(langSlug)
+                    ? ""
+                    : Constant.CUSTOM_TEMPLATE;
+        }
+        return getCustomCode(langSlug).getTemplate();
     }
 
     public void setCustomTemplate(String customTemplate) {
@@ -351,12 +375,12 @@ public class Config implements Cloneable {
     }
 
     @Transient
-    public Boolean isShowQuestionEditor() {
+    public boolean isShowQuestionEditor() {
         return !"Disable".equals(questionEditor) && !"false".equals(questionEditor);
     }
 
     @Transient
-    public Boolean isLeftQuestionEditor() {
+    public boolean isLeftQuestionEditor() {
         return "Left".equals(questionEditor) || "true".equals(questionEditor) || !isShowQuestionEditor();
     }
 
@@ -432,6 +456,32 @@ public class Config implements Cloneable {
         this.pluginVersion = pluginVersion;
     }
 
+    public Map<String, CustomCode> getCustomCodes() {
+        if (customCodes == null) {
+            customCodes = new HashMap<>();
+        }
+        return customCodes;
+    }
+
+    public void setCustomCodes(Map<String, CustomCode> customCodes) {
+        this.customCodes = customCodes == null ? new HashMap<>() : customCodes;
+    }
+
+    public CustomCode getCustomCode(String langSlug) {
+        CustomCode customCodeConfig = getCustomCodes().get(langSlug);
+        if (customCodeConfig != null) {
+            return customCodeConfig;
+        }
+        String template = "note".equals(langSlug) || "content".equals(langSlug)
+                ? ""
+                : Constant.CUSTOM_TEMPLATE;
+        return new CustomCode(langSlug, Constant.CUSTOM_FILE_NAME, template);
+    }
+
+    public void addCustomCode(String langSlug, CustomCode customCodeConfig) {
+        getCustomCodes().put(langSlug, customCodeConfig);
+    }
+
     public boolean isModified(Config config) {
 
         if (config == null) {
@@ -458,6 +508,7 @@ public class Config implements Cloneable {
                 .append(showTopics, config.showTopics)
                 .append(showToolIcon, config.showToolIcon)
                 .append(convergeEditor, config.convergeEditor)
+                .append(customCodes, config.customCodes)
                 .isEquals();
     }
 

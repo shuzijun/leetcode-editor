@@ -11,6 +11,7 @@
 
 ### Added
 - add startup integration tests and broader regression coverage for core plugin workflows / 为插件启动和核心操作流程新增集成测试，并扩大回归测试覆盖范围
+- add an optional development-tools switch for diagnostic network output and a Settings action that sends a Sentry test exception; it is disabled in normal builds and can be enabled when launching the IDE / 新增可选的开发工具开关，用于诊断网络输出和在设置页发送 Sentry 测试异常；常规构建默认关闭，可在启动 IDE 时启用
 
 ### Changed
 - require IntelliJ IDEA 2026.2 (build 262) or later and upgrade the runtime baseline to Java 25 / 最低兼容版本调整为 IntelliJ IDEA 2026.2（build 262），运行和构建基线升级至 Java 25
@@ -19,7 +20,10 @@
 - refresh the question navigator, result console, difficulty colors, and plugin icons / 更新题目导航、运行结果控制台、默认难度颜色和插件图标
 - show update information as an IDE notification with a link to the changelog / 版本升级后通过 IDE 通知展示更新提示，并提供更新日志链接
 - keep informational output in the console without forcing it to the foreground; errors still activate the console / 普通信息输出不再强制激活控制台，错误信息仍会主动显示控制台
+- render question previews through Vditor's lightweight read-only API, with delayed resource loading and explicit readiness reporting for a faster, more reliable preview / 通过 Vditor 轻量只读 API 渲染题目预览，并延迟加载资源和显式上报就绪状态，提升预览速度与稳定性
 - update documentation and release workflows for the new platform baseline / 更新项目文档和发布流程以适配新的平台基线
+- migrate shared LeetCode transports to the lc-sdk 0.0.4-rc.4 typed APIs, consolidating request models and default implementations / 将共享力扣请求迁移到 lc-sdk 0.0.4-rc.4 类型化 API，并统一请求模型和默认实现
+- upgrade Sentry to 8.x and update error reporting to its supported API / 将 Sentry 升级至 8.x，并迁移错误上报至受支持的 API
 
 ### Fixed
 - fix question pagination, filtering, table refreshes, and stale asynchronous navigator results / 修复题目分页、筛选、列表刷新以及异步请求结果过期导致的导航异常

@@ -17,14 +17,17 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.jcef.JCEFHtmlPanel;
+import com.intellij.ui.jcef.JBCefBrowserBase;
+import com.intellij.ui.jcef.JBCefJSQuery;
 import com.intellij.util.Url;
 import com.intellij.util.Urls;
 import com.intellij.util.io.HttpRequests;
 import com.intellij.util.io.URLUtil;
-import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.product.ProductProfiles;
 import com.shuzijun.leetcode.plugin.utils.BrowserUtils;
 import com.shuzijun.leetcode.plugin.utils.FileUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.ui.ContentStatePanel;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.apache.commons.lang3.StringUtils;
 import org.cef.browser.CefBrowser;
@@ -32,6 +35,7 @@ import org.cef.browser.CefFrame;
 import org.cef.handler.*;
 import org.cef.misc.BoolRef;
 import org.cef.network.CefRequest;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.ide.BuiltInServerManager;
 
@@ -47,6 +51,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author shuzijun
@@ -54,37 +59,86 @@ import java.util.List;
 public class LCVPanel extends JCEFHtmlPanel {
 
     private static final Logger LOG = Logger.getInstance(LCVPanel.class);
+    private static final String TEMPLATE = loadTemplate();
 
-    private final Url servicePath = BuiltInServerManager.getInstance().addAuthToken(Urls.parseEncoded("http://localhost:" + BuiltInServerManager.getInstance().getPort() + PreviewStaticServer.PREFIX));
-    private String templateHtmlFile = "template/default.html";
-
+    private final Url servicePath = BuiltInServerManager.getInstance().addAuthToken(
+            Urls.parseEncoded(
+                    "http://localhost:"
+                            + BuiltInServerManager.getInstance().getPort()
+                            + PreviewStaticServer.prefix()
+            )
+    );
     private CefRequestHandler requestHandler;
     private CefLifeSpanHandler lifeSpanHandler;
+    private CefLoadHandlerAdapter loadHandler;
+    private JBCefJSQuery readyQuery;
+    private javax.swing.Timer readableTimeout;
 
     private final String url;
     private final String text;
     private final Project project;
+    private final QuestionPreviewRenderMode renderMode;
+    private final QuestionPreviewPerformanceTracker.Trace performanceTrace;
     private final List<String> iframe = new ArrayList<>();
+    private final AtomicBoolean initialLoad = new AtomicBoolean(true);
+    private final AtomicBoolean loadFailed = new AtomicBoolean();
+    private final AtomicBoolean disposed = new AtomicBoolean();
+    private final ContentStatePanel component = new ContentStatePanel();
     private static final List<String> headers = Arrays.asList(HttpHeaderNames.CONTENT_SECURITY_POLICY.toString(), HttpHeaderNames.CONTENT_ENCODING.toString()
             , HttpHeaderNames.CONTENT_LENGTH.toString());
 
     public LCVPanel(@Nullable String url, Project project, String text, boolean old) {
+        this(url, project, text, null, QuestionPreviewRenderMode.MARKDOWN, old);
+    }
+
+    public LCVPanel(@Nullable String url, Project project, String text,
+                    @Nullable QuestionPreviewPerformanceTracker.Trace performanceTrace, boolean old) {
+        this(url, project, text, performanceTrace, QuestionPreviewRenderMode.MARKDOWN, old);
+    }
+
+    public LCVPanel(@Nullable String url, Project project, String text,
+                    @Nullable QuestionPreviewPerformanceTracker.Trace performanceTrace,
+                    QuestionPreviewRenderMode renderMode, boolean old) {
         super(null);
         this.url = url;
         this.project = project;
         this.text = text;
+        this.performanceTrace = performanceTrace;
+        this.renderMode = renderMode;
         init();
     }
 
     public LCVPanel(@Nullable String url, Project project, String text) {
+        this(url, project, text, null, QuestionPreviewRenderMode.MARKDOWN);
+    }
+
+    public LCVPanel(@Nullable String url, Project project, String text,
+                    @Nullable QuestionPreviewPerformanceTracker.Trace performanceTrace) {
+        this(url, project, text, performanceTrace, QuestionPreviewRenderMode.MARKDOWN);
+    }
+
+    public LCVPanel(@Nullable String url, Project project, String text,
+                    @Nullable QuestionPreviewPerformanceTracker.Trace performanceTrace,
+                    QuestionPreviewRenderMode renderMode) {
         super(null, null);
         this.url = url;
         this.project = project;
         this.text = text;
+        this.performanceTrace = performanceTrace;
+        this.renderMode = renderMode;
         init();
     }
 
     private void init() {
+        component.showLoadingOver(LCVPanel.super.getComponent(), PropertiesUtils.getInfo("ui.loading"));
+        if (performanceTrace != null) {
+            performanceTrace.mark(QuestionPreviewPerformanceTracker.Milestone.BROWSER_CREATED);
+        }
+        readyQuery = JBCefJSQuery.create((JBCefBrowserBase) this);
+        readyQuery.addHandler(event -> {
+            handlePreviewEvent(event);
+            return new JBCefJSQuery.Response("ok");
+        });
         getJBCefClient().addRequestHandler(requestHandler = new CefRequestHandlerAdapter() {
             @Override
             public boolean onBeforeBrowse(CefBrowser browser, CefFrame frame, CefRequest request, boolean user_gesture, boolean is_redirect) {
@@ -144,27 +198,161 @@ public class LCVPanel extends JCEFHtmlPanel {
                 return true;
             }
         }, getCefBrowser());
+        getJBCefClient().addLoadHandler(loadHandler = new CefLoadHandlerAdapter() {
+            @Override
+            public void onLoadingStateChange(
+                    CefBrowser browser,
+                    boolean isLoading,
+                    boolean canGoBack,
+                    boolean canGoForward
+            ) {
+                if (!disposed.get() && !isLoading && !loadFailed.get() && performanceTrace != null) {
+                    performanceTrace.mark(QuestionPreviewPerformanceTracker.Milestone.MAIN_FRAME_LOADED);
+                }
+            }
+
+            @Override
+            public void onLoadError(CefBrowser browser, CefFrame frame, CefLoadHandler.ErrorCode errorCode,
+                                    String errorText, String failedUrl) {
+                if (disposed.get() || !frame.isMain()) {
+                    return;
+                }
+                loadFailed.set(true);
+                initialLoad.set(false);
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    if (!disposed.get()) {
+                        component.showError(
+                                PropertiesUtils.getInfo("response.question"),
+                                PropertiesUtils.getInfo("ui.retry"),
+                                LCVPanel.this::reloadText
+                        );
+                    }
+                });
+            }
+        }, getCefBrowser());
         loadHTML(createHtml(text), url);
+        startReadableTimeout();
+    }
+
+    private void handlePreviewEvent(String event) {
+        if (disposed.get()) {
+            return;
+        }
+        if ("readable".equals(event)) {
+            if (performanceTrace != null) {
+                QuestionPreviewPerformanceTracker.getInstance(project).readable(performanceTrace);
+            }
+            showReadableContent();
+        } else if ("stable".equals(event)) {
+            if (performanceTrace != null) {
+                QuestionPreviewPerformanceTracker.getInstance(project).visualStable(performanceTrace);
+            }
+        } else if ("error".equals(event)) {
+            showRenderError();
+        }
+    }
+
+    private void showRenderError() {
+        loadFailed.set(true);
+        initialLoad.set(false);
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (!disposed.get()) {
+                stopReadableTimeout();
+                component.showError(
+                        PropertiesUtils.getInfo("response.question"),
+                        PropertiesUtils.getInfo("ui.retry"),
+                        this::reloadText
+                );
+            }
+        });
+    }
+
+    private void showReadableContent() {
+        if (!initialLoad.compareAndSet(true, false)) {
+            return;
+        }
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (disposed.get() || loadFailed.get()) {
+                return;
+            }
+            stopReadableTimeout();
+            component.showContent(LCVPanel.super.getComponent());
+            component.requestFocusInWindow();
+        });
+    }
+
+    private void startReadableTimeout() {
+        stopReadableTimeout();
+        readableTimeout = new javax.swing.Timer(5_000, event -> {
+            if (disposed.get() || loadFailed.get() || !initialLoad.get()) {
+                return;
+            }
+            if (performanceTrace != null) {
+                QuestionPreviewPerformanceTracker.getInstance(project).timeout(performanceTrace);
+            }
+        });
+        readableTimeout.setRepeats(false);
+        readableTimeout.start();
+    }
+
+    private void stopReadableTimeout() {
+        if (readableTimeout != null) {
+            readableTimeout.stop();
+            readableTimeout = null;
+        }
     }
 
     public void reloadText() {
+        if (disposed.get()) {
+            return;
+        }
+        getCefBrowser().stopLoad();
+        loadFailed.set(false);
+        initialLoad.set(true);
+        component.showLoadingOver(LCVPanel.super.getComponent(), PropertiesUtils.getInfo("ui.loading"));
         loadHTML(createHtml(text), url);
+        startReadableTimeout();
     }
 
     @Override
     public void dispose() {
-        getJBCefClient().removeRequestHandler(requestHandler, getCefBrowser());
-        getJBCefClient().removeLifeSpanHandler(lifeSpanHandler, getCefBrowser());
+        if (!disposed.compareAndSet(false, true)) {
+            return;
+        }
+        getCefBrowser().stopLoad();
+        stopReadableTimeout();
+        if (readyQuery != null) {
+            readyQuery.dispose();
+            readyQuery = null;
+        }
+        if (requestHandler != null) {
+            getJBCefClient().removeRequestHandler(requestHandler, getCefBrowser());
+            requestHandler = null;
+        }
+        if (lifeSpanHandler != null) {
+            getJBCefClient().removeLifeSpanHandler(lifeSpanHandler, getCefBrowser());
+            lifeSpanHandler = null;
+        }
+        if (loadHandler != null) {
+            getJBCefClient().removeLoadHandler(loadHandler, getCefBrowser());
+            loadHandler = null;
+        }
+        iframe.clear();
         super.dispose();
+    }
+
+    @Override
+    public @NotNull JComponent getComponent() {
+        return component;
     }
 
     private void openUrl(String url) {
         if (url.startsWith(URLUtil.FILE_PROTOCOL)) {
             File file = new File(url.substring((URLUtil.FILE_PROTOCOL + URLUtil.SCHEME_SEPARATOR + FileUtils.separator()).length()));
             if (!file.exists()) {
-                Notifications.Bus.notify(new Notification(PluginConstant.NOTIFICATION_GROUP, "Cannot Open File", file.getPath() + " not exist", NotificationType.INFORMATION), project);
+                Notifications.Bus.notify(new Notification(ProductProfiles.current().notificationGroup(), "Cannot Open File", file.getPath() + " not exist", NotificationType.INFORMATION), project);
             } else if (file.isDirectory()) {
-                Notifications.Bus.notify(new Notification(PluginConstant.NOTIFICATION_GROUP, "Cannot Open Directory", file.getPath() + " is a directory", NotificationType.INFORMATION), project);
+                Notifications.Bus.notify(new Notification(ProductProfiles.current().notificationGroup(), "Cannot Open Directory", file.getPath() + " is a directory", NotificationType.INFORMATION), project);
             } else {
                 ApplicationManager.getApplication().invokeLater(() -> {
                     VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
@@ -177,29 +365,33 @@ public class LCVPanel extends JCEFHtmlPanel {
     }
 
     private String createHtml(String text) {
-        InputStream inputStream = null;
-
-        try {
-
-            inputStream = PreviewStaticServer.class.getResourceAsStream("/" + templateHtmlFile);
-
-            String template = new String(FileUtilRt.loadBytes(inputStream));
-            return template.replace("{{service}}", servicePath.getScheme() + URLUtil.SCHEME_SEPARATOR + servicePath.getAuthority() + servicePath.getPath())
+        return TEMPLATE.replace("{{service}}", servicePath.getScheme() + URLUtil.SCHEME_SEPARATOR + servicePath.getAuthority() + servicePath.getPath())
                     .replace("{{serverToken}}", org.apache.commons.lang3.StringUtils.isNotBlank(servicePath.getParameters()) ? servicePath.getParameters().substring(1) : "")
-                    .replace("{{fileValue}}", text)
                     .replace("{{Lang}}", PropertiesUtils.getInfo("Lang"))
                     .replace("{{darcula}}", isDarkTheme() + "")
                     .replace("{{ideStyle}}", getStyle(true))
+                    .replace("{{previewReady}}", readyQuery.inject("'readable'"))
+                    .replace("{{previewStable}}", readyQuery.inject("'stable'"))
+                    .replace("{{previewError}}", readyQuery.inject("'error'"))
+                    .replace("{{renderMode}}", renderMode.name().toLowerCase(Locale.ROOT))
+                    .replace("{{fileValue}}", escapeTextarea(text))
                     ;
+    }
+
+    static String escapeTextarea(String value) {
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;");
+    }
+
+    private static String loadTemplate() {
+        try (InputStream inputStream = PreviewStaticServer.class.getResourceAsStream("/template/default.html")) {
+            if (inputStream == null) {
+                throw new IllegalStateException("Missing question preview template");
+            }
+            return new String(FileUtilRt.loadBytes(inputStream), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException ignore) {
-                }
-            }
         }
     }
 
@@ -208,10 +400,13 @@ public class LCVPanel extends JCEFHtmlPanel {
             EditorColorsScheme editorColorsScheme = EditorColorsManager.getInstance().getGlobalScheme();
             Color defaultBackground = editorColorsScheme.getDefaultBackground();
 
-            Color scrollbarThumbColor = UIManager.getColor("ScrollBar.thumb");
-            if (scrollbarThumbColor == null) {
-                scrollbarThumbColor = JBColor.GRAY;
-            }
+            boolean brightBackground = isBright(defaultBackground);
+            Color scrollbarThumbColor = brightBackground
+                    ? new Color(0, 0, 0, 82)
+                    : new Color(255, 255, 255, 82);
+            Color scrollbarThumbHoverColor = brightBackground
+                    ? new Color(0, 0, 0, 112)
+                    : new Color(255, 255, 255, 112);
             TextAttributes textAttributes = editorColorsScheme.getAttributes(TextAttributesKey.find("TEXT"));
             Color text = null;
             if (textAttributes != null) {
@@ -221,12 +416,13 @@ public class LCVPanel extends JCEFHtmlPanel {
                     "\"Hiragino Sans GB\",\"Microsoft Yahei\",sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\",\"Noto Color Emoji\",\"Segoe UI Symbol\"," +
                     "\"Android Emoji\",\"EmojiSymbols\";";
             StringBuilder sb = new StringBuilder(isTag ? "<style id=\"ideaStyle\">" : "");
-            sb.append(isBright(defaultBackground) ? ".vditor" : ".vditor--dark").append("{--panel-background-color:").append(toHexColor(defaultBackground))
+            sb.append(brightBackground ? ".vditor" : ".vditor--dark").append("{--panel-background-color:").append(toHexColor(defaultBackground))
                     .append(";--textarea-background-color:").append(toHexColor(defaultBackground)).append(";");
             sb.append("--toolbar-background-color:").append(toHexColor(JBColor.background())).append(";");
             sb.append("}");
             sb.append("::-webkit-scrollbar-track {background-color:").append(toHexColor(defaultBackground)).append(";}");
             sb.append("::-webkit-scrollbar-thumb {background-color:").append(toHexColor(scrollbarThumbColor)).append(";}");
+            sb.append("::-webkit-scrollbar-thumb:hover {background-color:").append(toHexColor(scrollbarThumbHoverColor)).append(";}");
             sb.append(".vditor-reset {font-size:").append(editorColorsScheme.getEditorFontSize()).append("px;");
             sb.append(fontFamily);
             if (text != null) {

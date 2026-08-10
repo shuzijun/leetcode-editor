@@ -6,6 +6,15 @@
     border-radius: 0px;
 
 }
+
+.vditor-reset table tr {
+    background-color : rgba(0,0,0,0) !important;
+}
+
+.vditor-reset table tbody tr:nth-child(2n) {
+    background-color : rgba(0,0,0,0) !important;
+}
+
 ::-webkit-scrollbar {
     width: 8px; height: 8px;
 }

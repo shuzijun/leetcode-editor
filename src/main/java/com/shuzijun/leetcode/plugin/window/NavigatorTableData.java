@@ -7,17 +7,21 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtilRt;
+import com.intellij.ui.AnimatedIcon;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.components.labels.LinkLabel;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.messages.MessageBusConnection;
 import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
 import com.shuzijun.leetcode.plugin.listener.QuestionStatusNotifier;
 import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.Graphql;
 import com.shuzijun.leetcode.plugin.model.PageInfo;
 import com.shuzijun.leetcode.plugin.model.Question;
+import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.LogUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.window.navigator.TopNavigatorTable;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,6 +60,7 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
     private final PageInfo<T> myPageInfo;
     private final PagePanel myPagePanel;
     private final JComponent firstToolTip;
+    private final JPanel statusPanel = new JPanel();
     private final AtomicBoolean disposed = new AtomicBoolean();
     private boolean first = true;
 
@@ -67,7 +72,12 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
         this.myPageInfo = createMyPageInfo();
         this.myPagePanel = createMyPagePanel(myPageInfo, project);
         this.firstToolTip = firstToolTip();
+        statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
+        statusPanel.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
+        statusPanel.setVisible(false);
+        this.add(statusPanel, BorderLayout.NORTH);
         this.add(firstToolTip, BorderLayout.CENTER);
+        loaColor(PersistentConfig.getInstance().getInitConfig());
         MessageBusConnection messageBusConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
         messageBusConnection.subscribe(ConfigNotifier.TOPIC, (oldConfig, newConfig) -> loaColor(newConfig));
         messageBusConnection.subscribe(QuestionStatusNotifier.QUESTION_STATUS_TOPIC, question -> {
@@ -97,12 +107,16 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
     protected abstract MyTableModel<T> createMyTableModel();
 
     private void loaColor(Config config) {
-        if (config != null) {
-            Color[] colors = config.getFormatLevelColour();
+        Color[] colors = resolveLevelColors(config);
+        if (colors != null) {
             Level1 = colors[0];
             Level2 = colors[1];
             Level3 = colors[2];
         }
+    }
+
+    static Color[] resolveLevelColors(Config config) {
+        return config == null ? null : config.getFormatLevelColour();
     }
 
 
@@ -166,12 +180,9 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
             }
             if (myPagePanel != null) {
                 if (myPageInfo.getPageTotal() != this.myPagePanel.page.getItemCount()) {
-                    this.myPagePanel.page.removeAllItems();
-                    for (int i = 1; i <= myPageInfo.getPageTotal(); i++) {
-                        this.myPagePanel.page.addItem(i);
-                    }
+                    this.myPagePanel.updatePages(myPageInfo.getPageTotal());
                 }
-                this.myPagePanel.page.setSelectedItem(myPageInfo.getPageIndex());
+                this.myPagePanel.selectPage(myPageInfo.getPageIndex());
             }
         }, ignored -> project.isDisposed() || disposed.get());
 
@@ -203,6 +214,50 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
         return myPagePanel;
     }
 
+    public void showLoading() {
+        showStatus(new JBLabel(PropertiesUtils.getInfo("ui.loading"), AnimatedIcon.Default.INSTANCE, SwingConstants.LEFT), null);
+        if (myPagePanel != null) {
+            myPagePanel.setControlsEnabled(false);
+        }
+    }
+
+    public void showLoaded(Runnable clearFilters) {
+        if (myPagePanel != null) {
+            myPagePanel.setControlsEnabled(true);
+        }
+        if (myPageInfo.getRows() == null || myPageInfo.getRows().isEmpty()) {
+            showStatus(
+                    new JBLabel(PropertiesUtils.getInfo("ui.navigator.empty")),
+                    LinkLabel.create(PropertiesUtils.getInfo("ui.navigator.clear"), clearFilters)
+            );
+        } else {
+            statusPanel.setVisible(false);
+        }
+    }
+
+    public void showLoadFailed(Runnable retry) {
+        if (myPagePanel != null) {
+            myPagePanel.setControlsEnabled(true);
+        }
+        showStatus(
+                new JBLabel(PropertiesUtils.getInfo("ui.navigator.failed")),
+                LinkLabel.create(PropertiesUtils.getInfo("ui.retry"), retry)
+        );
+    }
+
+    private void showStatus(JComponent message, JComponent action) {
+        statusPanel.removeAll();
+        statusPanel.add(message);
+        if (action != null) {
+            statusPanel.add(Box.createHorizontalStrut(8));
+            statusPanel.add(action);
+        }
+        statusPanel.add(Box.createHorizontalGlue());
+        statusPanel.setVisible(true);
+        revalidate();
+        repaint();
+    }
+
     protected abstract void setColumnWidth(MyJBTable myJBTable);
 
     public abstract boolean compareSlug(T myData, String titleSlug);
@@ -218,7 +273,8 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
         String cn = Locale.getDefault().getLanguage().equals(Locale.CHINESE.getLanguage()) ? "_cn" : "";
         JTextPane myPane = new JTextPane();
         myPane.setOpaque(false);
-        try (InputStream inputStream = Graphql.GraphqlBuilder.class.getResourceAsStream("/template/" + type + cn + ".txt")) {
+        try (InputStream inputStream = NavigatorTableData.class
+                .getResourceAsStream("/template/" + type + cn + ".txt")) {
             if (inputStream == null) {
                 LogUtils.LOG.error("/template/" + type + cn + ".txt Path is empty");
             } else {
@@ -361,6 +417,8 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
             pageSizeBox.addItemListener(e -> {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     pageInfo.setPageSize((Integer) e.getItem());
+                    pageInfo.setPageIndex(1);
+                    pageSizeChanged();
                 }
             });
             add(pageSizeBox, BorderLayout.WEST);
@@ -412,6 +470,12 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
             });
             control.add(next, BorderLayout.EAST);
             page = new JComboBox();
+            page.addItemListener(e -> {
+                if (e.getStateChange() == ItemEvent.SELECTED && !updatingPageSelection) {
+                    pageInfo.setPageIndex((Integer) e.getItem());
+                    pageChanged();
+                }
+            });
             control.add(page, BorderLayout.CENTER);
             add(control, BorderLayout.CENTER);
 
@@ -446,6 +510,45 @@ public abstract class NavigatorTableData<T> extends JPanel implements Disposable
         public abstract void nextRunnable();
 
         public abstract void goRunnable();
+
+        public void pageSizeChanged() {
+            goRunnable();
+        }
+
+        public void pageChanged() {
+            goRunnable();
+        }
+
+        private boolean updatingPageSelection;
+
+        public void selectPage(int pageIndex) {
+            updatingPageSelection = true;
+            try {
+                page.setSelectedItem(pageIndex);
+            } finally {
+                updatingPageSelection = false;
+            }
+        }
+
+        public void updatePages(int pageTotal) {
+            updatingPageSelection = true;
+            try {
+                page.removeAllItems();
+                for (int i = 1; i <= pageTotal; i++) {
+                    page.addItem(i);
+                }
+            } finally {
+                updatingPageSelection = false;
+            }
+        }
+
+        public void setControlsEnabled(boolean enabled) {
+            pageSizeBox.setEnabled(enabled);
+            previous.setEnabled(enabled);
+            next.setEnabled(enabled);
+            go.setEnabled(enabled);
+            page.setEnabled(enabled);
+        }
 
         public int getPageIndex() {
             if (page.getItemCount() <= 0) {

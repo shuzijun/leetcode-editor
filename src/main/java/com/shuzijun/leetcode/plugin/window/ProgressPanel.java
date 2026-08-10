@@ -2,7 +2,8 @@ package com.shuzijun.leetcode.plugin.window;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextField;
-import com.shuzijun.leetcode.plugin.model.Session;
+import com.shuzijun.lc.model.Session;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 
 import javax.swing.*;
 import java.util.List;
@@ -34,7 +35,8 @@ public class ProgressPanel {
     }
 
     public Session select(){
-      return (Session) sessionBox.getSelectedItem();
+        Object selected = sessionBox.getSelectedItem();
+        return selected instanceof Session ? (Session) selected : null;
     }
 
     public void update(List<Session> sessionList) {
@@ -43,6 +45,13 @@ public class ProgressPanel {
 
     private void initUI(List<Session> sessionList) {
         sessionBox.removeAll();
+        if (sessionList == null || sessionList.isEmpty()) {
+            clearFields();
+            sessionBox.addItem(PropertiesUtils.getInfo("ui.progress.empty"));
+            sessionBox.setEnabled(false);
+            return;
+        }
+        sessionBox.setEnabled(true);
         for (Session session : sessionList) {
             sessionBox.addItem(session);
         }
@@ -55,5 +64,16 @@ public class ProgressPanel {
         hardField.setText(String.valueOf(session.getHard()));
         expField.setText(String.valueOf(session.getXP()));
         pointField.setText(String.valueOf(session.getPoint()));
+    }
+
+    private void clearFields() {
+        todoField.setText("");
+        solvedField.setText("");
+        attemptedField.setText("");
+        easyField.setText("");
+        mediumField.setText("");
+        hardField.setText("");
+        expField.setText("");
+        pointField.setText("");
     }
 }

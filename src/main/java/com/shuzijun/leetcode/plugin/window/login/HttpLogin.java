@@ -1,32 +1,34 @@
 package com.shuzijun.leetcode.plugin.window.login;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.shuzijun.lc.command.LoginCommand;
+import com.shuzijun.leetcode.plugin.application.CacheInvalidationCoordinator;
+import com.shuzijun.leetcode.plugin.application.CacheInvalidationReason;
+import com.shuzijun.leetcode.plugin.application.LeetCodeServices;
+import com.shuzijun.leetcode.plugin.application.LoginGenerationTracker;
 import com.shuzijun.leetcode.plugin.listener.LoginNotifier;
 import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.HttpRequest;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
-import com.shuzijun.leetcode.plugin.model.User;
+import com.shuzijun.lc.model.User;
+import com.shuzijun.leetcode.plugin.product.ProductServices;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import com.shuzijun.leetcode.plugin.window.NavigatorTabsPanel;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.HttpCookie;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author shuzijun
@@ -43,63 +45,49 @@ public class HttpLogin {
         }
 
         try {
-            HttpEntity ent = MultipartEntityBuilder.create()
-                    .addTextBody("csrfmiddlewaretoken", HttpRequestUtils.getToken() == null ? "" : HttpRequestUtils.getToken())
-                    .addTextBody("login", config.getLoginName())
-                    .addTextBody("password", PersistentConfig.getInstance().getPassword(config.getLoginName()))
-                    .addTextBody("next", "/problems")
-                    .build();
-            HttpResponse response = HttpRequest.builderPost(URLUtils.getLeetcodeLogin(), ent.getContentType().getValue())
-                    .body(IOUtils.toString(ent.getContent(), "UTF-8"))
-                    .addHeader("x-requested-with", "XMLHttpRequest")
-                    .addHeader("accept", "*/*").request();
-
-            String body = response.getBody();
-
-            if ((response.getStatusCode() == 200 || response.getStatusCode() == 302)) {
-                if (StringUtils.isNotBlank(body) && body.startsWith("{")) {
-                    JSONObject jsonObject = JSONObject.parseObject(body);
-                    JSONArray jsonArray = jsonObject.getJSONObject("form").getJSONArray("errors");
-                    if (jsonArray.isEmpty()) {
-                        MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                        notifyLoginAfterUserLoaded(project, config.getUrl());
-                        examineEmail(project);
-                        return Boolean.TRUE;
-                    } else {
-                        MessageUtils.getInstance(project).showInfoMsg("info", StringUtils.join(jsonArray, ","));
-                        return Boolean.FALSE;
-                    }
-                } else if (StringUtils.isBlank(body)) {
-                    MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.success"));
-                    notifyLoginAfterUserLoaded(project, config.getUrl());
-                    examineEmail(project);
-                    return Boolean.TRUE;
-                } else {
-                    HttpRequestUtils.resetHttpclient();
-                    MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
-                    //SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", response.getStatusCode(), body));
-                    return Boolean.FALSE;
-                }
-            } else if (response.getStatusCode() == 400) {
-                LogUtils.LOG.info("login 400:" + body);
-                try {
-                    JSONObject jsonObject = JSONObject.parseObject(body);
-                    MessageUtils.getInstance(project).showInfoMsg("info", StringUtils.join(jsonObject.getJSONObject("form").getJSONArray("errors"), ","));
-                } catch (Exception ignore) {
-
-                }
-                return Boolean.FALSE;
-            } else {
-                HttpRequestUtils.resetHttpclient();
-                MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.unknown"));
-                //SentryUtils.submitErrorReport(null, String.format("login.unknown:\nStatusCode:%s\nbody:%s", response.getStatusCode(), body));
+            LoginCommand.LoginResult result = LeetCodeServices.login().login(
+                    config.getLoginName(),
+                    PersistentConfig.getInstance().getPassword(config.getLoginName()),
+                    LeetCodeServices.login().csrfToken()
+            );
+            if (result.isSuccess()) {
+                MessageUtils.getInstance(project).showInfoMsg(
+                        "info",
+                        PropertiesUtils.getInfo("login.success")
+                );
+                notifyLoginAfterUserLoaded(project, config.getUrl());
+                examineEmail(project);
+                return Boolean.TRUE;
+            }
+            if (!result.getErrors().isEmpty()) {
+                MessageUtils.getInstance(project).showInfoMsg(
+                        "info",
+                        StringUtils.join(result.getErrors(), ",")
+                );
                 return Boolean.FALSE;
             }
+            if (result.getStatusCode() == 400) {
+                LogUtils.LOG.info("login 400:" + result.getResponseBody());
+            }
+            LeetCodeServices.login().clearCookies();
+            MessageUtils.getInstance(project).showInfoMsg(
+                    "info",
+                    PropertiesUtils.getInfo("login.unknown")
+            );
+            return Boolean.FALSE;
         } catch (Exception e) {
             LogUtils.LOG.error("登陆错误", e);
             MessageUtils.getInstance(project).showInfoMsg("info", PropertiesUtils.getInfo("login.failed"));
             return Boolean.FALSE;
         }
+    }
+
+    public static void cookieLogin(Project project, String cookies) {
+        ProductServices.cookieLoginStrategy().login(project, cookies);
+    }
+
+    public static CompletableFuture<Boolean> cookieLoginAsync(Project project, String cookies) {
+        return ProductServices.cookieLoginStrategy().loginAsync(project, cookies);
     }
 
     public static void examineEmail(Project project) {
@@ -138,14 +126,28 @@ public class HttpLogin {
     }
 
     public static void notifyLoginAfterUserLoaded(Project project, String host) {
+        CacheInvalidationCoordinator.invalidate(
+                CacheInvalidationReason.LOGIN,
+                host,
+                endpoint(host)
+        );
+        long generation = LoginGenerationTracker.next();
         NavigatorTabsPanel.loadUser(true).whenComplete((user, throwable) -> {
             if (throwable != null) {
                 LogUtils.LOG.warn("Failed to synchronize user data after login", throwable);
+                return;
             }
-            if (!project.isDisposed()) {
+            if (user != null
+                    && user.isSignedIn()
+                    && !project.isDisposed()
+                    && LoginGenerationTracker.isCurrent(generation)) {
                 ApplicationManager.getApplication().getMessageBus().syncPublisher(LoginNotifier.TOPIC).login(project, host);
             }
         });
+    }
+
+    private static String endpoint(String host) {
+        return "https://" + host;
     }
 
     public static boolean isEnabledJcef() {

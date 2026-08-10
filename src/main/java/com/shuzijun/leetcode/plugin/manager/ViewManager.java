@@ -2,6 +2,15 @@ package com.shuzijun.leetcode.plugin.manager;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.shuzijun.lc.model.CodeMetaData;
+import com.shuzijun.lc.model.CodeSnippet;
+import com.shuzijun.lc.model.QuestionView;
+import com.shuzijun.lc.model.Session;
+import com.shuzijun.lc.model.Solution;
+import com.shuzijun.lc.model.Submission;
+import com.shuzijun.lc.model.User;
+import com.shuzijun.leetcode.plugin.editor.QuestionPreviewJcefWarmup;
+import com.shuzijun.leetcode.plugin.editor.QuestionPreviewPerformanceTracker;
 import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.utils.LogUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
@@ -35,8 +44,15 @@ public class ViewManager {
         if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
             return;
         }
+        publishLoading(navigatorAction, project, requestVersion);
         logPageState("loadServiceData:start", navigatorAction.getPageInfo(), selectTitleSlug);
-        PageInfo pageInfo = QuestionManager.getQuestionViewList(project, copyPageInfo(navigatorAction.getPageInfo()));
+        PageInfo pageInfo;
+        try {
+            pageInfo = QuestionManager.getQuestionViewList(project, copyPageInfo(navigatorAction.getPageInfo()));
+        } catch (RuntimeException exception) {
+            publishFailure(navigatorAction, project, requestVersion, navigatorAction::loadServiceData);
+            return;
+        }
         if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
             return;
         }
@@ -44,6 +60,7 @@ public class ViewManager {
         if ((pageInfo.getRows() == null || pageInfo.getRows().isEmpty()) && pageInfo.getRowTotal() != 0) {
             LogUtils.navigatorTrace("loadServiceData:unexpected-empty-page rowTotal=" + pageInfo.getRowTotal());
             MessageUtils.getInstance(project).showErrorMsg("error", PropertiesUtils.getInfo("response.question"));
+            publishFailure(navigatorAction, project, requestVersion, navigatorAction::loadServiceData);
             return;
         }
 
@@ -77,9 +94,18 @@ public class ViewManager {
     }
 
     public static void pick(Project project, PageInfo pageInfo) {
+        pick(project, pageInfo, null);
+    }
+
+    public static void pick(Project project, PageInfo pageInfo, CodeTypeEnum codeTypeEnum) {
+        QuestionPreviewPerformanceTracker tracker = QuestionPreviewPerformanceTracker.getInstance(project);
+        QuestionPreviewPerformanceTracker.Trace trace = tracker.begin(null);
+        QuestionPreviewJcefWarmup.request();
         Question question = QuestionManager.pick(project, pageInfo);
         if (question != null) {
-            CodeManager.openCode(question.getTitleSlug(), project);
+            tracker.bind(trace, question.getTitleSlug());
+            trace.mark(QuestionPreviewPerformanceTracker.Milestone.QUESTION_READY);
+            CodeManager.openCode(question.getTitleSlug(), project, codeTypeEnum, trace);
         }
     }
 
@@ -106,12 +132,20 @@ public class ViewManager {
         if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
             return;
         }
-        List<QuestionView> questionViews = QuestionManager.getQuestionAllService(project, reset);
+        publishLoading(navigatorAction, project, requestVersion);
+        List<QuestionView> questionViews;
+        try {
+            questionViews = QuestionManager.getQuestionAllService(project, reset);
+        } catch (RuntimeException exception) {
+            publishFailure(navigatorAction, project, requestVersion, navigatorAction::loadServiceData);
+            return;
+        }
         if (project.isDisposed() || !NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
             return;
         }
         if (questionViews == null || questionViews.isEmpty()) {
             MessageUtils.getInstance(project).showErrorMsg("error", PropertiesUtils.getInfo("response.question"));
+            publishFailure(navigatorAction, project, requestVersion, navigatorAction::loadServiceData);
             return;
         }
 
@@ -234,6 +268,7 @@ public class ViewManager {
             }
             applyPageInfo(navigatorAction.getPageInfo(), pageInfo);
             navigatorAction.loadData(selectTitleSlug);
+            navigatorAction.loaded();
         }, ignored -> project.isDisposed());
     }
 
@@ -249,6 +284,24 @@ public class ViewManager {
             }
             applyPageInfo(navigatorAction.getPageInfo(), pageInfo);
             navigatorAction.loadData(selectTitleSlug);
+            navigatorAction.loaded();
+        }, ignored -> project.isDisposed());
+    }
+
+    private static void publishLoading(NavigatorAction<?> navigatorAction, Project project, long requestVersion) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (!project.isDisposed() && NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
+                navigatorAction.loading();
+            }
+        }, ignored -> project.isDisposed());
+    }
+
+    private static void publishFailure(NavigatorAction<?> navigatorAction, Project project, long requestVersion,
+                                       Runnable retry) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (!project.isDisposed() && NavigatorRequestTracker.isLatest(navigatorAction, requestVersion)) {
+                navigatorAction.loadFailed(retry);
+            }
         }, ignored -> project.isDisposed());
     }
 

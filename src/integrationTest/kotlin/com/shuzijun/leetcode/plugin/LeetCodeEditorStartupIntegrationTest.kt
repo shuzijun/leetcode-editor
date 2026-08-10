@@ -15,7 +15,7 @@ import com.intellij.driver.sdk.DumbService
 import com.intellij.driver.sdk.FileEditorManager
 import com.intellij.driver.sdk.WaitForException
 import com.intellij.driver.sdk.getToolWindow
-import com.intellij.driver.sdk.invokeActionWithRetries
+import com.intellij.driver.sdk.invokeGlobalBackendAction
 import com.intellij.driver.sdk.openEditor
 import com.intellij.driver.sdk.openFile
 import com.intellij.driver.sdk.openToolWindow
@@ -36,8 +36,13 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.JTable
 import javax.swing.JTabbedPane
+import javax.swing.JDialog
+import javax.swing.JFrame
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import kotlin.time.Duration.Companion.seconds
@@ -69,6 +74,44 @@ private data class RestoredEditorEntry(
 
 class LeetCodeEditorStartupIntegrationTest {
 
+    private val testIde = IdeInfo.IdeaUltimate.copy(buildNumber = "262.8665.258")
+
+    @Test
+    fun opensDefaultSettingsSection(@TempDir tempDir: Path) {
+        val testContext = Starter.newContext(
+            testName = "leetcode-editor-settings-${UUID.randomUUID()}",
+            TestCase(
+                testIde,
+                projectInfo = LocalProjectInfo(
+                    Paths.get(
+                        checkNotNull(javaClass.classLoader.getResource("ui-project")) {
+                            "Missing ui-project integration test resource"
+                        }.toURI()
+                    )
+                ),
+            ),
+        ).apply {
+            PluginConfigurator(this).installPluginFromPath(Path.of(System.getProperty("path.to.build.plugin")))
+            removeMigrateConfigAndCreateStubFile()
+            writeTestConfiguration(paths.configDir, tempDir)
+        }
+
+        testContext.runIdeWithDriver().useDriverAndCloseIde {
+            waitForProjectOpen()
+            invokeProjectAction("leetcode.ConfigAction")
+            val settingsDialog = ui.x {
+                and(
+                    or(byType(JDialog::class.java), byType(JFrame::class.java)),
+                    byAccessibleName("Settings"),
+                )
+            }.waitFound(120.seconds)
+            settingsDialog.waitAnyTextsContains("LeetCode Plugin")
+            settingsDialog.waitAnyTextsContains("CustomConfig(help)")
+            println("STEP_SCREENSHOT[09-public-settings]=${takeScreenshot("09-public-settings")}")
+            settingsDialog.keyboard { escape() }
+        }
+    }
+
     @Test
     fun restoresManyLeetCodeTabsWithoutStartupNetworkCalls(@TempDir tempDir: Path) {
         listOf(10).forEach { tabCount ->
@@ -79,11 +122,12 @@ class LeetCodeEditorStartupIntegrationTest {
                 val prepareContext = Starter.newContext(
                     testName = "leetcode-editor-prepare-tabs-$tabCount-${UUID.randomUUID()}",
                     TestCase(
-                        IdeInfo.IdeaUltimate,
+                        testIde,
                         projectInfo = LocalProjectInfo(projectDir),
                     ),
                 ).apply {
                     PluginConfigurator(this).installPluginFromPath(Path.of(System.getProperty("path.to.build.plugin")))
+                    removeMigrateConfigAndCreateStubFile()
                     this.applyVMOptionsPatch {
                         addSystemProperty("user.language", "en")
                         addSystemProperty("user.country", "US")
@@ -139,11 +183,11 @@ class LeetCodeEditorStartupIntegrationTest {
 
     @Test
     fun remainsInteractiveAtStartupWhenLeetCodeResponsesAreSlow(@TempDir tempDir: Path) {
-        LocalGraphqlServer(responseDelayMillis = 5_000L).use { graphqlServer ->
+        LocalGraphqlServer(responseDelayMillis = 30_000L).use { graphqlServer ->
             val testContext = Starter.newContext(
                 testName = "leetcode-editor-slow-network-startup-${UUID.randomUUID()}",
                 TestCase(
-                    IdeInfo.IdeaUltimate,
+                    testIde,
                     projectInfo = LocalProjectInfo(
                         Paths.get(
                             checkNotNull(javaClass.classLoader.getResource("ui-project")) {
@@ -154,6 +198,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 ),
             ).apply {
                 PluginConfigurator(this).installPluginFromPath(Path.of(System.getProperty("path.to.build.plugin")))
+                removeMigrateConfigAndCreateStubFile()
                 this.applyVMOptionsPatch {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
@@ -169,16 +214,18 @@ class LeetCodeEditorStartupIntegrationTest {
                     "Project startup must not eagerly load LeetCode data",
                 )
 
-                val startedAt = System.nanoTime()
-                openToolWindow("Leetcode")
-                val openElapsedMillis = (System.nanoTime() - startedAt) / 1_000_000L
-                assertTrue(getToolWindow("Leetcode").isVisible())
-                assertTrue(
-                    openElapsedMillis < graphqlServer.responseDelayMillis,
-                    "Opening the tool window must not synchronously wait for LeetCode responses",
-                )
-                waitUntil("the delayed user request reaches the local server") {
-                    graphqlServer.totalRequestCount() > 0
+                waitForLeetcodeToolWindow()
+                try {
+                    openLeetcodeToolWindow()
+                    waitUntil("the delayed user request reaches the local server") {
+                        graphqlServer.totalRequestCount() > 0
+                    }
+                    assertTrue(
+                        graphqlServer.completedGraphqlResponseCount() == 0,
+                        "The tool window must become visible before a delayed LeetCode response completes",
+                    )
+                } finally {
+                    graphqlServer.releaseDelayedResponses()
                 }
             }
         }
@@ -187,10 +234,11 @@ class LeetCodeEditorStartupIntegrationTest {
     @Test
     fun startsIdeaWithLeetCodeEditorInstalled(@TempDir tempDir: Path) {
         LocalGraphqlServer().use { graphqlServer ->
+            val previewMetrics = tempDir.resolve("question-preview-metrics.log")
             val testContext = Starter.newContext(
                 testName = "leetcode-editor-startup-${UUID.randomUUID()}",
                 TestCase(
-                    IdeInfo.IdeaUltimate,
+                    testIde,
                     projectInfo = LocalProjectInfo(
                         Paths.get(
                             checkNotNull(javaClass.classLoader.getResource("ui-project")) {
@@ -201,10 +249,12 @@ class LeetCodeEditorStartupIntegrationTest {
                 ),
             ).apply {
                 PluginConfigurator(this).installPluginFromPath(Path.of(System.getProperty("path.to.build.plugin")))
+                removeMigrateConfigAndCreateStubFile()
                 this.applyVMOptionsPatch {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
                     addSystemProperty("leetcode.test.base.url", graphqlServer.baseUrl)
+                    addSystemProperty("leetcode.test.preview.metrics.file", previewMetrics.toString())
                 }
                 writeTestConfiguration(paths.configDir, tempDir)
             }
@@ -217,8 +267,8 @@ class LeetCodeEditorStartupIntegrationTest {
                 openLeetcodeToolWindow()
                 assertTrue(getToolWindow("Leetcode").isVisible())
                 assertPluginActionsRegistered()
-                invokeActionWithRetries("leetcode.RefreshAction")
-                val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
+                invokeProjectAction("leetcode.RefreshAction")
+                val questionTable = questionTable()
                 waitUntil("the refresh request reaches the local GraphQL server") {
                     graphqlServer.requestCount("problemsetQuestionList") > 0
                 }
@@ -235,7 +285,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 }
                 println("STEP_SCREENSHOT[01-default-list-page-1]=${takeScreenshot("01-default-list-page-1")}")
                 val defaultRequestCount = graphqlServer.requestCount("problemsetQuestionList")
-                invokeActionWithRetries("leetcode.sort.SortByTitle")
+                invokeProjectAction("leetcode.sort.SortByTitle")
                 waitUntil("sorting sends the selected order to the question API") {
                     graphqlServer.requestCount("problemsetQuestionList") > defaultRequestCount &&
                         graphqlServer.lastRequest("problemsetQuestionList").contains("\"orderBy\":\"FRONTEND_ID\"")
@@ -247,21 +297,20 @@ class LeetCodeEditorStartupIntegrationTest {
                             .any { it.contains("两数之和") }
                 }
                 exerciseDefaultListActions(graphqlServer)
-                waitUntil("opening a question requests its content") {
-                    if (graphqlServer.requestCount("questionData") == 0) {
-                        questionTable.doubleClickCell(1, 1)
-                    }
-                    graphqlServer.requestCount("questionData") > 0
-                }
+                openFirstQuestion(
+                    graphqlServer,
+                    "opening a question requests its content",
+                )
                 val generatedCode = tempDir.resolve("leetcode/editor/cn/[1]两数之和.java")
                 waitUntil("the generated code is ready for startup verification") {
                     Files.isRegularFile(generatedCode)
                 }
                 selectOpenEditor(generatedCode, stableMillis = 3_000)
                 assertConvergeEditorUi("the default ConvergeEditor UI is displayed")
+                assertQuestionPreviewReadable(previewMetrics, "two-sum", 2_500)
                 println("STEP_SCREENSHOT[02-question-opened]=${takeScreenshot("02-question-opened")}")
                 val requestCountBeforePaging = graphqlServer.requestCount("problemsetQuestionList")
-                invokeActionWithRetries("leetcode.NextPage")
+                invokeProjectAction("leetcode.NextPage")
                 waitUntil("the second page is fully rendered before positioning") {
                     graphqlServer.requestCount("problemsetQuestionList") > requestCountBeforePaging &&
                         graphqlServer.lastRequest("problemsetQuestionList").contains("\"skip\":50") &&
@@ -271,7 +320,7 @@ class LeetCodeEditorStartupIntegrationTest {
                             .any { it.contains("最大子数组和") }
                 }
                 println("STEP_SCREENSHOT[03-page-2-loaded]=${takeScreenshot("03-page-2-loaded")}")
-                invokeActionWithRetries("leetcode.positionAction")
+                invokeProjectAction("leetcode.positionAction")
                 waitUntil("positioning restores the first full question page instead of only the daily question") {
                     questionTable.rowCount() == 51 &&
                         questionTable.content().values.asSequence()
@@ -282,23 +331,23 @@ class LeetCodeEditorStartupIntegrationTest {
                             .none { it.contains("最大子数组和") }
                 }
                 println("STEP_SCREENSHOT[04-after-position]=${takeScreenshot("04-after-position")}")
-                invokeActionWithRetries("leetcode.ToggleListAction")
-                invokeActionWithRetries("leetcode.RefreshAction")
+                invokeProjectAction("leetcode.ToggleListAction")
+                invokeProjectAction("leetcode.RefreshAction")
                 waitUntil("the all-questions view displays translated question data") {
                     ui.table { byType(JTable::class.java) }.content().values.asSequence()
                         .flatMap { it.values.asSequence() }
                         .any { it.contains("翻译题目4") }
                 }
-                invokeActionWithRetries("leetcode.ToggleListAction")
-                invokeActionWithRetries("leetcode.RefreshAction")
+                invokeProjectAction("leetcode.ToggleListAction")
+                invokeProjectAction("leetcode.RefreshAction")
                 waitUntil("the CodeTop view displays mocked questions") {
                     graphqlServer.requestCountForPath("/api/questions/") > 0 &&
                         ui.table { byType(JTable::class.java) }.content().values.asSequence()
                             .flatMap { it.values.asSequence() }
                             .any { it.contains("CodeTop Two Sum") }
                 }
-                invokeActionWithRetries("leetcode.ToggleListAction")
-                invokeActionWithRetries("leetcode.RefreshAction")
+                invokeProjectAction("leetcode.ToggleListAction")
+                invokeProjectAction("leetcode.RefreshAction")
                 waitUntil("the default question view is restored") {
                     ui.table { byType(JTable::class.java) }.content().values.asSequence()
                         .flatMap { it.values.asSequence() }
@@ -315,7 +364,7 @@ class LeetCodeEditorStartupIntegrationTest {
             val testContext = Starter.newContext(
                 testName = "leetcode-editor-non-converge-${UUID.randomUUID()}",
                 TestCase(
-                    IdeInfo.IdeaUltimate,
+                    testIde,
                     projectInfo = LocalProjectInfo(
                         Paths.get(
                             checkNotNull(javaClass.classLoader.getResource("ui-project")) {
@@ -326,6 +375,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 ),
             ).apply {
                 PluginConfigurator(this).installPluginFromPath(Path.of(System.getProperty("path.to.build.plugin")))
+                removeMigrateConfigAndCreateStubFile()
                 this.applyVMOptionsPatch {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
@@ -350,8 +400,8 @@ class LeetCodeEditorStartupIntegrationTest {
                 }
                 openLeetcodeToolWindow()
                 assertPluginActionsRegistered()
-                invokeActionWithRetries("leetcode.RefreshAction")
-                val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
+                invokeProjectAction("leetcode.RefreshAction")
+                val questionTable = questionTable()
                 waitUntil("the English configuration loads the question list") {
                     graphqlServer.requestCount("problemsetQuestionList") > 0 &&
                         questionTable.rowCount() == 51 &&
@@ -359,12 +409,10 @@ class LeetCodeEditorStartupIntegrationTest {
                             .flatMap { it.values.asSequence() }
                             .any { it.contains("Two Sum") }
                 }
-                waitUntil("the non-converge configuration loads question content") {
-                    if (graphqlServer.requestCount("questionData") == 0) {
-                        questionTable.doubleClickCell(1, 1)
-                    }
-                    graphqlServer.requestCount("questionData") > 0
-                }
+                openFirstQuestion(
+                    graphqlServer,
+                    "the non-converge configuration loads question content",
+                )
                 waitUntil("the non-converge configuration does not create four converge tabs") {
                     val tabs = ui.x { byType(JTabbedPane::class.java) }
                     !tabs.present() || tabs.driver.cast(tabs.component, JTabbedPaneRef::class)
@@ -385,7 +433,7 @@ class LeetCodeEditorStartupIntegrationTest {
             val testContext = Starter.newContext(
                 testName = "leetcode-editor-custom-template-${UUID.randomUUID()}",
                 TestCase(
-                    IdeInfo.IdeaUltimate,
+                    testIde,
                     projectInfo = LocalProjectInfo(
                         Paths.get(
                             checkNotNull(javaClass.classLoader.getResource("ui-project")) {
@@ -396,6 +444,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 ),
             ).apply {
                 PluginConfigurator(this).installPluginFromPath(Path.of(System.getProperty("path.to.build.plugin")))
+                removeMigrateConfigAndCreateStubFile()
                 this.applyVMOptionsPatch {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
@@ -423,17 +472,15 @@ class LeetCodeEditorStartupIntegrationTest {
                     !service(DumbService::class, singleProject()).isDumb()
                 }
                 openLeetcodeToolWindow()
-                invokeActionWithRetries("leetcode.RefreshAction")
-                val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
+                invokeProjectAction("leetcode.RefreshAction")
+                val questionTable = questionTable()
                 waitUntil("the custom-template scenario displays mocked questions") {
                     questionTable.rowCount() == 51
                 }
-                waitUntil("opening a question requests content for the custom template") {
-                    if (graphqlServer.requestCount("questionData") == 0) {
-                        questionTable.doubleClickCell(1, 1)
-                    }
-                    graphqlServer.requestCount("questionData") > 0
-                }
+                openFirstQuestion(
+                    graphqlServer,
+                    "opening a question requests content for the custom template",
+                )
 
                 val generatedFile = tempDir.resolve("leetcode/editor/cn/TwoSum.java")
                 waitUntil("the custom template generates the expected Java source file") {
@@ -460,7 +507,7 @@ class LeetCodeEditorStartupIntegrationTest {
             val testContext = Starter.newContext(
                 testName = "leetcode-editor-actions-${UUID.randomUUID()}",
                 TestCase(
-                    IdeInfo.IdeaUltimate,
+                    testIde,
                     projectInfo = LocalProjectInfo(
                         Paths.get(
                             checkNotNull(javaClass.classLoader.getResource("ui-project")) {
@@ -471,6 +518,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 ),
             ).apply {
                 PluginConfigurator(this).installPluginFromPath(Path.of(System.getProperty("path.to.build.plugin")))
+                removeMigrateConfigAndCreateStubFile()
                 this.applyVMOptionsPatch {
                     addSystemProperty("user.language", "en")
                     addSystemProperty("user.country", "US")
@@ -487,18 +535,18 @@ class LeetCodeEditorStartupIntegrationTest {
                 }
                 openLeetcodeToolWindow()
                 val questionListRequests = graphqlServer.requestCount("problemsetQuestionList")
-                invokeActionWithRetries("leetcode.RefreshAction")
-                val questionTable = ui.table { byType(JTable::class.java) }.waitFound(120.seconds)
+                invokeProjectAction("leetcode.RefreshAction")
+                waitUntil("the editor action refresh reaches the local GraphQL server") {
+                    graphqlServer.requestCount("problemsetQuestionList") > questionListRequests
+                }
+                val questionTable = questionTable()
                 waitUntil("the editor action scenario displays mocked questions") {
-                    graphqlServer.requestCount("problemsetQuestionList") > questionListRequests &&
-                        questionTable.rowCount() == 51
+                    questionTable.rowCount() == 51
                 }
-                waitUntil("the code editor is opened for editor actions") {
-                    if (graphqlServer.requestCount("questionData") == 0) {
-                        questionTable.doubleClickCell(1, 1)
-                    }
-                    graphqlServer.requestCount("questionData") > 0
-                }
+                openFirstQuestion(
+                    graphqlServer,
+                    "the code editor is opened for editor actions",
+                )
 
                 val generatedCode = tempDir.resolve("leetcode/editor/cn/[1]两数之和.java")
                 waitUntil("the generated code is ready for run and submit") {
@@ -563,7 +611,7 @@ class LeetCodeEditorStartupIntegrationTest {
 
     private fun Driver.invokeEditorAction(path: Path, actionId: String) {
         selectOpenEditor(path)
-        invokeActionWithRetries(actionId)
+        invokeProjectAction(actionId)
     }
 
     private fun Driver.selectOpenEditor(path: Path, stableMillis: Long = 0L) {
@@ -594,7 +642,19 @@ class LeetCodeEditorStartupIntegrationTest {
         }
     }
 
+    private fun Driver.waitForLeetcodeToolWindow() {
+        waitUntil("the Leetcode tool window is registered") {
+            try {
+                getToolWindow("Leetcode")
+                true
+            } catch (_: RuntimeException) {
+                false
+            }
+        }
+    }
+
     private fun Driver.openLeetcodeToolWindow() {
+        waitForLeetcodeToolWindow()
         val leetcodeToolWindow = getToolWindow("Leetcode")
         val activatableToolWindow = cast(leetcodeToolWindow, ActivatableToolWindowRef::class)
         repeat(12) {
@@ -617,6 +677,13 @@ class LeetCodeEditorStartupIntegrationTest {
         ui.x { byType("com.shuzijun.leetcode.plugin.window.NavigatorTabsPanel") }.waitFound(5.seconds)
     }
 
+    private fun Driver.openFirstQuestion(
+        graphqlServer: LocalGraphqlServer,
+        description: String,
+    ) {
+        invokeProjectAction("leetcode.PickAction")
+    }
+
     private fun Driver.assertConsoleOutputUi() {
         val consoleToolWindow = getToolWindow("Leetcode Console")
         openToolWindow("Leetcode Console")
@@ -631,10 +698,32 @@ class LeetCodeEditorStartupIntegrationTest {
                 byType("com.shuzijun.leetcode.plugin.window.ConsolePanel"),
             )
         }.waitFound()
-        consolePanel.waitAnyTextsContains("Code submitted. Please wait...")
-        consolePanel.waitAnyTextsContains("Success:")
+        waitUntil("the console displays the localized submit pending message") {
+            consolePanel.getAllTexts().any {
+                it.text.contains("Code submitted. Please wait...") || it.text.contains("已提交,请稍等")
+            }
+        }
+        waitUntil("the console displays the localized submit success message") {
+            consolePanel.getAllTexts().any {
+                it.text.contains("Success") || it.text.contains("解答成功")
+            }
+        }
         println("STEP_SCREENSHOT[08-console-run-submit-output]=${takeScreenshot("08-console-run-submit-output")}")
     }
+
+    private fun Driver.navigatorPanel() = run {
+        openLeetcodeToolWindow()
+        ui.x {
+            componentWithChild(
+                byType("com.intellij.toolWindow.InternalDecoratorImpl"),
+                byType("com.shuzijun.leetcode.plugin.window.NavigatorTabsPanel"),
+            )
+        }.waitFound(120.seconds)
+    }
+
+    private fun Driver.questionTable() = navigatorPanel().table {
+        byType(JTable::class.java)
+    }.waitFound(120.seconds)
 
     private fun Driver.exerciseDefaultListActions(graphqlServer: LocalGraphqlServer) {
         listOf(
@@ -647,13 +736,29 @@ class LeetCodeEditorStartupIntegrationTest {
             "leetcode.sort.SortByFrequency",
             "leetcode.PageList",
             "leetcode.PageSize",
-        ).forEach(::invokeActionWithRetries)
+        ).forEach { actionId ->
+            invokeProjectAction(actionId)
+        }
 
         val requestCountBeforePick = graphqlServer.requestCount("randomQuestion")
-        invokeActionWithRetries("leetcode.PickAction")
+        invokeProjectAction("leetcode.PickAction")
         waitUntil("pick action requests a mocked random question") {
             graphqlServer.requestCount("randomQuestion") > requestCountBeforePick
         }
+    }
+
+    private fun Driver.invokeProjectAction(actionId: String) {
+        var lastFailure: RuntimeException? = null
+        repeat(10) {
+            try {
+                invokeGlobalBackendAction(actionId, singleProject())
+                return
+            } catch (exception: RuntimeException) {
+                lastFailure = exception
+                Thread.sleep(500)
+            }
+        }
+        throw checkNotNull(lastFailure)
     }
 
     private fun Driver.assertConvergeEditorUi(description: String) {
@@ -676,6 +781,32 @@ class LeetCodeEditorStartupIntegrationTest {
                         tabs.getTitleAt(tabs.getSelectedIndex()) == expectedTitle
                 }
         }
+    }
+
+    private fun assertQuestionPreviewReadable(
+        metricsFile: Path,
+        titleSlug: String,
+        maximumElapsedMillis: Long,
+    ) {
+        waitUntil("the Vditor question preview reports readable content") {
+            Files.isRegularFile(metricsFile) &&
+                Files.readString(metricsFile).contains("titleSlug=$titleSlug") &&
+                Files.readString(metricsFile).contains("milestone=VDITOR_READABLE")
+        }
+        val metrics = Files.readAllLines(metricsFile)
+        val readable = metrics.last {
+            it.contains("titleSlug=$titleSlug") && it.contains("milestone=VDITOR_READABLE")
+        }
+        val elapsedMillis = Regex("""elapsedMs=(\d+)""").find(readable)!!.groupValues[1].toLong()
+        assertTrue(
+            elapsedMillis <= maximumElapsedMillis,
+            "Question preview took ${elapsedMillis}ms; expected at most ${maximumElapsedMillis}ms",
+        )
+        assertTrue(
+            metrics.none { it.contains("titleSlug=$titleSlug") && it.contains("milestone=READABLE_TIMEOUT") },
+            "The Vditor preview exceeded the diagnostic timeout before becoming readable",
+        )
+        println("QUESTION_PREVIEW_METRIC titleSlug=$titleSlug elapsedMs=$elapsedMillis")
     }
 
     private fun Driver.assertPluginActionsRegistered() {
@@ -835,6 +966,8 @@ class LeetCodeEditorStartupIntegrationTest {
     private class LocalGraphqlServer(val responseDelayMillis: Long = 0L) : AutoCloseable {
         private val requestCounts = ConcurrentHashMap<String, Int>()
         private val lastRequests = ConcurrentHashMap<String, String>()
+        private val responseGate = CountDownLatch(if (responseDelayMillis > 0L) 1 else 0)
+        private val completedGraphqlResponses = AtomicInteger()
         private val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0).apply {
             createContext("/graphql") { exchange -> handleGraphql(exchange) }
             createContext("/points/api/") { exchange ->
@@ -901,7 +1034,7 @@ class LeetCodeEditorStartupIntegrationTest {
                     lastRequests[it] = request
                 }
             if (responseDelayMillis > 0L) {
-                Thread.sleep(responseDelayMillis)
+                responseGate.await(responseDelayMillis, TimeUnit.MILLISECONDS)
             }
             val response = when {
                 request.contains("\"operationName\":\"globalData\"") ->
@@ -912,7 +1045,7 @@ class LeetCodeEditorStartupIntegrationTest {
                     allQuestions()
                 request.contains("\"operationName\":\"questionOfToday\"") -> dailyQuestion()
                 request.contains("\"operationName\":\"questionData\"") ->
-                    """{"data":{"question":{"questionId":"1","questionFrontendId":"1","title":"Two Sum","titleSlug":"two-sum","content":"<p>Given an array of integers, return two indices.</p>","translatedTitle":"两数之和","translatedContent":"<p>给定一个整数数组，返回两个下标。</p>","isPaidOnly":false,"difficulty":"Easy","likes":10,"dislikes":1,"isLiked":false,"exampleTestcases":"[2,7,11,15]\n9","topicTags":[],"codeSnippets":[{"lang":"Java","langSlug":"java","code":"class Solution { public int[] twoSum(int[] nums, int target) { return new int[0]; } }"}],"hints":[],"solution":null,"status":null,"sampleTestCase":"[2,7,11,15]\n9","judgerAvailable":true,"judgeType":"large","mysqlSchemas":[],"libraryUrl":""}}}"""
+                    """{"data":{"question":{"questionId":"1","frontendQuestionId":"1","title":"Two Sum","titleSlug":"two-sum","content":"<p>Given an array of integers, return two indices.</p>","titleCn":"两数之和","translatedContent":"<p>给定一个整数数组，返回两个下标。</p>","isPaidOnly":false,"difficulty":"Easy","likes":10,"dislikes":1,"isLiked":false,"exampleTestcases":"[2,7,11,15]\n9","topicTags":[],"codeSnippets":[{"lang":"Java","langSlug":"java","code":"class Solution { public int[] twoSum(int[] nums, int target) { return new int[0]; } }"}],"hints":[],"solution":null,"status":null,"testCase":"[2,7,11,15]\n9","judgerAvailable":true,"judgeType":"large","mysqlSchemas":[],"libraryUrl":""}}}"""
                 request.contains("\"operationName\":\"randomQuestion\"") ->
                     if (request.contains("problemsetRandomFilteredQuestion")) {
                         """{"data":{"randomQuestion":"two-sum"}}"""
@@ -928,6 +1061,7 @@ class LeetCodeEditorStartupIntegrationTest {
                 else -> """{"data":{}}"""
             }
             exchange.respondJson(response)
+            completedGraphqlResponses.incrementAndGet()
         }
 
         private fun questionList(request: String): String {
@@ -957,7 +1091,7 @@ class LeetCodeEditorStartupIntegrationTest {
 
         private fun allQuestionItem(id: Int): String {
             val (title, translatedTitle, titleSlug) = questionTitle(id)
-            return """{"title":"$title","titleSlug":"$titleSlug","translatedTitle":"$translatedTitle","frontendQuestionId":"$id","questionId":"$id","status":null,"level":"${if (id % 3 == 0) "Hard" else if (id % 2 == 0) "Medium" else "Easy"}","isPaidOnly":false,"category":"Algorithms"}"""
+            return """{"title":"$title","titleSlug":"$titleSlug","titleCn":"$translatedTitle","frontendQuestionId":"$id","questionId":"$id","status":null,"difficulty":"${if (id % 3 == 0) "Hard" else if (id % 2 == 0) "Medium" else "Easy"}","isPaidOnly":false,"category":"Algorithms"}"""
         }
 
         private fun questionTitle(id: Int): Triple<String, String, String> = when (id) {
@@ -970,6 +1104,12 @@ class LeetCodeEditorStartupIntegrationTest {
         fun requestCount(operationName: String): Int = requestCounts[operationName] ?: 0
 
         fun totalRequestCount(): Int = requestCounts.values.sum()
+
+        fun completedGraphqlResponseCount(): Int = completedGraphqlResponses.get()
+
+        fun releaseDelayedResponses() {
+            responseGate.countDown()
+        }
 
         fun lastRequest(operationName: String): String = lastRequests[operationName].orEmpty()
 
@@ -995,6 +1135,7 @@ class LeetCodeEditorStartupIntegrationTest {
         }
 
         override fun close() {
+            releaseDelayedResponses()
             server.stop(0)
         }
     }

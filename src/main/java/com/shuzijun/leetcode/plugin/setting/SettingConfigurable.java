@@ -2,32 +2,36 @@ package com.shuzijun.leetcode.plugin.setting;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
-import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.intellij.openapi.util.Disposer;
+import com.shuzijun.leetcode.plugin.application.LeetCodeApplicationService;
+import com.shuzijun.leetcode.plugin.product.ProductProfiles;
+import com.shuzijun.leetcode.plugin.spi.SettingsSectionProvider;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author shuzijun
  */
 public class SettingConfigurable implements SearchableConfigurable {
 
-    public static final String DISPLAY_NAME = PluginConstant.APPLICATION_CONFIGURABLE_DISPLAY_NAME;
-
-    private SettingUI mainPanel;
+    private final List<SettingsSectionProvider.SettingsSection> sections = new ArrayList<>();
+    private com.intellij.openapi.Disposable sectionDisposable;
 
     @NotNull
     @Override
     public String getId() {
-        return PluginConstant.APPLICATION_CONFIGURABLE_ID;
+        return ProductProfiles.current().configurableId();
     }
 
     @Nls
     @Override
     public String getDisplayName() {
-        return PluginConstant.APPLICATION_CONFIGURABLE_DISPLAY_NAME;
+        return ProductProfiles.current().configurableDisplayName();
     }
 
     @Nullable
@@ -45,29 +49,57 @@ public class SettingConfigurable implements SearchableConfigurable {
     @Nullable
     @Override
     public JComponent createComponent() {
-        mainPanel = new SettingUI();
-        return mainPanel.getContentPane();
+        disposeSections();
+        sectionDisposable = Disposer.newDisposable("LeetCode settings sections");
+        List<SettingsSectionProvider> providers =
+                LeetCodeApplicationService.getInstance().settingsSections();
+        if (providers.isEmpty()) {
+            throw new IllegalStateException("No settings sections are registered");
+        }
+        for (SettingsSectionProvider provider : providers) {
+            sections.add(provider.createSection(sectionDisposable));
+        }
+        if (sections.size() == 1) {
+            return sections.get(0).getComponent();
+        }
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        for (SettingsSectionProvider.SettingsSection section : sections) {
+            container.add(section.getComponent());
+        }
+        return container;
     }
 
     @Override
     public boolean isModified() {
-        return mainPanel.isModified();
+        return sections.stream().anyMatch(SettingsSectionProvider.SettingsSection::isModified);
     }
 
     @Override
     public void apply() throws ConfigurationException {
-        mainPanel.apply();
+        for (SettingsSectionProvider.SettingsSection section : sections) {
+            section.apply();
+        }
     }
 
     @Override
     public void reset() {
-        mainPanel.reset();
+        for (SettingsSectionProvider.SettingsSection section : sections) {
+            section.reset();
+        }
     }
 
     @Override
     public void disposeUIResources() {
-        mainPanel.disposeUIResources();
-        mainPanel = null;
+        disposeSections();
+    }
+
+    private void disposeSections() {
+        sections.clear();
+        if (sectionDisposable != null) {
+            Disposer.dispose(sectionDisposable);
+            sectionDisposable = null;
+        }
     }
 
 }

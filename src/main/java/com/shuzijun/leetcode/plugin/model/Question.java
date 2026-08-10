@@ -1,27 +1,14 @@
 package com.shuzijun.leetcode.plugin.model;
 
-import java.util.List;
+import com.shuzijun.lc.model.CodeSnippet;
 
 /**
  * @author shuzijun
  */
-public class Question extends QuestionView {
+public class Question extends com.shuzijun.lc.model.Question {
 
-    private String testCase;
-    private String exampleTestcases;
     private String langSlug;
     private String nodeType = Constant.NODETYPE_DEF;
-
-    /**
-     * 题目描述
-     */
-    private String content;
-
-
-    /**
-     * 所有的代码片段
-     */
-    private List<CodeSnippet> codeSnippets;
 
     /**
      * 文章类型
@@ -34,36 +21,21 @@ public class Question extends QuestionView {
     private String articleSlug;
 
     /**
+     * 文章详情请求标识
+     */
+    private String articleId;
+
+    /**
      * 专栏文章
      */
     private Integer columnArticles = 0;
 
-
     public Question() {
         super();
-
     }
 
     public Question(String title) {
         super(title);
-
-    }
-
-
-    public String getTestCase() {
-        return testCase;
-    }
-
-    public void setTestCase(String testCase) {
-        this.testCase = testCase;
-    }
-
-    public String getExampleTestcases() {
-        return exampleTestcases;
-    }
-
-    public void setExampleTestcases(String exampleTestcases) {
-        this.exampleTestcases = exampleTestcases;
     }
 
     public String getNodeType() {
@@ -75,24 +47,16 @@ public class Question extends QuestionView {
     }
 
 
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
     public void setLangSlug(String langSlug) {
         this.langSlug = langSlug;
     }
 
     public String getCode() {
-        if (codeSnippets == null || codeSnippets.isEmpty()) {
+        if (getCodeSnippets() == null || getCodeSnippets().isEmpty()) {
             return "Subscribe to unlock.";
         }
         CodeTypeEnum codeType = CodeTypeEnum.getCodeTypeEnumByLangSlug(langSlug);
-        for (CodeSnippet codeSnippet : codeSnippets) {
+        for (CodeSnippet codeSnippet : getCodeSnippets()) {
             if (codeType.getLangSlug().equals(codeSnippet.getLangSlug())) {
                 StringBuffer sb = new StringBuffer();
                 sb.append(codeType.getComment()).append(Constant.SUBMIT_REGION_BEGIN).append("\n");
@@ -102,14 +66,6 @@ public class Question extends QuestionView {
             }
         }
         return codeType.getComment() + "There is no code of " + codeType.getType() + " type for this problem";
-    }
-
-    public List<CodeSnippet> getCodeSnippets() {
-        return codeSnippets;
-    }
-
-    public void setCodeSnippets(List<CodeSnippet> codeSnippets) {
-        this.codeSnippets = codeSnippets;
     }
 
     public Integer getArticleLive() {
@@ -126,6 +82,14 @@ public class Question extends QuestionView {
 
     public void setArticleSlug(String articleSlug) {
         this.articleSlug = articleSlug;
+    }
+
+    public String getArticleId() {
+        return articleId;
+    }
+
+    public void setArticleId(String articleId) {
+        this.articleId = articleId;
     }
 
     public Integer getColumnArticles() {

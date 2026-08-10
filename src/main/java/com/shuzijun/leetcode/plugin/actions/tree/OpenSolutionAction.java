@@ -11,10 +11,18 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.shuzijun.leetcode.plugin.manager.ArticleManager;
 import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.manager.QuestionManager;
+import com.shuzijun.lc.model.CodeMetaData;
+import com.shuzijun.lc.model.CodeSnippet;
+import com.shuzijun.lc.model.QuestionView;
+import com.shuzijun.lc.model.Session;
+import com.shuzijun.lc.model.Solution;
+import com.shuzijun.lc.model.Submission;
+import com.shuzijun.lc.model.User;
 import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import com.shuzijun.leetcode.plugin.window.dialog.SolutionPanel;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.KeyAdapter;
@@ -97,13 +105,26 @@ public class OpenSolutionAction extends AbstractTreeAction {
     }
 
     private void openArticle(AnActionEvent anActionEvent, Config config, Question question, List<Solution> solutionList, int row) {
+        if (row < 0 || row >= solutionList.size()) {
+            return;
+        }
         Solution solution = solutionList.get(row);
 
         ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), anActionEvent.getActionManager().getId(this), false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 question.setArticleSlug(solution.getSlug());
-                ArticleManager.openArticle(question.getTitleSlug(), question.getArticleSlug(), anActionEvent.getProject(), true);
+                question.setArticleId(StringUtils.defaultIfBlank(
+                        solution.getTopicId(),
+                        solution.getSlug()
+                ));
+                ArticleManager.openArticle(
+                        question.getTitleSlug(),
+                        question.getArticleSlug(),
+                        question.getArticleId(),
+                        anActionEvent.getProject(),
+                        true
+                );
             }
         });
     }

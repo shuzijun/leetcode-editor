@@ -8,8 +8,8 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
-import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Tag;
+import com.shuzijun.leetcode.plugin.product.ProductProfiles;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.jetbrains.annotations.NotNull;
@@ -54,7 +54,7 @@ public class FindTagAction extends ToggleAction implements DumbAware {
         if (navigatorAction == null) {
             return;
         }
-        ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), PluginConstant.PLUGIN_NAME + "." + tag.getName(), false) {
+        ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), ProductProfiles.current().pluginName() + "." + tag.getName(), false) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 navigatorAction.findChange(filterKey, b, tag);

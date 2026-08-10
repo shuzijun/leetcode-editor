@@ -1,15 +1,10 @@
 package com.shuzijun.leetcode.plugin.editor;
 
 import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorProvider;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.shuzijun.leetcode.plugin.editor.converge.ContentProvider;
-import com.shuzijun.leetcode.plugin.editor.converge.NoteProvider;
-import com.shuzijun.leetcode.plugin.editor.converge.SolutionProvider;
-import com.shuzijun.leetcode.plugin.editor.converge.SubmissionsProvider;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
@@ -24,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 public class QuestionEditorProvider extends SplitTextEditorProvider {
 
     public QuestionEditorProvider() {
-        super(new PsiAwareTextEditorProvider(), new ConvergeProvider(new FileEditorProvider[]{new ContentProvider(), new SolutionProvider(), new SubmissionsProvider(), new NoteProvider()}, new String[]{"Content", "Solution", "Submissions", "Note"}));
+        super(new PsiAwareTextEditorProvider(), new ConvergeProvider());
     }
 
     @Override

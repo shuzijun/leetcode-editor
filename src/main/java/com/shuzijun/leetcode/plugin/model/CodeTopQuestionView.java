@@ -3,7 +3,7 @@ package com.shuzijun.leetcode.plugin.model;
 /**
  * @author shuzijun
  */
-public class CodeTopQuestionView extends QuestionView {
+public class CodeTopQuestionView extends com.shuzijun.lc.model.QuestionView {
 
     private String inspectTime;
 

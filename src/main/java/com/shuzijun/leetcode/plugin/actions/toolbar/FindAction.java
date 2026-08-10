@@ -46,6 +46,9 @@ public class FindAction extends ToggleAction implements DumbAware {
             return;
         }
         panel.setVisible(b);
+        if (b) {
+            panel.requestFocusInWindow();
+        }
     }
 
     @Override

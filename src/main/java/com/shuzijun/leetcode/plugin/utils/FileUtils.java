@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 import com.shuzijun.leetcode.plugin.model.CodeTypeEnum;
 import com.shuzijun.leetcode.plugin.model.Constant;
 import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
@@ -37,15 +36,7 @@ public class FileUtils {
             if (body == null) {
                 return;
             }
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            FileOutputStream fileOutputStream = new FileOutputStream(file, Boolean.FALSE);
-            fileOutputStream.write(body.getBytes("UTF-8"));
-            fileOutputStream.close();
+            SharedPathFileWriter.write(file.toPath(), body);
         } catch (IOException io) {
             LogUtils.LOG.error("保存文件错误", io);
         }
@@ -189,18 +180,13 @@ public class FileUtils {
         if (destFile.exists() && destFile.isDirectory()) {
             throw new IOException("Destination \'" + destFile + "\' exists but is a directory");
         } else {
-            FileInputStream input = new FileInputStream(srcFile);
-
-            try {
-                FileOutputStream output = new FileOutputStream(destFile);
-
-                try {
-                    IOUtils.copy(input, output);
-                } finally {
-                    IOUtils.closeQuietly(output);
+            try (FileInputStream input = new FileInputStream(srcFile);
+                 FileOutputStream output = new FileOutputStream(destFile)) {
+                byte[] buffer = new byte[8192];
+                int count;
+                while ((count = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, count);
                 }
-            } finally {
-                IOUtils.closeQuietly(input);
             }
 
             if (srcFile.length() != destFile.length()) {
@@ -215,31 +201,48 @@ public class FileUtils {
     }
 
     public static void openFileEditor(File file, Project project) {
-        ApplicationManager.getApplication().invokeLater(() -> {
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
             VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-            OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
-            FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
-            RefreshQueue.getInstance().refresh(false, false, null, vf);
+            if (vf == null || project.isDisposed()) {
+                return;
+            }
+            openTextEditor(vf, project);
         });
     }
 
 
-    public static void openFileEditorAndSaveState(File file, Project project, Question question, BiConsumer<LeetcodeEditor,String> consumer,boolean isOpen) {
-        VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-        LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getDefEditor(URLUtils.getLeetcodeHost()+question.getFrontendQuestionId());
-        leetcodeEditor.setFrontendQuestionId(URLUtils.getLeetcodeHost()+question.getFrontendQuestionId());
-        leetcodeEditor.setTitleSlug(question.getTitleSlug());
-        leetcodeEditor.setHost(URLUtils.getLeetcodeHost());
-        consumer.accept(leetcodeEditor,vf.getPath());
-        ProjectConfig.getInstance(project).addLeetcodeEditor(leetcodeEditor);
+    public static void openFileEditorAndSaveState(File file, Project project, Question question,
+                                                   BiConsumer<LeetcodeEditor, String> consumer,
+                                                   boolean isOpen, CodeTypeEnum codeTypeEnum) {
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            VirtualFile vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+            if (vf == null || project.isDisposed()) {
+                return;
+            }
+            String frontendQuestionId = URLUtils.getLeetcodeHost() + question.getFrontendQuestionId();
+            LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project)
+                    .getDefEditor(frontendQuestionId, codeTypeEnum.getLangSlug());
+            leetcodeEditor.setFrontendQuestionId(frontendQuestionId);
+            leetcodeEditor.setTitleSlug(question.getTitleSlug());
+            leetcodeEditor.setHost(URLUtils.getLeetcodeHost());
+            leetcodeEditor.setLangSlug(codeTypeEnum.getLangSlug());
+            consumer.accept(leetcodeEditor, vf.getPath());
+            ProjectConfig.getInstance(project).addLeetcodeEditor(leetcodeEditor);
 
-        if(isOpen) {
-            ApplicationManager.getApplication().invokeLater(() -> {
-                OpenFileDescriptor descriptor = new OpenFileDescriptor(project, vf);
-                FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
-            });
-        }
+            if (isOpen) {
+                openTextEditor(vf, project);
+            }
+        });
+    }
 
+    private static void openTextEditor(VirtualFile file, Project project) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (project.isDisposed() || !file.isValid()) {
+                return;
+            }
+            OpenFileDescriptor descriptor = new OpenFileDescriptor(project, file);
+            FileEditorManager.getInstance(project).openTextEditor(descriptor, false);
+        });
     }
 
     public static void saveEditDocument(VirtualFile file){

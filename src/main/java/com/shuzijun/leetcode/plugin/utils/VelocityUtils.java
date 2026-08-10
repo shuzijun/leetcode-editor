@@ -37,6 +37,7 @@ public class VelocityUtils {
         StringWriter writer = new StringWriter();
         VelocityContext velocityContext = new VelocityContext();
         velocityContext.put(VM_CONTEXT, data);
+        velocityContext.put("q", data);
         velocityContext.put("velocityTool", new VelocityTool());
         velocityContext.put("vt", new VelocityTool());
         ENGINE.evaluate(velocityContext, writer, VM_LOG_TAG, template);

@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
@@ -82,6 +83,60 @@ public class ProjectConfigTest {
 
         assertEquals(true, config.removeEditor(source.toString(), project.toString()));
         assertEquals(0, config.getState().projectConfig.size());
+    }
+
+    @Test
+    public void infersLanguageFromPersistedSourceSuffix() throws Exception {
+        Path project = temporaryFolder.newFolder("language-migration-project").toPath();
+        Path source = Files.write(project.resolve("answer.py"), "code".getBytes(StandardCharsets.UTF_8));
+        LeetcodeEditor editor = editor("1", source, null);
+
+        ProjectConfig.InnerState state = new ProjectConfig.InnerState();
+        state.projectConfig.put(editor.getPath(), editor);
+
+        ProjectConfig config = new ProjectConfig();
+        config.loadState(state);
+
+        assertEquals("python", editor.getLangSlug());
+        assertSame(editor, config.getDefEditor("1", "python"));
+        assertSame(editor, config.getDefEditor("1"));
+    }
+
+    @Test
+    public void keepsLanguageEditorsForTheSameQuestionIndependent() throws Exception {
+        Path project = temporaryFolder.newFolder("multi-language-project").toPath();
+        Path javaSource = Files.write(project.resolve("answer.java"), "java".getBytes(StandardCharsets.UTF_8));
+        Path pythonSource = Files.write(project.resolve("answer.py"), "python".getBytes(StandardCharsets.UTF_8));
+        LeetcodeEditor javaEditor = editor("1", javaSource, null);
+        javaEditor.setLangSlug("java");
+        LeetcodeEditor pythonEditor = editor("1", pythonSource, null);
+        pythonEditor.setLangSlug("python3");
+
+        ProjectConfig config = new ProjectConfig();
+        config.addLeetcodeEditor(javaEditor);
+        config.addLeetcodeEditor(pythonEditor);
+
+        assertSame(javaEditor, config.getDefEditor("1", "java"));
+        assertSame(pythonEditor, config.getDefEditor("1", "python3"));
+        assertEquals(true, config.removeEditor(javaSource.toString()));
+        assertNotSame(javaEditor, config.getDefEditor("1", "java"));
+        assertSame(pythonEditor, config.getDefEditor("1", "python3"));
+    }
+
+    @Test
+    public void doesNotMatchDifferentQuestionByFrontendIdSuffix() throws Exception {
+        Path project = temporaryFolder.newFolder("question-id-project").toPath();
+        Path source = Files.write(project.resolve("answer.java"), "code".getBytes(StandardCharsets.UTF_8));
+        LeetcodeEditor questionEleven = editor("11", source, null);
+        questionEleven.setLangSlug("java");
+
+        ProjectConfig.InnerState state = new ProjectConfig.InnerState();
+        state.projectConfig.put(questionEleven.getPath(), questionEleven);
+
+        ProjectConfig config = new ProjectConfig();
+        config.loadState(state);
+
+        assertNotSame(questionEleven, config.getDefEditor("1"));
     }
 
     private static LeetcodeEditor editor(String id, Path source, Path content) {

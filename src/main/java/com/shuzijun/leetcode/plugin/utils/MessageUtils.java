@@ -1,5 +1,7 @@
 package com.shuzijun.leetcode.plugin.utils;
 
+import com.intellij.execution.process.AnsiEscapeDecoder;
+import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.notification.Notification;
@@ -7,7 +9,6 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.popup.Balloon;
@@ -17,7 +18,8 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.awt.RelativePoint;
-import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.product.ProductProfiles;
+import com.shuzijun.leetcode.plugin.product.ProductServices;
 import com.shuzijun.leetcode.plugin.window.ConsoleWindowFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -30,23 +32,24 @@ import java.util.Date;
 /**
  * @author shuzijun
  */
-@Service
-public final class MessageUtils implements Disposable {
+public class MessageUtils implements Disposable {
 
     public static final String FLAG = "\033";
 
     private final Project project;
     private ConsoleView consoleView;
     private ToolWindow toolWindow;
+    private final AnsiEscapeDecoder ansiEscapeDecoder = new AnsiEscapeDecoder();
 
     public MessageUtils(Project project) {
         this.project = project;
-        this.toolWindow = ToolWindowManager.getInstance(project).getToolWindow(ConsoleWindowFactory.ID);
+        this.toolWindow = ToolWindowManager.getInstance(project)
+                .getToolWindow(ProductProfiles.current().consoleToolWindowId());
     }
 
     @NotNull
     public static MessageUtils getInstance(Project project) {
-        return project.getService(MessageUtils.class);
+        return ProductServices.messageUtils(project);
     }
 
 
@@ -62,14 +65,26 @@ public final class MessageUtils implements Disposable {
     }
 
     public void showInfoMsg(String title, String body) {
-        showConsole(MessageLevel.INFO, title, body);
+        ProductServices.consolePresenter().info(project, title, body);
     }
 
     public void showWarnMsg(String title, String body) {
-        showConsole(MessageLevel.WARNING, title, body);
+        ProductServices.consolePresenter().warning(project, title, body);
     }
 
     public void showErrorMsg(String title, String body) {
+        ProductServices.consolePresenter().error(project, title, body);
+    }
+
+    public void showConsoleInfo(String title, String body) {
+        showConsole(MessageLevel.INFO, title, body);
+    }
+
+    public void showConsoleWarning(String title, String body) {
+        showConsole(MessageLevel.WARNING, title, body);
+    }
+
+    public void showConsoleError(String title, String body) {
         showConsole(MessageLevel.ERROR, title, body);
     }
 
@@ -86,32 +101,13 @@ public final class MessageUtils implements Disposable {
     }
 
     private void printBody(String body, ConsoleViewContentType contentType) {
-        String[] bodys = StringUtils.defaultString(body).split("\n", -1);
-        for (String s : bodys) {
-            if (s.contains(FLAG)) {
-                String[] sc = s.split(FLAG, -1);
-                for (int i = 0; i < sc.length; i++) {
-                    if (i % 2 == 0) {
-                        consoleView.print(sc[i], contentType);
-                    } else {
-                        String childStr = sc[i];
-                        if (childStr.startsWith("I")) {
-                            consoleView.print(sc[i].substring(1), ConsoleViewContentType.NORMAL_OUTPUT);
-                        } else if (childStr.startsWith("W")) {
-                            consoleView.print(sc[i].substring(1), ConsoleViewContentType.LOG_INFO_OUTPUT);
-                        } else if (childStr.startsWith("E")) {
-                            consoleView.print(sc[i].substring(1), ConsoleViewContentType.ERROR_OUTPUT);
-                        } else {
-                            consoleView.print(sc[i].substring(1), contentType);
-                        }
-                    }
-                }
-                consoleView.print("\n", contentType);
-            } else {
-                consoleView.print(s + "\n", contentType);
-            }
-
+        String text = StringUtils.defaultString(body);
+        if (!text.endsWith("\n")) {
+            text += "\n";
         }
+        ansiEscapeDecoder.escapeText(text, ProcessOutputTypes.STDOUT, (chunk, attributes) ->
+                consoleView.print(chunk, ConsoleViewContentType.getConsoleViewType(attributes))
+        );
     }
 
     private boolean isGenericTitle(String title) {
@@ -122,7 +118,7 @@ public final class MessageUtils implements Disposable {
     }
 
     public static void showAllWarnMsg(String title, String body) {
-        Notifications.Bus.notify(new Notification(PluginConstant.NOTIFICATION_GROUP, title, body, NotificationType.WARNING));
+        Notifications.Bus.notify(new Notification(ProductProfiles.current().notificationGroup(), title, body, NotificationType.WARNING));
     }
 
     public String getComponentName() {
@@ -130,12 +126,23 @@ public final class MessageUtils implements Disposable {
     }
 
     public static String format(String body, String type) {
-        return FLAG + type + body.replace("\n", FLAG + "\n" + FLAG + type) + FLAG;
+        String ansiType;
+        if ("I".equals(type)) {
+            ansiType = "[32m";
+        } else if ("W".equals(type)) {
+            ansiType = "[33m";
+        } else if ("E".equals(type)) {
+            ansiType = "[31m";
+        } else {
+            ansiType = type;
+        }
+        String safeBody = StringUtils.defaultString(body);
+        return FLAG + ansiType + safeBody.replace("\n", FLAG + "[0m\n" + FLAG + ansiType) + FLAG + "[0m";
     }
 
     public static String formatDiff(String expected, String output) {
         if ((StringUtils.isBlank(expected) && StringUtils.isNotBlank(output)) || (StringUtils.isNotBlank(expected) && StringUtils.isBlank(output))) {
-            return FLAG + "E" + output + FLAG;
+            return FLAG + "[31m" + output + FLAG + "[0m";
         } else if (StringUtils.isBlank(expected) || StringUtils.isBlank(output) || output.equals(expected)) {
             return output;
         } else {
@@ -144,21 +151,21 @@ public final class MessageUtils implements Disposable {
             for (int i = 0; i < output.length(); i++) {
                 if (i >= expected.length()) {
                     if (!isDiff) {
-                        sb.append(FLAG).append("E");
+                        sb.append(FLAG).append("[31m");
                     }
-                    sb.append(output.substring(i)).append(FLAG);
+                    sb.append(output.substring(i)).append(FLAG).append("[0m");
                     isDiff = true;
                     break;
                 } else {
                     if (output.charAt(i) == expected.charAt(i)) {
                         if (isDiff) {
-                            sb.append(FLAG);
+                            sb.append(FLAG).append("[0m");
                             isDiff = false;
                         }
                         sb.append(output.charAt(i));
                     } else {
                         if (!isDiff) {
-                            sb.append(FLAG).append("E");
+                            sb.append(FLAG).append("[31m");
                             isDiff = true;
                         }
                         sb.append(output.charAt(i));
@@ -167,7 +174,7 @@ public final class MessageUtils implements Disposable {
 
             }
             if (isDiff) {
-                sb.append(FLAG);
+                sb.append(FLAG).append("[0m");
             }
             return sb.toString();
         }
@@ -179,7 +186,8 @@ public final class MessageUtils implements Disposable {
                 return;
             }
             if (toolWindow == null) {
-                toolWindow = ToolWindowManager.getInstance(project).getToolWindow(ConsoleWindowFactory.ID);
+                toolWindow = ToolWindowManager.getInstance(project)
+                        .getToolWindow(ProductProfiles.current().consoleToolWindowId());
             }
             if (toolWindow == null) {
                 return;

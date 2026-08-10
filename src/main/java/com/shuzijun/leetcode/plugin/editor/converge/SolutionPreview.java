@@ -20,8 +20,18 @@ import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
 import com.shuzijun.leetcode.plugin.editor.SplitFileEditor;
 import com.shuzijun.leetcode.plugin.manager.ArticleManager;
 import com.shuzijun.leetcode.plugin.manager.QuestionManager;
+import com.shuzijun.lc.model.CodeMetaData;
+import com.shuzijun.lc.model.CodeSnippet;
+import com.shuzijun.lc.model.QuestionView;
+import com.shuzijun.lc.model.Session;
+import com.shuzijun.lc.model.Solution;
+import com.shuzijun.lc.model.Submission;
+import com.shuzijun.lc.model.User;
 import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.plugin.utils.AsyncTaskHandle;
 import com.shuzijun.leetcode.plugin.utils.AsyncUiUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.ui.ContentStatePanel;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -47,6 +57,8 @@ import static com.intellij.openapi.actionSystem.ActionPlaces.TEXT_EDITOR_WITH_PR
 public class SolutionPreview extends UserDataHolderBase implements FileEditor {
 
     private static final String MY_PROPORTION_KEY = PluginConstant.PLUGIN_ID + "SolutionSplitEditor.Proportion";
+    private static final String LIST_OPERATION = "solution-list";
+    private static final String DETAIL_OPERATION = "solution-detail";
 
 
     private final Project project;
@@ -63,8 +75,13 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
     private JBTable table;
 
     private JBSplitter mySplitter;
+    private ContentStatePanel listState;
+    private ContentStatePanel detailState;
     private SplitFileEditor.SplitEditorLayout myLayout = SplitFileEditor.SplitEditorLayout.FIRST;
+    private final AtomicInteger listRequestId = new AtomicInteger();
     private final AtomicInteger articleRequestId = new AtomicInteger();
+    private AsyncTaskHandle listTask;
+    private AsyncTaskHandle detailTask;
 
     public SolutionPreview(Project project, LeetcodeEditor leetcodeEditor) {
         this.project = project;
@@ -77,6 +94,11 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
             mySplitter = new JBSplitter(false, 0.35f, 0.15f, 0.85f);
             mySplitter.setSplitterProportionKey(MY_PROPORTION_KEY);
             mySplitter.setDividerWidth(3);
+            listState = new ContentStatePanel();
+            detailState = new ContentStatePanel();
+            mySplitter.setFirstComponent(listState);
+            mySplitter.setSecondComponent(detailState);
+            adjustEditorsVisibility();
             myComponent = JBUI.Panels.simplePanel();
             myComponent.add(mySplitter, BorderLayout.CENTER);
             if (isLoad) {
@@ -88,9 +110,15 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
 
     private void initComponent(String defaultSlug) {
         isLoad = true;
+        int requestId = listRequestId.incrementAndGet();
+        cancelTask(listTask);
+        cancelDetailLoad();
         ApplicationManager.getApplication().invokeLater(() -> {
-            mySplitter.setFirstComponent(new JBLabel("Loading......"));
-            AsyncUiUtils.load(project, this, () -> {
+            if (requestId != listRequestId.get()) {
+                return;
+            }
+            listState.showLoading(PropertiesUtils.getInfo("ui.loading"));
+            listTask = AsyncUiUtils.load(project, this, LIST_OPERATION, () -> {
                 Question loadedQuestion = QuestionManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), project);
                 List<Solution> loadedSolutions = null;
                 if (loadedQuestion != null && Constant.ARTICLE_LIVE_LIST.equals(loadedQuestion.getArticleLive())) {
@@ -98,28 +126,37 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
                 }
                 return new InitialData(loadedQuestion, loadedSolutions);
             }, (data, error) -> {
+                if (requestId != listRequestId.get()) {
+                    return;
+                }
                 if (error != null) {
                     myLayout = SplitFileEditor.SplitEditorLayout.FIRST;
                     adjustEditorsVisibility();
-                    mySplitter.setFirstComponent(new JBLabel(error.getMessage()));
+                    listState.showError(
+                            PropertiesUtils.getInfo("ui.solution.failed"),
+                            PropertiesUtils.getInfo("ui.retry"),
+                            () -> initComponent(defaultSlug)
+                    );
                     return;
                 }
                 question = data.question;
                 solutionList = data.solutions;
                 if (question == null || Constant.ARTICLE_LIVE_NONE.equals(question.getArticleLive())) {
-                    mySplitter.setFirstComponent(new JBLabel("No question or no solution"));
+                    listState.showEmpty(PropertiesUtils.getInfo("ui.solution.empty"), null, null);
                 } else if (Constant.ARTICLE_LIVE_ONE.equals(question.getArticleLive())) {
                     openArticle();
                     myLayout = SplitFileEditor.SplitEditorLayout.SECOND;
                     adjustEditorsVisibility();
                 } else if (Constant.ARTICLE_LIVE_LIST.equals(question.getArticleLive())) {
                     if (solutionList == null || solutionList.isEmpty()) {
-                        mySplitter.setFirstComponent(new JBLabel("no solution"));
+                        listState.showEmpty(PropertiesUtils.getInfo("ui.solution.empty"), null, null);
                     } else {
                         table = new JBTable(new TableModel(solutionList));
                         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                         table.getTableHeader().setReorderingAllowed(false);
                         table.setRowSelectionAllowed(true);
+                        table.setFillsViewportHeight(true);
+                        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
                         table.setRowSelectionInterval(0, 0);
                         table.getColumnModel().getColumn(0).setPreferredWidth(350);
                         table.getColumnModel().getColumn(1).setPreferredWidth(200);
@@ -144,7 +181,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
                             }
                         });
                         JBScrollPane jbScrollPane = new JBScrollPane(table, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-                        mySplitter.setFirstComponent(jbScrollPane);
+                        listState.showContent(jbScrollPane);
                         if (StringUtils.isNotBlank(defaultSlug)) {
                             for (int i = 0; i < solutionList.size(); i++) {
                                 if (solutionList.get(i).getSlug().equals(defaultSlug)) {
@@ -156,7 +193,7 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
                         }
                     }
                 } else {
-                    mySplitter.setFirstComponent(new JBLabel("no solution"));
+                    listState.showEmpty(PropertiesUtils.getInfo("ui.solution.empty"), null, null);
                 }
             });
         });
@@ -168,9 +205,11 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
         }
         Solution solution = solutionList.get(row);
         question.setArticleSlug(solution.getSlug());
+        question.setArticleId(StringUtils.defaultIfBlank(
+                solution.getTopicId(),
+                solution.getSlug()
+        ));
         try {
-            myLayout = SplitFileEditor.SplitEditorLayout.SPLIT;
-            adjustEditorsVisibility();
             openArticle();
         } catch (Exception e) {
         }
@@ -182,10 +221,19 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
         }
         String titleSlug = question.getTitleSlug();
         String articleSlug = question.getArticleSlug();
+        String articleId = StringUtils.defaultIfBlank(question.getArticleId(), articleSlug);
         int requestId = articleRequestId.incrementAndGet();
-        mySplitter.setSecondComponent(new JBLabel("Loading......"));
-        AsyncUiUtils.load(project, this, () -> {
-            File file = ArticleManager.openArticle(titleSlug, articleSlug, project, false);
+        cancelTask(detailTask);
+        disposeFileEditor();
+        detailState.showLoading(PropertiesUtils.getInfo("ui.loading"));
+        detailTask = AsyncUiUtils.load(project, this, DETAIL_OPERATION, () -> {
+            File file = ArticleManager.openArticle(
+                    titleSlug,
+                    articleSlug,
+                    articleId,
+                    project,
+                    false
+            );
             return file == null || !file.exists()
                     ? null
                     : LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
@@ -194,33 +242,43 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
                 return;
             }
             if (error != null) {
-                mySplitter.setSecondComponent(new JBLabel(error.getMessage()));
+                detailState.showError(
+                        PropertiesUtils.getInfo("ui.solution.detail.failed"),
+                        PropertiesUtils.getInfo("ui.retry"),
+                        this::openArticle
+                );
             } else if (vf == null) {
-                mySplitter.setSecondComponent(new JBLabel("no solution"));
+                detailState.showEmpty(PropertiesUtils.getInfo("ui.solution.empty"), null, null);
             } else {
             List<FileEditorProvider> editorProviders = FileEditorProviderManager.getInstance().getProviderList(project, vf);
             if (editorProviders.isEmpty()) {
-                mySplitter.setSecondComponent(new JBLabel("No editor available for solution"));
+                detailState.showError(
+                        PropertiesUtils.getInfo("ui.solution.detail.failed"),
+                        PropertiesUtils.getInfo("ui.retry"),
+                        this::openArticle
+                );
                 return;
             }
             FileEditor newEditor = editorProviders.get(0).createEditor(project, vf);
             if (newEditor == fileEditor) {
                 return;
             }
-            if (fileEditor != null) {
-                mySplitter.setSecondComponent(new JBLabel("Loading......"));
-                FileEditor temp = fileEditor;
-                Disposer.dispose(temp);
-            }
+            disposeFileEditor();
             fileEditor = newEditor;
             Disposer.register(this, fileEditor);
             BorderLayoutPanel secondComponent = JBUI.Panels.simplePanel(fileEditor.getComponent());
             if (!Constant.ARTICLE_LIVE_ONE.equals(question.getArticleLive())) {
                 secondComponent.addToTop(createToolbarWrapper(fileEditor.getComponent()));
             }
-            mySplitter.setSecondComponent(secondComponent);
+            detailState.showContent(secondComponent);
+            myLayout = solutionDetailLayout();
+            adjustEditorsVisibility();
             }
         });
+    }
+
+    static SplitFileEditor.SplitEditorLayout solutionDetailLayout() {
+        return SplitFileEditor.SplitEditorLayout.SECOND;
     }
 
     private SplitEditorToolbar createToolbarWrapper(JComponent targetComponentForActions) {
@@ -288,12 +346,6 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
                     }
                 }
             }
-            if (myLayout == SplitFileEditor.SplitEditorLayout.SECOND || myLayout == SplitFileEditor.SplitEditorLayout.SPLIT) {
-                try {
-                    openArticle();
-                } catch (Exception ignore) {
-                }
-            }
         }
     }
 
@@ -324,7 +376,13 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
 
     @Override
     public void dispose() {
-        fileEditor = null;
+        listRequestId.incrementAndGet();
+        articleRequestId.incrementAndGet();
+        cancelTask(listTask);
+        cancelTask(detailTask);
+        listTask = null;
+        detailTask = null;
+        disposeFileEditor();
     }
 
     @Override
@@ -333,6 +391,26 @@ public class SolutionPreview extends UserDataHolderBase implements FileEditor {
             return fileEditor.getFile();
         } else {
             return null;
+        }
+    }
+
+    private void cancelDetailLoad() {
+        articleRequestId.incrementAndGet();
+        cancelTask(detailTask);
+        detailTask = null;
+        disposeFileEditor();
+    }
+
+    private static void cancelTask(@Nullable AsyncTaskHandle task) {
+        if (task != null) {
+            task.cancel();
+        }
+    }
+
+    private void disposeFileEditor() {
+        if (fileEditor != null) {
+            Disposer.dispose(fileEditor);
+            fileEditor = null;
         }
     }
 
