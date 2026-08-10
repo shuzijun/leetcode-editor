@@ -84,6 +84,23 @@ public class ConvergeProviderTest {
         assertEquals(1, provider.createEditorCalls.get());
     }
 
+    @Test
+    public void doesNotInvokeChildProviderAsyncBuilderDirectly() {
+        com.intellij.openapi.fileEditor.FileEditor expected = fileEditor();
+        OverridingAsyncProvider provider = new OverridingAsyncProvider(expected);
+
+        com.intellij.openapi.fileEditor.FileEditor actual = ConvergeProvider
+                .getBuilderFromEditorProvider(
+                        provider,
+                        proxy(Project.class),
+                        new LightVirtualFile("answer.java"))
+                .build();
+
+        assertSame(expected, actual);
+        assertEquals(1, provider.createEditorCalls.get());
+        assertEquals(0, provider.createEditorAsyncCalls.get());
+    }
+
     private static class TestFileEditorProvider implements FileEditorProvider {
         private final String editorTypeId;
         private final com.intellij.openapi.fileEditor.FileEditor editor;
@@ -156,7 +173,7 @@ public class ConvergeProviderTest {
 
     private static class DefaultAsyncProvider implements AsyncFileEditorProvider {
         private final com.intellij.openapi.fileEditor.FileEditor editor;
-        private final AtomicInteger createEditorCalls = new AtomicInteger();
+        protected final AtomicInteger createEditorCalls = new AtomicInteger();
 
         private DefaultAsyncProvider(com.intellij.openapi.fileEditor.FileEditor editor) {
             this.editor = editor;
@@ -181,6 +198,25 @@ public class ConvergeProviderTest {
         @Override
         public FileEditorPolicy getPolicy() {
             return FileEditorPolicy.NONE;
+        }
+    }
+
+    private static class OverridingAsyncProvider extends DefaultAsyncProvider {
+        private final AtomicInteger createEditorAsyncCalls = new AtomicInteger();
+
+        private OverridingAsyncProvider(com.intellij.openapi.fileEditor.FileEditor editor) {
+            super(editor);
+        }
+
+        @Override
+        public Builder createEditorAsync(Project project, VirtualFile file) {
+            createEditorAsyncCalls.incrementAndGet();
+            return new Builder() {
+                @Override
+                public com.intellij.openapi.fileEditor.FileEditor build() {
+                    return createEditor(project, file);
+                }
+            };
         }
     }
 

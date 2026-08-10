@@ -37,6 +37,10 @@ public class LCVPreview extends UserDataHolderBase implements FileEditor {
     private final Document myDocument;
     private final QuestionPreviewRenderMode renderMode;
     private final QuestionPreviewPerformanceTracker.Trace performanceTrace;
+    @Nullable
+    private final String previewText;
+    @Nullable
+    private final String previewPath;
 
     private BorderLayoutPanel myHtmlPanelWrapper;
     private LCVPanel myPanel;
@@ -48,10 +52,32 @@ public class LCVPreview extends UserDataHolderBase implements FileEditor {
     }
 
     public LCVPreview(@NotNull Project project, @NotNull VirtualFile file, QuestionPreviewRenderMode renderMode) {
+        this(project, file, renderMode, null, null);
+    }
+
+    public LCVPreview(
+            @NotNull Project project,
+            @NotNull VirtualFile file,
+            @NotNull String previewText,
+            @NotNull String previewPath,
+            @NotNull QuestionPreviewRenderMode renderMode
+    ) {
+        this(project, file, renderMode, previewText, previewPath);
+    }
+
+    private LCVPreview(
+            @NotNull Project project,
+            @NotNull VirtualFile file,
+            @NotNull QuestionPreviewRenderMode renderMode,
+            @Nullable String previewText,
+            @Nullable String previewPath
+    ) {
         myProject = project;
         myFile = file;
         myDocument = FileDocumentManager.getInstance().getDocument(myFile);
         this.renderMode = renderMode;
+        this.previewText = previewText;
+        this.previewPath = previewPath;
         QuestionPreviewPerformanceTracker tracker = QuestionPreviewPerformanceTracker.getInstance(project);
         LeetcodeEditor leetcodeEditor = ProjectConfig.getInstance(project).getEditor(file.getPath());
         QuestionPreviewPerformanceTracker.Trace pathTrace = tracker.latestForContentPath(file.getPath());
@@ -79,14 +105,16 @@ public class LCVPreview extends UserDataHolderBase implements FileEditor {
             JBLabel loadingLabel = new JBLabel("Loading......");
             myHtmlPanelWrapper.addToCenter(loadingLabel);
             String url = UrlEscapers.urlFragmentEscaper().escape(
-                    URLUtil.FILE_PROTOCOL + URLUtil.SCHEME_SEPARATOR + FileUtils.separator() + myFile.getPath()
+                    URLUtil.FILE_PROTOCOL + URLUtil.SCHEME_SEPARATOR + FileUtils.separator()
+                            + (previewPath == null ? myFile.getPath() : previewPath)
             );
             LCVPanel tempPanel = null;
             try {
+                String text = previewText == null ? myDocument.getText() : previewText;
                 try {
-                    tempPanel = new LCVPanel(url, myProject, myDocument.getText(), performanceTrace, renderMode);
+                    tempPanel = new LCVPanel(url, myProject, text, performanceTrace, renderMode);
                 } catch (IllegalArgumentException e) {
-                    tempPanel = new LCVPanel(url, myProject, myDocument.getText(), performanceTrace, renderMode, true);
+                    tempPanel = new LCVPanel(url, myProject, text, performanceTrace, renderMode, true);
                 }
                 myHtmlPanelWrapper.addToCenter(tempPanel.getComponent());
 

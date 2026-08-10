@@ -120,27 +120,11 @@ public class ConvergeProvider implements AsyncFileEditorProvider, DumbAware {
 
     @NotNull
     public static Builder getBuilderFromEditorProvider(@NotNull final FileEditorProvider provider, @NotNull final Project project, @NotNull final VirtualFile file) {
-        if (hasAsyncBuilder(provider)) {
-            return ((AsyncFileEditorProvider) provider).createEditorAsync(project, file);
-        }
         return new Builder() {
             @Override
             public FileEditor build() {
                 return provider.createEditor(project, file);
             }
         };
-    }
-
-    private static boolean hasAsyncBuilder(@NotNull FileEditorProvider provider) {
-        if (!(provider instanceof AsyncFileEditorProvider)) {
-            return false;
-        }
-        try {
-            return provider.getClass()
-                    .getMethod("createEditorAsync", Project.class, VirtualFile.class)
-                    .getDeclaringClass() != AsyncFileEditorProvider.class;
-        } catch (NoSuchMethodException exception) {
-            return false;
-        }
     }
 }
