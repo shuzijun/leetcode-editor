@@ -39,12 +39,14 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import javax.swing.JTable
 import javax.swing.JTabbedPane
 import javax.swing.JDialog
 import javax.swing.JFrame
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
+import kotlin.concurrent.thread
 import kotlin.time.Duration.Companion.seconds
 
 @Remote("javax.swing.JTabbedPane")
@@ -98,7 +100,17 @@ class LeetCodeEditorStartupIntegrationTest {
 
         testContext.runIdeWithDriver().useDriverAndCloseIde {
             waitForProjectOpen()
-            invokeProjectAction("leetcode.ConfigAction")
+            val actionFailure = AtomicReference<Throwable?>()
+            val actionFinished = CountDownLatch(1)
+            thread(name = "open-leetcode-settings") {
+                try {
+                    invokeProjectAction("leetcode.ConfigAction")
+                } catch (throwable: Throwable) {
+                    actionFailure.set(throwable)
+                } finally {
+                    actionFinished.countDown()
+                }
+            }
             val settingsDialog = ui.x {
                 and(
                     or(byType(JDialog::class.java), byType(JFrame::class.java)),
@@ -109,6 +121,13 @@ class LeetCodeEditorStartupIntegrationTest {
             settingsDialog.waitAnyTextsContains("CustomConfig(help)")
             println("STEP_SCREENSHOT[09-public-settings]=${takeScreenshot("09-public-settings")}")
             settingsDialog.keyboard { escape() }
+            assertTrue(
+                actionFinished.await(30, TimeUnit.SECONDS),
+                "The settings action must finish after its dialog is closed",
+            )
+            actionFailure.get()?.let { throwable ->
+                throw AssertionError("The settings action failed", throwable)
+            }
         }
     }
 
