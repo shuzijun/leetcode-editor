@@ -1,7 +1,0 @@
-query solutionDetailArticle($titleSlug: String!) {
-    solutionArticle: question(titleSlug: $titleSlug) {
-        solution {
-            content
-        }
-    }
-}

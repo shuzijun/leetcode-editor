@@ -7,8 +7,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.annotations.MapAnnotation;
 import com.shuzijun.leetcode.plugin.manager.SessionManager;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
-import com.shuzijun.leetcode.plugin.model.Session;
+import com.shuzijun.lc.model.Session;
 import com.shuzijun.leetcode.plugin.model.Statistics;
+import com.shuzijun.leetcode.plugin.product.ProductServices;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,12 +21,11 @@ import java.util.Map;
 /**
  * @author shuzijun
  */
-@State(name = "LeetcodeEditorStatistics" + PluginConstant.ACTION_SUFFIX, storages = {@Storage(value = PluginConstant.ACTION_PREFIX + "/statistics.xml")}, externalStorageOnly = true)
 public class StatisticsData implements PersistentStateComponent<StatisticsData.InnerState> {
 
     @Nullable
     public static StatisticsData getInstance(Project project) {
-        return project.getService(StatisticsData.class);
+        return ProductServices.statisticsData(project);
     }
 
     private InnerState innerState = new InnerState();

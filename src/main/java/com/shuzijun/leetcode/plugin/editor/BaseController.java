@@ -55,7 +55,9 @@ public abstract class BaseController {
     public abstract String getControllerPath();
 
     protected String getResourceName(QueryStringDecoder urlDecoder) {
-        return urlDecoder.path().substring(PreviewStaticServer.PREFIX.length() + getControllerPath().length());
+        return urlDecoder.path().substring(
+                PreviewStaticServer.prefix().length() + getControllerPath().length()
+        );
     }
 
     protected String getParameter(@NotNull QueryStringDecoder urlDecoder, @NotNull String parameter) {
@@ -83,7 +85,7 @@ public abstract class BaseController {
     }
 
     public void addRoute(Map<String, BaseController> route) {
-        route.put(PreviewStaticServer.PREFIX + getControllerPath(), this);
+        route.put(getControllerPath(), this);
     }
 
     protected Project getProject(String projectNameParameter, String projectUrlParameter) {

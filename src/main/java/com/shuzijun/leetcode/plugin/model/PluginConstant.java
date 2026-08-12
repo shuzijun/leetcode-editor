@@ -1,35 +1,41 @@
 package com.shuzijun.leetcode.plugin.model;
 
+import com.shuzijun.leetcode.plugin.product.ProductProfile;
+import com.shuzijun.leetcode.plugin.product.ProductServices;
+
 /**
  * 插件常量
  *
  * @author shuzijun
  */
 public class PluginConstant {
-    public static final String WEB_ID = "12132";
-    public static final String PLUGIN_ID = "leetcode-editor";
-    public static final String PLUGIN_NAME = "leetcode.editor";
+    private static final ProductProfile PROFILE = ProductServices.profile();
+
+    public static final String WEB_ID = PROFILE.marketplacePluginId();
+    public static final String PLUGIN_ID = PROFILE.pluginId();
+    public static final String PLUGIN_NAME = PROFILE.pluginName();
 
     /**
      * 通知分组
      */
-    public static final String NOTIFICATION_GROUP = "leetcode editor";
-    public static final String TOOL_WINDOW_ID = "Leetcode";
-    public static final String CONSOLE_WINDOW_ID = "Leetcode Console";
+    public static final String NOTIFICATION_GROUP = PROFILE.notificationGroup();
+    public static final String TOOL_WINDOW_ID = PROFILE.toolWindowId();
+    public static final String CONSOLE_WINDOW_ID = PROFILE.consoleToolWindowId();
 
     /**
      * 配置id
      */
-    public static final String APPLICATION_CONFIGURABLE_ID = "leetcode.id";
+    public static final String APPLICATION_CONFIGURABLE_ID = PROFILE.configurableId();
 
     /**
      * 配置名称
      */
-    public static final String APPLICATION_CONFIGURABLE_DISPLAY_NAME = "LeetCode Plugin";
+    public static final String APPLICATION_CONFIGURABLE_DISPLAY_NAME =
+            PROFILE.configurableDisplayName();
 
 
-    public static final String ACTION_PREFIX = "leetcode";
-    public static final String ACTION_SUFFIX = "";
+    public static final String ACTION_PREFIX = PROFILE.actionPrefix();
+    public static final String ACTION_SUFFIX = PROFILE.actionSuffix();
 
     public static final String LEETCODE_FIND_PREFIX = ACTION_PREFIX + ".find.";
     public static final String LEETCODE_FIND_TAGS = ACTION_PREFIX + ".find.Tags";
@@ -57,7 +63,7 @@ public class PluginConstant {
 
     public static final String LEETCODE_EDITOR_TIMER_STATUS_BAR_ID = PLUGIN_ID + "-TimerStatusBar";
 
-    public static final String LEETCODE_EDITOR_VIEW = "lcv";
+    public static final String LEETCODE_EDITOR_VIEW = PROFILE.fileExtension();
 
     public static final String LEETCODE_EDITOR_TAB_VIEW = PLUGIN_ID + ".editor.tab";
 

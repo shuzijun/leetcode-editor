@@ -1,5 +1,7 @@
 package com.shuzijun.leetcode.plugin.model;
 
+import com.shuzijun.lc.model.QuestionView;
+
 /**
  * @author shuzijun
  */

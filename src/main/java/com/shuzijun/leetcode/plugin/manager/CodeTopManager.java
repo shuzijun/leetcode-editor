@@ -5,6 +5,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.shuzijun.lc.http.HttpResponse;
+import com.shuzijun.lc.model.CodeMetaData;
+import com.shuzijun.lc.model.CodeSnippet;
+import com.shuzijun.lc.model.QuestionView;
+import com.shuzijun.lc.model.Session;
+import com.shuzijun.lc.model.Solution;
+import com.shuzijun.lc.model.Submission;
+import com.shuzijun.lc.model.User;
 import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang3.StringUtils;
@@ -96,8 +104,8 @@ public class CodeTopManager {
     private static List<Tag> getCompany() {
         List<Tag> tags = new ArrayList<>();
 
-        HttpResponse response = HttpRequest.builderGet(CodeTopURLUtils.getCompanies()).request();
-        if (response.getStatusCode() == 200) {
+        HttpResponse response = HttpRequestUtils.get(CodeTopURLUtils.getCompanies());
+        if (isSuccessful(response)) {
             try {
                 String body = response.getBody();
                 if (StringUtils.isNotBlank(body)) {
@@ -114,7 +122,9 @@ public class CodeTopManager {
                 LogUtils.LOG.error("Request companies exception", e1);
             }
         } else {
-            LogUtils.LOG.error("Request companies failed, status:" + response.getStatusCode() + "body:" + response.getBody());
+            LogUtils.LOG.error("Request companies failed, status:"
+                    + statusCode(response)
+                    + " body:" + (response == null ? "" : response.getBody()));
         }
         return tags;
     }
@@ -123,8 +133,8 @@ public class CodeTopManager {
 
         List<Tag> tags = new ArrayList<>();
 
-        HttpResponse response = HttpRequest.builderGet(CodeTopURLUtils.getTags()).request();
-        if (response.getStatusCode() == 200) {
+        HttpResponse response = HttpRequestUtils.get(CodeTopURLUtils.getTags());
+        if (isSuccessful(response)) {
             try {
                 String body = response.getBody();
                 if (StringUtils.isNotBlank(body)) {
@@ -141,7 +151,9 @@ public class CodeTopManager {
                 LogUtils.LOG.error("Request tags exception", e1);
             }
         } else {
-            LogUtils.LOG.error("Request tags failed, status:" + response.getStatusCode() + "body:" + response.getBody());
+            LogUtils.LOG.error("Request tags failed, status:"
+                    + statusCode(response)
+                    + " body:" + (response == null ? "" : response.getBody()));
         }
         return tags;
     }
@@ -177,8 +189,8 @@ public class CodeTopManager {
         }
 
 
-        HttpResponse response = HttpRequest.builderGet(url).request();
-        if (response.getStatusCode() == 200) {
+        HttpResponse response = HttpRequestUtils.get(url);
+        if (isSuccessful(response)) {
             List<CodeTopQuestionView> questionList = new ArrayList();
             JSONObject pageObject = JSONObject.parseObject(response.getBody());
             JSONArray questionJsonArray = pageObject.getJSONArray("list");
@@ -207,10 +219,18 @@ public class CodeTopManager {
             pageInfo.setRowTotal(pageObject.getInteger("count"));
             pageInfo.setRows(questionList);
         } else {
-            LogUtils.LOG.error("Request question list failed, status:" + response.getStatusCode());
+            LogUtils.LOG.error("Request question list failed, status:" + statusCode(response));
             throw new RuntimeException("Request question list failed");
         }
 
         return pageInfo;
+    }
+
+    static boolean isSuccessful(HttpResponse response) {
+        return response != null && response.isCodeSuccess();
+    }
+
+    private static int statusCode(HttpResponse response) {
+        return response == null ? -1 : response.getStatusCode();
     }
 }

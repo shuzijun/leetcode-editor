@@ -1,5 +1,6 @@
 package com.shuzijun.leetcode.plugin.window;
 
+import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.Disposable;
@@ -14,6 +15,8 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.product.ProductServices;
+import com.shuzijun.leetcode.plugin.spi.ConsoleWorkbench;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,21 +27,29 @@ import java.awt.*;
 public class ConsolePanel extends SimpleToolWindowPanel implements Disposable {
 
     private final ConsoleView consoleView;
+    private final JComponent workbench;
 
     public ConsolePanel(ToolWindow toolWindow, Project project) {
         super(Boolean.FALSE, Boolean.TRUE);
-        this.consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
+        TextConsoleBuilder consoleBuilder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
+        ProductServices.consolePresenter().configure(consoleBuilder);
+        this.consoleView = consoleBuilder.getConsole();
+        this.workbench = ProductServices.consolePresenter().createWorkbench(project);
         setContent(createContent());
-        final DefaultActionGroup consoleGroup = new DefaultActionGroup(consoleView.createConsoleActions());
-        ActionToolbar consoleToolbar = ActionManager.getInstance().createActionToolbar(PluginConstant.ACTION_PREFIX + " ConsoleToolbar", consoleGroup, true);
-        consoleToolbar.setTargetComponent(consoleView.getComponent());
-        setToolbar(consoleToolbar.getComponent());
+        if (workbench == null) {
+            final DefaultActionGroup consoleGroup = new DefaultActionGroup(consoleView.createConsoleActions());
+            ActionToolbar consoleToolbar = ActionManager.getInstance().createActionToolbar(PluginConstant.ACTION_PREFIX + " ConsoleToolbar", consoleGroup, true);
+            consoleToolbar.setTargetComponent(consoleView.getComponent());
+            setToolbar(consoleToolbar.getComponent());
+        }
     }
 
     private JComponent createContent() {
         JPanel content = new JPanel(new BorderLayout());
-        content.add(createHeader(), BorderLayout.NORTH);
-        content.add(consoleView.getComponent(), BorderLayout.CENTER);
+        if (workbench == null) {
+            content.add(createHeader(), BorderLayout.NORTH);
+        }
+        content.add(workbench == null ? consoleView.getComponent() : workbench, BorderLayout.CENTER);
         return content;
     }
 
@@ -59,6 +70,10 @@ public class ConsolePanel extends SimpleToolWindowPanel implements Disposable {
 
     public ConsoleView getConsoleView() {
         return consoleView;
+    }
+
+    public ConsoleWorkbench getWorkbench() {
+        return workbench instanceof ConsoleWorkbench ? (ConsoleWorkbench) workbench : null;
     }
 
     @Override

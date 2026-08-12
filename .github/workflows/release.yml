@@ -52,6 +52,8 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
 
       - name: Restore IDEA Starter downloads
         id: idea-starter-cache
@@ -86,17 +88,33 @@ jobs:
           path: out/ide-tests/cache
           key: ${{ steps.idea-starter-cache.outputs.cache-primary-key }}
 
-      - name: Upload quality gate reports
+      - name: Upload quality gate test reports
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: release-quality-gate-reports-${{ steps.version.outputs.version }}
+          name: release-quality-gate-test-reports-${{ steps.version.outputs.version }}
           path: |
             build/reports/
             build/test-results/
-            out/ide-tests/tests/
           if-no-files-found: warn
           retention-days: 7
+          compression-level: 9
+
+      - name: Upload UI test diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-quality-gate-ui-diagnostics-${{ steps.version.outputs.version }}
+          path: |
+            out/ide-tests/tests/**/idea.log
+            out/ide-tests/tests/**/ui.html
+            out/ide-tests/tests/**/*.png
+            out/ide-tests/tests/**/*.jpg
+            out/ide-tests/tests/**/*.jpeg
+            out/ide-tests/tests/**/*.txt
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 9
 
   release:
     needs: quality-gate
@@ -116,8 +134,20 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Install virtual display
+        shell: bash
+        run: |
+          if ! command -v xvfb-run >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y xvfb
+          fi
+
       - name: Publish the plugin
-        run: ./gradlew publishPlugin --no-daemon --stacktrace
+        run: |
+          xvfb-run \
+            --auto-servernum \
+            --server-args="-screen 0 1920x1080x24 -ac +extension RANDR" \
+            ./gradlew publishPlugin --no-daemon --stacktrace
         env:
           LD_VERSION: ${{ needs.quality-gate.outputs.version }}
           PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}

@@ -3,56 +3,141 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{service}}resources/vditor/dist/index.css?{{serverToken}}"/>
     <link rel="stylesheet" href="{{service}}resources/vditor/style.css?{{serverToken}}"/>
-    <script src="{{service}}resources/vditor/dist/index.min.js?{{serverToken}}"></script>
-    <script src="{{service}}resources/vditor/jquery-3.6.0.min.js?{{serverToken}}"></script>
 </head>
-<body className="body" style="margin: 0px;">
-<div id="vditor" className="vditor vditor--fullscreen" style="height: 100%"></div>
+<body className="body" style="margin-top: 5px;">
+<div id="vditor" className="vditor vditor--fullscreen" data-render-mode="{{renderMode}}" style="height: 100%;padding-left: 5%;padding-right: 5%;"></div>
 <textarea id="fileValue" style="display:none;">
 {{fileValue}}
 </textarea>
-</body>
 <script>
     const vditorCDN = "{{service}}resources/vditor";
     const vditorThemeCDN = "{{service}}resources/vditor/dist/css/content-theme";
     const darcula = "{{darcula}}" == "true";
+    const vditorMethodUrl = vditorCDN + "/dist/method.min.js?{{serverToken}}";
 
-    window.onload = function () {
-        $(".vditor-toolbar")[0].remove();
-        $(".vditor-sv")[0].remove();
-        $(".vditor-preview").find(".vditor-reset").css("max-width","90%" )
+    const previewElement = document.getElementById("vditor");
+    let vditorPromise;
+
+    function loadVditor() {
+        if (typeof Vditor !== "undefined") {
+            return Promise.resolve(Vditor);
+        }
+        if (!vditorPromise) {
+            vditorPromise = new Promise((resolve, reject) => {
+                const script = document.createElement("script");
+                script.src = vditorMethodUrl;
+                script.onload = () => resolve(Vditor);
+                script.onerror = () => reject(new Error("Unable to load Vditor preview methods"));
+                document.head.appendChild(script);
+            });
+        }
+        return vditorPromise;
     }
-    const vditor = new Vditor('vditor', {
-        "mode": "sv",
-        "theme": darcula ? "dark" : "light",
-        "lang": "{{Lang}}",
-        "cache": {
-            "enable": false
-        },
-        "toolbarConfig": {"hide": true},
-        "cdn": vditorCDN,
-        "preview": {
-            "theme": {
-                "current": darcula ? "idea-dark" : "idea-light",
-                "path": vditorThemeCDN
-            },
-            "maxWidth": $(window).width() - 100,
-            "actions": [],
-            "hljs": {"style": darcula ? "dracula" : "github"},
-            "math": {
-                "inlineDigit": true
+
+    function reportVisualStable() {
+        let quietTimer;
+        let completed = false;
+        const startedAt = performance.now();
+        const observer = new MutationObserver(scheduleCheck);
+
+        function imagesComplete() {
+            return Array.from(previewElement.querySelectorAll("img")).every(image => image.complete);
+        }
+
+        function finish() {
+            if (completed) {
+                return;
             }
-        },
-        "value": document.getElementById("fileValue").innerText
-    });
+            completed = true;
+            clearTimeout(quietTimer);
+            observer.disconnect();
+            {{previewStable}};
+        }
+
+        function scheduleCheck() {
+            clearTimeout(quietTimer);
+            quietTimer = setTimeout(() => {
+                if (imagesComplete() || performance.now() - startedAt >= 3000) {
+                    finish();
+                } else {
+                    previewElement.querySelectorAll("img").forEach(image => {
+                        image.addEventListener("load", scheduleCheck, {once: true});
+                        image.addEventListener("error", scheduleCheck, {once: true});
+                    });
+                }
+            }, 200);
+        }
+
+        observer.observe(previewElement, {subtree: true, childList: true, attributes: true});
+        setTimeout(finish, 3000);
+        scheduleCheck();
+    }
+
+    function sourceCodeMarkdown(source) {
+        const backtickRuns = source.match(/`+/g) || [];
+        const fenceLength = Math.max(3, ...backtickRuns.map(run => run.length + 1));
+        const fence = "`".repeat(fenceLength);
+        return `${fence}text\n${source}\n${fence}`;
+    }
+
+    function renderPreview() {
+        const source = document.getElementById("fileValue").value;
+        loadVditor()
+            .then(Vditor => {
+                const markdown = previewElement.dataset.renderMode === "source_code"
+                    ? sourceCodeMarkdown(source)
+                    : source;
+                return Vditor.preview(previewElement,markdown,{
+                "mode":  darcula ? "dark" : "light",
+                "hljs": {"style": darcula ? "dracula" : "github"},
+                "math": {
+                    "inlineDigit": true
+                },
+                "cdn": vditorCDN,
+                "markdown": {
+                    "sanitize": false,
+                },
+                "theme": {
+                    "current": darcula ? "idea-dark" : "idea-light",
+                    "path": vditorThemeCDN
+                },
+                "after": function () {
+                    {{previewReady}};
+                    reportVisualStable();
+                }
+                });
+            })
+            .catch(function (error) {
+                console.error("Unable to render question preview", error);
+                {{previewError}};
+            });
+    }
+
+    if (document.readyState === "loading") {
+        window.addEventListener("DOMContentLoaded", () => {
+            renderPreview();
+        }, {once: true});
+    } else {
+        renderPreview();
+    }
+
     function updateStyle(style,darcula){
         let newStyle = document.createElement('style');
         newStyle.id = 'ideaStyle';
         newStyle.innerHTML = style;
         let oldStyle = document.getElementById('ideaStyle');
         oldStyle.parentNode.replaceChild(newStyle,oldStyle);
-        vditor.setTheme(darcula? "dark" : "light",darcula ? "idea-dark" : "idea-light",darcula ? "dracula" : "github",vditorThemeCDN)
+        if (darcula) {
+            document.getElementById("vditor").classList.add("vditor--dark");
+        } else {
+            document.getElementById("vditor").classList.remove("vditor--dark");
+        }
+        if (typeof Vditor !== "undefined") {
+            Vditor.setContentTheme(darcula ? "idea-dark" : "idea-light",vditorThemeCDN)
+            Vditor.setCodeTheme(darcula ? "dracula" : "github",vditorCDN)
+        }
     }
 </script>
 {{ideStyle}}
+</body>
 </html>

@@ -9,8 +9,9 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
 import com.shuzijun.leetcode.plugin.manager.SubmissionManager;
 import com.shuzijun.leetcode.plugin.model.Config;
+import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.model.Submission;
+import com.shuzijun.lc.model.Submission;
 import com.shuzijun.leetcode.plugin.window.dialog.SubmissionsPanel;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +27,12 @@ import java.util.List;
 public class SubmissionsAction extends AbstractEditAction {
 
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
+    public void actionPerformed(
+            AnActionEvent anActionEvent,
+            Config config,
+            LeetcodeEditor leetcodeEditor,
+            Question question
+    ) {
         List<Submission> submissionList = SubmissionManager.getSubmissionService(question.getTitleSlug(), anActionEvent.getProject());
         if (submissionList == null || submissionList.isEmpty()) {
             return;

@@ -1,0 +1,81 @@
+<idea-plugin>
+    <id>leetcode-editor</id>
+    <name>LeetCode Editor</name>
+    <version>8.1</version>
+    <vendor email="shuzijun0109@gmail.com" url="https://github.com/shuzijun/leetcode-editor">shuzijun</vendor>
+
+    <description><![CDATA[]]></description>
+
+    <change-notes>
+    </change-notes>
+
+    <idea-version since-build="202.0"/>
+
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.jcef</depends>
+
+    <application-components>
+
+    </application-components>
+
+    <extensionPoints>
+        <extensionPoint name="questionCatalog" interface="com.shuzijun.leetcode.plugin.spi.QuestionCatalogProvider"/>
+        <extensionPoint name="navigatorContribution" interface="com.shuzijun.leetcode.plugin.spi.NavigatorContribution"/>
+        <extensionPoint name="editorTabContribution" interface="com.shuzijun.leetcode.plugin.spi.EditorTabContribution"/>
+        <extensionPoint name="settingsSection" interface="com.shuzijun.leetcode.plugin.spi.SettingsSectionProvider"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="leetcode-editor">
+        <questionCatalog implementation="com.shuzijun.leetcode.plugin.application.DefaultQuestionCatalogProvider"/>
+        <navigatorContribution implementation="com.shuzijun.leetcode.plugin.adapter.defaults.DefaultPageNavigatorContribution"/>
+        <navigatorContribution implementation="com.shuzijun.leetcode.plugin.adapter.defaults.DefaultAllNavigatorContribution"/>
+        <navigatorContribution implementation="com.shuzijun.leetcode.plugin.adapter.defaults.DefaultCodeTopNavigatorContribution"/>
+        <editorTabContribution implementation="com.shuzijun.leetcode.plugin.adapter.defaults.DefaultContentEditorTabContribution"/>
+        <editorTabContribution implementation="com.shuzijun.leetcode.plugin.adapter.defaults.DefaultSolutionEditorTabContribution"/>
+        <editorTabContribution implementation="com.shuzijun.leetcode.plugin.adapter.defaults.DefaultSubmissionsEditorTabContribution"/>
+        <editorTabContribution implementation="com.shuzijun.leetcode.plugin.adapter.defaults.DefaultNoteEditorTabContribution"/>
+        <settingsSection implementation="com.shuzijun.leetcode.plugin.adapter.defaults.DefaultSettingsSectionProvider"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="com.shuzijun.leetcode.plugin.listener.RegisterPluginInstallerStateListener"/>
+        <errorHandler implementation="com.shuzijun.leetcode.plugin.listener.ErrorReportHandler"/>
+        <toolWindow id="Leetcode" secondary="false" icon="LeetCodeEditorIcons.LEETCODE_TOOL_WINDOW" anchor="left"
+                    factoryClass="com.shuzijun.leetcode.plugin.window.WindowFactory" />
+        <toolWindow id="Leetcode Console" secondary="false" icon="LeetCodeEditorIcons.LEETCODE_TOOL_WINDOW" anchor="bottom"
+                    factoryClass="com.shuzijun.leetcode.plugin.window.ConsoleWindowFactory" />
+        <applicationService serviceImplementation="com.shuzijun.leetcode.plugin.product.DefaultPersistentConfig"/>
+        <projectService serviceImplementation="com.shuzijun.leetcode.plugin.product.DefaultProjectConfig"/>
+        <projectService serviceImplementation="com.shuzijun.leetcode.plugin.product.DefaultStatisticsData"/>
+        <applicationConfigurable groupId="tools" displayName="LeetCode Plugin" id="leetcode.id"
+                                 instance="com.shuzijun.leetcode.plugin.setting.SettingConfigurable"/>
+        <statusBarWidgetFactory id="leetcode-editor-TimerStatusBar" implementation="com.shuzijun.leetcode.plugin.timer.TimerStatusBarWidgetProvider"/>
+        <lang.foldingBuilder language="JAVA" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="Python" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="ObjectiveC" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="CS" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="ruby" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="Swift" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="go" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="Scala" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="kotlin" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="Renderscript" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="PHP" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="Shell Script" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="GenericSQL" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+        <lang.foldingBuilder language="TypeScript" implementationClass="com.shuzijun.leetcode.plugin.language.ScopeFoldingBuilder"/>
+
+        <fileEditorProvider implementation="com.shuzijun.leetcode.plugin.editor.QuestionEditorProvider"/>
+        <fileIconPatcher implementation="com.shuzijun.leetcode.plugin.editor.QuestionEditorIconProvider" order="last"/>
+        <editorTabTitleProvider implementation="com.shuzijun.leetcode.plugin.editor.QuestionEditorTabTitleProvider" order="last"/>
+
+        <fileType name="lcvDoc" extensions="lcv;" fileNames=".lcv" language="lcvDoc"
+                  implementationClass="com.shuzijun.leetcode.plugin.editor.LCVFileType" fieldName="INSTANCE"/>
+        <fileEditorProvider implementation="com.shuzijun.leetcode.plugin.editor.LCVProvider"/>
+        <httpRequestHandler implementation="com.shuzijun.leetcode.plugin.editor.PreviewStaticServer"/>
+        <postStartupActivity implementation="com.shuzijun.leetcode.plugin.listener.SupportCheck"/>
+        <postStartupActivity implementation="com.shuzijun.leetcode.plugin.listener.ProjectConfigCleanupActivity"/>
+    </extensions>
+
+    <!-- @ACTIONS@ -->
+</idea-plugin>

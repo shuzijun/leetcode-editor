@@ -1,15 +1,32 @@
 package com.shuzijun.leetcode.plugin.manager;
 
-import com.alibaba.fastjson.JSONObject;
-import com.google.common.base.Joiner;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.shuzijun.lc.errors.LcException;
+import com.shuzijun.lc.model.CodeExecutionResult;
+import com.shuzijun.lc.model.CodeStartResult;
+import com.shuzijun.lc.model.SubmissionDetail;
+import com.shuzijun.leetcode.plugin.application.CodeExecutionCoordinator;
+import com.shuzijun.leetcode.plugin.application.LeetCodeCodeService;
+import com.shuzijun.leetcode.plugin.application.LeetCodeServices;
+import com.shuzijun.leetcode.plugin.application.LanguageTemplateService;
+import com.shuzijun.leetcode.plugin.editor.QuestionPreviewJcefWarmup;
+import com.shuzijun.leetcode.plugin.editor.QuestionPreviewPerformanceTracker;
 import com.shuzijun.leetcode.plugin.listener.QuestionStatusNotifier;
 import com.shuzijun.leetcode.plugin.listener.QuestionSubmitNotifier;
+import com.shuzijun.lc.model.CodeMetaData;
+import com.shuzijun.lc.model.CodeSnippet;
+import com.shuzijun.lc.model.QuestionView;
+import com.shuzijun.lc.model.Session;
+import com.shuzijun.lc.model.Solution;
+import com.shuzijun.lc.model.Submission;
+import com.shuzijun.lc.model.User;
 import com.shuzijun.leetcode.plugin.model.*;
+import com.shuzijun.leetcode.plugin.product.ProductProfiles;
+import com.shuzijun.leetcode.plugin.product.ProductServices;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
@@ -19,6 +36,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
@@ -32,7 +51,19 @@ public class CodeManager {
 
     public static void openCode(String titleSlug, Project project) {
         Config config = PersistentConfig.getInstance().getInitConfig();
-        CodeTypeEnum codeTypeEnum = config.getCodeTypeEnum(project);
+        openCode(titleSlug, project, config.getCodeTypeEnum(project));
+    }
+
+    public static void openCode(String titleSlug, Project project, CodeTypeEnum codeTypeEnum) {
+        QuestionPreviewPerformanceTracker tracker = QuestionPreviewPerformanceTracker.getInstance(project);
+        QuestionPreviewPerformanceTracker.Trace trace = tracker.begin(titleSlug);
+        QuestionPreviewJcefWarmup.request();
+        openCode(titleSlug, project, codeTypeEnum, trace);
+    }
+
+    static void openCode(String titleSlug, Project project, CodeTypeEnum codeTypeEnum,
+                         QuestionPreviewPerformanceTracker.Trace trace) {
+        Config config = PersistentConfig.getInstance().getInitConfig();
         if (codeTypeEnum == null) {
             return;
         }
@@ -41,25 +72,28 @@ public class CodeManager {
         if (question == null) {
             return;
         }
+        trace.mark(QuestionPreviewPerformanceTracker.Milestone.QUESTION_READY);
         ProjectConfig.getInstance(project).setLastOpenedQuestionTitleSlug(question.getTitleSlug());
 
         if (config.isShowQuestionEditor()) {
-            openContent(titleSlug, project, false);
+            openContent(titleSlug, project, false, codeTypeEnum, trace);
         }
 
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + VelocityUtils.convert(config.getCustomFileName(), question) + codeTypeEnum.getSuffix();
+        String filePath = PersistentConfig.getInstance().getTempFilePath()
+                + LanguageTemplateService.fileName(codeTypeEnum.getLangSlug(), question)
+                + codeTypeEnum.getSuffix();
 
         File file = new File(filePath);
         BiConsumer<LeetcodeEditor, String> fillPath = (e, s) -> e.setPath(s);
         if (file.exists()) {
-            FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, true);
+            FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, true, codeTypeEnum);
         } else {
             String content = question.getContent();
             try{
                 question.setLangSlug(codeTypeEnum.getLangSlug());
                 question.setContent(CommentUtils.createComment(content, codeTypeEnum, config));
-                FileUtils.saveFile(file, VelocityUtils.convert(config.getCustomTemplate(), question));
-                FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, true);
+                FileUtils.saveFile(file, LanguageTemplateService.template(codeTypeEnum.getLangSlug(), question));
+                FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, true, codeTypeEnum);
             }finally {
                 question.setContent(content);
             }
@@ -70,115 +104,135 @@ public class CodeManager {
 
     public static void openContent(String titleSlug, Project project, boolean isOpen) {
         Config config = PersistentConfig.getInstance().getInitConfig();
+        openContent(titleSlug, project, isOpen, config.getCodeTypeEnum(project));
+    }
+
+    public static void openContent(String titleSlug, Project project, boolean isOpen, CodeTypeEnum codeTypeEnum) {
+        QuestionPreviewPerformanceTracker tracker = QuestionPreviewPerformanceTracker.getInstance(project);
+        QuestionPreviewPerformanceTracker.Trace trace = tracker.begin(titleSlug);
+        QuestionPreviewJcefWarmup.request();
+        openContent(titleSlug, project, isOpen, codeTypeEnum, trace);
+    }
+
+    private static void openContent(String titleSlug, Project project, boolean isOpen, CodeTypeEnum codeTypeEnum,
+                                    QuestionPreviewPerformanceTracker.Trace trace) {
+        if (codeTypeEnum == null) {
+            return;
+        }
         Question question = QuestionManager.getQuestionByTitleSlug(titleSlug, project);
         if (question == null) {
             return;
         }
+        trace.mark(QuestionPreviewPerformanceTracker.Milestone.QUESTION_READY);
 
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_CONTENT + VelocityUtils.convert(config.getCustomFileName(), question) + ".md";
+        String filePath = PersistentConfig.getInstance().getTempFilePath()
+                + Constant.DOC_CONTENT
+                + LanguageTemplateService.fileName("content", question)
+                + ".md";
 
         File file = new File(filePath);
         BiConsumer<LeetcodeEditor, String> fillPath = (e, s) -> e.setContentPath(s);
         if (file.exists()) {
-            FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, isOpen);
+            FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, isOpen, codeTypeEnum);
         } else {
             FileUtils.saveFile(file, question.getContent());
-            FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, isOpen);
+            FileUtils.openFileEditorAndSaveState(file, project, question, fillPath, isOpen, codeTypeEnum);
         }
+        QuestionPreviewPerformanceTracker.getInstance(project).bindContentPath(trace, file.getPath());
+        trace.mark(QuestionPreviewPerformanceTracker.Milestone.CONTENT_FILE_READY);
     }
 
 
     public static void SubmitCode(String titleSlug, Project project) {
         Config config = PersistentConfig.getInstance().getInitConfig();
-        Question question = QuestionManager.getQuestionByTitleSlug(titleSlug, project);
-        if (question == null) {
-            return;
-        }
-        CodeTypeEnum codeTypeEnum = config.getCodeTypeEnum(project);
-        String code = getCodeText(question, config, codeTypeEnum, project);
-        if (StringUtils.isBlank(code)) {
-            return;
-        }
-
-        try {
-            JSONObject arg = createSubmitRequest(question, codeTypeEnum, code);
-            HttpResponse response = HttpRequest.builderPost(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/submit/", "application/json")
-                    .addHeader("Accept", "application/json").body(arg.toJSONString()).request();
-            if (response.getStatusCode() == 200) {
-                String body = response.getBody();
-                JSONObject returnObj = JSONObject.parseObject(body);
-                ProgressManager.getInstance().run(new SubmitCheckTask(returnObj, codeTypeEnum, question, project));
-                MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("request.pending"));
-            } else if (response.getStatusCode() == 429) {
-                MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("request.pending"));
-            } else {
-                LogUtils.LOG.error("提交失败：url：" + URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/submit/" + ";param:" + arg.toJSONString() + ";body:" + response.getBody());
-                MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.failed"));
-            }
-        } catch (Exception i) {
-            LogUtils.LOG.error("SubmitCode error", i);
-            MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("response.code"));
-
-        }
-
+        SubmitCode(titleSlug, project, config.getCodeTypeEnum(project));
     }
 
-    public static void RunCodeCode(String titleSlug, Project project) {
+    public static void SubmitCode(String titleSlug, Project project, CodeTypeEnum codeTypeEnum) {
         Config config = PersistentConfig.getInstance().getInitConfig();
         Question question = QuestionManager.getQuestionByTitleSlug(titleSlug, project);
         if (question == null) {
             return;
         }
-        CodeTypeEnum codeTypeEnum = config.getCodeTypeEnum(project);
         String code = getCodeText(question, config, codeTypeEnum, project);
         if (StringUtils.isBlank(code)) {
             return;
         }
-        try {
-            JSONObject arg = createRunRequest(question, codeTypeEnum, code);
-            HttpResponse response = HttpRequest.builderPost(URLUtils.getLeetcodeProblems() + question.getTitleSlug() + "/interpret_solution/", "application/json")
-                    .addHeader("Accept", "application/json").body(arg.toJSONString()).request();
-            if (response.getStatusCode() == 200) {
-
-                String body = response.getBody();
-                JSONObject returnObj = JSONObject.parseObject(body);
-                ProgressManager.getInstance().run(new RunCodeCheckTask(returnObj, project, question.getTestCase()));
-                MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("request.pending"));
-            } else if (response.getStatusCode() == 429) {
-                MessageUtils.getInstance(project).showWarnMsg("", "Please wait for the result.");
-            } else {
-                LogUtils.LOG.error("RuncodeCode failure " +  response.getBody());
-                MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.failed"));
-            }
-        } catch (Exception i) {
-            MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("response.code"));
+        CodeExecutionCoordinator.Execution execution = coordinator(project).tryStart(
+                titleSlug,
+                CodeExecutionCoordinator.ExecutionType.SUBMIT
+        );
+        if (execution == null) {
+            MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("request.pending"));
+            return;
         }
+        ProgressManager.getInstance().run(
+                new SubmitCheckTask(execution, codeTypeEnum, question, project, code)
+        );
     }
 
-    static JSONObject createSubmitRequest(Question question, CodeTypeEnum codeTypeEnum, String code) {
-        JSONObject request = new JSONObject();
-        request.put("question_id", question.getQuestionId());
-        request.put("lang", codeTypeEnum.getLangSlug());
-        request.put("typed_code", code);
-        return request;
+    public static void RunCodeCode(String titleSlug, Project project) {
+        Config config = PersistentConfig.getInstance().getInitConfig();
+        RunCodeCode(titleSlug, project, config.getCodeTypeEnum(project));
     }
 
-    static JSONObject createRunRequest(Question question, CodeTypeEnum codeTypeEnum, String code) {
-        JSONObject request = createSubmitRequest(question, codeTypeEnum, code);
-        request.put("data_input", question.getTestCase());
-        request.put("judge_type", "large");
-        return request;
+    public static void RunCodeCode(String titleSlug, Project project, CodeTypeEnum codeTypeEnum) {
+        Config config = PersistentConfig.getInstance().getInitConfig();
+        Question question = QuestionManager.getQuestionByTitleSlug(titleSlug, project);
+        if (question == null) {
+            return;
+        }
+        String code = getCodeText(question, config, codeTypeEnum, project);
+        if (StringUtils.isBlank(code)) {
+            return;
+        }
+        CodeExecutionCoordinator.Execution execution = coordinator(project).tryStart(
+                titleSlug,
+                CodeExecutionCoordinator.ExecutionType.RUN
+        );
+        if (execution == null) {
+            MessageUtils.getInstance(project).showWarnMsg("", "Please wait for the result.");
+            return;
+        }
+        ProgressManager.getInstance().run(
+                new RunCodeCheckTask(
+                        execution,
+                        project,
+                        question.getTestCase(),
+                        codeTypeEnum,
+                        question,
+                        code
+                )
+        );
+    }
+
+    public static boolean isExecutionActive(
+            @NotNull Project project,
+            @NotNull String titleSlug,
+            @NotNull CodeExecutionCoordinator.ExecutionType type
+    ) {
+        return coordinator(project).isActive(titleSlug, type);
+    }
+
+    public static boolean cancelExecution(
+            @NotNull Project project,
+            @NotNull String titleSlug,
+            @NotNull CodeExecutionCoordinator.ExecutionType type
+    ) {
+        return coordinator(project).cancel(titleSlug, type);
     }
 
     private static String getCodeText(Question question, Config config, CodeTypeEnum codeTypeEnum, Project project) {
         if (codeTypeEnum == null) {
             return null;
         }
-        if (!HttpRequestUtils.isLogin(project)) {
+        if (!LeetCodeServices.login().isLoggedIn()) {
             MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("login.not"));
             return null;
         }
-        String filePath = PersistentConfig.getInstance().getTempFilePath() + VelocityUtils.convert(config.getCustomFileName(), question) + codeTypeEnum.getSuffix();
+        String filePath = PersistentConfig.getInstance().getTempFilePath()
+                + LanguageTemplateService.fileName(codeTypeEnum.getLangSlug(), question)
+                + codeTypeEnum.getSuffix();
         File file = new File(filePath);
         if (!file.exists()) {
             MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.code"));
@@ -201,103 +255,138 @@ public class CodeManager {
 
     private static class SubmitCheckTask extends Task.Backgroundable {
 
+        private final CodeExecutionCoordinator.Execution execution;
         private Question question;
-        private JSONObject returnObj;
         private CodeTypeEnum codeTypeEnum;
         private Project project;
+        private String code;
 
-        public SubmitCheckTask(JSONObject returnObj, CodeTypeEnum codeTypeEnum, Question question, Project project) {
-            super(project, PluginConstant.PLUGIN_NAME + ".submitCheckTask", true);
-            this.returnObj = returnObj;
+        public SubmitCheckTask(
+                CodeExecutionCoordinator.Execution execution,
+                CodeTypeEnum codeTypeEnum,
+                Question question,
+                Project project,
+                String code
+        ) {
+            super(project, ProductProfiles.current().pluginName() + ".submitCheckTask", true);
+            this.execution = execution;
             this.codeTypeEnum = codeTypeEnum;
             this.question = question;
             this.project = project;
+            this.code = code;
         }
 
         @Override
         public void run(@NotNull ProgressIndicator progressIndicator) {
-            String key = returnObj.getString("submission_id");
+            CodeStartResult startResult;
+            try {
+                startResult = codeService().submit(
+                        question,
+                        codeTypeEnum,
+                        code,
+                        execution.getRequestContext()
+                );
+            } catch (LcException exception) {
+                handleFailure(execution, progressIndicator, project, "SubmitCode error", exception);
+                return;
+            }
+            if (startResult.getStatusCode() == 429) {
+                execution.failed();
+                MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("request.pending"));
+                return;
+            }
+            if (startResult.getStatusCode() != 200 || StringUtils.isBlank(startResult.getId())) {
+                execution.failed();
+                LogUtils.LOG.error("Submit code returned no execution id for " + question.getTitleSlug());
+                MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.failed"));
+                return;
+            }
+            execution.polling();
+            MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("request.pending"));
             for (int i = 0; i < MAX_POLL_ATTEMPTS; i++) {
-                if (isCanceled(progressIndicator, project)) {
-                    MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.cancel"));
+                if (cancelIfRequested(execution, progressIndicator, project)) {
                     return;
                 }
                 try {
-                    HttpResponse response = HttpRequest.builderGet(URLUtils.getLeetcodeSubmissions() + key + "/check/").request();
-                    if (response.getStatusCode() == 200) {
-                        String body = response.getBody();
-                        JSONObject jsonObject = JSONObject.parseObject(body);
-                        if ("SUCCESS".equals(jsonObject.getString("state"))) {
-                            if (jsonObject.getBoolean("run_success")) {
-                                if (Integer.valueOf(10).equals(jsonObject.getInteger("status_code"))) {
-                                    String runtime = jsonObject.getString("status_runtime");
-                                    String runtimePercentile = jsonObject.getBigDecimal("runtime_percentile").setScale(2, RoundingMode.HALF_UP).toString();
-                                    String memory = jsonObject.getString("status_memory");
-                                    String memoryPercentile = jsonObject.getBigDecimal("memory_percentile").setScale(2, RoundingMode.HALF_UP).toString();
-
-                                    MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("submit.success", runtime, runtimePercentile, codeTypeEnum.getType(), memory, memoryPercentile, codeTypeEnum.getType()));
-                                    question.setStatus("ac");
-                                    ApplicationManager.getApplication().getMessageBus().syncPublisher(QuestionStatusNotifier.QUESTION_STATUS_TOPIC).updateTable(question);
-                                } else {
-
-                                    String input = jsonObject.getString("input");
-                                    if (StringUtils.isNotBlank(input)) {
-                                        input = input.replace("\n", "\n\t\t\t");
-                                    }
-                                    String output = jsonObject.getString("code_output");
-                                    String expected = jsonObject.getString("expected_output");
-                                    output = MessageUtils.formatDiff(expected, output);
-                                    String outputs = jsonObject.getString("std_output");
-                                    MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("submit.failed", input, output, expected, outputs));
-
-                                    if (!"ac".equals(question.getStatus())) {
-                                        question.setStatus("notac");
-                                        ApplicationManager.getApplication().getMessageBus().syncPublisher(QuestionStatusNotifier.QUESTION_STATUS_TOPIC).updateTable(question);
-                                    }
-                                }
+                    CodeExecutionResult result = codeService().submitResult(
+                            startResult.getId(),
+                            execution.getRequestContext()
+                    );
+                    if (result.isComplete()) {
+                        if (result.isRunSuccess()) {
+                            if (Integer.valueOf(10).equals(result.getStatusCode())) {
+                                MessageUtils.getInstance(project).showInfoMsg(
+                                        "",
+                                        PropertiesUtils.getInfo(
+                                                "submit.success",
+                                                result.getStatusRuntime(),
+                                                percentile(result.getRuntimePercentile()),
+                                                codeTypeEnum.getType(),
+                                                result.getStatusMemory(),
+                                                percentile(result.getMemoryPercentile()),
+                                                codeTypeEnum.getType()
+                                        )
+                                );
+                                question.setStatus("ac");
+                                notifyQuestionStatus(question);
                             } else {
-                                String outputs = jsonObject.getString("std_output");
-                                String testcase = jsonObject.getString("last_testcase");
-                                if (StringUtils.isNotBlank(testcase)) {
-                                    testcase = testcase.replace("\n", "\n\t\t\t");
-                                }
-                                MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("submit.run.failed", MessageUtils.format(buildErrorMsg(jsonObject), "E"), testcase, outputs));
-                                if (!"ac".equals(question.getStatus())) {
-                                    question.setStatus("notac");
-                                    ApplicationManager.getApplication().getMessageBus().syncPublisher(QuestionStatusNotifier.QUESTION_STATUS_TOPIC).updateTable(question);
-                                }
+                                MessageUtils.getInstance(project).showExecutionResult(
+                                        "Wrong Answer",
+                                        result.getInput(),
+                                        result.getExpectedOutput(),
+                                        result.getCodeOutput(),
+                                        result.getStandardOutput(),
+                                        true
+                                );
+                                markNotAccepted(question);
                             }
-                            ApplicationManager.getApplication().getMessageBus().syncPublisher(QuestionSubmitNotifier.TOPIC).submit(URLUtils.getLeetcodeHost(), question.getTitleSlug());
-                            return;
+                        } else {
+                            MessageUtils.getInstance(project).showExecutionFailure(
+                                    result.getStatusMessage(),
+                                    resolveSubmissionError(startResult.getId(), result),
+                                    result.getLastTestCase(),
+                                    result.getStandardOutput(),
+                                    failurePrefix(question, codeTypeEnum, code)
+                            );
+                            markNotAccepted(question);
                         }
-
-                    }
-                    if (!waitForNextPoll(progressIndicator, project)) {
-                        MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.cancel"));
+                        notifyQuestionSubmitted(question);
+                        execution.succeeded();
                         return;
                     }
-                } catch (Exception e) {
-                    LogUtils.LOG.error("提交出错", e);
-                    MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.failed"));
+                    if (!waitForNextPoll(progressIndicator, project, execution)) {
+                        execution.cancel();
+                        showCancellation(project);
+                        return;
+                    }
+                } catch (LcException exception) {
+                    handleFailure(execution, progressIndicator, project, "提交出错", exception);
                     return;
                 }
 
             }
             if (project.isDisposed()) {
+                execution.cancel();
                 return;
             }
-            ApplicationManager.getApplication().getMessageBus().syncPublisher(QuestionSubmitNotifier.TOPIC).submit(URLUtils.getLeetcodeHost(), question.getTitleSlug());
+            notifyQuestionSubmitted(question);
+            execution.timedOut();
             MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("response.timeout"));
+        }
+
+        @Override
+        public void onCancel() {
+            execution.cancel();
         }
     }
 
-    private static String buildErrorMsg(JSONObject errorBody) {
-        String statusMsg = errorBody.getString("status_msg");
+    static String buildErrorMsg(CodeExecutionResult result) {
+        String statusMsg = result.getStatusMessage();
         if (StringUtils.isNotBlank(statusMsg)) {
             if (statusMsg.equals("Compile Error")) {
-                return errorBody.getString("full_compile_error");
+                return StringUtils.defaultIfBlank(result.getFullCompileError(), statusMsg);
             } else if (statusMsg.equals("Runtime Error")) {
-                return errorBody.getString("full_runtime_error");
+                return StringUtils.defaultIfBlank(result.getFullRuntimeError(), statusMsg);
             } else {
                 return statusMsg;
             }
@@ -305,84 +394,147 @@ public class CodeManager {
         return "Unknown error";
     }
 
+    private static String resolveSubmissionError(String submissionId, CodeExecutionResult result) {
+        String error = buildErrorMsg(result);
+        String status = result.getStatusMessage();
+        if (!StringUtils.equals(error, status)
+                || (!"Compile Error".equals(status) && !"Runtime Error".equals(status))) {
+            return error;
+        }
+        try {
+            SubmissionDetail detail = LeetCodeServices.submission().detail(submissionId);
+            if ("Compile Error".equals(status)) {
+                return StringUtils.defaultIfBlank(detail.getCompileError(), error);
+            }
+            return StringUtils.defaultIfBlank(detail.getRuntimeError(), error);
+        } catch (LcException exception) {
+            LogUtils.LOG.warn("Unable to load detailed submission error for " + submissionId, exception);
+            return error;
+        }
+    }
+
 
     private static class RunCodeCheckTask extends Task.Backgroundable {
-        private JSONObject returnObj;
+        private final CodeExecutionCoordinator.Execution execution;
         private Project project;
         private String input;
+        private CodeTypeEnum codeTypeEnum;
+        private Question question;
+        private String code;
 
-        public RunCodeCheckTask(JSONObject returnObj, Project project, String input) {
-            super(project, PluginConstant.PLUGIN_NAME + ".runCodeCheckTask", true);
-            this.returnObj = returnObj;
+        public RunCodeCheckTask(
+                CodeExecutionCoordinator.Execution execution,
+                Project project,
+                String input,
+                CodeTypeEnum codeTypeEnum,
+                Question question,
+                String code
+        ) {
+            super(project, ProductProfiles.current().pluginName() + ".runCodeCheckTask", true);
+            this.execution = execution;
             this.project = project;
             this.input = input;
+            this.codeTypeEnum = codeTypeEnum;
+            this.question = question;
+            this.code = code;
         }
 
         @Override
         public void run(@NotNull ProgressIndicator progressIndicator) {
-            String key = returnObj.getString("interpret_expected_id");
-            if (StringUtils.isBlank(key)) {
-                key = returnObj.getString("interpret_id");
+            CodeStartResult startResult;
+            try {
+                startResult = codeService().run(
+                        question,
+                        codeTypeEnum,
+                        code,
+                        execution.getRequestContext()
+                );
+            } catch (LcException exception) {
+                handleFailure(execution, progressIndicator, project, "RunCode error", exception);
+                return;
             }
+            if (startResult.getStatusCode() == 429) {
+                execution.failed();
+                MessageUtils.getInstance(project).showWarnMsg("", "Please wait for the result.");
+                return;
+            }
+            if (startResult.getStatusCode() != 200 || StringUtils.isBlank(startResult.getId())) {
+                execution.failed();
+                LogUtils.LOG.error("Run code returned no execution id for " + question.getTitleSlug());
+                MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.failed"));
+                return;
+            }
+            execution.polling();
+            MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("request.pending"));
+            String key = startResult.getExpectedId();
+            if (StringUtils.isBlank(key)) {
+                key = startResult.getId();
+            }
+            List<String> expectedAnswers = Collections.emptyList();
             for (int i = 0; i < MAX_POLL_ATTEMPTS; i++) {
-                if (isCanceled(progressIndicator, project)) {
-                    MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.cancel"));
+                if (cancelIfRequested(execution, progressIndicator, project)) {
                     return;
                 }
-                String body = null;
                 try {
-                    HttpResponse response = HttpRequest.builderGet(URLUtils.getLeetcodeSubmissions() + key + "/check/").request();
-                    if (response != null && response.getStatusCode() == 200) {
-                        body = response.getBody();
-                        JSONObject jsonObject = JSONObject.parseObject(body);
-                        if ("SUCCESS".equals(jsonObject.getString("state"))) {
-                            if (!key.equals(returnObj.getString("interpret_id"))) {
-                                key = returnObj.getString("interpret_id");
-                                returnObj.put("expected_code_answer", jsonObject.getJSONArray("code_answer"));
+                    CodeExecutionResult result = codeService().runResult(
+                            key,
+                            execution.getRequestContext()
+                    );
+                    if (result.isComplete()) {
+                        if (!key.equals(startResult.getId())) {
+                            key = startResult.getId();
+                            expectedAnswers = result.getCodeAnswers();
+                        } else {
+                            if (result.isRunSuccess()) {
+                                String resultInput = StringUtils.defaultIfBlank(
+                                        startResult.getTestCase(),
+                                        input
+                                );
+                                String output = StringUtils.join(result.getCodeAnswers(), "\n");
+                                List<String> resultExpectedAnswers = expectedAnswers.isEmpty()
+                                        ? result.getExpectedCodeAnswers()
+                                        : expectedAnswers;
+                                String expected = StringUtils.join(resultExpectedAnswers, "\n");
+                                String outputs = StringUtils.join(result.getCodeOutputs(), "\n\t\t");
+                                MessageUtils.getInstance(project).showExecutionResult(
+                                        "Run finished",
+                                        resultInput,
+                                        expected,
+                                        output,
+                                        outputs,
+                                        !StringUtils.equals(expected, output)
+                                );
                             } else {
-                                if (jsonObject.getBoolean("run_success")) {
-                                    String input = returnObj.getString("test_case");
-                                    if (StringUtils.isNotBlank(input)) {
-                                        input = input.replace("\n", "\n\t\t\t");
-                                    }
-                                    String output = "";
-                                    if (jsonObject.getJSONArray("code_answer") != null) {
-                                        output = Joiner.on("\n").join(jsonObject.getJSONArray("code_answer"));
-                                    }
-                                    String expected = "";
-                                    if (returnObj.getJSONArray("expected_code_answer") != null && !returnObj.getJSONArray("expected_code_answer").isEmpty()) {
-                                        expected = Joiner.on("\n").join(returnObj.getJSONArray("expected_code_answer"));
-                                    } else if (jsonObject.getJSONArray("expected_code_answer") != null && !jsonObject.getJSONArray("expected_code_answer").isEmpty()) {
-                                        expected = Joiner.on("\n").join(jsonObject.getJSONArray("expected_code_answer"));
-                                    }
-                                    output = MessageUtils.formatDiff(expected, output);
-                                    String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"), "\n\t\t");
-                                    MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("test.success", input, output, expected, outputs));
-                                } else {
-                                    String outputs = StringUtils.join(jsonObject.getJSONArray("code_output"), "\n\t\t");
-                                    String tempInput = input;
-                                    if (StringUtils.isNotBlank(tempInput)) {
-                                        tempInput = tempInput.replace("\n", "\n\t\t\t");
-                                    }
-                                    MessageUtils.getInstance(project).showInfoMsg("", PropertiesUtils.getInfo("submit.run.failed", MessageUtils.format(buildErrorMsg(jsonObject), "E"), tempInput, outputs));
-                                }
-                                return;
+                                MessageUtils.getInstance(project).showExecutionFailure(
+                                        result.getStatusMessage(),
+                                        buildErrorMsg(result),
+                                        input,
+                                        StringUtils.join(result.getCodeOutputs(), "\n\t\t"),
+                                        failurePrefix(question, codeTypeEnum, code)
+                                );
                             }
+                            execution.succeeded();
+                            return;
                         }
-
                     }
-                    if (!waitForNextPoll(progressIndicator, project)) {
-                        MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.cancel"));
+                    if (!waitForNextPoll(progressIndicator, project, execution)) {
+                        execution.cancel();
+                        showCancellation(project);
                         return;
                     }
-                } catch (Exception e) {
-                    LogUtils.LOG.error("提交出错，body:" + body + ",returnObj:" + returnObj.toJSONString(), e);
-                    MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.failed"));
+                } catch (LcException exception) {
+                    handleFailure(execution, progressIndicator, project, "运行出错", exception);
                     return;
                 }
 
             }
+            execution.timedOut();
             MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("response.timeout"));
+        }
+
+        @Override
+        public void onCancel() {
+            execution.cancel();
         }
     }
 
@@ -391,8 +543,16 @@ public class CodeManager {
     }
 
     static boolean waitForNextPoll(@NotNull ProgressIndicator progressIndicator, Project project) {
+        return waitForNextPoll(progressIndicator, project, null);
+    }
+
+    private static boolean waitForNextPoll(
+            @NotNull ProgressIndicator progressIndicator,
+            Project project,
+            CodeExecutionCoordinator.Execution execution
+    ) {
         long deadline = System.nanoTime() + POLL_INTERVAL_MILLIS * 1_000_000L;
-        while (!isCanceled(progressIndicator, project)) {
+        while (!isCanceled(progressIndicator, project, execution)) {
             long remainingMillis = (deadline - System.nanoTime()) / 1_000_000L;
             if (remainingMillis <= 0L) {
                 return true;
@@ -408,6 +568,97 @@ public class CodeManager {
     }
 
     private static boolean isCanceled(@NotNull ProgressIndicator progressIndicator, Project project) {
-        return progressIndicator.isCanceled() || project != null && project.isDisposed();
+        return isCanceled(progressIndicator, project, null);
+    }
+
+    private static boolean isCanceled(
+            @NotNull ProgressIndicator progressIndicator,
+            Project project,
+            CodeExecutionCoordinator.Execution execution
+    ) {
+        return progressIndicator.isCanceled()
+                || project != null && project.isDisposed()
+                || execution != null && execution.isCancellationRequested();
+    }
+
+    private static boolean cancelIfRequested(
+            CodeExecutionCoordinator.Execution execution,
+            ProgressIndicator progressIndicator,
+            Project project
+    ) {
+        if (!isCanceled(progressIndicator, project, execution)) {
+            return false;
+        }
+        execution.cancel();
+        showCancellation(project);
+        return true;
+    }
+
+    private static void handleFailure(
+            CodeExecutionCoordinator.Execution execution,
+            ProgressIndicator progressIndicator,
+            Project project,
+            String logMessage,
+            LcException exception
+    ) {
+        if (isCanceled(progressIndicator, project, execution)) {
+            execution.cancel();
+            showCancellation(project);
+            return;
+        }
+        execution.failed();
+        LogUtils.LOG.error(logMessage, exception);
+        MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.failed"));
+    }
+
+    private static void showCancellation(Project project) {
+        if (!project.isDisposed()) {
+            MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("request.cancel"));
+        }
+    }
+
+    private static LeetCodeCodeService codeService() {
+        return LeetCodeServices.code();
+    }
+
+    private static CodeExecutionCoordinator coordinator(Project project) {
+        return CodeExecutionCoordinator.getInstance(project);
+    }
+
+    private static String percentile(BigDecimal value) {
+        return value == null ? "" : value.setScale(2, RoundingMode.HALF_UP).toString();
+    }
+
+    private static String indent(String value) {
+        return StringUtils.isBlank(value) ? value : value.replace("\n", "\n\t\t\t");
+    }
+
+    private static String failurePrefix(
+            Question question,
+            CodeTypeEnum codeType,
+            String code
+    ) {
+        String prefix = ProductServices.codeExecutionPresentationStrategy()
+                .failurePrefix(question, codeType, code);
+        return StringUtils.isBlank(prefix) ? "" : prefix + "\n";
+    }
+
+    private static void markNotAccepted(Question question) {
+        if (!"ac".equals(question.getStatus())) {
+            question.setStatus("notac");
+            notifyQuestionStatus(question);
+        }
+    }
+
+    private static void notifyQuestionStatus(Question question) {
+        ApplicationManager.getApplication().getMessageBus()
+                .syncPublisher(QuestionStatusNotifier.QUESTION_STATUS_TOPIC)
+                .updateTable(question);
+    }
+
+    private static void notifyQuestionSubmitted(Question question) {
+        ApplicationManager.getApplication().getMessageBus()
+                .syncPublisher(QuestionSubmitNotifier.TOPIC)
+                .submit(URLUtils.getLeetcodeHost(), question.getTitleSlug());
     }
 }

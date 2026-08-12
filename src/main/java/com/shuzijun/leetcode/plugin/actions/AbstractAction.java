@@ -8,7 +8,8 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.product.ProductProfiles;
+import com.shuzijun.leetcode.plugin.product.ProductServices;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.MTAUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
@@ -23,10 +24,17 @@ import org.jetbrains.annotations.NotNull;
 public abstract class AbstractAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
+        if (!ProductServices.licenseGate().isAllowed()) {
+            ProductServices.licenseGate().onDenied();
+            return;
+        }
         Config config = PersistentConfig.getInstance().getInitConfig();
         if (config == null) {
             MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("warning", PropertiesUtils.getInfo("config.first"));
-            ShowSettingsUtil.getInstance().showSettingsDialog(anActionEvent.getProject(), PluginConstant.APPLICATION_CONFIGURABLE_DISPLAY_NAME);
+            ShowSettingsUtil.getInstance().showSettingsDialog(
+                    anActionEvent.getProject(),
+                    ProductProfiles.current().configurableDisplayName()
+            );
             return;
         } else if (StringUtils.isBlank(config.getId())) {
             config.setId(MTAUtils.getI(""));
@@ -36,6 +44,7 @@ public abstract class AbstractAction extends AnAction {
         try {
             MTAUtils.click(anActionEvent.getActionManager().getId(this), config);
             UpdateUtils.examine(config, anActionEvent.getProject());
+            ProductServices.licenseGate().beforeAction(anActionEvent.getProject());
         } catch (Exception e) {
         }
 

@@ -1,38 +1,28 @@
 package com.shuzijun.leetcode.plugin.manager;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Maps;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.shuzijun.lc.errors.LcException;
+import com.shuzijun.leetcode.plugin.application.LeetCodeApiService;
+import com.shuzijun.leetcode.plugin.application.LeetCodeServices;
+import com.shuzijun.lc.model.CodeMetaData;
+import com.shuzijun.lc.model.CodeSnippet;
+import com.shuzijun.lc.model.QuestionView;
+import com.shuzijun.lc.model.Session;
+import com.shuzijun.lc.model.Solution;
+import com.shuzijun.lc.model.Submission;
+import com.shuzijun.lc.model.User;
 import com.shuzijun.leetcode.plugin.model.*;
-import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
-import com.shuzijun.leetcode.plugin.utils.doc.CleanMarkdown;
 import com.shuzijun.leetcode.plugin.window.WindowFactory;
 import org.apache.commons.lang3.StringUtils;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 
 /**
  * @author shuzijun
  */
 public class QuestionManager {
-
-    private static final Cache<String, QuestionView> dayMap = CacheBuilder.newBuilder().maximumSize(5).expireAfterWrite(2, TimeUnit.DAYS).build();
-    private static final Cache<String, Question> questionCache = CacheBuilder.newBuilder().maximumSize(30).build();
-    private static final Cache<String, List<QuestionView>> questionAllCache = CacheBuilder.newBuilder().expireAfterWrite(2, TimeUnit.DAYS).build();
-    private static final Map<String, Map<String, Integer>> questionIndexCache = new java.util.concurrent.ConcurrentHashMap<>();
-    private static final com.google.common.util.concurrent.Striped<Lock> questionAllLocks =
-            com.google.common.util.concurrent.Striped.lazyWeakLock(16);
-    private static final com.google.common.util.concurrent.Striped<Lock> questionLocks =
-            com.google.common.util.concurrent.Striped.lazyWeakLock(64);
-
 
     public static PageInfo<QuestionView> getQuestionViewList(Project project, PageInfo<QuestionView> pageInfo) {
         LogUtils.navigatorTrace("getQuestionViewList:request"
@@ -41,40 +31,26 @@ public class QuestionManager {
                 + " limit=" + pageInfo.getPageSize()
                 + " category=" + pageInfo.getCategorySlug()
                 + " filters=" + pageInfo.getFilters());
-        boolean isPremium = false;
         User user = WindowFactory.getDataContext(project).getData(DataKeys.LEETCODE_PROJECTS_TABS).getUser();
-        if (user != null) {
-            isPremium = user.isPremium();
-        }
-
-        HttpResponse response = Graphql.builder().cn(URLUtils.isCn()).operationName("problemsetQuestionList")
-                .variables("categorySlug", pageInfo.getCategorySlug()).variables("skip", pageInfo.getSkip())
-                .variables("limit", pageInfo.getPageSize()).variables("filters", pageInfo.getFilters())
-                .cacheParam(WindowFactory.getDataContext(project).getData(DataKeys.LEETCODE_PROJECTS_TABS).getUser().getUsername()).request();
-        if (response.getStatusCode() == 200) {
-            List<QuestionView> questionList = parseQuestion(response.getBody(), isPremium);
-
+        try {
+            apiService().loadQuestionPage(pageInfo, user);
+            List<QuestionView> questionList = pageInfo.getRows();
             QuestionView dayQuestion = questionOfToday();
             if (dayQuestion != null) {
                 questionList.add(0, dayQuestion);
             }
 
-            Integer total = JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONObject("problemsetQuestionList").getInteger("total");
-            pageInfo.setRowTotal(total);
-            pageInfo.setRows(questionList);
             LogUtils.navigatorTrace("getQuestionViewList:response"
-                    + " status=" + response.getStatusCode()
                     + " page=" + pageInfo.getPageIndex()
-                    + " total=" + total
+                    + " total=" + pageInfo.getRowTotal()
                     + " questionRows=" + (dayQuestion == null ? questionList.size() : questionList.size() - 1)
                     + " dailyQuestion=" + (dayQuestion != null)
                     + " displayedRows=" + questionList.size());
-        } else {
-            LogUtils.navigatorTrace("getQuestionViewList:failed status=" + response.getStatusCode()
-                    + " page=" + pageInfo.getPageIndex()
+        } catch (LcException exception) {
+            LogUtils.navigatorTrace("getQuestionViewList:failed page=" + pageInfo.getPageIndex()
                     + " skip=" + pageInfo.getSkip());
-            LogUtils.LOG.error("Request question list failed, status:" + response.getStatusCode());
-            throw new RuntimeException("Request question list failed");
+            LogUtils.LOG.error("Request question list failed", exception);
+            throw new RuntimeException("Request question list failed", exception);
         }
 
         return pageInfo;
@@ -82,252 +58,53 @@ public class QuestionManager {
     }
 
     public static List<QuestionView> getQuestionAllService(Project project, boolean reset) {
-        Boolean isPremium = false;
         User user = WindowFactory.getDataContext(project).getData(DataKeys.LEETCODE_PROJECTS_TABS).getUser();
-        if (user != null) {
-            isPremium = user.isPremium();
+        try {
+            return apiService().loadAllQuestions(user, reset);
+        } catch (LcException exception) {
+            LogUtils.LOG.error("Request all questions failed", exception);
+            return null;
         }
-        if (questionAllCache.getIfPresent(URLUtils.getLeetcodeHost()) == null || reset) {
-            String key = URLUtils.getLeetcodeHost() + "getQuestionAll";
-            Lock questionAllLock = questionAllLocks.get(key);
-            questionAllLock.lock();
-            try {
-                if (questionAllCache.getIfPresent(URLUtils.getLeetcodeHost()) == null || reset) {
-                    HttpResponse response = Graphql.builder().cn(URLUtils.isCn()).operationName("allQuestions")
-                            .cacheParam(WindowFactory.getDataContext(project).getData(DataKeys.LEETCODE_PROJECTS_TABS).getUser().getUsername()).request();
-                    if (response.getStatusCode() == 200) {
-                        List<QuestionView> questionViews = new ArrayList<>();
-
-                        JSONArray allQuestions = JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONArray("allQuestions");
-                        for (int i = 0; i < allQuestions.size(); i++) {
-                            JSONObject jsonObject = allQuestions.getJSONObject(i);
-                            QuestionView questionView = jsonObject.toJavaObject(QuestionView.class);
-                            if (jsonObject.getBoolean("isPaidOnly") && !isPremium) {
-                                questionView.setStatus("lock");
-                            }
-                            if (URLUtils.isCn() && !PersistentConfig.getInstance().getConfig().getEnglishContent()) {
-                                if (StringUtils.isNotBlank(jsonObject.getString("translatedTitle"))) {
-                                    questionView.setTitle(jsonObject.getString("translatedTitle"));
-                                }
-                            }
-                            questionViews.add(questionView);
-
-                        }
-
-                        Collections.sort(questionViews, (o1, o2) -> o1.frontendQuestionIdCompareTo(o2));
-
-                        Map<String, Integer> questionIndex = Maps.newHashMap();
-                        for (int i = 0; i < questionViews.size(); i++) {
-                            questionIndex.put(questionViews.get(i).getTitleSlug(), i);
-                        }
-
-                        questionAllCache.put(URLUtils.getLeetcodeHost(), questionViews);
-                        questionIndexCache.put(URLUtils.getLeetcodeHost(), questionIndex);
-                    } else {
-                        questionAllCache.invalidate(URLUtils.getLeetcodeHost());
-                        questionIndexCache.remove(URLUtils.getLeetcodeHost());
-                    }
-                }
-            } finally {
-                questionAllLock.unlock();
-            }
-        }
-        return questionAllCache.getIfPresent(URLUtils.getLeetcodeHost());
     }
 
     public static QuestionIndex getQuestionIndex(String titleSlug) {
-        String host = URLUtils.getLeetcodeHost();
-        List<QuestionView> questionViews = questionAllCache.getIfPresent(host);
-        Map<String, Integer> questionIndexes = questionIndexCache.get(host);
-        if (questionViews == null || questionIndexes == null || !questionIndexes.containsKey(titleSlug)) {
-            return null;
-        } else {
-            QuestionIndex questionIndex = new QuestionIndex();
-            questionIndex.setIndex(questionIndexes.get(titleSlug));
-            questionIndex.setQuestionView(questionViews.get(questionIndex.getIndex()));
-            return questionIndex;
-        }
+        return apiService().getQuestionIndex(titleSlug);
     }
 
     public static void invalidateCaches() {
-        dayMap.invalidateAll();
-        questionCache.invalidateAll();
-        questionAllCache.invalidateAll();
-        questionIndexCache.clear();
+        LeetCodeApiService.invalidateCaches();
     }
 
     public static void invalidateCaches(String host) {
-        if (StringUtils.isBlank(host)) {
-            return;
-        }
-        dayMap.asMap().keySet().removeIf(key -> key.startsWith(host));
-        questionCache.asMap().keySet().removeIf(key -> key.startsWith(host));
-        questionAllCache.invalidate(host);
-        questionIndexCache.remove(host);
-    }
-
-    private static List<QuestionView> parseQuestion(String str, Boolean isPremium) {
-
-        List<QuestionView> questionList = new ArrayList<>();
-
-        if (StringUtils.isNotBlank(str)) {
-            JSONObject jsonObject = JSONObject.parseObject(str).getJSONObject("data").getJSONObject("problemsetQuestionList");
-            JSONArray jsonArray = jsonObject.getJSONArray("questions");
-            for (int i = 0; i < jsonArray.size(); i++) {
-                JSONObject object = jsonArray.getJSONObject(i);
-                QuestionView question = parseQuestionView(object, isPremium);
-                questionList.add(question);
-            }
-        }
-        return questionList;
-    }
-
-    private static QuestionView parseQuestionView(JSONObject object, Boolean isPremium) {
-        QuestionView question = new QuestionView(object.getString("title"));
-        if (URLUtils.isCn() && !PersistentConfig.getInstance().getConfig().getEnglishContent()) {
-            if (StringUtils.isNotBlank(object.getString("titleCn"))) {
-                question.setTitle(object.getString("titleCn"));
-            }
-        }
-        question.setFrontendQuestionId(object.getString("frontendQuestionId"));
-        question.setAcceptance(object.getDouble("acRate"));
-        try {
-            if (object.getBoolean("paidOnly") && !isPremium) {
-                question.setStatus("lock");
-            } else {
-                question.setStatus(object.get("status") == null ? "" : object.getString("status").toLowerCase());
-            }
-            if (object.containsKey("freqBar") && object.get("freqBar") != null) {
-                question.setFrequency(object.getDouble("freqBar"));
-            }
-        } catch (Exception ee) {
-            question.setStatus("");
-        }
-        question.setTitleSlug(object.getString("titleSlug"));
-        question.setLevel(object.getString("difficulty"));
-        return question;
+        LeetCodeApiService.invalidateCaches(host);
     }
 
     public static QuestionView questionOfToday() {
-        QuestionView dayQuestion = dayMap.getIfPresent(URLUtils.getLeetcodeHost() + new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
-        if (dayQuestion == null) {
-            try {
-                HttpResponse response = Graphql.builder().cn(URLUtils.isCn()).operationName("questionOfToday").request();
-                if (response.getStatusCode() != 200) {
-                    return null;
-                } else {
-                    JSONObject dateObject = JSONObject.parseObject(response.getBody()).getJSONObject("data");
-                    JSONObject todayRecordObject;
-                    if (URLUtils.isCn()) {
-                        todayRecordObject = dateObject.getJSONArray("activeDailyCodingChallengeQuestion").getJSONObject(0);
-                    } else {
-                        todayRecordObject = dateObject.getJSONObject("activeDailyCodingChallengeQuestion");
-                    }
-                    dayQuestion = parseQuestionView(todayRecordObject.getJSONObject("question"), true);
-                    dayQuestion.setStatus("day");
-                    dayMap.put(URLUtils.getLeetcodeHost() + todayRecordObject.getString("date"), dayQuestion);
-                }
-            } catch (Exception ignore) {
-
-            }
+        try {
+            return apiService().loadQuestionOfToday();
+        } catch (Exception ignore) {
+            return null;
         }
-
-        return dayQuestion;
     }
 
 
-    private static boolean getQuestion(Question question, Project project) {
+    private static Question loadQuestion(String titleSlug, Project project) {
         try {
-            HttpResponse response = Graphql.builder().operationName("questionData").variables("titleSlug", question.getTitleSlug()).request();
-            if (response.getStatusCode() == 200) {
-
-                String body = response.getBody();
-
-                JSONObject jsonObject = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("question");
-
-                question.setQuestionId(jsonObject.getString("questionId"));
-                question.setContent(getContent(jsonObject));
-                question.setTestCase(jsonObject.getString("sampleTestCase"));
-                question.setExampleTestcases(jsonObject.getString("exampleTestcases"));
-                question.setStatus(jsonObject.get("status") == null ? "" : jsonObject.getString("status"));
-                question.setTitle(jsonObject.getString("title"));
-                if (URLUtils.isCn() && !PersistentConfig.getInstance().getConfig().getEnglishContent()) {
-                    if (StringUtils.isNotBlank(jsonObject.getString("translatedTitle"))) {
-                        question.setTitle(jsonObject.getString("translatedTitle"));
-                    }
-                }
-                question.setFrontendQuestionId(jsonObject.getString("questionFrontendId"));
-                question.setLevel(jsonObject.getString("difficulty"));
-                if (URLUtils.isCn()) {
-                    question.setArticleLive(Constant.ARTICLE_LIVE_LIST);
-                } else if (jsonObject.get("solution") != null) {
-                    question.setArticleLive(Constant.ARTICLE_LIVE_ONE);
-                    question.setArticleSlug(question.getTitleSlug());
-                } else {
-                    question.setArticleLive(Constant.ARTICLE_LIVE_NONE);
-                }
-
-                JSONArray jsonArray = jsonObject.getJSONArray("codeSnippets");
-                if (jsonArray != null) {
-                    List<CodeSnippet> codeSnippets = new ArrayList<>();
-                    for (int i = 0; i < jsonArray.size(); i++) {
-                        JSONObject object = jsonArray.getJSONObject(i);
-                        CodeSnippet codeSnippet = new CodeSnippet();
-                        codeSnippet.setCode(object.getString("code").replaceAll("\\n", "\n"));
-                        codeSnippet.setLang(object.getString("lang"));
-                        codeSnippet.setLangSlug(object.getString("langSlug"));
-                        codeSnippets.add(codeSnippet);
-                    }
-                    question.setCodeSnippets(codeSnippets);
-                }
-                return Boolean.TRUE;
-            } else {
-                MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
-            }
-
+            return apiService().loadQuestion(titleSlug);
         } catch (Exception e) {
             LogUtils.LOG.error("获取代码失败", e);
             MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
         }
-        return Boolean.FALSE;
-    }
-
-    private static String getContent(JSONObject jsonObject) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(CleanMarkdown.cleanMarkdown(jsonObject.getString(URLUtils.getDescContent()), ""));
-        Config config = PersistentConfig.getInstance().getConfig();
-        if (config.getShowTopics()) {
-            JSONArray topicTagsArray = jsonObject.getJSONArray("topicTags");
-            if (topicTagsArray != null && !topicTagsArray.isEmpty()) {
-                sb.append("<div><div>Related Topics</div><div>");
-                for (int i = 0; i < topicTagsArray.size(); i++) {
-                    JSONObject tag = topicTagsArray.getJSONObject(i);
-                    sb.append("<li>");
-                    if (StringUtils.isBlank(tag.getString("translatedName"))) {
-                        sb.append(tag.getString("name"));
-                    } else {
-                        sb.append(tag.getString("translatedName"));
-                    }
-                    sb.append("</li>");
-                }
-                sb.append("</div></div>");
-                sb.append("<br>");
-            }
-        }
-        sb.append("<div><li>\uD83D\uDC4D ").append(jsonObject.getInteger("likes")).append("</li><li>\uD83D\uDC4E ").append(jsonObject.getInteger("dislikes")).append("</li></div>");
-        return sb.toString();
+        return null;
     }
 
     public static Question pick(Project project, PageInfo<?> pageInfo) {
-        String titleSlug = null;
-        HttpResponse response = Graphql.builder().cn(URLUtils.isCn()).operationName("randomQuestion").variables("categorySlug", pageInfo.getCategorySlug()).variables("filters", pageInfo.getFilters()).request();
-        if (response.getStatusCode() == 200) {
-            String body = response.getBody();
-            if (URLUtils.isCn()) {
-                titleSlug = JSONObject.parseObject(body).getJSONObject("data").getString("randomQuestion");
-            } else {
-                titleSlug = JSONObject.parseObject(body).getJSONObject("data").getJSONObject("randomQuestion").getString("titleSlug");
-            }
+        String titleSlug;
+        try {
+            titleSlug = apiService().pickQuestion(pageInfo);
+        } catch (LcException exception) {
+            LogUtils.LOG.error("Request random question failed", exception);
+            return null;
         }
         if (StringUtils.isNotBlank(titleSlug)) {
             return getQuestionByTitleSlug(titleSlug, project);
@@ -338,25 +115,7 @@ public class QuestionManager {
     }
 
     public static User getUser() {
-        HttpResponse response = Graphql.builder().cn(URLUtils.isCn()).operationName("userStatus","globalData").request();
-        if (response.getStatusCode() == 200) {
-            JSONObject userObject = JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONObject("userStatus");
-            User user = new User();
-            user.setPremium(userObject.getBoolean("isPremium"));
-            user.setUsername(userObject.getString("username"));
-            if (userObject.containsValue("userSlug")){
-                user.setUserSlug(userObject.getString("userSlug"));
-            }else {
-                user.setUserSlug(user.getUsername());
-            }
-            user.setSignedIn(userObject.getBoolean("isSignedIn"));
-            user.setVerified(userObject.getBoolean("isVerified"));
-            user.setPhoneVerified(userObject.getBoolean("isPhoneVerified"));
-            return user;
-        } else {
-            LogUtils.LOG.error("Request userStatus  failed, status:" + response.getStatusCode());
-            return new User();
-        }
+        return apiService().loadUser();
     }
 
     public static Question getQuestionByTitleSlug(String titleSlug, Project project) {
@@ -367,7 +126,7 @@ public class QuestionManager {
         if (StringUtils.isBlank(titleSlug) || StringUtils.isBlank(host)) {
             return null;
         }
-        return questionCache.getIfPresent(host + titleSlug);
+        return apiService().getCachedQuestion(titleSlug, host);
     }
 
     public static Question getQuestionByTitleSlug(String titleSlug, Project project, boolean readOnlyCache) {
@@ -375,8 +134,7 @@ public class QuestionManager {
         if (StringUtils.isBlank(titleSlug)) {
             return null;
         }
-        String key = URLUtils.getLeetcodeHost() + titleSlug;
-        Question cachedQuestion = questionCache.getIfPresent(key);
+        Question cachedQuestion = apiService().getCachedQuestion(titleSlug, URLUtils.getLeetcodeHost());
         if (cachedQuestion != null || readOnlyCache) {
             return cachedQuestion;
         }
@@ -384,27 +142,10 @@ public class QuestionManager {
             LogUtils.LOG.warn("Skipped loading question on the IDEA UI thread: " + titleSlug);
             return null;
         }
-        if (questionCache.getIfPresent(key) == null) {
-            Lock questionLock = questionLocks.get(key);
-            questionLock.lock();
-            try {
-                if (questionCache.getIfPresent(key) == null) {
-                    try {
-                        Question question = new Question();
-                        question.setTitleSlug(titleSlug);
-                        if (getQuestion(question, project)) {
-                            questionCache.put(key, question);
-                        } else {
-                            return null;
-                        }
-                    } catch (Exception e) {
-                        return null;
-                    }
-                }
-            } finally {
-                questionLock.unlock();
-            }
-        }
-        return questionCache.getIfPresent(key);
+        return loadQuestion(titleSlug, project);
+    }
+
+    private static LeetCodeApiService apiService() {
+        return LeetCodeServices.api();
     }
 }

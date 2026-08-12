@@ -1,226 +1,83 @@
 package com.shuzijun.leetcode.plugin.utils;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.util.concurrent.Striped;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.util.net.IdeProxySelector;
 import com.intellij.util.net.ProxySettings;
-import com.shuzijun.lc.LcClient;
 import com.shuzijun.lc.errors.LcException;
 import com.shuzijun.lc.http.DefaultExecutoHttp;
-import com.shuzijun.lc.http.HttpClient;
-import com.shuzijun.leetcode.plugin.model.HttpRequest;
+import com.shuzijun.lc.http.ExecutorHttp;
+import com.shuzijun.lc.http.HttpRequest;
+import com.shuzijun.lc.http.HttpResponse;
 import okhttp3.Authenticator;
+import okhttp3.Interceptor;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.HttpCookie;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author shuzijun
  */
 public class HttpRequestUtils {
 
-    private static final Cache<HttpRequest, HttpResponse> httpResponseCache = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).build();
-    private static final Striped<Lock> requestLocks = Striped.lazyWeakLock(128);
+    private static final long MAX_LOG_BODY_BYTES = 64 * 1024;
+
     private static final AtomicBoolean edtRequestWarningLogged = new AtomicBoolean();
-    private static volatile Function<HttpRequest, HttpResponse> testResponseProvider;
+    private static volatile Function<String, HttpResponse> testResponseProvider;
 
-    private static MyExecutorHttp executorHttp = new MyExecutorHttp();
-    private static LcClient enLcClient = LcClient.builder(HttpClient.SiteEnum.EN).executorHttp(executorHttp).build();
-    private static LcClient cnLcClient = LcClient.builder(HttpClient.SiteEnum.CN).executorHttp(executorHttp).build();
-    private static final CookieManager cookieManager = new CookieManager(null, (uri, cookie) -> {
-        if (uri == null || cookie == null || uri.getHost().equals("hm.baidu.com")) {
-            return false;
+    private static final ExecutorHttp EXECUTOR_HTTP = new MyExecutorHttp();
+
+    @NotNull
+    public static HttpResponse get(@NotNull String url) {
+        HttpResponse testResponse = getTestResponse(url);
+        if (testResponse != null) {
+            return testResponse;
         }
-        return HttpCookie.domainMatches(cookie.getDomain(), uri.getHost());
-    });
 
-    static {
-        CookieHandler.setDefault(cookieManager);
-    }
+        Application application = ApplicationManager.getApplication();
+        if (application != null && application.isDispatchThread()) {
+            if (edtRequestWarningLogged.compareAndSet(false, true)) {
+                LogUtils.LOG.warn("Blocked a LeetCode network request on the IDEA UI thread");
+            }
+            return new HttpResponse(-1);
+        }
 
-    private static HttpResponse buildResp(com.shuzijun.lc.http.HttpResponse response, HttpResponse httpResponse) {
-        httpResponse.setUrl(response.getHttpRequest().getUrl());
-        httpResponse.setStatusCode(response.getStatusCode());
-        httpResponse.setBody(response.getBody());
-        return httpResponse;
-    }
-
-    private static Map<String, String> getHeader(String url) {
-        if (url.contains(HttpClient.SiteEnum.EN.defaultEndpoint)) {
-            return enLcClient.getClient().getHeader();
-        } else {
-            return cnLcClient.getClient().getHeader();
+        try {
+            return EXECUTOR_HTTP.executeGet(HttpRequest.builderGet(url).build());
+        } catch (LcException e) {
+            LogUtils.LOG.error("HttpRequestUtils request error:", e);
+            return new HttpResponse(-1);
         }
     }
 
     @NotNull
-    public static HttpResponse executeGet(HttpRequest httpRequest) {
-        HttpResponse testResponse = getTestResponse(httpRequest);
-        if (testResponse != null) {
-            return testResponse;
-        }
-
-        return CacheProcessor.processor(httpRequest, request -> {
-
-            HttpResponse httpResponse = new HttpResponse();
-            try {
-                com.shuzijun.lc.http.HttpRequest.HttpRequestBuilder builder = com.shuzijun.lc.http.HttpRequest.
-                        builderGet(request.getUrl()).body(request.getBody()).addHeader(getHeader(request.getUrl()));
-                if (request.getHeader() != null) {
-                    builder.addHeader(request.getHeader());
-                }
-                return buildResp(executorHttp.executeGet(builder.build()), httpResponse);
-
-            } catch (LcException e) {
-                LogUtils.LOG.error("HttpRequestUtils request error:", e);
-                httpResponse.setStatusCode(-1);
-            }
-            return httpResponse;
-        });
-
-
-    }
-
-    @NotNull
-    public static HttpResponse executePost(HttpRequest httpRequest) {
-        HttpResponse testResponse = getTestResponse(httpRequest);
-        if (testResponse != null) {
-            return testResponse;
-        }
-
-        return CacheProcessor.processor(httpRequest, request -> {
-            HttpResponse httpResponse = new HttpResponse();
-            try {
-                com.shuzijun.lc.http.HttpRequest.HttpRequestBuilder builder = com.shuzijun.lc.http.HttpRequest.
-                        builderPost(request.getUrl(), request.getContentType()).body(request.getBody()).addHeader(getHeader(request.getUrl()));
-                if (request.getHeader() != null) {
-                    builder.addHeader(request.getHeader());
-                }
-                return buildResp(executorHttp.executePost(builder.build()), httpResponse);
-            } catch (LcException e) {
-                LogUtils.LOG.error("HttpRequestUtils request error:", e);
-                httpResponse.setStatusCode(-1);
-            }
-            return httpResponse;
-        });
-    }
-
-    public static HttpResponse executePut(HttpRequest httpRequest) {
-        HttpResponse testResponse = getTestResponse(httpRequest);
-        if (testResponse != null) {
-            return testResponse;
-        }
-
-        return CacheProcessor.processor(httpRequest, request -> {
-            HttpResponse httpResponse = new HttpResponse();
-            try {
-                com.shuzijun.lc.http.HttpRequest.HttpRequestBuilder builder = com.shuzijun.lc.http.HttpRequest.
-                        builderPut(request.getUrl(), request.getContentType()).body(request.getBody()).addHeader(getHeader(request.getUrl()));
-                if (request.getHeader() != null) {
-                    builder.addHeader(request.getHeader());
-                }
-                return buildResp(executorHttp.executePut(builder.build()), httpResponse);
-            } catch (LcException e) {
-                LogUtils.LOG.error("HttpRequestUtils request error:", e);
-                httpResponse.setStatusCode(-1);
-            }
-            return httpResponse;
-        });
-    }
-
-    public static String getToken() {
-        Map<String, String> headerMap = getHeader(URLUtils.getLeetcodeHost());
-        return headerMap.get("x-csrftoken");
-    }
-
-    public static boolean isLogin(Project project) {
-        HttpResponse response = HttpRequest.builderGet(URLUtils.getLeetcodePoints()).request();
-        if (response.getStatusCode() == 200) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
-    }
-
-    public static void setCookie(List<HttpCookie> cookieList) {
-        enLcClient.getClient().cookieStore().clearCookie(URLUtils.getLeetcodeHost());
-        enLcClient.getClient().cookieStore().addCookie(URLUtils.getLeetcodeHost(), cookieList);
-    }
-
-    public static void resetHttpclient() {
-        enLcClient.getClient().cookieStore().clearCookie(URLUtils.getLeetcodeHost());
+    public static ExecutorHttp getExecutorHttp() {
+        return EXECUTOR_HTTP;
     }
 
     @TestOnly
-    public static void setTestResponseProvider(@Nullable Function<HttpRequest, HttpResponse> responseProvider) {
+    public static void setTestResponseProvider(@Nullable Function<String, HttpResponse> responseProvider) {
         testResponseProvider = responseProvider;
-        httpResponseCache.invalidateAll();
     }
 
     @Nullable
-    private static HttpResponse getTestResponse(HttpRequest httpRequest) {
-        Function<HttpRequest, HttpResponse> responseProvider = testResponseProvider;
-        return responseProvider == null ? null : responseProvider.apply(httpRequest);
+    private static HttpResponse getTestResponse(String url) {
+        Function<String, HttpResponse> responseProvider = testResponseProvider;
+        return responseProvider == null ? null : responseProvider.apply(url);
     }
-
-
-    private static class CacheProcessor {
-        public static HttpResponse processor(HttpRequest httpRequest, HttpRequestUtils.Callable<HttpResponse> callable) {
-            HttpResponse cachedResponse = httpRequest.isCache() ? httpResponseCache.getIfPresent(httpRequest) : null;
-            if (cachedResponse != null) {
-                return cachedResponse;
-            }
-            Application application = ApplicationManager.getApplication();
-            if (application != null && application.isDispatchThread()) {
-                if (edtRequestWarningLogged.compareAndSet(false, true)) {
-                    LogUtils.LOG.warn("Blocked a LeetCode network request on the IDEA UI thread");
-                }
-                HttpResponse rejectedResponse = new HttpResponse();
-                rejectedResponse.setStatusCode(-1);
-                return rejectedResponse;
-            }
-            if (httpRequest.isCache()) {
-                Lock requestLock = requestLocks.get(httpRequest);
-                requestLock.lock();
-                try {
-                    HttpResponse cached = httpResponseCache.getIfPresent(httpRequest);
-                    if (cached != null) {
-                        return cached;
-                    }
-                    HttpResponse httpResponse = callable.call(httpRequest);
-                    if (httpResponse.getStatusCode() == 200) {
-                        httpResponseCache.put(httpRequest, httpResponse);
-                    }
-                    return httpResponse;
-                } finally {
-                    requestLock.unlock();
-                }
-            } else {
-                return callable.call(httpRequest);
-
-            }
-        }
-    }
-
-    @FunctionalInterface
-    private interface Callable<V> {
-        V call(HttpRequest request);
-    }
-
 
     private static class MyExecutorHttp extends DefaultExecutoHttp {
 
@@ -232,6 +89,7 @@ public class HttpRequestUtils {
 
         private MyExecutorHttp() {
             requestClient = super.getRequestClient().newBuilder()
+                    .addInterceptor(new NetworkLogInterceptor())
                     .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .writeTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .readTimeout(READ_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -247,5 +105,96 @@ public class HttpRequestUtils {
                     .proxyAuthenticator(Authenticator.JAVA_NET_AUTHENTICATOR)
                     .build();
         }
+    }
+
+    private static final class NetworkLogInterceptor implements Interceptor {
+
+        @Override
+        public @NotNull Response intercept(@NotNull Chain chain) throws IOException {
+            Request request = chain.request();
+            if (!isNetworkLogEnabled()) {
+                return chain.proceed(request);
+            }
+
+            long startedAt = System.nanoTime();
+            LogUtils.LOG.info("[NETWORK] --> " + request.method() + " " + sanitize(request.url().toString()));
+            try {
+                Response response = chain.proceed(request);
+                long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedAt);
+                LogUtils.LOG.info("[NETWORK] <-- " + response.code() + " " + request.method()
+                        + " " + sanitize(request.url().toString()) + " (" + elapsedMillis + " ms)");
+                logResponseBody(response);
+                return response;
+            } catch (IOException exception) {
+                long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedAt);
+                LogUtils.LOG.warn("[NETWORK] <-- FAILED " + request.method()
+                        + " " + sanitize(request.url().toString()) + " (" + elapsedMillis + " ms)", exception);
+                throw exception;
+            }
+        }
+
+        private static void logResponseBody(Response response) {
+            ResponseBody body = response.body();
+            if (body == null || !isText(body.contentType())) {
+                return;
+            }
+            try {
+                String content = response.peekBody(MAX_LOG_BODY_BYTES).string();
+                LogUtils.LOG.info("[NETWORK] body: " + sanitize(content));
+            } catch (IOException exception) {
+                LogUtils.LOG.debug("[NETWORK] Failed to read response body", exception);
+            }
+        }
+
+        private static boolean isText(MediaType contentType) {
+            if (contentType == null) {
+                return true;
+            }
+            String type = contentType.type().toLowerCase(Locale.ROOT);
+            String subtype = contentType.subtype().toLowerCase(Locale.ROOT);
+            return "text".equals(type)
+                    || subtype.contains("json")
+                    || subtype.contains("xml")
+                    || subtype.contains("javascript")
+                    || subtype.contains("html")
+                    || subtype.contains("form");
+        }
+    }
+
+    static boolean isNetworkLogEnabled() {
+        return DevelopmentTools.isEnabled();
+    }
+
+    private static final Pattern SENSITIVE_JSON_VALUE = Pattern.compile(
+            "(?i)(\"(?:authorization|cookie|set-cookie|password|passwd|csrf(?:token)?|token|access_token|refresh_token|session|leetcode_session)\"\\s*:\\s*)\"(?:\\\\.|[^\"\\\\])*\""
+    );
+    private static final Pattern SENSITIVE_PARAMETER = Pattern.compile(
+            "(?i)((?:authorization|cookie|password|passwd|csrf(?:token)?|token|access_token|refresh_token|session|leetcode_session)=)(?:bearer\\s+)?[^&\\s]*"
+    );
+    private static final Pattern BEARER_TOKEN = Pattern.compile(
+            "(?i)(bearer\\s+)[a-z0-9._~+/=-]+"
+    );
+
+    static String sanitize(String value) {
+        if (value == null || value.isEmpty()) {
+            return value;
+        }
+        String sanitized = SENSITIVE_JSON_VALUE.matcher(value)
+                .replaceAll("$1\"<redacted>\"");
+        sanitized = replaceSensitiveParameters(sanitized);
+        return BEARER_TOKEN.matcher(sanitized).replaceAll("$1<redacted>");
+    }
+
+    private static String replaceSensitiveParameters(String value) {
+        Matcher matcher = SENSITIVE_PARAMETER.matcher(value);
+        StringBuffer sanitized = new StringBuffer();
+        while (matcher.find()) {
+            matcher.appendReplacement(
+                    sanitized,
+                    Matcher.quoteReplacement(matcher.group(1) + "<redacted>")
+            );
+        }
+        matcher.appendTail(sanitized);
+        return sanitized.toString();
     }
 }

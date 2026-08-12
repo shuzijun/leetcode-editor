@@ -6,13 +6,13 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.shuzijun.leetcode.plugin.actions.AbstractAction;
+import com.shuzijun.leetcode.plugin.application.LeetCodeServices;
 import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.manager.SessionManager;
 import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.Session;
+import com.shuzijun.lc.model.Session;
 import com.shuzijun.leetcode.plugin.setting.StatisticsData;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
-import com.shuzijun.leetcode.plugin.utils.HttpRequestUtils;
 import com.shuzijun.leetcode.plugin.utils.MessageUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.window.ProgressPanel;
@@ -30,7 +30,7 @@ public class ProgressAction extends AbstractAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent, Config config) {
-        if (!HttpRequestUtils.isLogin(anActionEvent.getProject())) {
+        if (!LeetCodeServices.login().isLoggedIn()) {
             MessageUtils.getInstance(anActionEvent.getProject()).showWarnMsg("info", PropertiesUtils.getInfo("login.not"));
             return;
         }

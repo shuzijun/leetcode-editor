@@ -1,5 +1,12 @@
 package com.shuzijun.leetcode.plugin.manager;
 
+import com.shuzijun.lc.model.CodeMetaData;
+import com.shuzijun.lc.model.CodeSnippet;
+import com.shuzijun.lc.model.QuestionView;
+import com.shuzijun.lc.model.Session;
+import com.shuzijun.lc.model.Solution;
+import com.shuzijun.lc.model.Submission;
+import com.shuzijun.lc.model.User;
 import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.window.NavigatorTableData;
 
@@ -37,6 +44,19 @@ public interface NavigatorAction<T> {
     void resetServiceData();
 
     boolean position(String slug);
+
+    default void refreshData() {
+        loadServiceData();
+    }
+
+    default void loading() {
+    }
+
+    default void loaded() {
+    }
+
+    default void loadFailed(Runnable retry) {
+    }
 
     public static class Adapter<T> implements NavigatorAction {
 

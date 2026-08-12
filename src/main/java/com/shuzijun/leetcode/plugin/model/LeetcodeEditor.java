@@ -30,6 +30,8 @@ public class LeetcodeEditor {
 
     private String host;
 
+    private String langSlug;
+
     public Integer getVersion() {
         return version;
     }
@@ -76,5 +78,13 @@ public class LeetcodeEditor {
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public String getLangSlug() {
+        return langSlug;
+    }
+
+    public void setLangSlug(String langSlug) {
+        this.langSlug = langSlug;
     }
 }

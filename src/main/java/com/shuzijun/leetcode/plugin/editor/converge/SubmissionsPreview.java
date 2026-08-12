@@ -4,7 +4,6 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.*;
-import com.intellij.openapi.fileEditor.ex.FileEditorProviderManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -18,15 +17,21 @@ import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
+import com.shuzijun.leetcode.plugin.editor.LCVPreview;
+import com.shuzijun.leetcode.plugin.editor.QuestionPreviewRenderMode;
 import com.shuzijun.leetcode.plugin.editor.SplitFileEditor;
+import com.shuzijun.leetcode.plugin.application.LeetCodeServices;
 import com.shuzijun.leetcode.plugin.listener.QuestionSubmitNotifier;
 import com.shuzijun.leetcode.plugin.manager.QuestionManager;
 import com.shuzijun.leetcode.plugin.manager.SubmissionManager;
 import com.shuzijun.leetcode.plugin.model.LeetcodeEditor;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
 import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.model.Submission;
+import com.shuzijun.lc.model.Submission;
+import com.shuzijun.leetcode.plugin.utils.AsyncTaskHandle;
 import com.shuzijun.leetcode.plugin.utils.AsyncUiUtils;
+import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
+import com.shuzijun.leetcode.plugin.ui.ContentStatePanel;
 import com.shuzijun.leetcode.plugin.window.dialog.SubmissionsPanel;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
@@ -52,6 +57,8 @@ import static com.intellij.openapi.actionSystem.ActionPlaces.TEXT_EDITOR_WITH_PR
 public class SubmissionsPreview extends UserDataHolderBase implements FileEditor {
 
     private static final String MY_PROPORTION_KEY = PluginConstant.PLUGIN_ID + "SubmissionsSplitEditor.Proportion";
+    private static final String LIST_OPERATION = "submission-list";
+    private static final String DETAIL_OPERATION = "submission-detail";
 
     private final Project project;
     private final LeetcodeEditor leetcodeEditor;
@@ -67,8 +74,13 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
     private JBTable table;
 
     private JBSplitter mySplitter;
+    private ContentStatePanel listState;
+    private ContentStatePanel detailState;
     private SplitFileEditor.SplitEditorLayout myLayout = SplitFileEditor.SplitEditorLayout.FIRST;
+    private final AtomicInteger listRequestId = new AtomicInteger();
     private final AtomicInteger submissionRequestId = new AtomicInteger();
+    private AsyncTaskHandle listTask;
+    private AsyncTaskHandle detailTask;
 
     public SubmissionsPreview(Project project, LeetcodeEditor leetcodeEditor) {
         this.project = project;
@@ -93,6 +105,11 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
             mySplitter = new JBSplitter(false, 0.35f, 0.15f, 0.85f);
             mySplitter.setSplitterProportionKey(MY_PROPORTION_KEY);
             mySplitter.setDividerWidth(3);
+            listState = new ContentStatePanel();
+            detailState = new ContentStatePanel();
+            mySplitter.setFirstComponent(listState);
+            mySplitter.setSecondComponent(detailState);
+            adjustEditorsVisibility();
             myComponent = JBUI.Panels.simplePanel();
             myComponent.add(mySplitter, BorderLayout.CENTER);
             if (isLoad) {
@@ -104,29 +121,55 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
 
     private void initComponent(String defaultId) {
         isLoad = true;
+        int requestId = listRequestId.incrementAndGet();
+        cancelTask(listTask);
+        cancelDetailLoad();
         ApplicationManager.getApplication().invokeLater(() -> {
-            mySplitter.setFirstComponent(new JBLabel("Loading......"));
-            AsyncUiUtils.load(project, this, () -> {
+            if (requestId != listRequestId.get()) {
+                return;
+            }
+            listState.showLoading(PropertiesUtils.getInfo("ui.loading"));
+            listTask = AsyncUiUtils.load(project, this, LIST_OPERATION, () -> {
+                if (!LeetCodeServices.login().isLoggedIn()) {
+                    return InitialData.loggedOut();
+                }
                 Question loadedQuestion = QuestionManager.getQuestionByTitleSlug(leetcodeEditor.getTitleSlug(), project);
                 List<Submission> loadedSubmissions = loadedQuestion == null
                         ? null
                         : SubmissionManager.getSubmissionService(loadedQuestion.getTitleSlug(), project);
-                return new InitialData(loadedQuestion, loadedSubmissions);
+                return InitialData.loggedIn(loadedQuestion, loadedSubmissions);
             }, (data, error) -> {
+                if (requestId != listRequestId.get()) {
+                    return;
+                }
                 if (error != null) {
-                    mySplitter.setFirstComponent(new JBLabel(error.getMessage()));
+                    listState.showError(
+                            PropertiesUtils.getInfo("ui.submission.failed"),
+                            PropertiesUtils.getInfo("ui.retry"),
+                            () -> initComponent(defaultId)
+                    );
+                    return;
+                }
+                if (!data.loggedIn) {
+                    listState.showLoginRequired(
+                            PropertiesUtils.getInfo("login.not"),
+                            PropertiesUtils.getInfo("ui.sign.in"),
+                            null
+                    );
                     return;
                 }
                 question = data.question;
                 submissionList = data.submissions;
                 if (question == null) {
-                    mySplitter.setFirstComponent(new JBLabel("No question"));
+                    listState.showEmpty(PropertiesUtils.getInfo("ui.question.empty"), null, null);
                 } else {
                     if (submissionList != null && !submissionList.isEmpty()) {
                         table = new JBTable(new SubmissionsPanel.TableModel(submissionList));
                         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                         table.getTableHeader().setReorderingAllowed(false);
                         table.setRowSelectionAllowed(true);
+                        table.setFillsViewportHeight(true);
+                        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
                         table.setRowSelectionInterval(0, 0);
                         table.getColumnModel().getColumn(0).setPreferredWidth(150);
                         table.getColumnModel().getColumn(1).setPreferredWidth(100);
@@ -154,7 +197,7 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
                             }
                         });
                         JBScrollPane jbScrollPane = new JBScrollPane(table, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-                        mySplitter.setFirstComponent(jbScrollPane);
+                        listState.showContent(jbScrollPane);
 
                         if (StringUtils.isNotBlank(defaultId)) {
                             for (int i = 0; i < submissionList.size(); i++) {
@@ -167,7 +210,7 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
                         }
 
                     } else {
-                        mySplitter.setFirstComponent(new JBLabel("No login or no submissions"));
+                        listState.showEmpty(PropertiesUtils.getInfo("ui.submission.empty"), null, null);
                     }
                 }
             });
@@ -192,8 +235,10 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
         }
         String titleSlug = question.getTitleSlug();
         int requestId = submissionRequestId.incrementAndGet();
-        mySplitter.setSecondComponent(new JBLabel("Loading......"));
-        AsyncUiUtils.load(project, this, () -> {
+        cancelTask(detailTask);
+        disposeFileEditor();
+        detailState.showLoading(PropertiesUtils.getInfo("ui.loading"));
+        detailTask = AsyncUiUtils.load(project, this, DETAIL_OPERATION, () -> {
             File file = SubmissionManager.openSubmission(submission, titleSlug, project, false);
             return file == null || !file.exists()
                     ? null
@@ -203,31 +248,41 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
                 return;
             }
             if (error != null) {
-                mySplitter.setSecondComponent(new JBLabel(error.getMessage()));
+                detailState.showError(
+                        PropertiesUtils.getInfo("ui.submission.detail.failed"),
+                        PropertiesUtils.getInfo("ui.retry"),
+                        () -> openSubmission(submission)
+                );
             } else if (vf == null) {
-                mySplitter.setSecondComponent(new JBLabel("no submission"));
+                detailState.showEmpty(PropertiesUtils.getInfo("ui.submission.empty"), null, null);
             } else {
-            List<FileEditorProvider> editorProviders = FileEditorProviderManager.getInstance().getProviderList(project, vf);
-            if (editorProviders.isEmpty()) {
-                mySplitter.setSecondComponent(new JBLabel("No editor available for submission"));
-                return;
-            }
-            FileEditor newEditor = editorProviders.get(0).createEditor(project, vf);
-            if (newEditor == fileEditor) {
-                return;
-            }
-            if (fileEditor != null) {
-                mySplitter.setSecondComponent(new JBLabel("Loading......"));
-                FileEditor temp = fileEditor;
-                Disposer.dispose(temp);
-            }
-            fileEditor = newEditor;
-            Disposer.register(this, fileEditor);
-            BorderLayoutPanel secondComponent = JBUI.Panels.simplePanel(fileEditor.getComponent());
-            secondComponent.addToTop(createToolbarWrapper(fileEditor.getComponent()));
-            mySplitter.setSecondComponent(secondComponent);
+                FileEditor newEditor = createSubmissionPreview(project, vf);
+                if (newEditor == fileEditor) {
+                    return;
+                }
+                disposeFileEditor();
+                fileEditor = newEditor;
+                Disposer.register(this, fileEditor);
+                BorderLayoutPanel secondComponent =
+                        JBUI.Panels.simplePanel(fileEditor.getComponent());
+                secondComponent.addToTop(createToolbarWrapper(fileEditor.getComponent()));
+                detailState.showContent(secondComponent);
+                myLayout = submissionDetailLayout();
+                adjustEditorsVisibility();
             }
         });
+    }
+
+    static FileEditor createSubmissionPreview(Project project, VirtualFile file) {
+        return new LCVPreview(project, file, QuestionPreviewRenderMode.SOURCE_CODE);
+    }
+
+    static Class<? extends FileEditor> submissionPreviewType() {
+        return LCVPreview.class;
+    }
+
+    static SplitFileEditor.SplitEditorLayout submissionDetailLayout() {
+        return SplitFileEditor.SplitEditorLayout.SECOND;
     }
 
     private SplitEditorToolbar createToolbarWrapper(JComponent targetComponentForActions) {
@@ -329,7 +384,13 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
 
     @Override
     public void dispose() {
-        fileEditor = null;
+        listRequestId.incrementAndGet();
+        submissionRequestId.incrementAndGet();
+        cancelTask(listTask);
+        cancelTask(detailTask);
+        listTask = null;
+        detailTask = null;
+        disposeFileEditor();
     }
 
     @Override
@@ -341,13 +402,43 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
         }
     }
 
+    private void cancelDetailLoad() {
+        submissionRequestId.incrementAndGet();
+        cancelTask(detailTask);
+        detailTask = null;
+        disposeFileEditor();
+    }
+
+    private static void cancelTask(@Nullable AsyncTaskHandle task) {
+        if (task != null) {
+            task.cancel();
+        }
+    }
+
+    private void disposeFileEditor() {
+        if (fileEditor != null) {
+            Disposer.dispose(fileEditor);
+            fileEditor = null;
+        }
+    }
+
     private static class InitialData {
+        private final boolean loggedIn;
         private final Question question;
         private final List<Submission> submissions;
 
-        private InitialData(Question question, List<Submission> submissions) {
+        private InitialData(boolean loggedIn, Question question, List<Submission> submissions) {
+            this.loggedIn = loggedIn;
             this.question = question;
             this.submissions = submissions;
+        }
+
+        private static InitialData loggedOut() {
+            return new InitialData(false, null, null);
+        }
+
+        private static InitialData loggedIn(Question question, List<Submission> submissions) {
+            return new InitialData(true, question, submissions);
         }
     }
 }

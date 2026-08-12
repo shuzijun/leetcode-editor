@@ -12,6 +12,13 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
 import com.shuzijun.leetcode.plugin.manager.ArticleManager;
 import com.shuzijun.leetcode.plugin.manager.QuestionManager;
+import com.shuzijun.lc.model.CodeMetaData;
+import com.shuzijun.lc.model.CodeSnippet;
+import com.shuzijun.lc.model.QuestionView;
+import com.shuzijun.lc.model.Session;
+import com.shuzijun.lc.model.Solution;
+import com.shuzijun.lc.model.Submission;
+import com.shuzijun.lc.model.User;
 import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
@@ -50,7 +57,12 @@ public class OpenSolutionAction extends AbstractEditAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent, Config config, Question question) {
+    public void actionPerformed(
+            AnActionEvent anActionEvent,
+            Config config,
+            LeetcodeEditor leetcodeEditor,
+            Question question
+    ) {
         Project project = anActionEvent.getProject();
         if (Constant.ARTICLE_LIVE_ONE.equals(question.getArticleLive())) {
             if (config.getConvergeEditor() && openConvergeEditor(anActionEvent, new ConvergePreview.TabSelectFileEditorState("Solution"))) {
@@ -95,6 +107,9 @@ public class OpenSolutionAction extends AbstractEditAction {
     }
 
     private void openArticle(AnActionEvent anActionEvent, Config config, Question question, List<Solution> solutionList, int row) {
+        if (row < 0 || row >= solutionList.size()) {
+            return;
+        }
         Solution solution = solutionList.get(row);
         if (solution != null) {
             if (config.getConvergeEditor() && openConvergeEditor(anActionEvent, new ConvergePreview.TabSelectFileEditorState("Solution", solution.getSlug()))) {
@@ -104,7 +119,17 @@ public class OpenSolutionAction extends AbstractEditAction {
                 @Override
                 public void run(@NotNull ProgressIndicator progressIndicator) {
                     question.setArticleSlug(solution.getSlug());
-                    ArticleManager.openArticle(question.getTitleSlug(), question.getArticleSlug(), anActionEvent.getProject(), true);
+                    question.setArticleId(StringUtils.defaultIfBlank(
+                            solution.getTopicId(),
+                            solution.getSlug()
+                    ));
+                    ArticleManager.openArticle(
+                            question.getTitleSlug(),
+                            question.getArticleSlug(),
+                            question.getArticleId(),
+                            anActionEvent.getProject(),
+                            true
+                    );
                 }
             });
 

@@ -1,13 +1,12 @@
 package com.shuzijun.leetcode.plugin.manager;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.concurrency.AppExecutorUtil;
+import com.shuzijun.leetcode.plugin.application.LeetCodeServices;
+import com.shuzijun.leetcode.plugin.application.LeetCodeSolutionService;
 import com.shuzijun.leetcode.plugin.model.Constant;
-import com.shuzijun.leetcode.plugin.model.Graphql;
 import com.shuzijun.leetcode.plugin.model.PluginConstant;
-import com.shuzijun.leetcode.plugin.model.Solution;
+import com.shuzijun.lc.model.Solution;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.utils.*;
 import com.shuzijun.leetcode.plugin.utils.doc.CleanMarkdown;
@@ -27,24 +26,40 @@ public class ArticleManager {
     private static final int SOLUTION_PAGE_SIZE = 30;
     private static final long SOLUTION_LOAD_TIMEOUT_SECONDS = 35;
 
-    public static File openArticle(String titleSlug, String articleSlug, Project project, Boolean isOpenEditor) {
+    public static File openArticle(
+            String titleSlug,
+            String articleSlug,
+            Project project,
+            Boolean isOpenEditor
+    ) {
+        return openArticle(titleSlug, articleSlug, articleSlug, project, isOpenEditor);
+    }
+
+    public static File openArticle(
+            String titleSlug,
+            String articleSlug,
+            String articleId,
+            Project project,
+            Boolean isOpenEditor
+    ) {
         String filePath = PersistentConfig.getInstance().getTempFilePath() + Constant.DOC_SOLUTION + articleSlug + "." + PluginConstant.LEETCODE_EDITOR_VIEW;
 
         File file = new File(filePath);
-        String host;
+        String host = URLUtils.getLeetcodeProblems()
+                + titleSlug
+                + (URLUtils.isCn() ? "/solution/" : "/solutions/")
+                + articleSlug
+                + "/";
         if (!file.exists()) {
-            String article = getArticle(titleSlug, articleSlug, project);
-            if (URLUtils.isCn()) {
-                host = URLUtils.getLeetcodeProblems() + titleSlug + "/solution/" + articleSlug + "/";
-            } else {
-                host = URLUtils.getLeetcodeProblems() + titleSlug + "/solution/";
-            }
+            String article = getArticle(articleId, project);
             if (StringUtils.isBlank(article)) {
                 return file;
             }
             article = formatMarkdown(article, host);
 
             FileUtils.saveFile(file, article);
+        } else {
+            migrateEscapedMarkdownCache(file, host);
         }
         if (isOpenEditor) {
             FileUtils.openFileEditor(file, project);
@@ -52,25 +67,14 @@ public class ArticleManager {
         return file;
     }
 
-    private static String getArticle(String titleSlug, String articleSlug, Project project) {
+    private static String getArticle(String articleId, Project project) {
         try {
-            HttpResponse response = Graphql.builder().cn(URLUtils.isCn()).operationName("solutionDetailArticle").
-                    variables("slug", articleSlug).variables("titleSlug", titleSlug).variables("orderBy", "DEFAULT").request();
-            if (response.getStatusCode() == 200) {
-                String content;
-                if (URLUtils.isCn()) {
-                    content = JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONObject("solutionArticle").getString("content");
-                } else {
-                    content = JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONObject("solutionArticle").getJSONObject("solution").getString("content");
-                }
-                if (StringUtils.isBlank(content)) {
-                    MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.auth"));
-                    return null;
-                } else {
-                    return content;
-                }
+            String content = solutionService().loadArticle(articleId);
+            if (StringUtils.isBlank(content)) {
+                MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("request.auth"));
+                return null;
             } else {
-                MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
+                return content;
             }
         } catch (Exception e) {
             LogUtils.LOG.error("article acquisition failed", e);
@@ -81,7 +85,64 @@ public class ArticleManager {
 
 
     public static String formatMarkdown(String content, String host) {
-        return CleanMarkdown.cleanMarkdown(content, host);
+        return CleanMarkdown.cleanMarkdown(normalizeEscapedMarkdown(content), host);
+    }
+
+    private static void migrateEscapedMarkdownCache(File file, String host) {
+        String cached = FileUtils.getFileBody(file);
+        String normalized = normalizeEscapedMarkdown(cached);
+        if (!StringUtils.equals(cached, normalized)) {
+            FileUtils.saveFile(file, CleanMarkdown.cleanMarkdown(normalized, host));
+        }
+    }
+
+    static String normalizeEscapedMarkdown(String content) {
+        if (StringUtils.isEmpty(content)
+                || content.indexOf('\n') >= 0
+                || content.indexOf('\r') >= 0) {
+            return content;
+        }
+
+        int escapedNewlines = 0;
+        int offset = 0;
+        while ((offset = content.indexOf("\\n", offset)) >= 0) {
+            escapedNewlines++;
+            offset += 2;
+        }
+        if (escapedNewlines < 3) {
+            return content;
+        }
+        return unescapeMarkdown(content);
+    }
+
+    private static String unescapeMarkdown(String content) {
+        StringBuilder result = new StringBuilder(content.length());
+        for (int i = 0; i < content.length(); i++) {
+            char current = content.charAt(i);
+            if (current != '\\' || i + 1 >= content.length()) {
+                result.append(current);
+                continue;
+            }
+            char escaped = content.charAt(++i);
+            switch (escaped) {
+                case 'n':
+                    result.append('\n');
+                    break;
+                case 'r':
+                    result.append('\r');
+                    break;
+                case 't':
+                    result.append('\t');
+                    break;
+                case '\\':
+                    result.append('\\');
+                    break;
+                default:
+                    result.append('\\').append(escaped);
+                    break;
+            }
+        }
+        return result.toString();
     }
 
     public static List<Solution> getSolutionList(String titleSlug, Project project) {
@@ -96,30 +157,17 @@ public class ArticleManager {
                 int skip = pageIndex * SOLUTION_PAGE_SIZE;
                 requests.add(AppExecutorUtil.getAppExecutorService().submit(() -> {
                     try {
-                        List<Solution> solutions = new ArrayList<>();
-                        HttpResponse response = Graphql.builder().cn(URLUtils.isCn()).operationName("questionSolutionArticles").
-                                variables("questionSlug", titleSlug).variables("first", SOLUTION_PAGE_SIZE).variables("skip", skip).variables("orderBy", "DEFAULT").request();
-                        if (response.getStatusCode() == 200) {
-                            JSONArray edges = JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONObject("questionSolutionArticles").getJSONArray("edges");
-                            for (int j = 0; j < edges.size(); j++) {
-                                JSONObject node = edges.getJSONObject(j).getJSONObject("node");
-                                Solution solution = new Solution();
-                                solution.setTitle(node.getString("title"));
-                                solution.setSlug(node.getString("slug"));
-                                solution.setSummary(node.getString("summary"));
-
-                                StringBuilder tagsSb = new StringBuilder();
-                                JSONArray tags = node.getJSONArray("tags");
-                                for (int k = 0; k < tags.size(); k++) {
-                                    tagsSb.append("[").append(tags.getJSONObject(k).getString("name")).append("] ");
-                                }
-                                solution.setTags(tagsSb.toString());
-                                solutions.add(solution);
-                            }
-                            results[pageIndex] = solutions;
-                        } else {
-                            MessageUtils.getInstance(project).showWarnMsg("error", PropertiesUtils.getInfo("response.code"));
-                        }
+                        results[pageIndex] = solutionService().loadPage(
+                                titleSlug,
+                                SOLUTION_PAGE_SIZE,
+                                skip
+                        );
+                    } catch (Exception exception) {
+                        LogUtils.LOG.error("solution page acquisition failed", exception);
+                        MessageUtils.getInstance(project).showWarnMsg(
+                                "error",
+                                PropertiesUtils.getInfo("response.code")
+                        );
                     } finally {
                         latch.countDown();
                     }
@@ -146,5 +194,9 @@ public class ArticleManager {
         }
         return solutionList;
 
+    }
+
+    private static LeetCodeSolutionService solutionService() {
+        return LeetCodeServices.solution();
     }
 }

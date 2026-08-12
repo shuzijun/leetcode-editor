@@ -9,7 +9,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.shuzijun.leetcode.plugin.manager.SubmissionManager;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.model.Question;
-import com.shuzijun.leetcode.plugin.model.Submission;
+import com.shuzijun.lc.model.Submission;
 import com.shuzijun.leetcode.plugin.window.dialog.SubmissionsPanel;
 import org.jetbrains.annotations.NotNull;
 

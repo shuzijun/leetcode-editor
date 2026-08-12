@@ -1,7 +1,6 @@
 package com.shuzijun.leetcode.plugin.window.navigator;
 
 
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -13,7 +12,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.ui.components.JBTextField;
+import com.intellij.ui.SearchTextField;
 import com.intellij.util.messages.MessageBusConnection;
 import com.shuzijun.leetcode.plugin.listener.AllQuestionNotifier;
 import com.shuzijun.leetcode.plugin.listener.ConfigNotifier;
@@ -22,9 +21,15 @@ import com.shuzijun.leetcode.plugin.listener.QueryKeyListener;
 import com.shuzijun.leetcode.plugin.manager.FindManager;
 import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.manager.ViewManager;
+import com.shuzijun.lc.model.CodeMetaData;
+import com.shuzijun.lc.model.CodeSnippet;
+import com.shuzijun.lc.model.QuestionView;
+import com.shuzijun.lc.model.Session;
+import com.shuzijun.lc.model.Solution;
+import com.shuzijun.lc.model.Submission;
+import com.shuzijun.lc.model.User;
 import com.shuzijun.leetcode.plugin.model.*;
 import com.shuzijun.leetcode.plugin.utils.URLUtils;
-import com.shuzijun.leetcode.plugin.window.NavigatorPanelAction;
 import com.shuzijun.leetcode.plugin.window.NavigatorTableData;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -38,12 +43,13 @@ import java.util.Map;
 /**
  * @author shuzijun
  */
-public class AllNavigatorPanel extends SimpleToolWindowPanel implements NavigatorPanelAction, Disposable {
+public class AllNavigatorPanel extends NavigatorPanel {
 
 
     private final Map<String, Find> findMap = new HashMap<>();
     private JPanel queryPanel;
-    private JTextField queryField;
+    private SearchTextField queryField;
+    private QueryKeyListener queryListener;
     private AllNavigatorTable navigatorTable;
     private ActionToolbar findToolbar;
     private ActionToolbar actionSortToolbar;
@@ -69,14 +75,15 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
 
         queryPanel = new JPanel();
         queryPanel.setLayout(new BoxLayout(queryPanel, BoxLayout.Y_AXIS));
-        queryField = new JBTextField();
+        queryField = new SearchTextField();
         queryField.setToolTipText("Enter Search");
-        queryField.addKeyListener(new QueryKeyListener(queryField, myNavigatorAction, project));
+        queryListener = new QueryKeyListener(queryField.getTextEditor(), myNavigatorAction, project);
+        queryField.getTextEditor().addKeyListener(queryListener);
         queryPanel.add(queryField);
         queryPanel.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                queryField.requestFocusInWindow();
+                queryField.getTextEditor().requestFocusInWindow();
             }
         });
 
@@ -158,7 +165,7 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
 
             @Override
             public Find getFind() {
-                return findMap.get(URLUtils.getLeetcodeHost());
+                return findMap.get(URLUtils.isCn() ? URLUtils.leetcodecn : URLUtils.leetcode);
             }
 
             @Override
@@ -218,6 +225,26 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
             }
 
             @Override
+            public void loading() {
+                navigatorTable.showLoading();
+            }
+
+            @Override
+            public void loaded() {
+                navigatorTable.showLoaded(this::findClear);
+            }
+
+            @Override
+            public void loadFailed(Runnable retry) {
+                navigatorTable.showLoadFailed(retry);
+            }
+
+            @Override
+            public void refreshData() {
+                ViewManager.loadAllServiceData(this, myProject, null, true);
+            }
+
+            @Override
             public void loadServiceData() {
                 ViewManager.loadAllServiceData(this, myProject);
             }
@@ -238,7 +265,7 @@ public class AllNavigatorPanel extends SimpleToolWindowPanel implements Navigato
                 }
                 navigatorTable.getPageInfo().clearFilter();
                 navigatorTable.getPageInfo().getFilters().setSearchKeywords(null);
-                queryField.setText("");
+                queryListener.setTextSilently("");
 
                 getFind().clearFilter();
                 ViewManager.loadAllServiceData(this, myProject, slug, false);

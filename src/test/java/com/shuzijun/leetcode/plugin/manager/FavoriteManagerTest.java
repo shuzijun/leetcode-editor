@@ -1,5 +1,7 @@
 package com.shuzijun.leetcode.plugin.manager;
 
+import com.shuzijun.lc.model.FavoriteResult;
+import com.shuzijun.leetcode.plugin.application.LeetCodeFavoriteService;
 import com.shuzijun.leetcode.plugin.model.Question;
 import com.shuzijun.leetcode.plugin.model.Tag;
 import org.junit.Test;
@@ -15,14 +17,22 @@ public class FavoriteManagerTest {
         Tag tag = new Tag();
         Question question = question();
 
-        String addError = FavoriteManager.applyFavoriteResponse(tag, question,
-                "{\"data\":{\"addQuestionToFavorite\":{\"ok\":true}}}", true);
+        String addError = FavoriteManager.applyFavoriteResult(
+                tag,
+                question,
+                favoriteResult(true, null),
+                true
+        );
 
         assertNull(addError);
         assertEquals(true, tag.getQuestions().contains("53"));
 
-        String removeError = FavoriteManager.applyFavoriteResponse(tag, question,
-                "{\"data\":{\"removeQuestionFromFavorite\":{\"ok\":true}}}", false);
+        String removeError = FavoriteManager.applyFavoriteResult(
+                tag,
+                question,
+                favoriteResult(true, null),
+                false
+        );
 
         assertNull(removeError);
         assertFalse(tag.getQuestions().contains("53"));
@@ -33,8 +43,12 @@ public class FavoriteManagerTest {
         Tag tag = new Tag();
         tag.addQuestion("53");
 
-        String error = FavoriteManager.applyFavoriteResponse(tag, question(),
-                "{\"data\":{\"removeQuestionFromFavorite\":{\"ok\":false,\"error\":\"denied\"}}}", false);
+        String error = FavoriteManager.applyFavoriteResult(
+                tag,
+                question(),
+                favoriteResult(false, "denied"),
+                false
+        );
 
         assertEquals("denied", error);
         assertEquals(true, tag.getQuestions().contains("53"));
@@ -45,5 +59,12 @@ public class FavoriteManagerTest {
         question.setQuestionId("101");
         question.setFrontendQuestionId("53");
         return question;
+    }
+
+    private static FavoriteResult favoriteResult(boolean success, String error) {
+        FavoriteResult result = new FavoriteResult();
+        result.setOk(success);
+        result.setError(error);
+        return result;
     }
 }

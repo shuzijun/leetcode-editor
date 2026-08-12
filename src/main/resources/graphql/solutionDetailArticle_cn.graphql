@@ -1,5 +1,0 @@
-query solutionDetailArticle($slug: String!, $orderBy: SolutionArticleOrderBy!) {
-    solutionArticle(slug: $slug, orderBy: $orderBy) {
-        content
-    }
-}

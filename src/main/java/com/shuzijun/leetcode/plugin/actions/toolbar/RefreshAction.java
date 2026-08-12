@@ -3,6 +3,8 @@ package com.shuzijun.leetcode.plugin.actions.toolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import com.shuzijun.leetcode.plugin.actions.AbstractAction;
+import com.shuzijun.leetcode.plugin.application.CacheInvalidationCoordinator;
+import com.shuzijun.leetcode.plugin.application.CacheInvalidationReason;
 import com.shuzijun.leetcode.plugin.manager.NavigatorAction;
 import com.shuzijun.leetcode.plugin.model.Config;
 import com.shuzijun.leetcode.plugin.utils.DataKeys;
@@ -16,9 +18,18 @@ public class RefreshAction extends AbstractAction implements DumbAware {
     public void actionPerformed(AnActionEvent anActionEvent, Config config) {
 
         NavigatorAction navigatorAction = WindowFactory.getDataContext(anActionEvent.getProject()).getData(DataKeys.LEETCODE_PROJECTS_NAVIGATORACTION);
-        navigatorAction.getFind().operationType("");
-        navigatorAction.findClear();
+        refresh(navigatorAction, config.getUrl());
     }
 
-
+    static void refresh(NavigatorAction<?> navigatorAction, String host) {
+        if (navigatorAction == null) {
+            return;
+        }
+        CacheInvalidationCoordinator.invalidate(
+                CacheInvalidationReason.REFRESH,
+                host,
+                "https://" + host
+        );
+        navigatorAction.refreshData();
+    }
 }

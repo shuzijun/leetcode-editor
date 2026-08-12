@@ -34,14 +34,15 @@ public enum CodeTypeEnum {
     MSSQLSERVER("MS SQL Server", "mssql", ".sql", "#", "/**\n%s\n*/"),
     Pandas("Pandas", "pythondata", ".py", "#", "\"\"\"\n%s\n\"\"\""),
     PostgreSQL("PostgreSQL", "postgresql", ".sql", "--", "/**\n%s\n*/"),
+
     ;
 
 
-    private String type;
-    private String langSlug;
-    private String suffix;
-    private String comment;
-    private String multiLineComment;
+    private final String type;
+    private final String langSlug;
+    private final String suffix;
+    private final String comment;
+    private final String multiLineComment;
 
     CodeTypeEnum(String type, String langSlug, String suffix, String comment, String multiLineComment) {
         this.type = type;

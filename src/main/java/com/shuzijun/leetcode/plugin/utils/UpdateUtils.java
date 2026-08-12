@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import com.shuzijun.leetcode.plugin.model.Config;
-import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.product.ProductProfiles;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -30,7 +30,7 @@ public class UpdateUtils {
         AppExecutorUtil.getAppExecutorService().execute(() -> {
             try (CloseableHttpClient httpClient = HttpClients.custom().build();
                  CloseableHttpResponse response = httpClient.execute(
-                         new HttpGet("https://plugins.jetbrains.com/api/plugins/" + PluginConstant.WEB_ID + "/updates"))) {
+                         new HttpGet("https://plugins.jetbrains.com/api/plugins/" + ProductProfiles.current().marketplacePluginId() + "/updates"))) {
                 String body = EntityUtils.toString(response.getEntity(), "UTF-8");
                 JSONArray jsonArray = JSONObject.parseArray(body);
                 for (int i = 0; i < jsonArray.size(); i++) {

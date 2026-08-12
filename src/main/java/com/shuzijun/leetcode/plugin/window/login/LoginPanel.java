@@ -1,9 +1,6 @@
 package com.shuzijun.leetcode.plugin.window.login;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.Disposer;
@@ -12,7 +9,7 @@ import com.intellij.ui.components.JBTextArea;
 import com.intellij.ui.jcef.JCEFHtmlPanel;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
-import com.shuzijun.leetcode.plugin.model.PluginConstant;
+import com.shuzijun.leetcode.plugin.application.LeetCodeServices;
 import com.shuzijun.leetcode.plugin.utils.*;
 import org.apache.commons.lang3.StringUtils;
 import org.cef.browser.CefBrowser;
@@ -56,7 +53,7 @@ public class LoginPanel extends DialogWrapper {
             try {
                 jcefPanel = new JcefPanel(project, okAction);
             } catch (IllegalArgumentException e) {
-                jcefPanel = new JcefPanel(project, okAction,true);
+                jcefPanel = new JcefPanel(project, okAction, true);
             }
             Disposer.register(getDisposable(),jcefPanel);
             jcefPanel.getComponent().setMinimumSize(new Dimension(1000, 500));
@@ -76,35 +73,26 @@ public class LoginPanel extends DialogWrapper {
                         JOptionPane.showMessageDialog(null, "cookie is null");
                         return;
                     }
-                    final List<HttpCookie> cookieList = new ArrayList<>();
-                    String[] cookies = cookiesString.split(";");
-                    for (String cookieString : cookies) {
-                        String[] cookie = cookieString.trim().split("=");
-                        if (cookie.length >= 2) {
-                            try {
-                                HttpCookie basicClientCookie = new HttpCookie(cookie[0], cookie[1]);
-                                basicClientCookie.setDomain("." + URLUtils.getLeetcodeHost());
-                                basicClientCookie.setPath("/");
-                                cookieList.add(basicClientCookie);
-                            } catch (IllegalArgumentException ignore) {
-
-                            }
-                        }
-                    }
-                    HttpRequestUtils.setCookie(cookieList);
-
-                    ProgressManager.getInstance().run(new Task.Backgroundable(project, PluginConstant.ACTION_PREFIX + ".loginSuccess", false) {
-                        @Override
-                        public void run(@NotNull ProgressIndicator progressIndicator) {
-                            if (HttpRequestUtils.isLogin(project)) {
-                                HttpLogin.loginSuccess(project, cookieList);
-                            } else {
-                                JOptionPane.showMessageDialog(null, PropertiesUtils.getInfo("login.failed"));
-                            }
-
-                        }
-                    });
-                    super.doAction(e);
+                    setOKActionEnabled(false);
+                    HttpLogin.cookieLoginAsync(project, cookiesString).whenComplete((loggedIn, throwable) ->
+                            ApplicationManager.getApplication().invokeLater(() -> {
+                                if (isDisposed()) {
+                                    return;
+                                }
+                                setOKActionEnabled(true);
+                                if (throwable != null) {
+                                    LogUtils.LOG.warn("Failed to log in with cookies", throwable);
+                                    MessageUtils.getInstance(project).showInfoMsg(
+                                            "info",
+                                            PropertiesUtils.getInfo("login.failed")
+                                    );
+                                    return;
+                                }
+                                if (Boolean.TRUE.equals(loggedIn)) {
+                                    close(OK_EXIT_CODE);
+                                }
+                            }, ignored -> isDisposed())
+                    );
                 }
             };
             okAction.putValue(Action.NAME, "login");
@@ -201,14 +189,25 @@ public class LoginPanel extends DialogWrapper {
                             }
                             if (count == total - 1) {
                                 if (cookieList.stream().anyMatch(cookie -> cookie.getName().equals("LEETCODE_SESSION"))) {
-                                    HttpRequestUtils.setCookie(cookieList);
-                                    if (HttpRequestUtils.isLogin(project)) {
+                                    boolean loggedIn = false;
+                                    try {
+                                        LeetCodeServices.login().setCookies(cookieList);
+                                        loggedIn = LeetCodeServices.login().isLoggedIn();
+                                    } catch (Exception exception) {
+                                        LogUtils.LOG.warn("Failed to import browser login cookies", exception);
+                                    }
+                                    if (loggedIn) {
                                         HttpLogin.loginSuccess(project, cookieList);
                                         MessageUtils.getInstance(project).showWarnMsg("", PropertiesUtils.getInfo("browser.login.success"));
                                         ApplicationManager.getApplication().invokeLater(() -> okAction.actionPerformed(null));
                                         successDispose = true;
                                     } else {
                                         cookieList.clear();
+                                        try {
+                                            LeetCodeServices.login().clearCookies();
+                                        } catch (Exception exception) {
+                                            LogUtils.LOG.warn("Failed to clear rejected browser login cookies", exception);
+                                        }
                                         LogUtils.LOG.info("login failure");
                                     }
                                }
