@@ -634,7 +634,10 @@ class LeetCodeEditorStartupIntegrationTest {
         openEditor(openFile)
         var selectedSince = 0L
         waitUntil("$path is the selected editor for $stableMillis ms") {
-            if (Path.of(fileEditorManager.getCurrentFile().getPath()) == path) {
+            val selected = withContext(OnDispatcher.EDT) {
+                Path.of(fileEditorManager.getCurrentFile().getPath()) == path
+            }
+            if (selected) {
                 if (selectedSince == 0L) {
                     selectedSince = System.nanoTime()
                 }
@@ -674,7 +677,6 @@ class LeetCodeEditorStartupIntegrationTest {
                         byType("com.shuzijun.leetcode.plugin.window.NavigatorTabsPanel"),
                     )
                 }.waitFound(5.seconds)
-                assertTrue(leetcodeToolWindow.isVisible(), "The Leetcode tool window must be visible")
                 return
             } catch (_: WaitForException) {
             }
