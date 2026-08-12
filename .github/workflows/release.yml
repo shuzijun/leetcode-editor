@@ -52,6 +52,8 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
 
       - name: Restore IDEA Starter downloads
         id: idea-starter-cache
