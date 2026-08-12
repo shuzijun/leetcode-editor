@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.shuzijun.lc.errors.LcException;
 import com.shuzijun.lc.model.CodeExecutionResult;
 import com.shuzijun.lc.model.CodeStartResult;
+import com.shuzijun.lc.model.SubmissionDetail;
 import com.shuzijun.leetcode.plugin.application.CodeExecutionCoordinator;
 import com.shuzijun.leetcode.plugin.application.LeetCodeCodeService;
 import com.shuzijun.leetcode.plugin.application.LeetCodeServices;
@@ -329,33 +330,23 @@ public class CodeManager {
                                 question.setStatus("ac");
                                 notifyQuestionStatus(question);
                             } else {
-                                String input = indent(result.getInput());
-                                String output = MessageUtils.formatDiff(
+                                MessageUtils.getInstance(project).showExecutionResult(
+                                        "Wrong Answer",
+                                        result.getInput(),
                                         result.getExpectedOutput(),
-                                        result.getCodeOutput()
-                                );
-                                MessageUtils.getInstance(project).showInfoMsg(
-                                        "",
-                                        PropertiesUtils.getInfo(
-                                                "submit.failed",
-                                                input,
-                                                output,
-                                                result.getExpectedOutput(),
-                                                result.getStandardOutput()
-                                        )
+                                        result.getCodeOutput(),
+                                        result.getStandardOutput(),
+                                        true
                                 );
                                 markNotAccepted(question);
                             }
                         } else {
-                            MessageUtils.getInstance(project).showInfoMsg(
-                                    "",
+                            MessageUtils.getInstance(project).showExecutionFailure(
+                                    result.getStatusMessage(),
+                                    resolveSubmissionError(startResult.getId(), result),
+                                    result.getLastTestCase(),
+                                    result.getStandardOutput(),
                                     failurePrefix(question, codeTypeEnum, code)
-                                            + PropertiesUtils.getInfo(
-                                                "submit.run.failed",
-                                                MessageUtils.format(buildErrorMsg(result), "E"),
-                                                indent(result.getLastTestCase()),
-                                                result.getStandardOutput()
-                                        )
                             );
                             markNotAccepted(question);
                         }
@@ -401,6 +392,25 @@ public class CodeManager {
             }
         }
         return "Unknown error";
+    }
+
+    private static String resolveSubmissionError(String submissionId, CodeExecutionResult result) {
+        String error = buildErrorMsg(result);
+        String status = result.getStatusMessage();
+        if (!StringUtils.equals(error, status)
+                || (!"Compile Error".equals(status) && !"Runtime Error".equals(status))) {
+            return error;
+        }
+        try {
+            SubmissionDetail detail = LeetCodeServices.submission().detail(submissionId);
+            if ("Compile Error".equals(status)) {
+                return StringUtils.defaultIfBlank(detail.getCompileError(), error);
+            }
+            return StringUtils.defaultIfBlank(detail.getRuntimeError(), error);
+        } catch (LcException exception) {
+            LogUtils.LOG.warn("Unable to load detailed submission error for " + submissionId, exception);
+            return error;
+        }
     }
 
 
@@ -485,28 +495,22 @@ public class CodeManager {
                                         ? result.getExpectedCodeAnswers()
                                         : expectedAnswers;
                                 String expected = StringUtils.join(resultExpectedAnswers, "\n");
-                                output = MessageUtils.formatDiff(expected, output);
                                 String outputs = StringUtils.join(result.getCodeOutputs(), "\n\t\t");
-                                MessageUtils.getInstance(project).showInfoMsg(
-                                        "",
-                                        PropertiesUtils.getInfo(
-                                                "test.success",
-                                                indent(resultInput),
-                                                output,
-                                                expected,
-                                                outputs
-                                        )
+                                MessageUtils.getInstance(project).showExecutionResult(
+                                        "Run finished",
+                                        resultInput,
+                                        expected,
+                                        output,
+                                        outputs,
+                                        !StringUtils.equals(expected, output)
                                 );
                             } else {
-                                MessageUtils.getInstance(project).showInfoMsg(
-                                        "",
+                                MessageUtils.getInstance(project).showExecutionFailure(
+                                        result.getStatusMessage(),
+                                        buildErrorMsg(result),
+                                        input,
+                                        StringUtils.join(result.getCodeOutputs(), "\n\t\t"),
                                         failurePrefix(question, codeTypeEnum, code)
-                                            + PropertiesUtils.getInfo(
-                                                "submit.run.failed",
-                                                MessageUtils.format(buildErrorMsg(result), "E"),
-                                                indent(input),
-                                                StringUtils.join(result.getCodeOutputs(), "\n\t\t")
-                                        )
                                 );
                             }
                             execution.succeeded();

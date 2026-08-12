@@ -9,6 +9,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.shuzijun.leetcode.plugin.product.ProductProfiles;
 import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
+import com.shuzijun.leetcode.plugin.spi.ConsoleWorkbench;
 import icons.LeetCodeEditorIcons;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,6 +48,18 @@ public class ConsoleWindowFactory implements ToolWindowFactory, DumbAware {
             return null;
         }
         return ((ConsolePanel) content.getComponent()).getConsoleView();
+    }
+
+    public static ConsoleWorkbench getWorkbench(@NotNull Project project) {
+        ToolWindow leetcodeToolWindows = ToolWindowManager.getInstance(project).getToolWindow(id());
+        if (leetcodeToolWindows == null || leetcodeToolWindows.getContentManagerIfCreated() == null) {
+            return null;
+        }
+        Content content = leetcodeToolWindows.getContentManagerIfCreated().getContent(0);
+        if (content == null || !(content.getComponent() instanceof ConsolePanel)) {
+            return null;
+        }
+        return ((ConsolePanel) content.getComponent()).getWorkbench();
     }
 
     @Override

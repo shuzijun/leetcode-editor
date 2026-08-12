@@ -674,6 +674,7 @@ class LeetCodeEditorStartupIntegrationTest {
                         byType("com.shuzijun.leetcode.plugin.window.NavigatorTabsPanel"),
                     )
                 }.waitFound(5.seconds)
+                assertTrue(leetcodeToolWindow.isVisible(), "The Leetcode tool window must be visible")
                 return
             } catch (_: WaitForException) {
             }

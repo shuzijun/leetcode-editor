@@ -5,6 +5,7 @@ import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.setting.StatisticsData;
 import com.shuzijun.leetcode.plugin.spi.CodeExecutionPresentationStrategy;
+import com.shuzijun.leetcode.plugin.spi.ConsoleOutputFormatter;
 import com.shuzijun.leetcode.plugin.spi.ConsolePresenter;
 import com.shuzijun.leetcode.plugin.spi.CookieLoginStrategy;
 import com.shuzijun.leetcode.plugin.spi.LanguageTemplateProvider;
@@ -38,6 +39,10 @@ public final class ProductServices {
 
     public static ConsolePresenter consolePresenter() {
         return PROVIDER.consolePresenter();
+    }
+
+    public static ConsoleOutputFormatter consoleOutputFormatter() {
+        return PROVIDER.consoleOutputFormatter();
     }
 
     public static CookieLoginStrategy cookieLoginStrategy() {

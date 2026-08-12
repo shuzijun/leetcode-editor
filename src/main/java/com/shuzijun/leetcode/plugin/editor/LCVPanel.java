@@ -25,6 +25,7 @@ import com.intellij.util.io.HttpRequests;
 import com.intellij.util.io.URLUtil;
 import com.shuzijun.leetcode.plugin.product.ProductProfiles;
 import com.shuzijun.leetcode.plugin.utils.BrowserUtils;
+import com.shuzijun.leetcode.plugin.utils.DevelopmentTools;
 import com.shuzijun.leetcode.plugin.utils.FileUtils;
 import com.shuzijun.leetcode.plugin.utils.PropertiesUtils;
 import com.shuzijun.leetcode.plugin.ui.ContentStatePanel;
@@ -32,6 +33,8 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import org.apache.commons.lang3.StringUtils;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
+import org.cef.callback.CefContextMenuParams;
+import org.cef.callback.CefMenuModel;
 import org.cef.handler.*;
 import org.cef.misc.BoolRef;
 import org.cef.network.CefRequest;
@@ -71,6 +74,7 @@ public class LCVPanel extends JCEFHtmlPanel {
     private CefRequestHandler requestHandler;
     private CefLifeSpanHandler lifeSpanHandler;
     private CefLoadHandlerAdapter loadHandler;
+    private CefContextMenuHandlerAdapter contextMenuHandler;
     private JBCefJSQuery readyQuery;
     private javax.swing.Timer readableTimeout;
 
@@ -86,6 +90,7 @@ public class LCVPanel extends JCEFHtmlPanel {
     private final ContentStatePanel component = new ContentStatePanel();
     private static final List<String> headers = Arrays.asList(HttpHeaderNames.CONTENT_SECURITY_POLICY.toString(), HttpHeaderNames.CONTENT_ENCODING.toString()
             , HttpHeaderNames.CONTENT_LENGTH.toString());
+    private static final int OPEN_DEVTOOLS_COMMAND_ID = 0x6C01;
 
     public LCVPanel(@Nullable String url, Project project, String text, boolean old) {
         this(url, project, text, null, QuestionPreviewRenderMode.MARKDOWN, old);
@@ -230,8 +235,34 @@ public class LCVPanel extends JCEFHtmlPanel {
                 });
             }
         }, getCefBrowser());
+        installDevelopmentContextMenu();
         loadHTML(createHtml(text), url);
         startReadableTimeout();
+    }
+
+    private void installDevelopmentContextMenu() {
+        if (!DevelopmentTools.isEnabled()) {
+            return;
+        }
+        contextMenuHandler = new CefContextMenuHandlerAdapter() {
+            @Override
+            public void onBeforeContextMenu(CefBrowser browser, CefFrame frame,
+                                            CefContextMenuParams parameters, CefMenuModel model) {
+                model.addSeparator();
+                model.addItem(OPEN_DEVTOOLS_COMMAND_ID, "打开网页调试");
+            }
+
+            @Override
+            public boolean onContextMenuCommand(CefBrowser browser, CefFrame frame,
+                                                CefContextMenuParams parameters, int commandId, int eventFlags) {
+                if (commandId != OPEN_DEVTOOLS_COMMAND_ID) {
+                    return false;
+                }
+                browser.openDevTools();
+                return true;
+            }
+        };
+        getJBCefClient().addContextMenuHandler(contextMenuHandler, getCefBrowser());
     }
 
     private void handlePreviewEvent(String event) {
@@ -336,6 +367,10 @@ public class LCVPanel extends JCEFHtmlPanel {
         if (loadHandler != null) {
             getJBCefClient().removeLoadHandler(loadHandler, getCefBrowser());
             loadHandler = null;
+        }
+        if (contextMenuHandler != null) {
+            getJBCefClient().removeContextMenuHandler(contextMenuHandler, getCefBrowser());
+            contextMenuHandler = null;
         }
         iframe.clear();
         super.dispose();

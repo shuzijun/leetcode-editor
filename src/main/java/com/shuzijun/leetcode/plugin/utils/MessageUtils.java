@@ -88,6 +88,59 @@ public class MessageUtils implements Disposable {
         showConsole(MessageLevel.ERROR, title, body);
     }
 
+    public void showExecutionResult(
+            String title,
+            String input,
+            String expected,
+            String actual,
+            String standardOutput,
+            boolean failed
+    ) {
+        String formattedActual = MessageUtils.formatDiff(expected, actual);
+        if (failed && "Wrong Answer".equals(title)) {
+            showInfoMsg(
+                    "",
+                    PropertiesUtils.getInfo(
+                            "submit.failed",
+                            input,
+                            formattedActual,
+                            expected,
+                            standardOutput
+                    )
+            );
+            return;
+        }
+        showInfoMsg(
+                "",
+                PropertiesUtils.getInfo(
+                        "test.success",
+                        input,
+                        formattedActual,
+                        expected,
+                        standardOutput
+                )
+        );
+    }
+
+    public void showExecutionFailure(
+            String title,
+            String error,
+            String input,
+            String standardOutput,
+            String codeLink
+    ) {
+        showInfoMsg(
+                "",
+                StringUtils.defaultString(codeLink)
+                        + PropertiesUtils.getInfo(
+                        "submit.run.failed",
+                        MessageUtils.format(error, "E"),
+                        input,
+                        standardOutput
+                )
+        );
+    }
+
     private void printTitle(MessageLevel level, String title) {
         consoleView.print(
                 DateFormatUtils.format(new Date(), "HH:mm:ss") + "  " + level.label + "  ",
@@ -101,7 +154,7 @@ public class MessageUtils implements Disposable {
     }
 
     private void printBody(String body, ConsoleViewContentType contentType) {
-        String text = StringUtils.defaultString(body);
+        String text = ProductServices.consoleOutputFormatter().format(StringUtils.defaultString(body));
         if (!text.endsWith("\n")) {
             text += "\n";
         }
@@ -195,11 +248,7 @@ public class MessageUtils implements Disposable {
             if (!toolWindow.isAvailable()) {
                 toolWindow.setAvailable(true);
             }
-            if (consoleView == null) {
-                toolWindow.show(() -> appendToConsole(level, title, body));
-                return;
-            }
-            appendToConsole(level, title, body);
+            toolWindow.activate(() -> appendToConsole(level, title, body));
         }, ignored -> project.isDisposed());
     }
 
@@ -212,9 +261,6 @@ public class MessageUtils implements Disposable {
         }
         if (consoleView == null) {
             return;
-        }
-        if (level == MessageLevel.ERROR && !toolWindow.isActive()) {
-            toolWindow.activate(null);
         }
         printTitle(level, title);
         printBody(body, level.contentType);

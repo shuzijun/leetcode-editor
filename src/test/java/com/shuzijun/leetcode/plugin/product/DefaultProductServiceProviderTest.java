@@ -1,6 +1,7 @@
 package com.shuzijun.leetcode.plugin.product;
 
 import com.shuzijun.leetcode.plugin.adapter.defaults.DefaultCodeExecutionPresentationStrategy;
+import com.shuzijun.leetcode.plugin.adapter.defaults.DefaultConsoleOutputFormatter;
 import com.shuzijun.leetcode.plugin.adapter.defaults.DefaultConsolePresenter;
 import com.shuzijun.leetcode.plugin.adapter.defaults.DefaultCookieLoginStrategy;
 import com.shuzijun.leetcode.plugin.adapter.defaults.DefaultLanguageTemplateProvider;
@@ -22,6 +23,7 @@ public class DefaultProductServiceProviderTest {
         assertTrue(ProductServices.languageTemplateProvider()
                 instanceof DefaultLanguageTemplateProvider);
         assertTrue(ProductServices.consolePresenter() instanceof DefaultConsolePresenter);
+        assertTrue(ProductServices.consoleOutputFormatter() instanceof DefaultConsoleOutputFormatter);
         assertTrue(ProductServices.cookieLoginStrategy() instanceof DefaultCookieLoginStrategy);
         assertTrue(ProductServices.navigatorSessionStrategy()
                 instanceof DefaultNavigatorSessionStrategy);

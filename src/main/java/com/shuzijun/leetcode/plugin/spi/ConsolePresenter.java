@@ -4,7 +4,7 @@ import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-public interface ConsolePresenter {
+public interface ConsolePresenter extends ConsoleWorkbenchProvider {
 
     void configure(@NotNull TextConsoleBuilder consoleBuilder);
 

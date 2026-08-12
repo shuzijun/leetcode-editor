@@ -18,6 +18,7 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import com.shuzijun.leetcode.plugin.editor.ConvergePreview;
 import com.shuzijun.leetcode.plugin.editor.LCVPreview;
+import com.shuzijun.leetcode.plugin.editor.QuestionPreviewRenderMode;
 import com.shuzijun.leetcode.plugin.editor.SplitFileEditor;
 import com.shuzijun.leetcode.plugin.application.LeetCodeServices;
 import com.shuzijun.leetcode.plugin.listener.QuestionSubmitNotifier;
@@ -273,7 +274,7 @@ public class SubmissionsPreview extends UserDataHolderBase implements FileEditor
     }
 
     static FileEditor createSubmissionPreview(Project project, VirtualFile file) {
-        return new LCVPreview(project, file);
+        return new LCVPreview(project, file, QuestionPreviewRenderMode.SOURCE_CODE);
     }
 
     static Class<? extends FileEditor> submissionPreviewType() {

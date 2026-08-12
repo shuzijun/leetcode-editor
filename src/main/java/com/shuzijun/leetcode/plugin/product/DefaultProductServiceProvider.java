@@ -1,6 +1,7 @@
 package com.shuzijun.leetcode.plugin.product;
 
 import com.shuzijun.leetcode.plugin.adapter.defaults.DefaultCodeExecutionPresentationStrategy;
+import com.shuzijun.leetcode.plugin.adapter.defaults.DefaultConsoleOutputFormatter;
 import com.shuzijun.leetcode.plugin.adapter.defaults.DefaultConsolePresenter;
 import com.shuzijun.leetcode.plugin.adapter.defaults.DefaultCookieLoginStrategy;
 import com.shuzijun.leetcode.plugin.adapter.defaults.DefaultLanguageTemplateProvider;
@@ -16,6 +17,7 @@ public final class DefaultProductServiceProvider extends ProductServiceProvider 
                 new DefaultLicenseGate(),
                 new DefaultLanguageTemplateProvider(),
                 new DefaultConsolePresenter(),
+                new DefaultConsoleOutputFormatter(),
                 new DefaultCookieLoginStrategy(),
                 new DefaultNavigatorSessionStrategy(),
                 new DefaultUserApiStrategy(),

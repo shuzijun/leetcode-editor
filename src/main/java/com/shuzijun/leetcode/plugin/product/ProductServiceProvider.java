@@ -6,6 +6,7 @@ import com.shuzijun.leetcode.plugin.setting.PersistentConfig;
 import com.shuzijun.leetcode.plugin.setting.ProjectConfig;
 import com.shuzijun.leetcode.plugin.setting.StatisticsData;
 import com.shuzijun.leetcode.plugin.spi.CodeExecutionPresentationStrategy;
+import com.shuzijun.leetcode.plugin.spi.ConsoleOutputFormatter;
 import com.shuzijun.leetcode.plugin.spi.ConsolePresenter;
 import com.shuzijun.leetcode.plugin.spi.CookieLoginStrategy;
 import com.shuzijun.leetcode.plugin.spi.LanguageTemplateProvider;
@@ -21,6 +22,7 @@ public abstract class ProductServiceProvider {
     private final LicenseGate licenseGate;
     private final LanguageTemplateProvider languageTemplateProvider;
     private final ConsolePresenter consolePresenter;
+    private final ConsoleOutputFormatter consoleOutputFormatter;
     private final CookieLoginStrategy cookieLoginStrategy;
     private final NavigatorSessionStrategy navigatorSessionStrategy;
     private final UserApiStrategy userApiStrategy;
@@ -37,6 +39,7 @@ public abstract class ProductServiceProvider {
             LicenseGate licenseGate,
             LanguageTemplateProvider languageTemplateProvider,
             ConsolePresenter consolePresenter,
+            ConsoleOutputFormatter consoleOutputFormatter,
             CookieLoginStrategy cookieLoginStrategy,
             NavigatorSessionStrategy navigatorSessionStrategy,
             UserApiStrategy userApiStrategy,
@@ -52,6 +55,7 @@ public abstract class ProductServiceProvider {
         this.licenseGate = licenseGate;
         this.languageTemplateProvider = languageTemplateProvider;
         this.consolePresenter = consolePresenter;
+        this.consoleOutputFormatter = consoleOutputFormatter;
         this.cookieLoginStrategy = cookieLoginStrategy;
         this.navigatorSessionStrategy = navigatorSessionStrategy;
         this.userApiStrategy = userApiStrategy;
@@ -78,6 +82,10 @@ public abstract class ProductServiceProvider {
 
     public final ConsolePresenter consolePresenter() {
         return consolePresenter;
+    }
+
+    public final ConsoleOutputFormatter consoleOutputFormatter() {
+        return consoleOutputFormatter;
     }
 
     public final CookieLoginStrategy cookieLoginStrategy() {

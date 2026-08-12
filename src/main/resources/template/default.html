@@ -73,10 +73,21 @@
         scheduleCheck();
     }
 
+    function sourceCodeMarkdown(source) {
+        const backtickRuns = source.match(/`+/g) || [];
+        const fenceLength = Math.max(3, ...backtickRuns.map(run => run.length + 1));
+        const fence = "`".repeat(fenceLength);
+        return `${fence}text\n${source}\n${fence}`;
+    }
+
     function renderPreview() {
+        const source = document.getElementById("fileValue").value;
         loadVditor()
             .then(Vditor => {
-                return Vditor.preview(previewElement,document.getElementById("fileValue").value,{
+                const markdown = previewElement.dataset.renderMode === "source_code"
+                    ? sourceCodeMarkdown(source)
+                    : source;
+                return Vditor.preview(previewElement,markdown,{
                 "mode":  darcula ? "dark" : "light",
                 "hljs": {"style": darcula ? "dracula" : "github"},
                 "math": {
