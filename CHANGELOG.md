@@ -10,6 +10,28 @@
 
 ## Unreleased
 
+## 2026.2.0
+
+### Added
+
+- add a redesigned Pro result console with structured run and submission entries / 新增重新设计的 Pro 结果控制台，以结构化方式展示运行和提交结果
+- add side-by-side Expected and Actual output comparison, with a detailed comparison view for failed cases / 新增 Expected 与 Actual 并排对比，并可在失败用例中查看完整差异
+- show complete compiler diagnostics for failed code execution and provide direct code-location links where available / 运行编译失败时展示完整诊断信息，并在可用时提供代码位置跳转链接
+
+### Changed
+
+- require IntelliJ IDEA 2026.2 (build 262) or later and upgrade the runtime baseline to Java 25 / 最低兼容版本调整为 IntelliJ IDEA 2026.2（build 262），运行和构建基线升级至 Java 25
+- move network requests, question loading, preview rendering, and cache cleanup away from the IDE UI thread to reduce freezes ([#767](https://github.com/shuzijun/leetcode-editor/pull/767)) / 将网络请求、题目加载、预览渲染和缓存清理移出 IDE UI 线程，减少界面卡顿
+- reorganize editor actions into a clearer View submenu and refresh action names and descriptions / 将编辑器操作重新组织到更清晰的 View 子菜单，并更新操作名称和说明
+- refresh the question navigator, difficulty colors, and plugin icons / 更新题目导航、默认难度颜色和插件图标
+- show update information as an IDE notification with a link to the changelog / 版本升级后通过 IDE 通知展示更新提示，并提供更新日志链接
+- automatically open and scroll the result console to the latest run, submission, and error message / 运行、提交或发生错误时自动打开结果控制台并滚动到最新消息
+
+### Fixed
+
+- prevent an error dialog when a submission failure omits optional result fields, and show the failure in the console instead / 修复提交失败结果缺少可选字段时弹出异常的问题，改为在控制台正常展示失败信息
+- show the complete compiler diagnostic returned by Run Code instead of only the summary message / 修复 Run Code 仅显示编译错误摘要的问题，改为展示完整编译诊断信息
+
 ## 2024.1.8
 
 ### Fixed
